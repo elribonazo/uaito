@@ -1,0 +1,40 @@
+{
+  "name": "@uaito/sdk",
+  "version": "0.0.4",
+  "description": "UAITO Typescript SDK",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build/**/*"
+  ],
+  "scripts": {
+    "build": "rm -rf build && npx tsc -p .",
+    "dev": "npx tsc -p . --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "elribonazo <elribonazo@uaito.io>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uaito/sdk-typescript.git"
+  },
+  "keywords": [
+    "uaito",
+    "sdk",
+    "typescript"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^14.18.63",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "llamaindex": "^0.5.17",
+    "uuid": "^10.0.0",
+    "@anthropic-ai/sdk": "^0.24.3"
+  }
+}
