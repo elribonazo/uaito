@@ -13,7 +13,7 @@ export enum LLMProvider {
 }
 
 export type OnTool = (
-  message: Message,inputs: MessageInput[]
+  message: Message,inputs: MessageInput[], signal?: AbortSignal
 ) => Promise<void>
 
 export interface SearchReplaceBlock {

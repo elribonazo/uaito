@@ -87,120 +87,140 @@ export abstract class BaseLLM<
     
     const agent = this.agent;
     return new ReadableStream({
-      async start(controller) {
+       start :async (controller) => {
         let reader: ReadableStreamDefaultReader<AChunk> = input.getReader();
         let readerResult: ReadableStreamReadResult<AChunk>;
         while ((readerResult = await reader.read()).done !== true) {
-          if (!readerResult.value) {
-            continue;
-          }
-          const tChunk:AChunk =  readerResult.value;
-          if (tChunk.type === "error") {
-            const errorBlock = tChunk.content[0] as ErrorBlock;
-
+          try {
+            if (!readerResult.value) {
+              continue;
+            }
+            const tChunk:AChunk =  readerResult.value;
+            if (tChunk.type === "error") {
+              const errorBlock = tChunk.content[0] as ErrorBlock;
+  
+              controller.enqueue({
+                id: v4(),
+                role:'assistant',
+                type: 'error',
+                content: [errorBlock]
+              } as Message)
+  
+            }else  if (tChunk.type === "delta") {
+              const content = tChunk.content[0] as DeltaBlock;
+              const usage = tChunk.content[1] as UsageBlock;
+              if (usage) {
+  
+                controller.enqueue({
+                  id: v4(),
+                  role:'assistant',
+                  type: 'usage',
+                  content: [usage]
+                } as Message)
+              }
+              if (content.stop_reason === "tool_use") {
+                const newStream = await getNext.bind(agent)();
+                const oldReader = reader;
+                reader = newStream.getReader()
+                oldReader.releaseLock()
+              } else if (content.stop_reason === "max_tokens" || content.stop_reason === "end_turn") {
+                controller.enqueue(tChunk)
+                agent.inputs.push(tChunk)
+                controller.close()
+              } 
+            } else if (tChunk.type === "tool_start") {
+              toolCache = tChunk.content[0] as ToolUseBlock;
+              agent.inputs.push(tChunk)
+            } else if (tChunk.type === "tool_delta") {
+              if (toolCache) { 
+                if (!toolCache.input) {
+                  toolCache.input = ""
+                }
+                if (tChunk.content[0].type === "tool_delta") {
+                  toolCache.input += tChunk.content[0].partial
+                } 
+              }
+  
+  
+            } else if (tChunk.type === "tool_use") {
+              controller.enqueue({
+                id: tChunk.id,
+                role: tChunk.role,
+                content: tChunk.content,
+                type: 'tool_use'
+              })
+              if (onTool && tChunk.content[0].type === "tool_use" ) {
+               
+                tChunk.content[0].input = toolCache && typeof toolCache.input === 'string' ? JSON.parse(toolCache.input === "" ? "{}" : toolCache.input): toolCache?.input ||''
+                await onTool(tChunk, agent.inputs, this.options.signal)
+                const lastOutput = agent.inputs[agent.inputs.length - 1];
+                if (lastOutput.role !== "user" && lastOutput.content[0].type !== 'tool_result') {
+                    throw new Error("Expected to have a user reply with the tool response");
+                }
+  
+                lastOutput.content[0] = {
+                  ...lastOutput.content[0],
+                  name: tChunk.content[0].name
+                } as ToolResultBlock;
+                
+                await controller.enqueue({
+                  id: tChunk.id,
+                  role:'user',
+                  content: lastOutput.content,
+                  type: 'tool_result'
+                });
+                
+              }
+            } else if (tChunk.type === "message") {
+              await controller.enqueue(tChunk);
+              
+              if (tChunk.chunk) {
+                if (agent.inputs.length > 0 && agent.inputs[agent.inputs.length - 1].role === "assistant") {
+                  const content = (agent.inputs[agent.inputs.length - 1].content[0] as any).text;
+                  agent.inputs[agent.inputs.length - 1] = {
+                    ...agent.inputs[agent.inputs.length - 1],
+                    content: [
+                      {
+                        type:'text',
+                        text: content + ( tChunk.content[0] as TextBlock).text
+                      }
+                    ]
+                  }
+                } else {
+                  agent.inputs.push(tChunk)
+                }
+    
+              } else {
+                agent.inputs.push(tChunk)
+              }
+            } else if (tChunk.type === "usage" ) {
+              controller.enqueue(tChunk)
+            }
+          } catch (err) {
+            const errorBlock: ErrorBlock = {
+              type: "error",
+              message: (err as Error).message
+            }
             controller.enqueue({
               id: v4(),
               role:'assistant',
               type: 'error',
               content: [errorBlock]
             } as Message)
-
-          }else  if (tChunk.type === "delta") {
-            const content = tChunk.content[0] as DeltaBlock;
-            const usage = tChunk.content[1] as UsageBlock;
-            if (usage) {
-
-              controller.enqueue({
-                id: v4(),
-                role:'assistant',
-                type: 'usage',
-                content: [usage]
-              } as Message)
-            }
-            if (content.stop_reason === "tool_use") {
-              const newStream = await getNext.bind(agent)();
-              const oldReader = reader;
-              reader = newStream.getReader()
-              oldReader.releaseLock()
-            } else if (content.stop_reason === "max_tokens" || content.stop_reason === "end_turn") {
-              controller.enqueue(tChunk)
-              agent.inputs.push(tChunk)
-              controller.close()
-            } 
-          } else if (tChunk.type === "tool_start") {
-            toolCache = tChunk.content[0] as ToolUseBlock;
-            agent.inputs.push(tChunk)
-          } else if (tChunk.type === "tool_delta") {
-            if (toolCache) { 
-              if (!toolCache.input) {
-                toolCache.input = ""
-              }
-              if (tChunk.content[0].type === "tool_delta") {
-                toolCache.input += tChunk.content[0].partial
-              } 
-            }
-
-
-          } else if (tChunk.type === "tool_use") {
-            controller.enqueue({
-              id: tChunk.id,
-              role: tChunk.role,
-              content: tChunk.content,
-              type: 'tool_use'
-            })
-            if (onTool && tChunk.content[0].type === "tool_use" ) {
-             
-              tChunk.content[0].input = toolCache && typeof toolCache.input === 'string' ? JSON.parse(toolCache.input === "" ? "{}" : toolCache.input): toolCache?.input ||''
-              await onTool(tChunk, agent.inputs)
-              const lastOutput = agent.inputs[agent.inputs.length - 1];
-              if (lastOutput.role !== "user" && lastOutput.content[0].type !== 'tool_result') {
-                  throw new Error("Expected to have a user reply with the tool response");
-              }
-
-              lastOutput.content[0] = {
-                ...lastOutput.content[0],
-                name: tChunk.content[0].name
-              } as ToolResultBlock;
-              
-              await controller.enqueue({
-                id: tChunk.id,
-                role:'user',
-                content: lastOutput.content,
-                type: 'tool_result'
-              });
-              
-            }
-          } else if (tChunk.type === "message") {
-            await controller.enqueue(tChunk);
-            
-            if (tChunk.chunk) {
-              if (agent.inputs.length > 0 && agent.inputs[agent.inputs.length - 1].role === "assistant") {
-                const content = (agent.inputs[agent.inputs.length - 1].content[0] as any).text;
-               
-                agent.inputs[agent.inputs.length - 1] = {
-                  ...agent.inputs[agent.inputs.length - 1],
-                  content: [
-                    {
-                      type:'text',
-                      text: content + ( tChunk.content[0] as TextBlock).text
-                    }
-                  ]
-                }
-              } else {
-                agent.inputs.push(tChunk)
-              }
-  
-            } else {
-              agent.inputs.push(tChunk)
-            }
-          } else if (tChunk.type === "usage" ) {
-            controller.enqueue(tChunk)
           }
         }
-        reader.releaseLock()
-        controller.close()
+        await this.release(reader, controller)
       }
     })
+  }
+
+  private async release<AChunk extends Message>(reader: ReadableStreamDefaultReader<AChunk>, controller: ReadableStreamDefaultController<any>) {
+    try {
+      reader.releaseLock()
+      controller.close()
+    } catch (err) {
+      console.log("error can be ignore but ", err)
+    }
   }
 
   async transformStream<AChunk, BChunk extends Message>(
@@ -227,7 +247,6 @@ export abstract class BaseLLM<
           } 
         }
         reader.releaseLock()
-        controller.close()
       }
     })
   }
