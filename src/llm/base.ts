@@ -1,3 +1,4 @@
+import { MessageArray } from "../utils";
 import { Agent } from "../agents";
 import { BaseLLMOptions, Runner, MessageInput, Message, ToolUseBlock, OnTool, DeltaBlock, TextBlock, ToolResultBlock, UsageBlock, ErrorBlock } from "../types";
 import { v4 } from 'uuid';
@@ -43,11 +44,13 @@ export abstract class BaseLLM<
     super()
   }
 
-  protected includeLastPrompt(prompt: string, input: MessageInput[]):MessageInput[]  {
+  protected includeLastPrompt(prompt: string, input: MessageArray<MessageInput>):MessageArray<MessageInput>  {
     if (input.length<= 0) {
-      return [
-        { role: 'user', content: [{ type: 'text', text: prompt }] }
-      ]
+      return MessageArray.from(
+        [
+          { role: 'user', content: [{ type: 'text', text: prompt }] }
+        ]
+      )
     }
     const last = input[input.length - 1];
     if (last && last.content.length > 0) {
@@ -63,10 +66,12 @@ export abstract class BaseLLM<
           return input;
       }
   }
-    return [
-      ...input,
-      { role: 'user', content: [{ type: 'text', text: prompt }] }
-    ]
+    return MessageArray.from(
+      [
+        ...input,
+        { role: 'user', content: [{ type: 'text', text: prompt }] }
+      ]
+    )
   }
 
   /**

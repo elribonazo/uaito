@@ -1,9 +1,8 @@
-import { JSONValue } from "llamaindex";
-
-import { MessageInput, BaseLLMOptions, AnthropicOptions,  Message, ToolUseBlock, OnTool, AgentTypeToOptions, LLMProvider } from "../types";
+import { MessageInput, BaseLLMOptions, AnthropicOptions,  Message, ToolUseBlock, OnTool, AgentTypeToOptions, LLMProvider, Tool } from "../types";
 import { ANSI_RESET } from "../config";
 import { Anthropic } from "../llm/anthropic";
 import { BaseLLM } from "../llm/base";
+import { MessageArray } from "../utils";
 /**
  * Abstract base class for AI agents.
  */
@@ -12,14 +11,14 @@ export abstract class Agent {
     protected abstract color: string;
     /** Name of the agent. */
     protected abstract name: string;
-    abstract tools: JSONValue[];
+    abstract tools: Tool[];
     
     abstract systemPrompt: string;
 
     abstract createInitialMessageInput(
         prompt: string, 
-        input: MessageInput[]
-    ): MessageInput[];
+        input: MessageArray<MessageInput>
+    ): MessageArray<MessageInput>;
 
 
     /** The LLM client used by the agent. */
@@ -42,8 +41,7 @@ export abstract class Agent {
         protected type: LLMProvider,
         protected options: AgentTypeToOptions[typeof type],
         onTool?: OnTool,
-        public inputs: MessageInput[] = [],
-
+        public inputs: MessageArray<MessageInput> = new MessageArray(),
     ) {
 
         if (type === LLMProvider.Anthropic) {
@@ -107,13 +105,10 @@ export abstract class Agent {
      */
     async runSafeCommand(
         tool: Message,
-        input: MessageInput[],
+        input: MessageArray<MessageInput>,
         run: (agent: any) => Promise<void>
     ) {
-        if (tool.type !== "tool_use") {
-            throw new Error("Expected tool_use type message to run safeCommand")
-        }
-        const toolUse = tool.content[0] as ToolUseBlock
+        const toolUse = tool.content.find((con) => con.type === "tool_use")!
         if (toolUse.type !== "tool_use") {
             throw new Error("Expected ToolUseBlock content inside tool_use type message")
         }

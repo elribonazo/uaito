@@ -2,6 +2,7 @@ import { JSONValue } from "llamaindex";
 import { AbortSignal } from 'abort-controller';
 
 import { Anthropic } from "./llm/anthropic";
+import { MessageArray } from "./utils";
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 export type AnthropicOptions = {  apiKey?: string } & BaseLLMOptions;
@@ -13,7 +14,7 @@ export enum LLMProvider {
 }
 
 export type OnTool = (
-  message: Message,inputs: MessageInput[], signal?: AbortSignal
+  message: Message,inputs: MessageArray<MessageInput>, signal?: AbortSignal
 ) => Promise<void>
 
 export interface SearchReplaceBlock {
@@ -129,14 +130,14 @@ export type BaseLLMOptions = {
     maxTokens?: number,
     signal?: AbortSignal,
     directory?: string,
-    inputs: MessageInput[]
+    inputs:  MessageArray<MessageInput>
 }
 
 export abstract class Runner {
 abstract performTask(
   prompt: string,
   system: string,
-  input: MessageInput[],
+  input:  MessageArray<MessageInput>,
   stream: boolean
 ): Promise<ReadableStream<Message> | Message>;
 }

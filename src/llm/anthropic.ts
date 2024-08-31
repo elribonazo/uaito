@@ -2,7 +2,7 @@ import SDK from '@anthropic-ai/sdk';
 import { v4 } from 'uuid';
 import { ImageBlockParam, MessageParam, TextBlockParam, ToolResultBlockParam, ToolUseBlockParam } from '@anthropic-ai/sdk/resources';
 
-import { AnthropicOptions, MessageInput, Message,  ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider } from "../types";
+import { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider } from "../types";
 import { BaseLLM } from "./base";
 import { Agent } from '../agents';
 
@@ -11,9 +11,7 @@ type AnthropicConstructor = {
   onTool?: OnTool
 }
 
-
 export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> {
-
   protected agent: Agent;
   public cache: {
     toolInput: ToolUseBlock | null,
@@ -22,14 +20,17 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       input: number,
       output: number
     }
-  } = { toolInput: null, chunks: '', tokens:{input: 0, output: 0} }
+  } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
   private onTool?: OnTool
 
   protected api: SDK;
 
+  private MAX_RETRIES = 10;
+  private RETRY_DELAY = 3000; // 3 seconds
+
   constructor(
-    { options }: AnthropicConstructor, 
-     agent: Agent,
+    { options }: AnthropicConstructor,
+    agent: Agent,
     onTool?: OnTool,
   ) {
     super(LLMProvider.Anthropic, options);
@@ -68,6 +69,23 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     return this.performTaskNonStream(prompt, system, input);
   }
 
+  private async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
+    let retries = 0;
+    while (retries < this.MAX_RETRIES) {
+      try {
+        return await apiCall();
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('APIConnectionError')) {
+          retries++;
+          this.agent.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
+          await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
+        } else {
+          throw error; // Rethrow if it's not a connection error
+        }
+      }
+    }
+    throw new Error(`Max retries (${this.MAX_RETRIES}) reached. Unable to complete the API call.`);
+  }
 
   private fromInputToParam(model: MessageInput): MessageParam {
     const content: Array<TextBlockParam | ImageBlockParam | ToolUseBlockParam | ToolResultBlockParam>
@@ -75,7 +93,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         .filter((contentModel) =>
           contentModel.type !== "tool_delta" &&
           contentModel.type !== "tool_start" &&
-          contentModel.type !== 'usage' && 
+          contentModel.type !== 'usage' &&
           contentModel.type !== "delta" &&
           contentModel.type !== "error"
         )
@@ -97,7 +115,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
               name: contentModel.name
             }
             return toolUseBlock
-          } 
+          }
 
           const toolResultBlock: ToolResultBlockParam = {
             is_error: contentModel.isError,
@@ -127,7 +145,6 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     }
   }
 
-
   private chunk(
     chunk: SDK.RawMessageStreamEvent
   ): Message | null {
@@ -146,7 +163,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
             toolUseBlock
           ]
         }
-      } 
+      }
     } else if (chunk.type === "content_block_delta") {
       const delta = chunk.delta;
       if (delta.type === 'text_delta') {
@@ -187,7 +204,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           type: 'tool_use',
           content: [toolInput]
         }
-      } 
+      }
     } else if (chunk.type === "message_delta") {
       this.cache.tokens.output = chunk.usage.output_tokens;
       this.cache.chunks = null;
@@ -222,17 +239,14 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           ]
         }
       }
-
-      
-      
     } else if (chunk.type === "message_start") {
       this.cache.chunks = chunk.message.id;
       this.cache.toolInput = null
       this.cache.tokens.input = chunk.message.usage.input_tokens;
       const usageBlock: UsageBlock = {
-        type:"usage",
+        type: "usage",
         output: 0,
-        input:this.cache.tokens.input
+        input: this.cache.tokens.input
       }
       return {
         id: v4(),
@@ -241,13 +255,10 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         content: [
           usageBlock
         ]
+      }
     }
-    } 
     return null
   }
-
-
-
 
   private async performTaskStream(
     prompt: string,
@@ -255,11 +266,10 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     input: MessageInput[],
   ): Promise<ReadableStream<Message>> {
 
-    const messageInputs = this
-    .includeLastPrompt(prompt, input)
-
-    const messages = messageInputs
+    const messages = this
+      .includeLastPrompt(prompt, input)
       .map(this.fromInputToParam);
+
     const params: SDK.MessageCreateParams = {
       max_tokens: this.maxTokens,
       system: system,
@@ -267,19 +277,26 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       model: this.options.model,
       tools: this.options.tools
     };
-    const apiHeaders: Record<string,string> = {
+    const apiHeaders: Record<string, string> = {
       'anthropic-version': '2023-06-01',
-      'anthropic-beta':'max-tokens-3-5-sonnet-2024-07-15'
+      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
     }
-    
+
     const options = { headers: apiHeaders, signal: this.options?.signal as any }
-    const stream = await this.api.messages.create(
-      {
-        ...params,
-        stream: true
-      },
-      options
-    );
+
+    const createStream = async () => {
+      return this.retryApiCall(() =>
+        this.api.messages.create(
+          {
+            ...params,
+            stream: true
+          },
+          options
+        )
+      );
+    };
+
+    const stream = await createStream();
     const transform = await this.transformStream<SDK.RawMessageStreamEvent, Message>(
       stream.toReadableStream(),
       this.chunk.bind(this)
@@ -289,12 +306,10 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       transform,
       async () => {
         const thread = messages;
-        /**
-         * Fix this fucking disaster
-         */
+
         input.forEach((item) => {
           item.content.forEach((content) => {
-            const lastThreadIndex = thread.length -1;
+            const lastThreadIndex = thread.length - 1;
             const lastThread = thread[lastThreadIndex];
             if (content.type === "text") {
               if (lastThread.role === item.role) {
@@ -334,13 +349,13 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
 
                     const newContent = converted.content.filter((c) => {
                       if (c.type === "text") {
-                        return c.text !== (thread[lastThreadIndex].content as any).find((c:any) => c.type === "text")?.text
+                        return c.text !== (thread[lastThreadIndex].content as any).find((c: any) => c.type === "text")?.text
                       }
                       if (c.type === "tool_use") {
-                        return c.id !== (thread[lastThreadIndex].content as any).find((c:any) => c.type === "tool_use")?.id
+                        return c.id !== (thread[lastThreadIndex].content as any).find((c: any) => c.type === "tool_use")?.id
                       }
                       if (c.type === "tool_result") {
-                        return c.tool_use_id !== (thread[lastThreadIndex].content as any).find((c:any) => c.type === "tool_result")?.tool_use_id
+                        return c.tool_use_id !== (thread[lastThreadIndex].content as any).find((c: any) => c.type === "tool_result")?.tool_use_id
                       }
                       return true
                     })
@@ -355,21 +370,23 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
                 const converted = this.fromInputToParam(item);
                 thread.push({
                   role: converted.role,
-                  content:converted.content
+                  content: converted.content
                 });
               }
             }
           })
         })
 
-        params.messages = thread       
-        
-        const stream = await this.api.messages.create(
-          {
-            ...params,
-            stream: true
-          },
-          options
+        params.messages = thread
+
+        const stream = await this.retryApiCall(() =>
+          this.api.messages.create(
+            {
+              ...params,
+              stream: true
+            },
+            options
+          )
         );
         const transform = await this.transformStream<SDK.RawMessageStreamEvent, Message>(
           stream.toReadableStream(),
@@ -390,56 +407,59 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   ): Promise<Message> {
 
     const messages = this
-    .includeLastPrompt(prompt, input)
-    .map(this.fromInputToParam);
+      .includeLastPrompt(prompt, input)
+      .map(this.fromInputToParam);
 
-  const params: SDK.MessageCreateParams = {
-    max_tokens: this.maxTokens,
-    system: system,
-    messages: messages,
-    model: this.options.model,
+    const params: SDK.MessageCreateParams = {
+      max_tokens: this.maxTokens,
+      system: system,
+      messages: messages,
+      model: this.options.model,
       tools: this.options.tools,
       stream: false
     };
-    const apiHeaders: Record<string,string> = {
+    const apiHeaders: Record<string, string> = {
       'anthropic-version': '2023-06-01',
-      'anthropic-beta':'max-tokens-3-5-sonnet-2024-07-15'
+      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
     }
     const options = { headers: apiHeaders, signal: this.options?.signal as any }
     const lastRole = input[input.length - 1]?.role!
     this.agent.log(`[task messages] ${input.length}, last one is ${lastRole}`);
 
     let sdkMessage: SDK.Messages.Message;
-    while ((sdkMessage = await this.api.messages.create(params, options)) && sdkMessage.stop_reason !== "end_turn") {
-      this.agent.log(`[task messages]stop_reason is ${sdkMessage.stop_reason}`)
+    while (true) {
+      sdkMessage = await this.retryApiCall(() => this.api.messages.create(params, options));
+      if (sdkMessage.stop_reason === "end_turn") break;
+
+      this.agent.log(`[task messages]stop_reason is ${sdkMessage.stop_reason}`);
       params.messages.push({
         role: sdkMessage.role,
         content: sdkMessage.content
-      })
+      });
+
       if (sdkMessage.stop_reason === "tool_use") {
         const tool = sdkMessage.content.find(
           (content): content is SDK.ToolUseBlock => content.type === 'tool_use',
         );
-        this.agent.log(`[task messages]tool is ${tool!.name}`)
+        this.agent.log(`[task messages]tool is ${tool!.name}`);
         if (tool && this.onTool) {
-          await this.onTool.bind(input, sdkMessage)
+          await this.onTool.bind(this.agent)(sdkMessage, input);
         } else {
-          this.agent.log(`[task messages] tool not found ${tool!.name}`)
+          this.agent.log(`[task messages] tool not found ${tool!.name}`);
         }
       } else {
         params.messages.push({
           role: 'user',
           content: sdkMessage.content
-        })
+        });
       }
     }
+
     return {
       id: sdkMessage.id,
       role: sdkMessage.role,
       type: "message",
       content: sdkMessage.content
-    }
+    };
   }
-
 }
-
