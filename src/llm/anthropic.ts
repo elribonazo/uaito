@@ -285,20 +285,21 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     const options = { headers: apiHeaders, signal: this.options?.signal as any }
 
     const createStream = async () => {
-      return this.retryApiCall(() =>
-        this.api.messages.create(
-          {
-            ...params,
-            stream: true
-          },
-          options
-        )
-      );
+      return this.retryApiCall(async() => {
+          const stream = await this.api.messages.create(
+            {
+              ...params,
+              stream: true
+            },
+            options
+          )
+          return stream.toReadableStream()
+      });
     };
 
     const stream = await createStream();
     const transform = await this.transformStream<SDK.RawMessageStreamEvent, Message>(
-      stream.toReadableStream(),
+      stream,
       this.chunk.bind(this)
     )
 
@@ -379,17 +380,9 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
 
         params.messages = thread
 
-        const stream = await this.retryApiCall(() =>
-          this.api.messages.create(
-            {
-              ...params,
-              stream: true
-            },
-            options
-          )
-        );
+        const stream =await createStream();
         const transform = await this.transformStream<SDK.RawMessageStreamEvent, Message>(
-          stream.toReadableStream(),
+          stream,
           this.chunk.bind(this)
         )
         return transform
