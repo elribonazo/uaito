@@ -6,10 +6,11 @@ import { MessageArray } from "./utils";
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 export type AnthropicOptions = {  apiKey?: string } & BaseLLMOptions;
+export type OpenAIOptions = {  apiKey?: string } & BaseLLMOptions;
 export type Tool = JSONValue;
 
 export enum LLMProvider {
-  Ollama = 'Ollama',
+  OpenAI = 'OpenAI',
   Anthropic = 'Anthropic'
 }
 
@@ -24,12 +25,17 @@ export interface SearchReplaceBlock {
 
 export type AgentTypeToOptions = {
     [LLMProvider.Anthropic]: AnthropicOptions;
+    [LLMProvider.OpenAI]: OpenAIOptions;
     [name: string]: unknown
   };
+
 export type AgentTypeToClass = {
   [LLMProvider.Anthropic]: Anthropic;
+  //Todo: replace when done
+  [LLMProvider.OpenAI]: any;
   [name: string]: unknown
 };
+
 export type USAGE = {
   input_tokens: number;
   output_tokens: number;

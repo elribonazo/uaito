@@ -1,8 +1,9 @@
-import { MessageInput, BaseLLMOptions, AnthropicOptions,  Message, ToolUseBlock, OnTool, AgentTypeToOptions, LLMProvider, Tool } from "../types";
+import { MessageInput, BaseLLMOptions, AnthropicOptions,  Message, ToolUseBlock, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions } from "../types";
 import { ANSI_RESET } from "../config";
 import { Anthropic } from "../llm/anthropic";
 import { BaseLLM } from "../llm/base";
 import { MessageArray } from "../utils";
+import { OpenAI } from "../llm/openai";
 /**
  * Abstract base class for AI agents.
  */
@@ -50,6 +51,12 @@ export abstract class Agent {
                 this,
                 onTool,
             );
+        } else if (type === LLMProvider.OpenAI) {
+            this.client = new OpenAI({
+                options: options as OpenAIOptions
+            },
+            this,
+            onTool);
         } else {
             throw new Error("not implemented")
         }

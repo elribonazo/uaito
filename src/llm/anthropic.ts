@@ -1,7 +1,6 @@
 import SDK from '@anthropic-ai/sdk';
 import { v4 } from 'uuid';
 import { ImageBlockParam, MessageParam, TextBlockParam, ToolResultBlockParam, ToolUseBlockParam } from '@anthropic-ai/sdk/resources';
-
 import { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider } from "../types";
 import { BaseLLM } from "./base";
 import { Agent } from '../agents';
@@ -22,9 +21,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     }
   } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
   private onTool?: OnTool
-
   protected api: SDK;
-
   private MAX_RETRIES = 10;
   private RETRY_DELAY = 3000; // 3 seconds
 
@@ -64,9 +61,9 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     stream: boolean
   ): Promise<ReadableStream<Message> | Message> {
     if (stream === true) {
-      return this.performTaskStream(prompt, system, input);
+      return this.retryApiCall(() => this.performTaskStream(prompt, system, input));
     }
-    return this.performTaskNonStream(prompt, system, input);
+    return this.retryApiCall(() => this.performTaskNonStream(prompt, system, input));
   }
 
   private async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
@@ -275,6 +272,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       system: system,
       messages: messages,
       model: this.options.model,
+      // @ts-ignore
       tools: this.options.tools
     };
     const apiHeaders: Record<string, string> = {
@@ -408,6 +406,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       system: system,
       messages: messages,
       model: this.options.model,
+      // @ts-ignore
       tools: this.options.tools,
       stream: false
     };
@@ -421,6 +420,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
 
     let sdkMessage: SDK.Messages.Message;
     while (true) {
+      // @ts-ignore
       sdkMessage = await this.retryApiCall(() => this.api.messages.create(params, options));
       if (sdkMessage.stop_reason === "end_turn") break;
 

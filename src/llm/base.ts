@@ -219,7 +219,10 @@ export abstract class BaseLLM<
     })
   }
 
-  private async release<AChunk extends Message>(reader: ReadableStreamDefaultReader<AChunk>, controller: ReadableStreamDefaultController<any>) {
+  private async release<AChunk extends Message>(
+    reader: ReadableStreamDefaultReader<AChunk>, 
+    controller: ReadableStreamDefaultController<any>
+  ) {
     try {
       reader.releaseLock()
       controller.close()

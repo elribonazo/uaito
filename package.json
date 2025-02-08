@@ -1,6 +1,6 @@
 {
   "name": "@uaito/sdk",
-  "version": "0.0.20",
+  "version": "0.1.0",
   "description": "UAITO Typescript SDK",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -29,12 +29,14 @@
   },
   "devDependencies": {
     "@types/node": "^14.18.63",
+    "dotenv": "^16.4.7",
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.3",
     "abort-controller": "^3.0.0",
-    "llamaindex": "^0.5.17",
-    "uuid": "^10.0.0",
-    "@anthropic-ai/sdk": "^0.24.3"
+    "llamaindex": "^0.8.32",
+    "openai": "^4.83.0",
+    "uuid": "^10.0.0"
   }
 }

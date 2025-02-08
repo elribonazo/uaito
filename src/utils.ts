@@ -8,7 +8,6 @@ function isValidMessageContent(content: any): boolean {
   if (typeof content !== 'object' || content === null) {
     return false;
   }
-
   switch (content.type) {
     case 'text':
       return typeof content.text === 'string';
@@ -43,29 +42,10 @@ function isValidMessageContent(content: any): boolean {
 }
 
 function validateMessageInput(item: any): item is MessageInput {
-  if (typeof item !== 'object' || item === null) {
-    console.error('Invalid message input: must be an object');
-    return false;
-  }
-
-  if (!isValidRole(item.role)) {
-    console.error(`Invalid role: ${item.role}. Must be either 'assistant' or 'user'`);
-    return false;
-  }
-
-  if (!Array.isArray(item.content)) {
-    console.error('Invalid content: must be an array');
-    return false;
-  }
-
-  for (let i = 0; i < item.content.length; i++) {
-    if (!isValidMessageContent(item.content[i])) {
-      console.error(`Invalid content at index ${i}: ${JSON.stringify(item.content[i])}`);
-      return false;
-    }
-  }
-
-  return true;
+  return item.role !== undefined &&
+    item.content !== undefined && 
+    isValidRole(item.role) && 
+    isValidMessageContent(item.content);
 }
 
 export class MessageArray<T extends MessageInput> extends Array<T> {
