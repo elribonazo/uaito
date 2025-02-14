@@ -57,6 +57,7 @@ export type BinConfig<P extends LLMProvider> = {
   options: AgentTypeToOptions[P],
   tools?: Tool[],
   createSystemPrompt?: (tools: Tool[]) => string,
+  chainOfThought?: string,
   onTool?: OnTool,
 }
 

@@ -169,6 +169,9 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
 
     this.agent.inputs = this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs);
+    
+    const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
+
     let request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
       model: this.options.model,
       messages: [
@@ -180,7 +183,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       ],
       max_tokens: this.maxTokens,
       stream: true,
-      tools: this.tools
+      tools
     };
 
     // Try to preserve usage if we have it
@@ -238,6 +241,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
     let sdkMessage: Message;
+    const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
 
     while(true) {
       const request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
@@ -250,7 +254,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
           ...this.agent.inputs.map(this.fromInputToParam),
         ],
         max_tokens: this.maxTokens,
-        tools: this.tools
+        tools
       };
       const response = await this.openai.chat.completions.create(request);
       this.cache.tokens.input = response.usage?.prompt_tokens ?? this.cache.tokens.input;
