@@ -37,24 +37,25 @@ export abstract class BaseLLM<
     super()
   }
 
-   includeLastPrompt(prompt: string, input: MessageArray<MessageInput>):MessageArray<MessageInput>  {
+   includeLastPrompt(prompt: string, chainOfThought: string, input: MessageArray<MessageInput>):MessageArray<MessageInput>  {
+    const promptWithChainOfThought = `${prompt}\r\n\r\n${chainOfThought}`
     if (input.length<= 0) {
       return MessageArray.from(
         [
-          { role: 'user', content: [{ type: 'text', text: prompt }] }
+          { role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] }
         ]
       )
     }
     const last = input[input.length - 1];
     if (last && last.content.length > 0) {
-      const found = last.content.find((c) => c.type === "text" && c.text === prompt);
+      const found = last.content.find((c) => c.type === "text" && c.text === promptWithChainOfThought);
       if (found) {
           return input;
       } else {
           if (input[input.length - 1].role === 'user') {
-              input[input.length - 1].content.push({ type: 'text', text: prompt });
+              input[input.length - 1].content.push({ type: 'text', text: promptWithChainOfThought });
           } else {
-              input.push({ role: 'user', content: [{ type: 'text', text: prompt }] })
+              input.push({ role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] })
           }
           return input;
       }
@@ -62,7 +63,7 @@ export abstract class BaseLLM<
     return MessageArray.from(
       [
         ...input,
-        { role: 'user', content: [{ type: 'text', text: prompt }] }
+        { role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] }
       ]
     )
   }

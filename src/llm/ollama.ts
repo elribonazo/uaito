@@ -160,20 +160,25 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
   /**
    * Example streaming task, similar to the Anthropic / OpenAI classes.
    */
-  async performTaskStream(prompt: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+  async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
 
-    this.agent.inputs = this.includeLastPrompt(prompt, this.agent.inputs);
+    this.agent.inputs = this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs);
 
     const request: OllamaRequestStream = {
       model: this.options.model,
       stream: true,
-      messages: this.agent.inputs.map(this.fromInputToParam),
+      messages: [
+        {
+          role: "system",
+          content: system,
+        },
+        ...this.agent.inputs.map(this.fromInputToParam)
+      ],
       tools: this.ollamaTools
     };
 
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
-
 
     const createStream = async (params: OllamaRequestStream):Promise<ReadableStreamWithAsyncIterable<any>> => {
       return this.agent.retryApiCall(async () => {
@@ -247,8 +252,8 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
   /**
    * Example non-streaming task
    */
-  async performTaskNonStream(prompt: string, system: string): Promise<Message> {
-    this.agent.inputs.push(...this.includeLastPrompt(prompt, this.agent.inputs))
+  async performTaskNonStream(prompt: string, chainOfThought: string, system: string): Promise<Message> {
+    this.agent.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs))
     await this.ollama.pull({ model: this.options.model });
     while (true) {
       const request: OllamaRequest = {

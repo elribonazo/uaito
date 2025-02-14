@@ -1,5 +1,5 @@
 
-const createChainOfThought = (
+const createSystemPrompt = (
     /** 
      * @type {import('@uaito/sdk').Tool[]}
     */
@@ -102,4 +102,4 @@ const createChainOfThought = (
  Remember: Focus on completing the established goals efficiently and effectively. Avoid unnecessary conversations or requests for additional tasks.`
  }
  
-module.exports = createChainOfThought;
+module.exports = createSystemPrompt;

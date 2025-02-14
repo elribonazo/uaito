@@ -10,6 +10,30 @@ import { Agent } from './agents/index';
 
 
 
+type ToolStack = {
+    onTool: OnTool,
+    tools: Tool[],
+    createSystemPrompt: (tools: Tool[]) => string,
+}
+
+
+async function getToolStack() : Promise<ToolStack | null>{
+    const onToolPath = path.resolve(process.cwd(), 'uaito.ontool.js');
+    const toolsPath = path.resolve(process.cwd(), 'uaito.tools.js');
+    const thoughtPath = path.resolve(process.cwd(), 'uaito.system.js');
+
+    if (!fs.existsSync(onToolPath) || !fs.existsSync(toolsPath) || !fs.existsSync(thoughtPath)) {
+        return null;
+    }
+
+    return {
+        onTool: (await import(onToolPath)).default,
+        tools: (await import(toolsPath)).default,
+        createSystemPrompt: (await import(thoughtPath)).default,
+    };
+}
+
+
 // Add a command named "run" (you can rename it). 
 // The command loads a configuration file specified via --config or defaults to uaito.config.json.
 yargs(hideBin(process.argv))
@@ -60,16 +84,17 @@ yargs(hideBin(process.argv))
                 : 'uaito.config.js';
             
             const configPath = path.resolve(process.cwd(), configFileName);
-            const onToolPath = path.resolve(process.cwd(), 'uaito.ontool.js');
-            const thoughtPath = path.resolve(process.cwd(), 'uaito.thought.js');
-            const toolsPath = path.resolve(process.cwd(), 'uaito.tools.js');
-
-
             let fileContents: BinConfig<LLMProvider>;
-            let onTool: OnTool = (await import(onToolPath)).default;
-            let chainOfThought: (tools: Tool[]) => string = (await import(thoughtPath)).default;
-            let tools: Tool[] = (await import(toolsPath)).default;
+
+            const toolStack = await getToolStack();
+
+    
+
             try {
+                let onTool = toolStack?.onTool;
+                let tools = toolStack?.tools;
+                let createSystemPrompt = toolStack?.createSystemPrompt;
+
                 // Check if config file exists
                 if (!fs.existsSync(configPath)) {
                     console.error(`Configuration file not found at: ${configPath}`);
@@ -94,9 +119,22 @@ yargs(hideBin(process.argv))
                 );
 
                 const useStream = argv.stream ? true: undefined;
+                const chainOfThought = `Answer the user's request using relevant tools only if the tool exists. 
+                Before calling a tool, do some internal analysis. 
+                1. First, determine if you have access to the requested tool.
+                2. Second, think about which of the provided tools is the relevant tool to answer the user's request. 
+                3. Third, go through each of the required parameters of the relevant tool and determine if the user has directly provided or given enough information to infer a value. 
+                When deciding if the parameter can be inferred, carefully consider all the context to see if it supports a specific value.
+                If all of the required parawmeters are present or can be reasonably inferred, close the thinking tag and proceed with the tool call. 
+                BUT, if one of the values for a required parameter is missing, 
+                DO NOT invoke the function (not even with fillers for the missing params) and instead, ask the user to provide the missing parameters. 
+                DO NOT ask for more information on optional parameters if it is not provided.
+                DO NOT reflect on the quality of the returned search results in your response.`;
+
                 const {response} = await agent.performTask(
                     message,
-                    chainOfThought(tools),
+                    chainOfThought,
+                    createSystemPrompt ? createSystemPrompt(tools ?? []) : '',
                     useStream 
                 );
 

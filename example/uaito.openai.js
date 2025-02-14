@@ -1,5 +1,8 @@
 const { LLMProvider } = require('@uaito/sdk');
 const tools = require('./uaito.tools.js');
+const createSystemPrompt = require('./uaito.system.js');
+const onTool = require('./uaito.ontool.js');
+
 require('dotenv').config(); // optional if you want to load API keys from .env
 
 
@@ -17,7 +20,10 @@ const config = {
         inputs: [],
         model: 'gpt-4o', // or any other OpenAI model
         tools
-    }
+    },
+    tools,
+    createSystemPrompt,
+    onTool
 }
 
 module.exports = config;

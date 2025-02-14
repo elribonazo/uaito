@@ -96,6 +96,7 @@ export class Agent {
      */
     performTask(
         prompt: string,
+        chainOfThought: string,
         system: string,
         stream?: true
     ): Promise<{
@@ -104,6 +105,7 @@ export class Agent {
     }>;
     performTask(
         prompt: string,
+        chainOfThought: string,
         system: string,
         stream?: false
     ): Promise<{
@@ -112,16 +114,16 @@ export class Agent {
     }>;
     async performTask(
         prompt: string,
+        chainOfThought: string,
         system: string,
         stream?: boolean
     ): Promise<{
         usage: { input: number, output: number },
         response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
     }> {
-
         const response = stream === true ?
-            await this.retryApiCall(() => this.client.performTaskStream(prompt, system)) :
-            await this.retryApiCall(() => this.client.performTaskNonStream(prompt, system));
+            await this.retryApiCall(() => this.client.performTaskStream(prompt, chainOfThought, system)) :
+            await this.retryApiCall(() => this.client.performTaskNonStream(prompt, chainOfThought, system));
 
         return {
             usage: this.client.cache.tokens,

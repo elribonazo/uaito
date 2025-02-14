@@ -4,7 +4,6 @@ import { ImageBlockParam, MessageParam, TextBlockParam, ToolResultBlockParam, To
 import { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider, BlockType, BaseLLMCache, ReadableStreamWithAsyncIterable } from "../types";
 import { BaseLLM } from "./base";
 import { Agent } from '../agents';
-import { MessageArray } from '@/utils';
 
 type AnthropicConstructor = {
   options: AnthropicOptions,
@@ -223,9 +222,10 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
 
    async performTaskStream(
     prompt: string,
+    chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
-    this.agent.inputs = this.includeLastPrompt(prompt, this.agent.inputs);
+    this.agent.inputs = this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs);
 
     const params: SDK.MessageCreateParams = {
       max_tokens: this.maxTokens,
@@ -280,6 +280,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
 
    async performTaskNonStream(
     prompt: string,
+    chainOfThought: string,
     system: string,
   ): Promise<Message> {
     const apiHeaders: Record<string, string> = {
@@ -287,11 +288,8 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
     }
     const apiOptions = { headers: apiHeaders, signal: this.options?.signal as any }
-
-
-    this.agent.inputs.push(...this.includeLastPrompt(prompt, this.agent.inputs))
+    this.agent.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs))
     let sdkMessage: SDK.Messages.Message;
-
     while(true) {
       const params: SDK.MessageCreateParamsNonStreaming = {
         max_tokens: this.maxTokens,
@@ -303,12 +301,10 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         stream: false
       };
       sdkMessage = await this.agent.retryApiCall(() => this.api.messages.create(params, apiOptions));
-      //TODO: Improve this
       const message = {role: sdkMessage.role, content: sdkMessage.content};
       this.agent.inputs.push(message)
 
       if (sdkMessage.stop_reason === "end_turn") break;
-
       if (sdkMessage.stop_reason === "tool_use") {
         const tool = sdkMessage.content.find(
           (content): content is SDK.ToolUseBlock => content.type === 'tool_use',

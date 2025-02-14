@@ -104,7 +104,7 @@ Include the chainOfThough function, this function will be used to generate the c
 
 ```js
 
-const createChainOfThought = (
+const createSystemPrompt = (
     /** 
      * @type {import('@uaito/sdk').Tool[]}
     */
@@ -207,7 +207,7 @@ const createChainOfThought = (
  Remember: Focus on completing the established goals efficiently and effectively. Avoid unnecessary conversations or requests for additional tasks.`
  }
  
-module.exports = createChainOfThought;
+module.exports = createSystemPrompt;
 ```
 
 ### Define your agent configuration uaito.ollama.js or uaito.openai.js or uaito.anthropic.js

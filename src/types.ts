@@ -54,7 +54,10 @@ export type AgentTypeToClass = {
 
 export type BinConfig<P extends LLMProvider> = {
   provider: P,
-  options: AgentTypeToOptions[P]
+  options: AgentTypeToOptions[P],
+  tools?: Tool[],
+  createSystemPrompt?: (tools: Tool[]) => string,
+  onTool?: OnTool,
 }
 
 export type USAGE = {
@@ -161,11 +164,13 @@ export type ReadableStreamWithAsyncIterable<T> = ReadableStream<T> & AsyncIterab
 export abstract class Runner {
    abstract performTaskStream(
     userPrompt: string,
+    chainOfThought: string,
     system: string,
 ): Promise<ReadableStreamWithAsyncIterable<Message>>;
 
  abstract performTaskNonStream(
     userPrompt: string,
+    chainOfThought: string,
     system: string,
 ): Promise<Message>;
 }

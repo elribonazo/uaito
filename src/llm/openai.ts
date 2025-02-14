@@ -26,7 +26,6 @@ import {
   ChatCompletionAssistantMessageParam,
 } from 'openai/resources';
 import { ToolInputDelta } from '../types';
-import { MessageArray } from '@/utils';
 import { Stream } from 'openai/streaming';
 
 
@@ -165,10 +164,11 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
 
    async performTaskStream(
     prompt: string,
+    chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
 
-    this.agent.inputs = this.includeLastPrompt(prompt, this.agent.inputs);
+    this.agent.inputs = this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs);
     let request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
       model: this.options.model,
       messages: [
@@ -231,9 +231,10 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
 
    async performTaskNonStream(
     prompt: string,
+    chainOfThought: string,
     system: string,
   ): Promise<Message> {
-    this.agent.inputs.push(...this.includeLastPrompt(prompt, this.agent.inputs))
+    this.agent.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs))
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
     let sdkMessage: Message;
