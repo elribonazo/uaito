@@ -1,5 +1,6 @@
 import OpenAIAPI from 'openai';
 import { v4 } from 'uuid';
+import fs from 'fs';
 
 import { BaseLLM } from "./base";
 import { Agent } from "../agents";
@@ -10,9 +11,10 @@ import {
   MessageInput,
   ToolUseBlock,
   OnTool,
-  UsageBlock,
-  ErrorBlock,
-  DeltaBlock
+  DeltaBlock,
+  TextBlock,
+  BaseLLMCache,
+  ReadableStreamWithAsyncIterable
 } from "../types";
 import {
   ChatCompletionContentPart,
@@ -20,8 +22,12 @@ import {
   ChatCompletionContentPartImage,
   ChatCompletionMessageParam,
   ChatCompletionToolMessageParam,
+  FunctionDefinition,
+  ChatCompletionAssistantMessageParam,
 } from 'openai/resources';
 import { ToolInputDelta } from '../types';
+import { MessageArray } from '@/utils';
+import { Stream } from 'openai/streaming';
 
 
 /**
@@ -32,14 +38,8 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   protected agent: Agent;
   private onTool?: OnTool;
   private openai: OpenAIAPI;
-  private MAX_RETRIES = 10;
-  private RETRY_DELAY = 3000; // 3 seconds
 
-  public cache = {
-    toolInput: null as ToolUseBlock | null,
-    chunks: null as string | null,
-    tokens: { input: 0, output: 0 },
-  };
+  public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
 
   constructor(
     { options }: { options: OpenAIOptions },
@@ -63,197 +63,164 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     return this.options.maxTokens ?? 4096;
   }
 
-  private async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
-    let retries = 0;
-    while (retries < this.MAX_RETRIES) {
-      try {
-        return await apiCall();
-      } catch (error) {
-        if (error instanceof Error && error.message.includes('APIConnectionError')) {
-          retries++;
-          this.agent.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
-          await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
-        } else {
-          throw error; // Rethrow if it's not a connection error
-        }
-      }
-    }
-    throw new Error(`Max retries (${this.MAX_RETRIES}) reached. Unable to complete the API call.`);
-  }
-  /**
-   * Perform the task with streaming support or not.
-   */
-  performTask(
-    prompt: string,
-    system: string,
-    input: MessageInput[],
-    stream: true
-  ): Promise<ReadableStream<Message>>;
-  performTask(
-    prompt: string,
-    system: string,
-    input: MessageInput[],
-    stream: false
-  ): Promise<Message>;
-  performTask(
-    prompt: string,
-    system: string,
-    input: MessageInput[],
-    stream: boolean
-  ): Promise<ReadableStream<Message> | Message> {
-    if (stream === true) {
-        return this.retryApiCall(() => this.performTaskStream(prompt, system, input));
-        }
-        return this.retryApiCall(() => this.performTaskNonStream(prompt, system, input));
-    }
-
   private fromInputToParam(model: MessageInput): ChatCompletionMessageParam {
     const content: Array<ChatCompletionContentPart> = [];
-
     const filteredContent = model.content
       .filter((c) =>
         c.type !== "tool_delta" &&
-        c.type !== "tool_start" &&
         c.type !== "usage" &&
         c.type !== "delta" &&
         c.type !== "error"
       );
 
-      for (const c of filteredContent) {
-        if (c.type === "text") {
-            const textBlock: ChatCompletionContentPartText = {
+    const messageParam: ChatCompletionMessageParam = {
+      role: model.role as any,
+      content:[],
+    };
+
+    for (const c of filteredContent) {
+
+      if (c.type === "text") {
+        const textBlock: ChatCompletionContentPartText = {
+          type: 'text',
+          text: c.text,
+        };
+        content.push(textBlock);
+      } else if (c.type === "image") {
+        const imageBlock: ChatCompletionContentPartImage = {
+          type: 'image_url',
+          image_url: {
+            url: c.source.data,
+          },
+        };
+        content.push(imageBlock);
+      } else if (c.type === "tool_result") {
+        const toolContent = (c.content ?? []).map((inner) => {
+          if (inner.type === "text") {
+            return <ChatCompletionContentPartText>{
               type: 'text',
-              text: c.text,
+              text: inner.text,
             };
-            content.push(textBlock);
-          }else if (c.type === "image") {
-            const imageBlock: ChatCompletionContentPartImage = {
-              type: 'image_url',
-              image_url: {
-                url: c.source.data,
-              },
-            };
-            content.push(imageBlock);
-          } else if (c.type === "tool_use") {
-            //TODO: Test and debug
-            // const toolUseBlock: ChatCompletionMessageToolCall = {
-            //   id: c.id,
-            //   type: 'function',
-            //   function: {
-            //       name: c.name,
-            //       arguments: c.input as string
-            //   },
-            // };
-            // content.push(toolUseBlock);
-          } else {
-            const toolContent = (c.content ?? []).map((inner) => {
-                if (inner.type === "text") {
-                  return <ChatCompletionContentPartText>{
-                    type: 'text',
-                    text: inner.text,
-                  };
-                }
-                return {
-                  type: 'text',
-                  text: `[Unhandled content type: ${inner.type}]`,
-                } as ChatCompletionContentPartText;
-              })
-              const toolResultBlock: ChatCompletionToolMessageParam = {
-                tool_call_id: c.tool_use_id,
-                content: toolContent,
-                role: "tool"
-              };
-              return toolResultBlock;
           }
+          return {
+            type: 'text',
+            text: `[Unhandled content type: ${inner.type}]`,
+          } as ChatCompletionContentPartText;
+        });
+
+        content.push(...toolContent);
+
+
+        (messageParam as unknown as ChatCompletionToolMessageParam).tool_call_id = c.tool_use_id;
+        (messageParam as unknown as ChatCompletionToolMessageParam).role = "tool";
+
+      } else if (c.type === "tool_use") {
+        (messageParam as ChatCompletionAssistantMessageParam).tool_calls = [
+          {
+            id: c.id!,
+            type: "function",
+            function: {
+              name: c.name!,
+              arguments:JSON.stringify(c.input),
+            }
+          }
+        ]
+        messageParam.content = null
       }
-    
-      const messageParam: ChatCompletionMessageParam = {
-        role: model.role as any,
-        content,
-      };
+    }
+
+    if (messageParam.content !== null) {
+      messageParam.content = content;
+    }
+
     return messageParam;
   }
 
-  private async performTaskStream(
+  get tools() {
+    return this.options.tools?.map((tool) => {
+      const parsedTool = JSON.parse(JSON.stringify(tool));
+      const functionDefinition: FunctionDefinition = {
+        name: parsedTool.name,
+        description: parsedTool.description,
+        parameters: parsedTool.input_schema
+      }
+      return {
+        type: "function" as const,
+        function: functionDefinition
+      }
+    })
+  }
+
+
+  get llmInputs() {
+    return this.agent.inputs
+    .flatMap((input) => this.fromInputToParam(input))
+    .filter((c) => {
+      if (Array.isArray(c.content) && c.content.length === 0) {
+        return false;
+      }
+      return true;
+    })
+  }
+
+   async performTaskStream(
     prompt: string,
     system: string,
-    input: MessageInput[]
-  ): Promise<ReadableStream<Message>> {
-    const messagesInput = this.includeLastPrompt(prompt, input);
-    // Flatten all messages into OpenAI's ChatCompletionRequestMessage array
-    const chatMessages = messagesInput.flatMap((m) => this.fromInputToParam(m));
+  ): Promise<ReadableStreamWithAsyncIterable<Message>> {
 
-    const request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
+    this.agent.inputs = this.includeLastPrompt(prompt, this.agent.inputs);
+    let request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
       model: this.options.model,
       messages: [
         {
           role: "system",
           content: system,
         },
-        ...chatMessages,
+        ...this.llmInputs,
       ],
       max_tokens: this.maxTokens,
       stream: true,
+      tools: this.tools
     };
 
     // Try to preserve usage if we have it
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
 
-    const stream = await this.openai.chat.completions.create(request);
+    const createStream = async (params: OpenAIAPI.Chat.ChatCompletionCreateParams) => {
+      return this.agent.retryApiCall(async () => {
+        const stream = await this.openai.chat.completions.create(params) as Stream<OpenAIAPI.Chat.Completions.ChatCompletionChunk>;
+        return stream.toReadableStream() as ReadableStreamWithAsyncIterable<OpenAIAPI.Chat.Completions.ChatCompletionChunk>
+      });
+    };
 
-    // Convert the OpenAI stream to a browser-compatible ReadableStream
-    const readableStream = new ReadableStream<any>({
-      async start(controller) {
-        for await (const chunk of stream) {
-          controller.enqueue(chunk);
-        }
-        controller.close();
-      },
-    });
-
-    // transform that into Message objects
-    const transform = await this.transformStream<any, Message>(
-      readableStream,
-      (deltaChunk: any) => {
-        return this.chunk(deltaChunk);
-      }
+    const stream = await createStream(request);
+    const transform = await this.transformStream<
+      OpenAIAPI.Chat.Completions.ChatCompletionChunk, 
+      Message
+    >(
+      stream,
+      this.chunk.bind(this)
     );
 
     // auto-mode logic
     const automodeStream = await this.transformAutoMode(
       transform,
       async () => {
-        // If we need "multi-turn" or "tool usage", we can re-call streaming. 
-        // For now, let's re-do the entire request with updated messages.
-        const updatedChatMessages = this.agent.inputs.flatMap((m) =>
-          this.fromInputToParam(m)
-        );
-        const nextRequest: OpenAIAPI.Chat.ChatCompletionCreateParams = {
+        const newStream = await createStream({
           ...request,
           messages: [
             {
               role: "system",
               content: system,
             },
-            ...updatedChatMessages,
+            ...this.llmInputs
           ],
           stream: true,
-        };
-
-        const stream2 = await this.openai.chat.completions.create(nextRequest);
-
-        const newStream = new ReadableStream<any>({
-          async start(controller) {
-            for await (const chunk of stream2) {
-              controller.enqueue(chunk);
-            }
-            controller.close();
-          },
         });
-
-        return this.transformStream<any, Message>(newStream, (deltaChunk: any) =>
-          this.chunk(deltaChunk)
+        return this.transformStream<OpenAIAPI.Chat.Completions.ChatCompletionChunk, Message>(
+          newStream,
+          this.chunk.bind(this)
         );
       },
       this.onTool?.bind(this.agent)
@@ -262,183 +229,199 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     return automodeStream;
   }
 
-  private async performTaskNonStream(
+   async performTaskNonStream(
     prompt: string,
     system: string,
-    input: MessageInput[]
   ): Promise<Message> {
-    const messagesInput = this.includeLastPrompt(prompt, input);
-    const chatMessages = messagesInput.flatMap((m) => this.fromInputToParam(m));
-
-    const request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
-      model: this.options.model,
-      messages: [
-        {
-          role: "system",
-          content: system,
-        },
-        ...chatMessages,
-      ],
-      max_tokens: this.maxTokens,
-    };
-
-    // reset
+    this.agent.inputs.push(...this.includeLastPrompt(prompt, this.agent.inputs))
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
+    let sdkMessage: Message;
 
-    let response = await this.openai.chat.completions.create(request);
+    while(true) {
+      const request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
+        model: this.options.model,
+        messages: [
+          {
+            role: "system",
+            content: system,
+          },
+          ...this.agent.inputs.map(this.fromInputToParam),
+        ],
+        max_tokens: this.maxTokens,
+        tools: this.tools
+      };
+      const response = await this.openai.chat.completions.create(request);
+      this.cache.tokens.input = response.usage?.prompt_tokens ?? this.cache.tokens.input;
+      this.cache.tokens.output = response.usage?.completion_tokens ?? this.cache.tokens.output;
+      const [{ finish_reason, message }] = response.choices;
+      let role = message?.role || "assistant";
+      let content = message?.content || "";
+      if (finish_reason === "tool_calls") {
+        const toolCall = message?.tool_calls?.[0];
+        if (toolCall &&
+          this.onTool &&
+          this.tools?.find((t) => t.function.name === toolCall.function.name)) {
+          const toolInputBlock: ToolUseBlock = {
+            type: 'tool_use',
+            input: toolCall.function.arguments,
+            name: toolCall.function.name,
+            id: toolCall.id,
+          }
+          sdkMessage = {
+            id: v4(),
+            role: role,
+            type: 'tool_use',
+            content: [toolInputBlock]
+          }
+          this.agent.inputs.push(sdkMessage)
 
-    // record usage
-    this.cache.tokens.input = response.usage?.prompt_tokens ?? this.cache.tokens.input;
-    this.cache.tokens.output = response.usage?.completion_tokens ?? this.cache.tokens.output;
+          await this.onTool?.bind(this.agent)(sdkMessage, this.options.signal);
+        }
+      } else if (finish_reason === "stop") {
+        const textBlock: TextBlock = {
+          type: 'text',
+          text: content
+        }
+        sdkMessage = {
+          id: v4(),
+          role: role,
+          type: 'message',
+          content: [textBlock]
+        }
+        this.agent.inputs.push(sdkMessage)
 
-    let finishReason = response.choices[0].finish_reason;
-    let role = response.choices[0].message?.role || "assistant";
-    let content = response.choices[0].message?.content || "";
-
-    // If finishReason is "length" => error
-    // If tool usage is needed => we can re-call
-    // For simplicity, do a loop if needed:
-    while (finishReason === "length") {
-      request.messages.push({
-        role: role as any,
-        content,
-      });
-      // Re-call
-      response = await this.openai.chat.completions.create(request);
-      finishReason = response.choices[0].finish_reason;
-      role = response.choices[0].message?.role || "assistant";
-      content = response.choices[0].message?.content || "";
-      this.cache.tokens.input += response.usage?.prompt_tokens ?? 0;
-      this.cache.tokens.output += response.usage?.completion_tokens ?? 0;
-    }
-    // Build final message
-    return {
-      id: response.id || "openai-non-stream-id",
-      role: role === "assistant" ? "assistant" : "assistant",
-      type: "message",
-      content: [
-        {
+        break;
+      } else if (finish_reason === "length" || finish_reason === "content_filter") {
+        const textBlock: TextBlock = {
           type: "text",
-          text: content,
-        },
-      ],
+          text: content
+        };
+        sdkMessage = {
+          id: v4(),
+          role,
+          type: "message",
+          content: [textBlock]
+        };
+        this.agent.inputs.push(sdkMessage)
+
+        break;
+      } else {
+        const fallbackBlock: TextBlock = {
+          type: 'text',
+          text: content
+        };
+        sdkMessage = {
+          id: v4(),
+          role,
+          type: 'message',
+          content: [fallbackBlock]
+        };
+        this.agent.inputs.push(sdkMessage)
+
+        break;
+      }
+    }
+    return {
+      id: sdkMessage!.id,
+      role: sdkMessage!.role,
+      type: "message",
+      content: sdkMessage!.content
     };
   }
 
 
   private chunk(
-    chunk: any
+    chunk: OpenAIAPI.Chat.Completions.ChatCompletionChunk,
   ): Message | null {
-    if (chunk.type === "content_block_start") {
-      if (chunk.content_block.type === 'tool_use') {
-        this.cache.chunks = null
-        this.cache.toolInput = chunk.content_block;
-        this.cache.toolInput!.input = ""
-        const toolUseBlock: ToolUseBlock = chunk.content_block
-        this.cache.toolInput = toolUseBlock;
-        return {
-          id: v4(),
-          role: 'assistant',
-          type: 'tool_start',
-          content: [
-            toolUseBlock
-          ]
-        }
-      }
-    } else if (chunk.type === "content_block_delta") {
-      const delta = chunk.delta;
-      if (delta.type === 'text_delta') {
-        return {
-          id: this.cache.chunks!,
-          role: 'assistant',
-          type: 'message',
-          chunk: true,
-          content: [
-            {
-              type: 'text',
-              text: delta.text,
-            }
-          ]
-        }
-      } else if (delta.type === 'input_json_delta') {
-        this.cache.chunks = null
-        const toolInputBlock: ToolInputDelta = {
+    if (chunk.object !== "chat.completion.chunk") {
+      return null;
+    }
+    const [choice] = chunk.choices;
+    if (!choice) {
+      return null;
+    }
+
+    const delta = choice.delta;
+    //Tools
+    if (delta && delta.tool_calls) {
+      const toolCall = delta.tool_calls[0];
+      const args = !toolCall.function || toolCall.function.arguments === ""
+        ? "{}"
+        : (toolCall.function.arguments ?? "{}");
+
+      if (toolCall.function?.name) {
+        const tool_delta: ToolInputDelta = {
+          id: toolCall.id!,
+          name: toolCall.function?.name,
           type: 'tool_delta',
-          partial: delta.partial_json
-        }
-        return {
-          id: v4(),
+          partial: args,
+        };
+        this.cache.toolInput = tool_delta;
+        const message:Message =  {
+          id: chunk.id,
           role: 'assistant',
           type: 'tool_delta',
-          content: [toolInputBlock]
-        }
-      }
-    } else if (chunk.type === "content_block_stop") {
-      this.cache.chunks = null
-      const isTool = this.cache.toolInput?.type === "tool_use";
-      if (isTool) {
-        const toolInput = this.cache.toolInput as ToolUseBlock;
-        this.cache.toolInput = null
-        return {
-          id: v4(),
-          role: 'assistant',
-          type: 'tool_use',
-          content: [toolInput]
-        }
-      }
-    } else if (chunk.type === "message_delta") {
-      this.cache.tokens.output = chunk.usage.output_tokens;
-      this.cache.chunks = null;
-
-      if (chunk.delta.stop_reason === "max_tokens") {
-        const errorBlock: ErrorBlock = {
-          type: 'error',
-          message: `Exceeding the token limit, ${chunk.usage.output_tokens}`
-        }
-        return {
-          id: v4(),
-          role: 'assistant',
-          type: 'error',
-          content: [
-            errorBlock
-          ]
-        }
-
-      } else {
-        const usageBlock: UsageBlock = {
-          type: "usage",
-          output: chunk.usage.output_tokens,
-          input: this.cache.tokens.input
-        }
-        return {
-          id: v4(),
-          role: 'assistant',
-          type: 'delta',
-          content: [
-            chunk.delta as DeltaBlock,
-            usageBlock
-          ]
-        }
-      }
-    } else if (chunk.type === "message_start") {
-      this.cache.chunks = chunk.message.id;
-      this.cache.toolInput = null
-      this.cache.tokens.input = chunk.message.usage.input_tokens;
-      const usageBlock: UsageBlock = {
-        type: "usage",
-        output: 0,
-        input: this.cache.tokens.input
-      }
-      return {
-        id: v4(),
-        role: 'assistant',
-        type: 'usage',
-        content: [
-          usageBlock
-        ]
+          content: [tool_delta]
+        };
+        return message;
       }
     }
-    return null
+
+    const finishReason = choice.finish_reason;
+
+    if (finishReason === "tool_calls") {
+      const deltaBlock = this.cache.toolInput! as ToolInputDelta;
+      const toolUseBlock: ToolUseBlock = {
+        id: deltaBlock.id!,
+        name: deltaBlock.name!,
+        input: JSON.parse(deltaBlock.partial),
+        type: 'tool_use'
+      }
+      const message:Message =  {
+        id: chunk.id,
+        role: 'assistant',
+        type: 'tool_use',
+        content: [toolUseBlock]
+      };
+      return message;
+    }
+
+    if (finishReason === "stop" || finishReason === "length") {
+      const deltaBlock: DeltaBlock = {
+        type: 'delta',
+        // "stop_reason" can be "stop", "length", etc.
+        // For simplicity, just set it to "end_turn" if "stop".
+        stop_reason: finishReason === "stop"
+          ? "end_turn"
+          : "max_tokens",
+        stop_sequence: null
+      };
+      const message:Message =  {
+        id: chunk.id,
+        role: 'assistant',
+        type: 'delta',
+        content: [deltaBlock]
+      };
+      return message;
+    }
+
+    // 3) Check if there's partial text content
+    if (choice.delta?.content) {
+      const textBlock: TextBlock = {
+        type: 'text',
+        text: choice.delta.content
+      };
+      const message:Message =  {
+        id: chunk.id,
+        role: 'assistant',
+        type: 'message',
+        chunk: true,
+        content: [textBlock]
+      };
+      return message;
+    }
+
+    return null;
   }
 } 

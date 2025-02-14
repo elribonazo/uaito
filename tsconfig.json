@@ -18,6 +18,8 @@
       "isolatedModules": true,
       "jsx": "preserve",
       "incremental": true,
+      "sourceMap": true,
+      "downlevelIteration": true,
       "paths": {
         "@/*": [
           "./src/*"

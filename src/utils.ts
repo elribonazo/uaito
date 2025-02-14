@@ -25,7 +25,6 @@ function isValidMessageContent(content: any): boolean {
       return typeof content.partial === 'string';
     case 'tool_result':
       return typeof content.tool_use_id === 'string'
-        && typeof content.name === 'string'
         && (Array.isArray(content.content) || content.content === undefined)
         && (typeof content.isError === 'boolean' || content.isError === undefined);
     case 'delta':
@@ -42,10 +41,11 @@ function isValidMessageContent(content: any): boolean {
 }
 
 function validateMessageInput(item: any): item is MessageInput {
+  const contentValid = item.content.every(isValidMessageContent);
   return item.role !== undefined &&
     item.content !== undefined && 
     isValidRole(item.role) && 
-    isValidMessageContent(item.content);
+    contentValid;
 }
 
 export class MessageArray<T extends MessageInput> extends Array<T> {

@@ -1,21 +1,36 @@
-import { JSONValue } from "llamaindex";
+import { JSONObject } from "llamaindex";
 import { AbortSignal } from 'abort-controller';
 
 import { Anthropic } from "./llm/anthropic";
 import { MessageArray } from "./utils";
+import { Agent } from "./agents";
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
-export type AnthropicOptions = {  apiKey?: string } & BaseLLMOptions;
-export type OpenAIOptions = {  apiKey?: string } & BaseLLMOptions;
-export type Tool = JSONValue;
+export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;
+export type OpenAIOptions = { apiKey?: string } & BaseLLMOptions;
+export type OllamaOptions = { host: string } & BaseLLMOptions;
+
+export type Tool = JSONObject;
+
+export type BaseLLMCache = {
+    toolInput: BlockType | null,
+    chunks: string | null,
+    tokens: {
+      input: number,
+      output: number
+    }
+  }
 
 export enum LLMProvider {
   OpenAI = 'OpenAI',
-  Anthropic = 'Anthropic'
+  Anthropic = 'Anthropic',
+  Ollama = 'Ollama'
 }
 
 export type OnTool = (
-  message: Message,inputs: MessageArray<MessageInput>, signal?: AbortSignal
+  this: Agent,
+  message: Message, 
+  signal?: AbortSignal
 ) => Promise<void>
 
 export interface SearchReplaceBlock {
@@ -26,6 +41,7 @@ export interface SearchReplaceBlock {
 export type AgentTypeToOptions = {
     [LLMProvider.Anthropic]: AnthropicOptions;
     [LLMProvider.OpenAI]: OpenAIOptions;
+    [LLMProvider.Ollama]: OllamaOptions;
     [name: string]: unknown
   };
 
@@ -36,6 +52,11 @@ export type AgentTypeToClass = {
   [name: string]: unknown
 };
 
+export type BinConfig<P extends LLMProvider> = {
+  provider: P,
+  options: AgentTypeToOptions[P]
+}
+
 export type USAGE = {
   input_tokens: number;
   output_tokens: number;
@@ -43,7 +64,6 @@ export type USAGE = {
 
 export type MessageType =
   'message' |
-  ToolStartBlock['type'] |
   ToolInputDelta['type'] |
   ToolUseBlock['type'] |
   ToolResultBlock['type'] |
@@ -66,12 +86,6 @@ export type TextBlock = {
   type: 'text';
 }
 
-export type ToolStartBlock = {
-  id: string;
-  input: unknown;
-  name: string;
-  type: 'tool_start';
-}
 
 export type ToolUseBlock = {
   id: string;
@@ -81,6 +95,8 @@ export type ToolUseBlock = {
 }
 
 export type ToolInputDelta = {
+  id?:string,
+  name?:string,
   partial:string,
   type: 'tool_delta';
 }
@@ -93,13 +109,14 @@ export type ToolResultBlock = {
   isError?: boolean;
 }
 
-export type ToolBlock = ToolStartBlock | ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
+export type ToolBlock = ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
 export type Role = 'assistant' | 'user';
 
+export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock;
 export type Message = {
   id: string,
   type: MessageType,
-  content: (ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock)[],
+  content: BlockType[],
   chunk?: boolean,
   role: Role
 }
@@ -139,12 +156,17 @@ export type BaseLLMOptions = {
     inputs:  MessageArray<MessageInput>
 }
 
+export type ReadableStreamWithAsyncIterable<T> = ReadableStream<T> & AsyncIterable<T>;
+
 export abstract class Runner {
-abstract performTask(
-  prompt: string,
-  system: string,
-  input:  MessageArray<MessageInput>,
-  stream: boolean
-): Promise<ReadableStream<Message> | Message>;
+   abstract performTaskStream(
+    userPrompt: string,
+    system: string,
+): Promise<ReadableStreamWithAsyncIterable<Message>>;
+
+ abstract performTaskNonStream(
+    userPrompt: string,
+    system: string,
+): Promise<Message>;
 }
   

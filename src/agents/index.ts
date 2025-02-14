@@ -1,27 +1,24 @@
-import { MessageInput, BaseLLMOptions, AnthropicOptions,  Message, ToolUseBlock, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions } from "../types";
-import { ANSI_RESET } from "../config";
+import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, OllamaOptions } from "../types";
 import { Anthropic } from "../llm/anthropic";
 import { BaseLLM } from "../llm/base";
 import { MessageArray } from "../utils";
 import { OpenAI } from "../llm/openai";
+import { Ollama } from "../llm/ollama";
+
+export const LOG_ANSI_RED = "\u001B[31m";
+export const LOG_ANSI_GREEN = "\u001B[32m";
+export const LOG_ANSI_GRAY = "\u001B[90m";
+export const LOG_ANSI_BLUE = "\u001B[34m";
+export const LOG_ANSI_RESET = "\u001B[0m";
+export const LOG_ANSI_YELLOW = "\u001B[33m";
+
+
 /**
- * Abstract base class for AI agents.
+ * base class for AI agents.
  */
-export abstract class Agent {
-    /** Color used for logging. */
-    protected abstract color: string;
-    /** Name of the agent. */
-    protected abstract name: string;
-    abstract tools: Tool[];
-    
-    abstract systemPrompt: string;
-
-    abstract createInitialMessageInput(
-        prompt: string, 
-        input: MessageArray<MessageInput>
-    ): MessageArray<MessageInput>;
-
-
+export class Agent {
+    private MAX_RETRIES = 10;
+    private RETRY_DELAY = 3000; // 3 seconds
     /** The LLM client used by the agent. */
     private client: BaseLLM<any, BaseLLMOptions>;
 
@@ -30,7 +27,7 @@ export abstract class Agent {
      * @param message - The message to log.
      */
     log(message: string) {
-        console.log(`${this.color}[${this.name}] ${message}${ANSI_RESET}`);
+        console.log(`${this.color}[${this.name}] ${message}${LOG_ANSI_RESET}`);
     }
 
     /**
@@ -41,13 +38,18 @@ export abstract class Agent {
     constructor(
         protected type: LLMProvider,
         protected options: AgentTypeToOptions[typeof type],
-        onTool?: OnTool,
+        protected onTool?: OnTool,
         public inputs: MessageArray<MessageInput> = new MessageArray(),
+        public systemPrompt: string = "",
+        public tools: Tool[] = [],
+        protected color: string = LOG_ANSI_BLUE,
+        protected name: string = type.toString()
     ) {
 
         if (type === LLMProvider.Anthropic) {
-            this.client = new Anthropic({ 
-                options: options as AnthropicOptions}, 
+            this.client = new Anthropic({
+                options: options as AnthropicOptions
+            },
                 this,
                 onTool,
             );
@@ -55,11 +57,35 @@ export abstract class Agent {
             this.client = new OpenAI({
                 options: options as OpenAIOptions
             },
-            this,
-            onTool);
+                this,
+                onTool);
+        } else if (type === LLMProvider.Ollama) {
+            this.client = new Ollama({
+                options: options as OllamaOptions
+            },
+                this,
+                onTool);
         } else {
             throw new Error("not implemented")
         }
+    }
+
+    async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
+        let retries = 0;
+        while (retries < this.MAX_RETRIES) {
+            try {
+                return await apiCall();
+            } catch (error) {
+                if (error instanceof Error && error.message.includes('APIConnectionError')) {
+                    retries++;
+                    this.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
+                    await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
+                } else {
+                    throw error; // Rethrow if it's not a connection error
+                }
+            }
+        }
+        throw new Error(`Max retries (${this.MAX_RETRIES}) reached. Unable to complete the API call.`);
     }
 
     /**
@@ -69,37 +95,36 @@ export abstract class Agent {
      * @returns A Promise resolving to either a ReadableStream of Messages or a single Message.
      */
     performTask(
-        userPrompt: string,
+        prompt: string,
         system: string,
         stream?: true
     ): Promise<{
-        usage: {input:number, output: number},
-        response: ReadableStream<Message>
+        usage: { input: number, output: number },
+        response: ReadableStream<Message> & AsyncIterable<Message>
     }>;
     performTask(
-        userPrompt: string,
+        prompt: string,
         system: string,
         stream?: false
     ): Promise<{
-        usage: {input:number, output: number},
+        usage: { input: number, output: number },
         response: Message
     }>;
     async performTask(
-        userPrompt: string, 
+        prompt: string,
         system: string,
         stream?: boolean
-    ): Promise<{ 
-        usage: {input:number, output: number},
-        response: Message | ReadableStream<Message>
+    ): Promise<{
+        usage: { input: number, output: number },
+        response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
     }> {
-        const response = await this.client.performTask(
-            userPrompt,
-            system,
-            this.inputs,
-            stream ?? false
-        );
+
+        const response = stream === true ?
+            await this.retryApiCall(() => this.client.performTaskStream(prompt, system)) :
+            await this.retryApiCall(() => this.client.performTaskNonStream(prompt, system));
+
         return {
-            usage:this.client.cache.tokens,
+            usage: this.client.cache.tokens,
             response
         }
     }
@@ -125,18 +150,18 @@ export abstract class Agent {
             const error = (err as Error);
             console.log(err);
             input.push({
-                role:'user',
+                role: 'user',
                 content: [
                     {
-                        name:toolUse.name ,
-                        type:'tool_result',
+                        name: toolUse.name,
+                        type: 'tool_result',
                         tool_use_id: toolUse.id,
                         isError: true,
-                        content:[{
-                            type:'text',
+                        content: [{
+                            type: 'text',
                             text: `An error occurred while running ${toolUse.name}: we got error -> ${error.message}`
                         }]
-                        
+
                     }
                 ]
             })
