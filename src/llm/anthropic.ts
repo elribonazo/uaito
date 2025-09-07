@@ -2,8 +2,8 @@ import SDK from '@anthropic-ai/sdk';
 import { v4 } from 'uuid';
 import { ImageBlockParam, MessageParam, TextBlockParam, ToolResultBlockParam, ToolUseBlockParam } from '@anthropic-ai/sdk/resources';
 import { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider, BlockType, BaseLLMCache, ReadableStreamWithAsyncIterable } from "../types";
-import { BaseLLM } from "./base";
-import { Agent } from '../agents';
+import { BaseLLM } from "./Base";
+import { MessageArray } from '../utils';
 
 type AnthropicConstructor = {
   options: AnthropicOptions,
@@ -11,23 +11,22 @@ type AnthropicConstructor = {
 }
 
 export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> {
-  protected agent: Agent;
   public cache: BaseLLMCache = { toolInput: null, chunks: '',  tokens: { input: 0, output: 0 } }
 
   private onTool?: OnTool
   protected api: SDK;
+  public inputs: MessageArray<MessageInput> = new MessageArray();
 
   constructor(
     { options }: AnthropicConstructor,
-    agent: Agent,
     onTool?: OnTool,
   ) {
     super(LLMProvider.Anthropic, options);
     this.api = new SDK({
-      apiKey: options.apiKey
+      apiKey: options.apiKey,
+      dangerouslyAllowBrowser: true
     })
     this.onTool = onTool;
-    this.agent = agent;
   }
 
   get maxTokens() {
@@ -88,7 +87,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     return {
       ...model,
       content
-    }
+    } as MessageParam
   }
 
   private chunk(
@@ -208,7 +207,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   get llmInputs() {
-    return this.agent.inputs
+    return this.inputs
     .flatMap((input) => this.fromInputToParam(input))
     .filter((c) => {
       if (Array.isArray(c.content) && c.content.length === 0) {
@@ -225,25 +224,21 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
-    this.agent.inputs = this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs);
+    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
 
     const params: SDK.MessageCreateParams = {
       max_tokens: this.maxTokens,
       system: system,
       messages:this.llmInputs,
       model: this.options.model,
-      // @ts-ignore
       tools: this.options.tools
     };
-    const apiHeaders: Record<string, string> = {
-      'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
-    }
+    const apiHeaders: Record<string, string> = {}
 
     const options = { headers: apiHeaders, signal: this.options?.signal as any }
 
     const createStream = async () => {
-      return this.agent.retryApiCall(async() => {
+      return this.retryApiCall(async() => {
           const stream = await this.api.messages.create(
             {
               ...params,
@@ -266,14 +261,14 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       async () => {
         params.messages = this.llmInputs
         const stream =await createStream();
-        const transform = await this.transformStream<SDK.RawMessageStreamEvent, Message>(
-          stream,
+        return this.transformStream<SDK.RawMessageStreamEvent, Message>(
+          stream, 
           this.chunk.bind(this)
         )
-        return transform
       },
-      this.onTool!.bind(this.agent)
+      this.onTool?.bind(this)
     )
+    
 
     return automodeStream
   }
@@ -288,32 +283,32 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
     }
     const apiOptions = { headers: apiHeaders, signal: this.options?.signal as any }
-    this.agent.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs))
+    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
     let sdkMessage: SDK.Messages.Message;
     while(true) {
       const params: SDK.MessageCreateParamsNonStreaming = {
         max_tokens: this.maxTokens,
         system: system,
-        messages: this.agent.inputs.map(this.fromInputToParam),
+        messages: this.inputs.map(this.fromInputToParam),
         model: this.options.model,
         // @ts-ignore
         tools: this.options.tools,
         stream: false
       };
-      sdkMessage = await this.agent.retryApiCall(() => this.api.messages.create(params, apiOptions));
+      sdkMessage = await this.retryApiCall(() => this.api.messages.create(params, apiOptions));
       const message = {role: sdkMessage.role, content: sdkMessage.content};
-      this.agent.inputs.push(message)
+      this.inputs.push(message)
 
       if (sdkMessage.stop_reason === "end_turn") break;
       if (sdkMessage.stop_reason === "tool_use") {
         const tool = sdkMessage.content.find(
           (content): content is SDK.ToolUseBlock => content.type === 'tool_use',
         );
-        this.agent.log(`[task messages]tool is ${tool?.name}`);
+        console.log(`[task messages]tool is ${tool?.name}`);
         if (tool && this.onTool) {
-          await this.onTool.bind(this.agent)(message, this.options.signal);
+          await this.onTool.bind(this)(message, this.options.signal);
         } else {
-          this.agent.log(`[task messages] tool not found ${tool?.name}`);
+          console.log(`[task messages] tool not found ${tool?.name}`);
         }
         // The next iteration will include any (tool) content appended in onTool if needed
       } 

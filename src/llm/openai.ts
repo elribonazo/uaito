@@ -1,9 +1,6 @@
 import OpenAIAPI from 'openai';
 import { v4 } from 'uuid';
-import fs from 'fs';
-
-import { BaseLLM } from "./base";
-import { Agent } from "../agents";
+import { BaseLLM } from "./Base";
 import {
   LLMProvider,
   OpenAIOptions,
@@ -27,6 +24,7 @@ import {
 } from 'openai/resources';
 import { ToolInputDelta } from '../types';
 import { Stream } from 'openai/streaming';
+import { MessageArray } from '..';
 
 
 /**
@@ -34,20 +32,18 @@ import { Stream } from 'openai/streaming';
  * mirroring the structure and patterns found in the Anthropic class.
  */
 export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
-  protected agent: Agent;
   private onTool?: OnTool;
   private openai: OpenAIAPI;
+  public inputs: MessageArray<MessageInput> = new MessageArray();
 
   public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
 
   constructor(
     { options }: { options: OpenAIOptions },
-    agent: Agent,
     onTool?: OnTool
   ) {
     super(LLMProvider.OpenAI, options);
     this.onTool = onTool;
-    this.agent = agent;
 
     // Initialize the OpenAI client
     this.openai = new OpenAIAPI({
@@ -152,7 +148,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
 
 
   get llmInputs() {
-    return this.agent.inputs
+    return this.inputs
     .flatMap((input) => this.fromInputToParam(input))
     .filter((c) => {
       if (Array.isArray(c.content) && c.content.length === 0) {
@@ -168,7 +164,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
 
-    this.agent.inputs = this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs);
+    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
     
     const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
 
@@ -191,7 +187,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     this.cache.tokens.output = 0;
 
     const createStream = async (params: OpenAIAPI.Chat.ChatCompletionCreateParams) => {
-      return this.agent.retryApiCall(async () => {
+      return this.retryApiCall(async () => {
         const stream = await this.openai.chat.completions.create(params) as Stream<OpenAIAPI.Chat.Completions.ChatCompletionChunk>;
         return stream.toReadableStream() as ReadableStreamWithAsyncIterable<OpenAIAPI.Chat.Completions.ChatCompletionChunk>
       });
@@ -226,7 +222,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
           this.chunk.bind(this)
         );
       },
-      this.onTool?.bind(this.agent)
+      this.onTool?.bind(this)
     );
 
     return automodeStream;
@@ -237,7 +233,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     chainOfThought: string,
     system: string,
   ): Promise<Message> {
-    this.agent.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs))
+    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
     let sdkMessage: Message;
@@ -251,7 +247,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
             role: "system",
             content: system,
           },
-          ...this.agent.inputs.map(this.fromInputToParam),
+          ...this.inputs.map(this.fromInputToParam),
         ],
         max_tokens: this.maxTokens,
         tools
@@ -279,9 +275,9 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
             type: 'tool_use',
             content: [toolInputBlock]
           }
-          this.agent.inputs.push(sdkMessage)
+          this.inputs.push(sdkMessage)
 
-          await this.onTool?.bind(this.agent)(sdkMessage, this.options.signal);
+          await this.onTool?.bind(this)(sdkMessage, this.options.signal);
         }
       } else if (finish_reason === "stop") {
         const textBlock: TextBlock = {
@@ -294,7 +290,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
           type: 'message',
           content: [textBlock]
         }
-        this.agent.inputs.push(sdkMessage)
+        this.inputs.push(sdkMessage)
 
         break;
       } else if (finish_reason === "length" || finish_reason === "content_filter") {
@@ -308,7 +304,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
           type: "message",
           content: [textBlock]
         };
-        this.agent.inputs.push(sdkMessage)
+        this.inputs.push(sdkMessage)
 
         break;
       } else {
@@ -322,7 +318,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
           type: 'message',
           content: [fallbackBlock]
         };
-        this.agent.inputs.push(sdkMessage)
+        this.inputs.push(sdkMessage)
 
         break;
       }

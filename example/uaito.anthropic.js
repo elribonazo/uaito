@@ -1,4 +1,4 @@
-const { LLMProvider } = require('@uaito/sdk');
+const { LLMProvider, MessageArray } = require('@uaito/sdk');
 
 const tools = require('./uaito.tools.js');
 const createSystemPrompt = require('./uaito.system.js');
@@ -18,7 +18,7 @@ const config = {
     options: {
         apiKey: anthropicApiKey,
         model: 'claude-3-5-sonnet-20240620',  // or any other Anthropic model
-        inputs: [],
+        inputs: MessageArray.from([]),
         tools
     },
     tools,

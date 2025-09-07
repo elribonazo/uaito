@@ -1,9 +1,6 @@
-import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, OllamaOptions } from "../types";
-import { Anthropic } from "../llm/anthropic";
-import { BaseLLM } from "../llm/base";
+import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, OllamaOptions, AgentTypeToClass, HuggingFaceONNXOptions, ToolUseBlock } from "../types";
+import { BaseLLM } from "../llm/Base";
 import { MessageArray } from "../utils";
-import { OpenAI } from "../llm/openai";
-import { Ollama } from "../llm/ollama";
 
 export const LOG_ANSI_RED = "\u001B[31m";
 export const LOG_ANSI_GREEN = "\u001B[32m";
@@ -16,11 +13,11 @@ export const LOG_ANSI_YELLOW = "\u001B[33m";
 /**
  * base class for AI agents.
  */
-export class Agent {
+export class Agent<T extends LLMProvider> {
     private MAX_RETRIES = 10;
     private RETRY_DELAY = 3000; // 3 seconds
     /** The LLM client used by the agent. */
-    private client: BaseLLM<any, BaseLLMOptions>;
+    public client!: AgentTypeToClass[T];
 
     /**
      * Log a message with the agent's color and name.
@@ -30,44 +27,72 @@ export class Agent {
         console.log(`${this.color}[${this.name}] ${message}${LOG_ANSI_RESET}`);
     }
 
+    protected name: string;
     /**
      * Create a new Agent instance.
      * @param type - The type of LLM provider.
      * @param options - Configuration options for the LLM.
      */
     constructor(
-        protected type: LLMProvider,
+        public type: LLMProvider,
         protected options: AgentTypeToOptions[typeof type],
         protected onTool?: OnTool,
         public inputs: MessageArray<MessageInput> = new MessageArray(),
-        public systemPrompt: string = "",
         public tools: Tool[] = [],
         protected color: string = LOG_ANSI_BLUE,
-        protected name: string = type.toString()
+        name?: string
     ) {
+        this.name = name ?? this.type.toString();
+     }
 
-        if (type === LLMProvider.Anthropic) {
-            this.client = new Anthropic({
-                options: options as AnthropicOptions
+    get data() {
+        return this.client?.data ?? {};
+    }
+
+    async load() {
+        await this.getClient();
+        if ("load" in this.client) {
+            await this.client.load();
+        }
+    }
+
+    clear() {
+        this.client.inputs.length = 0;
+    }
+
+    private async getClient(): Promise<BaseLLM<any, BaseLLMOptions>> {
+        if (this.type === LLMProvider.Anthropic) {
+            const Anthropic = (await import("../llm/Anthropic")).Anthropic;
+            this.client ??= new Anthropic({
+                options: this.options as AnthropicOptions
             },
-                this,
-                onTool,
-            );
-        } else if (type === LLMProvider.OpenAI) {
-            this.client = new OpenAI({
-                options: options as OpenAIOptions
+                this.onTool,
+            ) as AgentTypeToClass[T];
+        } else if (this.type === LLMProvider.OpenAI) {
+            const OpenAI = (await import("../llm/Openai")).OpenAI;
+            this.client ??= new OpenAI({
+                options: this.options as OpenAIOptions
             },
-                this,
-                onTool);
-        } else if (type === LLMProvider.Ollama) {
-            this.client = new Ollama({
-                options: options as OllamaOptions
+                this.onTool
+            ) as AgentTypeToClass[T];
+        } else if (this.type === LLMProvider.Ollama) {
+            const Ollama = (await import("../llm/Ollama")).Ollama;
+            this.client ??= new Ollama({
+                options: this.options as OllamaOptions
             },
-                this,
-                onTool);
+                this.onTool) as AgentTypeToClass[T];
+        } else if (this.type === LLMProvider.HuggingFaceONNX) {
+            const Llama = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
+            this.client ??= new Llama({
+                options: this.options as HuggingFaceONNXOptions
+            },
+                this.onTool
+            ) as AgentTypeToClass[T];
         } else {
             throw new Error("not implemented")
         }
+        this.client.log = this.log.bind(this);
+        return this.client;
     }
 
     async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
@@ -121,12 +146,13 @@ export class Agent {
         usage: { input: number, output: number },
         response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
     }> {
+        const client = await this.getClient();
         const response = stream === true ?
-            await this.retryApiCall(() => this.client.performTaskStream(prompt, chainOfThought, system)) :
-            await this.retryApiCall(() => this.client.performTaskNonStream(prompt, chainOfThought, system));
+            await this.retryApiCall(() => client.performTaskStream(prompt, chainOfThought, system)) :
+            await this.retryApiCall(() => client.performTaskNonStream(prompt, chainOfThought, system));
 
         return {
-            usage: this.client.cache.tokens,
+            usage: client.cache.tokens,
             response
         }
     }
@@ -138,11 +164,9 @@ export class Agent {
      * @param run - Function to run the command.
      */
     async runSafeCommand(
-        tool: Message,
-        input: MessageArray<MessageInput>,
+        toolUse: ToolUseBlock,
         run: (agent: any) => Promise<void>
     ) {
-        const toolUse = tool.content.find((con) => con.type === "tool_use")!
         if (toolUse.type !== "tool_use") {
             throw new Error("Expected ToolUseBlock content inside tool_use type message")
         }
@@ -151,7 +175,7 @@ export class Agent {
         } catch (err) {
             const error = (err as Error);
             console.log(err);
-            input.push({
+            this.client.inputs.push({
                 role: 'user',
                 content: [
                     {

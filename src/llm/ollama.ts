@@ -1,17 +1,15 @@
 import { v4 } from 'uuid';
 
-import { BaseLLM } from "./base";
+import { BaseLLM } from "./Base";
 
 import {
   Ollama as OllamaApi,
   ChatRequest,
   Message as OllamaMessage,
   Tool as OllamaTool,
-  AbortableAsyncIterator,
   ChatResponse
-} from 'ollama'
+} from 'ollama/dist/browser.cjs'
 
-import { Agent } from "../agents";
 import {
   LLMProvider,
   Message,
@@ -23,6 +21,7 @@ import {
   TextBlock,
   ReadableStreamWithAsyncIterable,
 } from "../types";
+import { MessageArray } from '../utils';
 
 type OllamaRequest = ChatRequest & {
   stream?: false;
@@ -40,9 +39,9 @@ type ReduceOllamaMessage = Pick<OllamaMessage, 'role' | 'content' | 'images' | '
  * mirroring the structure and patterns found in the Anthropic class.
  */
 export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
-  protected agent: Agent;
   private onTool?: OnTool;
   private ollama: OllamaApi;
+  public inputs: MessageArray<MessageInput> = new MessageArray();
 
   public cache: BaseLLMCache = {
     toolInput: null,
@@ -52,12 +51,10 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
 
   constructor(
     { options }: { options: OllamaOptions },
-    agent: Agent,
     onTool?: OnTool
   ) {
     super(LLMProvider.Ollama, options);
     this.onTool = onTool;
-    this.agent = agent;
     this.ollama = new OllamaApi(options);
   }
 
@@ -97,8 +94,6 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
             arguments: current.input as { [key: string]: any; }
           }
         })
-      } else {
-        debugger;
       }
       return all
     }, {
@@ -115,7 +110,7 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
    * Return the messages with your internal format mapped to Ollama-compatible parameters.
    */
   get llmInputs() {
-    return this.agent.inputs
+    return this.inputs
     .flatMap((input) => this.fromInputToParam(input))
   }
 
@@ -161,8 +156,9 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
    * Example streaming task, similar to the Anthropic / OpenAI classes.
    */
   async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    await this.ollama.pull({ model: this.options.model });
 
-    this.agent.inputs = this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs);
+    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
 
     const request: OllamaRequestStream = {
       model: this.options.model,
@@ -172,7 +168,7 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
           role: "system",
           content: system,
         },
-        ...this.agent.inputs.map(this.fromInputToParam)
+        ...this.inputs.map(this.fromInputToParam)
       ],
       tools: this.ollamaTools
     };
@@ -181,8 +177,8 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
     this.cache.tokens.output = 0;
 
     const createStream = async (params: OllamaRequestStream):Promise<ReadableStreamWithAsyncIterable<any>> => {
-      return this.agent.retryApiCall(async () => {
-        const stream:AbortableAsyncIterator<ChatResponse> = await this.agent.retryApiCall(async () => this.ollama.chat(params));
+      return this.retryApiCall(async () => {
+        const stream = await this.retryApiCall(async () => this.ollama.chat(params));
         const redeable =  new ReadableStream({
           async start(controller) {
             try {
@@ -227,7 +223,7 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
           this.chunk.bind(this)
         );
       },
-      this.onTool?.bind(this.agent)
+      this.onTool?.bind(this)
     );
 
     return automodeStream;
@@ -235,7 +231,7 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
 
 
   get ollamaTools() {
-    const tools = this.agent.tools ?? [];
+    const tools = this.options.tools ?? [];
     return tools.map((tool: any) => {
       const ollamaTool: OllamaTool = {
         type: 'function',
@@ -253,23 +249,23 @@ export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
    * Example non-streaming task
    */
   async performTaskNonStream(prompt: string, chainOfThought: string, system: string): Promise<Message> {
-    this.agent.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.agent.inputs))
+    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
     await this.ollama.pull({ model: this.options.model });
     while (true) {
       const request: OllamaRequest = {
         model: this.options.model,
         stream: false,
-        messages: this.agent.inputs.map(this.fromInputToParam),
+        messages: this.inputs.map(this.fromInputToParam),
         tools: this.ollamaTools
       };
-      const response = await this.agent.retryApiCall(async () => this.ollama.chat(request));
+      const response = await this.retryApiCall(async () => this.ollama.chat(request));
       const message = this.chunk(response);
-      this.agent.inputs.push(message)
+      this.inputs.push(message)
       if (message.type === "tool_use") {
         const toolUse = message.content[0] as ToolUseBlock;
-        const tool = this.agent.tools.find((tool: any) => tool.name === toolUse.name);
+        const tool = (this.options.tools ?? []).find((tool: any) => tool.name === toolUse.name);
         if (tool && this.onTool) {
-          await this.onTool.bind(this.agent)(message, this.options.signal);
+          await this.onTool.bind(this)(message, this.options.signal);
         }
       } else {
         if (response.done && response.done_reason === "stop") {

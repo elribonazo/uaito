@@ -1,4 +1,4 @@
-const { LLMProvider } = require('@uaito/sdk');
+const { LLMProvider, MessageArray } = require('@uaito/sdk');
 
 const tools = require('./uaito.tools.js');
 const createSystemPrompt = require('./uaito.system.js');
@@ -15,8 +15,8 @@ const config = {
     provider: LLMProvider.Ollama,
     options: {
         host: 'http://localhost:11434',
-        model: 'llama3.1',
-        inputs: [],
+        model: 'llama3.3',
+        inputs: MessageArray.from([]),
         tools
     },
     tools,

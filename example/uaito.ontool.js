@@ -10,7 +10,6 @@ async function onTool(
         if (toolUse) {
             await this.runSafeCommand(
                 message,
-                agent.inputs,
                 async () => {
                     agent.inputs.push({
                         role:'user',

@@ -12,13 +12,15 @@
       "outDir": "build",
       "declaration":true,
       "esModuleInterop": true,
-      "module": "commonjs",
+      "module": "ESNext",
+      "target": "es2020",
       "moduleResolution": "node",
+      "emitDeclarationOnly":true,
       "resolveJsonModule": true,
       "isolatedModules": true,
-      "jsx": "preserve",
-      "incremental": true,
-      "sourceMap": true,
+      "jsx": "react-jsx",
+      "incremental": false,
+      "sourceMap": false,
       "downlevelIteration": true,
       "paths": {
         "@/*": [
@@ -28,11 +30,12 @@
       "strictNullChecks": true
     },
     "include": [
-      "**/*.ts",
-      "**/*.tsx",
+      "src/**/*.ts",
+      "src/**/*.tsx",
     ],
     "exclude": [
-      "node_modules"
+      "node_modules",
+      "./web/**/*"
     ]
   }
   

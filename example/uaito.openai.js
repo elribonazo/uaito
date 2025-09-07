@@ -1,4 +1,4 @@
-const { LLMProvider } = require('@uaito/sdk');
+const { LLMProvider, MessageArray } = require('@uaito/sdk');
 const tools = require('./uaito.tools.js');
 const createSystemPrompt = require('./uaito.system.js');
 const onTool = require('./uaito.ontool.js');
@@ -17,7 +17,7 @@ const config = {
     provider: LLMProvider.OpenAI,
     options: {
         apiKey: openaiApiKey,
-        inputs: [],
+        inputs: MessageArray.from([]),
         model: 'gpt-4o', // or any other OpenAI model
         tools
     },

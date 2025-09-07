@@ -1,8 +1,20 @@
-import { MessageArray } from "../utils";
-import { Agent } from "../agents";
-import { BaseLLMOptions, Runner, MessageInput, Message, ToolUseBlock, OnTool, DeltaBlock, TextBlock, ToolResultBlock, UsageBlock, ErrorBlock, BlockType, ToolInputDelta, BaseLLMCache, ReadableStreamWithAsyncIterable } from "../types";
+import type { AbortSignal } from 'abort-controller';
+import type { 
+  BaseLLMOptions, 
+  Message,
+  MessageInput,
+  OnTool,
+  ReadableStreamWithAsyncIterable,
+  ToolUseBlock,
+  ToolResultBlock,
+  ErrorBlock,
+  ToolInputDelta,
+  BaseLLMCache
+} from '../types';
+import { Runner } from '../types';
 import { v4 } from 'uuid';
-import fs from 'fs';
+import { MessageArray } from '../utils';
+
 /**
  * Represents a function that transforms a chunk of data in a stream.
  * @template T The type of the input chunk.
@@ -26,8 +38,111 @@ export abstract class BaseLLM<
   OPTIONS extends BaseLLMOptions,
 > extends Runner {
   /** An array of message inputs. */
-  protected abstract agent:Agent;
+  private MAX_RETRIES = 10;
+  private RETRY_DELAY = 3000; // 3 seconds
   public abstract cache: BaseLLMCache
+  public abstract inputs: MessageArray<MessageInput>
+  public data: Record<string, unknown> = {}
+  public log: (message: string) => void = console.log;
+
+  async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
+    let retries = 0;
+    while (retries < this.MAX_RETRIES) {
+        try {
+            return await apiCall();
+        } catch (error) {
+            if (error instanceof Error && error.message.includes('APIConnectionError')) {
+                retries++;
+                console.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
+            } else {
+                throw error; // Rethrow if it's not a connection error
+            }
+        }
+    }
+    throw new Error(`Max retries (${this.MAX_RETRIES}) reached. Unable to complete the API call.`);
+}
+
+/**
+ * Perform a task using the LLM.
+ * @param prompt - The user prompt.
+ * @param stream - Whether to stream the response.
+ * @returns A Promise resolving to either a ReadableStream of Messages or a single Message.
+ */
+performTask(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+    stream?: true
+): Promise<{
+    usage: { input: number, output: number },
+    response: ReadableStream<Message> & AsyncIterable<Message>
+}>;
+performTask(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+    stream?: false
+): Promise<{
+    usage: { input: number, output: number },
+    response: Message
+}>;
+async performTask(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+    stream?: boolean
+): Promise<{
+    usage: { input: number, output: number },
+    response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
+}> {
+    const response = stream === true ?
+        await this.retryApiCall(() => this.performTaskStream(prompt, chainOfThought, system)) :
+        await this.retryApiCall(() => this.performTaskNonStream(prompt, chainOfThought, system));
+
+    return {
+        usage: this.cache.tokens,
+        response
+    }
+}
+
+/**
+ * Run a command safely, catching and handling any errors.
+ * @param tool - The tool being used.
+ * @param input - Array of input messages.
+ * @param run - Function to run the command.
+ */
+async runSafeCommand(
+    toolUse: ToolUseBlock,
+    run: (agent: unknown) => Promise<void>
+) {
+    if (toolUse.type !== "tool_use") {
+        throw new Error("Expected ToolUseBlock content inside tool_use type message")
+    }
+    try {
+        await run(this);
+    } catch (err) {
+        const error = (err as Error);
+        console.log(err);
+        this.inputs.push({
+            role: 'user',
+            content: [
+                {
+                    name: toolUse.name,
+                    type: 'tool_result',
+                    tool_use_id: toolUse.id,
+                    isError: true,
+                    content: [{
+                        type: 'text',
+                        text: `An error occurred while running ${toolUse.name}: we got error -> ${error.message}`
+                    }]
+
+                }
+            ]
+        })
+    }
+}
+
   /**
    * Creates an instance of BaseLLM.
    * @param {TYPE} type - The type of the language model.
@@ -80,19 +195,24 @@ export abstract class BaseLLM<
     input: ReadableStreamWithAsyncIterable<AChunk>,
     getNext: () => Promise<ReadableStreamWithAsyncIterable<AChunk>>,
     onTool?:OnTool
-
   ) {
-    const agent = this.agent;
+    const agent = this;
     const stream = new ReadableStream({
        start :async (controller) => {
         let reader: ReadableStreamDefaultReader<AChunk> = input.getReader();
-        let readerResult: ReadableStreamReadResult<AChunk>;
-        while ((readerResult = await reader.read()).done !== true) {
+        
+        while (true) {
+          const readerResult = await reader.read();
+          if (readerResult.done) break;
+
           try {
             if (!readerResult.value) {
               continue;
             }
             const tChunk:AChunk =  readerResult.value;
+
+            this.log(`tChunk: ${tChunk.type} ${JSON.stringify(tChunk)}`);
+
             if (tChunk.type === "error" || 
               tChunk.type === "usage" || 
               tChunk.type === "delta" || 
@@ -101,6 +221,7 @@ export abstract class BaseLLM<
             ) {
               controller.enqueue(tChunk)
             } else if (tChunk.type === "tool_use") {
+              agent.inputs.push(tChunk);
               controller.enqueue({
                 id: tChunk.id,
                 role: tChunk.role,
@@ -109,32 +230,29 @@ export abstract class BaseLLM<
               })
               if (onTool && tChunk.content[0].type === "tool_use" ) {
                 const toolUse = tChunk.content[0] as ToolUseBlock;
-                const cacheEntry = this.cache.toolInput! as ToolInputDelta;
-                if (cacheEntry.partial === "") {
+                const cacheEntry = (this.cache.toolInput ?? {}) as ToolInputDelta;
+                const partial = cacheEntry?.partial || (cacheEntry as unknown as { input: string }).input;
+                if (partial) {
                   toolUse.input = {}  
                 } else {
-                  const partial = cacheEntry.partial || (cacheEntry as any).input;
                   
                   toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                 }
                 await onTool.bind(this)(tChunk, this.options.signal);
                 const lastOutput = agent.inputs[agent.inputs.length - 1];
-                if (lastOutput.role !== "user" && lastOutput.content[0].type !== 'tool_result') {
+                if (lastOutput.role !== "user" || lastOutput.content[0].type !== 'tool_result') {
                     throw new Error("Expected to have a user reply with the tool response");
                 }
   
                 if (lastOutput.content[0].type === 'tool_result') {
                   lastOutput.content[0] = {
                     ...lastOutput.content[0],
-                    name: tChunk.content[0].name
+                    name: (tChunk.content[0] as ToolUseBlock).name
                   } as ToolResultBlock;
-                                }
+                }
 
-      
-
-               
-                await controller.enqueue({
-                  id: tChunk.id,
+                controller.enqueue({
+                  id: lastOutput.id ?? v4(),
                   role:'user',
                   content: lastOutput.content,
                   type: 'tool_result'
@@ -148,7 +266,7 @@ export abstract class BaseLLM<
                 
               }
             } 
-          } catch (err) {
+          } catch (err: unknown) {
             const errorBlock: ErrorBlock = {
               type: "error",
               message: (err as Error).message
@@ -169,7 +287,7 @@ export abstract class BaseLLM<
 
   private async release<AChunk extends Message>(
     reader: ReadableStreamDefaultReader<AChunk>, 
-    controller: ReadableStreamDefaultController<any>
+    controller: ReadableStreamDefaultController<Message>
   ) {
     try {
       reader.releaseLock()
@@ -188,31 +306,31 @@ export abstract class BaseLLM<
    */
   async transformStream<AChunk, BChunk extends Message>(
     input: ReadableStreamWithAsyncIterable<AChunk>,
-    transform: TransformStreamFn<any, BChunk>,
+    transform: TransformStreamFn<unknown, BChunk>,
   ): Promise<ReadableStreamWithAsyncIterable<BChunk>> {
 
     const reader = input.getReader();
-    const agent = this.agent;
 
     function emit(
       controller: ReadableStreamDefaultController<BChunk>,
       message: BChunk
     ) {
       controller.enqueue(message);
-      agent.inputs.push(message)
     }
 
     const stream = new ReadableStream({
       async start(controller) {
-        let s: ReadableStreamReadResult<AChunk>
-        while ((s = await reader.read()).done !== true) {
+        while(true) {
+          const s = await reader.read();
+          if (s.done) break;
+          
           if (!s.value) {
             continue;
           }
           const message = s.value instanceof Uint8Array ? transform(
             JSON.parse(
               Buffer.from(
-                s.value as any
+                s.value as unknown as Uint8Array
               ).toString()
             )
           ) : transform(s.value);
@@ -227,7 +345,7 @@ export abstract class BaseLLM<
             const isChunkMessage = message.type === "message";
             const isUsageMessage = message.type === "usage";
 
-            if (isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage) {
+            if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage) {
               emit(controller, message);
             } else if (isDeltaMessage) {
               for (const content of message.content) {
@@ -245,9 +363,7 @@ export abstract class BaseLLM<
                   } 
                 }
               }
-            } else if (isChunkMessage) {
-              emit(controller, message)
-            }
+            } 
           } 
         }
         reader.releaseLock()

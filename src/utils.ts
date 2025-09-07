@@ -1,7 +1,8 @@
-import { MessageInput, Role } from "./types";
+import { v4 } from "uuid";
+import { Message, MessageInput, Role } from "./types";
 
 function isValidRole(role: any): role is Role {
-  return role === 'assistant' || role === 'user';
+  return role === 'assistant' || role === 'user' || role === 'system' || role === 'ipython';
 }
 
 function isValidMessageContent(content: any): boolean {
@@ -42,6 +43,9 @@ function isValidMessageContent(content: any): boolean {
 
 function validateMessageInput(item: any): item is MessageInput {
   const contentValid = item.content.every(isValidMessageContent);
+  if (!item.id) {
+    item.id = v4();
+  }
   return item.role !== undefined &&
     item.content !== undefined && 
     isValidRole(item.role) && 
@@ -49,19 +53,23 @@ function validateMessageInput(item: any): item is MessageInput {
 }
 
 export class MessageArray<T extends MessageInput> extends Array<T> {
+
+  static from(items: MessageInput[]): MessageArray<MessageInput> {
+    return new MessageArray(items);
+  }
+
   constructor(items: T[] = []) {
-    super(...items);
+    super(...(Array.isArray(items) ? items : [items]));
     return new Proxy(this, {
-      get(target, prop, receiver) {
+      get: (target: typeof this, prop:string | symbol, receiver: any) => {
         if (prop === 'push') {
-          return function (...items: T[] | T[][]): number {
-            for (let item of items) {
+          return  (...items: T[] | T[][]): number => {
+            for (const item of items) {
               if (Array.isArray(item)) {
-                for (let im of item) {
+                for (const im of item) {
                   if (validateMessageInput(im)) {
                     const lastOne = target[target.length - 1];
-                    const isSameRole = lastOne?.role === im.role && im.role === "user";
-                    if (isSameRole) {
+                    if (this.isSameRole(lastOne, im)) {
                       if (Array.isArray(lastOne.content) && Array.isArray(im.content)) {
                         Array.prototype.push.call(lastOne.content, ...im.content);
                       } else {
@@ -71,14 +79,14 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
                       Array.prototype.push.call(target, im);
                     }
                   } else {
-                    console.error('Invalid message input, skipping:', im);
+                    debugger;
+                    console.error('Invalid Array message input, skipping:', im);
                   }
                 }
               } else {
                 if (validateMessageInput(item)) {
                   const lastOne = target[target.length - 1];
-                  const isSameRole = lastOne?.role === item.role && item.role === "user";
-                  if (isSameRole) {
+                  if (this.isSameRole(lastOne, item)) {
                     if (Array.isArray(lastOne.content) && Array.isArray(item.content)) {
                       Array.prototype.push.call(lastOne.content, ...item.content);
                     } else {
@@ -88,6 +96,7 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
                     Array.prototype.push.call(target, item);
                   }
                 } else {
+                  debugger;
                   console.error('Invalid message input, skipping:', item);
                 }
               }
@@ -98,5 +107,10 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
         return Reflect.get(target, prop, receiver);
       }
     });
+  }
+
+  protected isSameRole(lastOne: T, item: T): boolean {
+    const isTool = item.content.some((c) => c.type === 'tool_result');
+    return lastOne?.role === item.role && item.role === "user" && !isTool;
   }
 }

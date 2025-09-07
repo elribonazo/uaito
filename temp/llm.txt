@@ -1,0 +1,2781 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: **/*
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+agents/
+  index.ts
+llm/
+  huggingface/
+    llama/
+      constants.ts
+    stopCriteria.ts
+    types.ts
+  Anthropic.ts
+  Base.ts
+  HuggingFaceONNX.ts
+  Ollama.ts
+  Openai.ts
+cli.ts
+config.ts
+index.ts
+types.ts
+utils.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="agents/index.ts">
+import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, OllamaOptions, AgentTypeToClass, HuggingFaceONNXOptions, ToolUseBlock } from "../types";
+import { BaseLLM } from "../llm/Base";
+import { MessageArray } from "../utils";
+
+export const LOG_ANSI_RED = "\u001B[31m";
+export const LOG_ANSI_GREEN = "\u001B[32m";
+export const LOG_ANSI_GRAY = "\u001B[90m";
+export const LOG_ANSI_BLUE = "\u001B[34m";
+export const LOG_ANSI_RESET = "\u001B[0m";
+export const LOG_ANSI_YELLOW = "\u001B[33m";
+
+
+/**
+ * base class for AI agents.
+ */
+export class Agent<T extends LLMProvider> {
+    private MAX_RETRIES = 10;
+    private RETRY_DELAY = 3000; // 3 seconds
+    /** The LLM client used by the agent. */
+    public client!: AgentTypeToClass[T];
+
+    /**
+     * Log a message with the agent's color and name.
+     * @param message - The message to log.
+     */
+    log(message: string) {
+        console.log(`${this.color}[${this.name}] ${message}${LOG_ANSI_RESET}`);
+    }
+
+    protected name: string;
+    /**
+     * Create a new Agent instance.
+     * @param type - The type of LLM provider.
+     * @param options - Configuration options for the LLM.
+     */
+    constructor(
+        public type: LLMProvider,
+        protected options: AgentTypeToOptions[typeof type],
+        protected onTool?: OnTool,
+        public inputs: MessageArray<MessageInput> = new MessageArray(),
+        public tools: Tool[] = [],
+        protected color: string = LOG_ANSI_BLUE,
+        name?: string
+    ) {
+        this.name = name ?? this.type.toString();
+     }
+
+    get data() {
+        return this.client?.data ?? {};
+    }
+
+    async load() {
+        await this.getClient();
+        if ("load" in this.client) {
+            await this.client.load();
+        }
+    }
+
+    clear() {
+        this.client.inputs.length = 0;
+    }
+
+    private async getClient(): Promise<BaseLLM<any, BaseLLMOptions>> {
+        if (this.type === LLMProvider.Anthropic) {
+            const Anthropic = (await import("../llm/Anthropic")).Anthropic;
+            this.client ??= new Anthropic({
+                options: this.options as AnthropicOptions
+            },
+                this.onTool,
+            ) as AgentTypeToClass[T];
+        } else if (this.type === LLMProvider.OpenAI) {
+            const OpenAI = (await import("../llm/Openai")).OpenAI;
+            this.client ??= new OpenAI({
+                options: this.options as OpenAIOptions
+            },
+                this.onTool
+            ) as AgentTypeToClass[T];
+        } else if (this.type === LLMProvider.Ollama) {
+            const Ollama = (await import("../llm/Ollama")).Ollama;
+            this.client ??= new Ollama({
+                options: this.options as OllamaOptions
+            },
+                this.onTool) as AgentTypeToClass[T];
+        } else if (this.type === LLMProvider.HuggingFaceONNX) {
+            const Llama = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
+            this.client ??= new Llama({
+                options: this.options as HuggingFaceONNXOptions
+            },
+                this.onTool
+            ) as AgentTypeToClass[T];
+        } else {
+            throw new Error("not implemented")
+        }
+        this.client.log = this.log.bind(this);
+        return this.client;
+    }
+
+    async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
+        let retries = 0;
+        while (retries < this.MAX_RETRIES) {
+            try {
+                return await apiCall();
+            } catch (error) {
+                if (error instanceof Error && error.message.includes('APIConnectionError')) {
+                    retries++;
+                    this.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
+                    await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
+                } else {
+                    throw error; // Rethrow if it's not a connection error
+                }
+            }
+        }
+        throw new Error(`Max retries (${this.MAX_RETRIES}) reached. Unable to complete the API call.`);
+    }
+
+    /**
+     * Perform a task using the LLM.
+     * @param prompt - The user prompt.
+     * @param stream - Whether to stream the response.
+     * @returns A Promise resolving to either a ReadableStream of Messages or a single Message.
+     */
+    performTask(
+        prompt: string,
+        chainOfThought: string,
+        system: string,
+        stream?: true
+    ): Promise<{
+        usage: { input: number, output: number },
+        response: ReadableStream<Message> & AsyncIterable<Message>
+    }>;
+    performTask(
+        prompt: string,
+        chainOfThought: string,
+        system: string,
+        stream?: false
+    ): Promise<{
+        usage: { input: number, output: number },
+        response: Message
+    }>;
+    async performTask(
+        prompt: string,
+        chainOfThought: string,
+        system: string,
+        stream?: boolean
+    ): Promise<{
+        usage: { input: number, output: number },
+        response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
+    }> {
+        const client = await this.getClient();
+        const response = stream === true ?
+            await this.retryApiCall(() => client.performTaskStream(prompt, chainOfThought, system)) :
+            await this.retryApiCall(() => client.performTaskNonStream(prompt, chainOfThought, system));
+
+        return {
+            usage: client.cache.tokens,
+            response
+        }
+    }
+
+    /**
+     * Run a command safely, catching and handling any errors.
+     * @param tool - The tool being used.
+     * @param input - Array of input messages.
+     * @param run - Function to run the command.
+     */
+    async runSafeCommand(
+        toolUse: ToolUseBlock,
+        run: (agent: any) => Promise<void>
+    ) {
+        if (toolUse.type !== "tool_use") {
+            throw new Error("Expected ToolUseBlock content inside tool_use type message")
+        }
+        try {
+            await run(this);
+        } catch (err) {
+            const error = (err as Error);
+            console.log(err);
+            this.client.inputs.push({
+                role: 'user',
+                content: [
+                    {
+                        name: toolUse.name,
+                        type: 'tool_result',
+                        tool_use_id: toolUse.id,
+                        isError: true,
+                        content: [{
+                            type: 'text',
+                            text: `An error occurred while running ${toolUse.name}: we got error -> ${error.message}`
+                        }]
+
+                    }
+                ]
+            })
+        }
+    }
+}
+</file>
+
+<file path="llm/huggingface/llama/constants.ts">
+export const START_TEXT_TAG = '<|begin_of_text|>';
+
+
+
+export const START_HEADER_TAG = '<|start_header_id|>';
+export const END_HEADER_TAG = '<|end_header_id|>';
+
+export const TOOL_TAG = '<|python_tag|>';
+export const END_TAG = '<|eot_id|>';
+export const END_MSG = '<|eom_id|>';
+
+export const THINKING_TAG = '<|thinking|>';
+export const ANSWER_TAG = '<|answer|>';
+</file>
+
+<file path="llm/huggingface/stopCriteria.ts">
+import {
+  InterruptableStoppingCriteria,
+  PreTrainedTokenizer
+} from "@huggingface/transformers";
+
+
+import { Message } from "../../types";
+import { END_HEADER_TAG, END_TAG, START_HEADER_TAG, START_TEXT_TAG } from "./llama/constants";
+
+
+
+
+
+
+export class StopCriteria extends InterruptableStoppingCriteria {
+  private reason: Message | null = null;
+
+
+  constructor(
+    private tokenizer: PreTrainedTokenizer,
+  ) {
+    super();
+  }
+
+  public setReason(reason: Message | null) {
+    this.reason = reason
+  }
+
+  public getReason() {
+    return this.reason
+  }
+
+  private parse(json: string): any {
+    try {
+      return JSON.parse(json);
+    } catch (error) {
+      return json;
+    }
+  }
+
+  private clean(text: string): string {
+    return text.replace(END_TAG, "")
+      .replace(START_TEXT_TAG, "")
+      .replace(START_HEADER_TAG, "")
+      .replace(END_HEADER_TAG, "")
+      .replace(END_TAG, "")
+  }
+
+  public override _call(sections: number[][], scores: any): any[] {
+    return sections.map((s, i) => {
+      const currentDecoded = this.tokenizer.decode(s);
+      console.log(currentDecoded)
+        let active: boolean = false;
+        const parsedMessage = s.reduce<string[]>((text, i) => {
+          const decodedI = this.tokenizer.decode([i]);
+          // if (decodedI.includes(START_TOOL_TAG)) {
+          //   active = true;
+          //   return [];
+          // } else if (decodedI.includes(END_TOOL_TAG)) {
+          //   active = false
+          //   return [];
+          // }
+          // if (active) {
+          //   return [...text, this.clean(decodedI)];
+          // }
+          return text;
+        }, [])
+        if (parsedMessage.length > 0) {
+          const body = this.parse(parsedMessage.join(""));
+          if (typeof body !== 'string') {
+            const id = `tool-${i}`;
+            const message: Message = {
+              id,
+              role: 'assistant',
+              type: 'tool_use',
+              content: [{
+                ...body,
+                id,
+                input: body.parameters ?? {},
+                type: 'tool_use'
+              }]
+            }
+            if (!currentDecoded.includes(`Output for tool${id}`)) {
+              this.setReason(message);
+              return true;
+            } 
+          }
+    
+      }
+      return false;
+    })
+  }
+}
+</file>
+
+<file path="llm/huggingface/types.ts">
+import { Tensor } from "@huggingface/transformers";
+
+export type TensorDataType = {
+    input_ids: Tensor;
+    attention_mask: Tensor;
+    token_type_ids?: Tensor;
+}
+</file>
+
+<file path="llm/Anthropic.ts">
+import SDK from '@anthropic-ai/sdk';
+import { v4 } from 'uuid';
+import { ImageBlockParam, MessageParam, TextBlockParam, ToolResultBlockParam, ToolUseBlockParam } from '@anthropic-ai/sdk/resources';
+import { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider, BlockType, BaseLLMCache, ReadableStreamWithAsyncIterable } from "../types";
+import { BaseLLM } from "./Base";
+import { MessageArray } from '../utils';
+
+type AnthropicConstructor = {
+  options: AnthropicOptions,
+  onTool?: OnTool
+}
+
+export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> {
+  public cache: BaseLLMCache = { toolInput: null, chunks: '',  tokens: { input: 0, output: 0 } }
+
+  private onTool?: OnTool
+  protected api: SDK;
+  public inputs: MessageArray<MessageInput> = new MessageArray();
+
+  constructor(
+    { options }: AnthropicConstructor,
+    onTool?: OnTool,
+  ) {
+    super(LLMProvider.Anthropic, options);
+    this.api = new SDK({
+      apiKey: options.apiKey,
+      dangerouslyAllowBrowser: true
+    })
+    this.onTool = onTool;
+  }
+
+  get maxTokens() {
+    return this.options.maxTokens ?? 8192
+  }
+
+  private fromInputToParam(model: MessageInput): MessageParam {
+    const content: Array<TextBlockParam | ImageBlockParam | ToolUseBlockParam | ToolResultBlockParam>
+      = model.content
+        .filter((contentModel) =>
+          contentModel.type !== "tool_delta" &&
+          contentModel.type !== 'usage' &&
+          contentModel.type !== "delta" &&
+          contentModel.type !== "error"
+        )
+        .map((contentModel) => {
+          if (contentModel.type === "text") {
+            const textBlock: TextBlockParam = {
+              type: 'text',
+              text: contentModel.text
+            }
+            return textBlock
+          } else if (contentModel.type === "image") {
+            const imageBlock: ImageBlockParam = contentModel
+            return imageBlock
+          } else if (contentModel.type === "tool_use") {
+            const toolUseBlock: ToolUseBlockParam = {
+              type: 'tool_use',
+              id: contentModel.id,
+              input: contentModel.input,
+              name: contentModel.name
+            }
+            return toolUseBlock
+          }
+
+          const toolResultBlock: ToolResultBlockParam = {
+            is_error: contentModel.isError,
+            tool_use_id: contentModel.tool_use_id,
+            type: contentModel.type,
+            content: contentModel.content!
+              .map((content) => {
+                if (content.type === "image") {
+                  const imageBlock: ImageBlockParam = content
+                  return imageBlock
+                }
+                if (content.type === "text") {
+                  const textBlock: TextBlockParam = {
+                    type: 'text',
+                    text: content.text
+                  }
+                  return textBlock;
+                }
+                return content
+              }) as any
+          }
+          return toolResultBlock
+        })
+    return {
+      ...model,
+      content
+    } as MessageParam
+  }
+
+  private chunk(
+    chunk: SDK.RawMessageStreamEvent
+  ): Message | null {
+    if (chunk.type === "content_block_start") {
+      if (chunk.content_block.type === 'tool_use') {
+        this.cache.chunks = null
+        this.cache.toolInput = chunk.content_block
+        this.cache.toolInput.input = ""
+        const toolUseBlock: ToolUseBlock = chunk.content_block
+        this.cache.toolInput = toolUseBlock;
+        return {
+          id: v4(),
+          role: 'assistant',
+          type: 'tool_use',
+          content: [
+            toolUseBlock
+          ]
+        }
+      }
+    } else if (chunk.type === "content_block_delta") {
+      const delta = chunk.delta;
+      if (delta.type === 'text_delta') {
+        return {
+          id: this.cache.chunks!,
+          role: 'assistant',
+          type: 'message',
+          chunk: true,
+          content: [
+            {
+              type: 'text',
+              text: delta.text,
+            }
+          ]
+        }
+      } else if (delta.type === 'input_json_delta') {
+        this.cache.chunks = null
+        const toolInputBlock: ToolInputDelta = {
+          type: 'tool_delta',
+          partial: delta.partial_json
+        }
+        this.cache.toolInput = toolInputBlock;
+        return {
+          id: v4(),
+          role: 'assistant',
+          type: 'tool_delta',
+          content: [toolInputBlock]
+        }
+      }
+    } else if (chunk.type === "content_block_stop") {
+      this.cache.chunks = null
+      const isTool = this.cache.toolInput?.type === "tool_use";
+      if (isTool) {
+        const toolInput = this.cache.toolInput as SDK.ToolUseBlock;
+        this.cache.toolInput = null
+        return {
+          id: v4(),
+          role: 'assistant',
+          type: 'tool_use',
+          content: [toolInput]
+        }
+      }
+    } else if (chunk.type === "message_delta") {
+      this.cache.tokens.output = chunk.usage.output_tokens;
+      this.cache.chunks = null;
+
+      if (chunk.delta.stop_reason === "max_tokens") {
+        const errorBlock: ErrorBlock = {
+          type: 'error',
+          message: `Exceeding the token limit, ${chunk.usage.output_tokens}`
+        }
+        return {
+          id: v4(),
+          role: 'assistant',
+          type: 'error',
+          content: [
+            errorBlock
+          ]
+        }
+
+      } else {
+        const usageBlock: UsageBlock = {
+          type: "usage",
+          output: chunk.usage.output_tokens,
+          input: this.cache.tokens.input
+        }
+        return {
+          id: v4(),
+          role: 'assistant',
+          type: 'delta',
+          content: [
+            chunk.delta as DeltaBlock,
+            usageBlock
+          ]
+        }
+      }
+    } else if (chunk.type === "message_start") {
+      this.cache.chunks = chunk.message.id;
+      this.cache.toolInput = null
+      this.cache.tokens.input = chunk.message.usage.input_tokens;
+      const usageBlock: UsageBlock = {
+        type: "usage",
+        output: 0,
+        input: this.cache.tokens.input
+      }
+      return {
+        id: v4(),
+        role: 'assistant',
+        type: 'usage',
+        content: [
+          usageBlock
+        ]
+      }
+    }
+    return null
+  }
+
+  get llmInputs() {
+    return this.inputs
+    .flatMap((input) => this.fromInputToParam(input))
+    .filter((c) => {
+      if (Array.isArray(c.content) && c.content.length === 0) {
+        return false;
+      }
+      return true;
+    })
+    .flatMap(({role, content}) => ({role, content}))
+
+  }
+
+   async performTaskStream(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+  ): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
+
+    const params: SDK.MessageCreateParams = {
+      max_tokens: this.maxTokens,
+      system: system,
+      messages:this.llmInputs,
+      model: this.options.model,
+      tools: this.options.tools
+    };
+    const apiHeaders: Record<string, string> = {}
+
+    const options = { headers: apiHeaders, signal: this.options?.signal as any }
+
+    const createStream = async () => {
+      return this.retryApiCall(async() => {
+          const stream = await this.api.messages.create(
+            {
+              ...params,
+              stream: true
+            },
+            options
+          )
+          return stream.toReadableStream() as ReadableStreamWithAsyncIterable<SDK.RawMessageStreamEvent>
+      });
+    };
+
+    const stream = await createStream();
+    const transform = await this.transformStream<SDK.RawMessageStreamEvent, Message>(
+      stream,
+      this.chunk.bind(this)
+    )
+
+    const automodeStream = await this.transformAutoMode(
+      transform,
+      async () => {
+        params.messages = this.llmInputs
+        const stream =await createStream();
+        return this.transformStream<SDK.RawMessageStreamEvent, Message>(
+          stream, 
+          this.chunk.bind(this)
+        )
+      },
+      this.onTool?.bind(this)
+    )
+    
+
+    return automodeStream
+  }
+
+   async performTaskNonStream(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+  ): Promise<Message> {
+    const apiHeaders: Record<string, string> = {
+      'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
+    }
+    const apiOptions = { headers: apiHeaders, signal: this.options?.signal as any }
+    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
+    let sdkMessage: SDK.Messages.Message;
+    while(true) {
+      const params: SDK.MessageCreateParamsNonStreaming = {
+        max_tokens: this.maxTokens,
+        system: system,
+        messages: this.inputs.map(this.fromInputToParam),
+        model: this.options.model,
+        // @ts-ignore
+        tools: this.options.tools,
+        stream: false
+      };
+      sdkMessage = await this.retryApiCall(() => this.api.messages.create(params, apiOptions));
+      const message = {role: sdkMessage.role, content: sdkMessage.content};
+      this.inputs.push(message)
+
+      if (sdkMessage.stop_reason === "end_turn") break;
+      if (sdkMessage.stop_reason === "tool_use") {
+        const tool = sdkMessage.content.find(
+          (content): content is SDK.ToolUseBlock => content.type === 'tool_use',
+        );
+        console.log(`[task messages]tool is ${tool?.name}`);
+        if (tool && this.onTool) {
+          await this.onTool.bind(this)(message, this.options.signal);
+        } else {
+          console.log(`[task messages] tool not found ${tool?.name}`);
+        }
+        // The next iteration will include any (tool) content appended in onTool if needed
+      } 
+    }
+    return {
+      id: sdkMessage.id,
+      role: sdkMessage.role,
+      type: "message",
+      content: sdkMessage.content
+    };
+  }
+}
+</file>
+
+<file path="llm/Base.ts">
+import type { AbortSignal } from 'abort-controller';
+import type { 
+  BaseLLMOptions, 
+  Message,
+  MessageInput,
+  OnTool,
+  ReadableStreamWithAsyncIterable,
+  ToolUseBlock,
+  ToolResultBlock,
+  ErrorBlock,
+  ToolInputDelta,
+  BaseLLMCache
+} from '../types';
+import { Runner } from '../types';
+import { v4 } from 'uuid';
+import { MessageArray } from '../utils';
+
+/**
+ * Represents a function that transforms a chunk of data in a stream.
+ * @template T The type of the input chunk.
+ * @template M The type of the output message.
+ * @param {T} chunk - The input chunk to be transformed.
+ * @param {ReadableWritablePair<M, T>} stream - The stream to read from and write to.
+ * @returns {Promise<M[]>} A promise that resolves to an array of transformed messages.
+ */
+export type TransformStreamFn<T, M> = (
+  chunk: T,
+) => M | null
+
+/**
+ * Abstract base class for Language Model implementations.
+ * @template TYPE The type of the language model.
+ * @template OPTIONS The type of options for the language model, extending BaseLLMOptions.
+ * @extends {Runner}
+ */
+export abstract class BaseLLM<
+  TYPE,
+  OPTIONS extends BaseLLMOptions,
+> extends Runner {
+  /** An array of message inputs. */
+  private MAX_RETRIES = 10;
+  private RETRY_DELAY = 3000; // 3 seconds
+  public abstract cache: BaseLLMCache
+  public abstract inputs: MessageArray<MessageInput>
+  public data: Record<string, unknown> = {}
+  public log: (message: string) => void = console.log;
+
+  async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
+    let retries = 0;
+    while (retries < this.MAX_RETRIES) {
+        try {
+            return await apiCall();
+        } catch (error) {
+            if (error instanceof Error && error.message.includes('APIConnectionError')) {
+                retries++;
+                console.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
+            } else {
+                throw error; // Rethrow if it's not a connection error
+            }
+        }
+    }
+    throw new Error(`Max retries (${this.MAX_RETRIES}) reached. Unable to complete the API call.`);
+}
+
+/**
+ * Perform a task using the LLM.
+ * @param prompt - The user prompt.
+ * @param stream - Whether to stream the response.
+ * @returns A Promise resolving to either a ReadableStream of Messages or a single Message.
+ */
+performTask(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+    stream?: true
+): Promise<{
+    usage: { input: number, output: number },
+    response: ReadableStream<Message> & AsyncIterable<Message>
+}>;
+performTask(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+    stream?: false
+): Promise<{
+    usage: { input: number, output: number },
+    response: Message
+}>;
+async performTask(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+    stream?: boolean
+): Promise<{
+    usage: { input: number, output: number },
+    response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
+}> {
+    const response = stream === true ?
+        await this.retryApiCall(() => this.performTaskStream(prompt, chainOfThought, system)) :
+        await this.retryApiCall(() => this.performTaskNonStream(prompt, chainOfThought, system));
+
+    return {
+        usage: this.cache.tokens,
+        response
+    }
+}
+
+/**
+ * Run a command safely, catching and handling any errors.
+ * @param tool - The tool being used.
+ * @param input - Array of input messages.
+ * @param run - Function to run the command.
+ */
+async runSafeCommand(
+    toolUse: ToolUseBlock,
+    run: (agent: unknown) => Promise<void>
+) {
+    if (toolUse.type !== "tool_use") {
+        throw new Error("Expected ToolUseBlock content inside tool_use type message")
+    }
+    try {
+        await run(this);
+    } catch (err) {
+        const error = (err as Error);
+        console.log(err);
+        this.inputs.push({
+            role: 'user',
+            content: [
+                {
+                    name: toolUse.name,
+                    type: 'tool_result',
+                    tool_use_id: toolUse.id,
+                    isError: true,
+                    content: [{
+                        type: 'text',
+                        text: `An error occurred while running ${toolUse.name}: we got error -> ${error.message}`
+                    }]
+
+                }
+            ]
+        })
+    }
+}
+
+  /**
+   * Creates an instance of BaseLLM.
+   * @param {TYPE} type - The type of the language model.
+   * @param {OPTIONS} options - The options for the language model.
+   */
+  constructor(public readonly type: TYPE, protected options: OPTIONS) {
+    super()
+  }
+
+   includeLastPrompt(prompt: string, chainOfThought: string, input: MessageArray<MessageInput>):MessageArray<MessageInput>  {
+    const promptWithChainOfThought = `${prompt}\r\n\r\n${chainOfThought}`
+    if (input.length<= 0) {
+      return MessageArray.from(
+        [
+          { role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] }
+        ]
+      )
+    }
+    const last = input[input.length - 1];
+    if (last && last.content.length > 0) {
+      const found = last.content.find((c) => c.type === "text" && c.text === promptWithChainOfThought);
+      if (found) {
+          return input;
+      } else {
+          if (input[input.length - 1].role === 'user') {
+              input[input.length - 1].content.push({ type: 'text', text: promptWithChainOfThought });
+          } else {
+              input.push({ role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] })
+          }
+          return input;
+      }
+  }
+    return MessageArray.from(
+      [
+        ...input,
+        { role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] }
+      ]
+    )
+  }
+
+  /**
+   * Transforms an input stream using the provided transform function.
+   * @template T The type of the input chunk.
+   * @template S The type of the output stream, extending ReadableStream.
+   * @param {S} input - The input stream to be transformed.
+   * @param {TransformStreamFn<T, S>} transform - The function to transform each chunk.
+   * @returns {Promise<ReadableStream<S>>} A promise that resolves to the transformed readable stream.
+   */
+  async transformAutoMode<AChunk extends Message> (
+    input: ReadableStreamWithAsyncIterable<AChunk>,
+    getNext: () => Promise<ReadableStreamWithAsyncIterable<AChunk>>,
+    onTool?:OnTool
+  ) {
+    const agent = this;
+    const stream = new ReadableStream({
+       start :async (controller) => {
+        let reader: ReadableStreamDefaultReader<AChunk> = input.getReader();
+        
+        while (true) {
+          const readerResult = await reader.read();
+          if (readerResult.done) break;
+
+          try {
+            if (!readerResult.value) {
+              continue;
+            }
+            const tChunk:AChunk =  readerResult.value;
+
+            this.log(`tChunk: ${tChunk.type} ${JSON.stringify(tChunk)}`);
+
+            if (tChunk.type === "error" || 
+              tChunk.type === "usage" || 
+              tChunk.type === "delta" || 
+              tChunk.type === "tool_delta" || 
+              tChunk.type === "message"
+            ) {
+              controller.enqueue(tChunk)
+            } else if (tChunk.type === "tool_use") {
+              agent.inputs.push(tChunk);
+              controller.enqueue({
+                id: tChunk.id,
+                role: tChunk.role,
+                content: tChunk.content,
+                type: 'tool_use'
+              })
+              if (onTool && tChunk.content[0].type === "tool_use" ) {
+                const toolUse = tChunk.content[0] as ToolUseBlock;
+                const cacheEntry = (this.cache.toolInput ?? {}) as ToolInputDelta;
+                const partial = cacheEntry?.partial || (cacheEntry as unknown as { input: string }).input;
+                if (partial) {
+                  toolUse.input = {}  
+                } else {
+                  
+                  toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
+                }
+                await onTool.bind(this)(tChunk, this.options.signal);
+                const lastOutput = agent.inputs[agent.inputs.length - 1];
+                if (lastOutput.role !== "user" || lastOutput.content[0].type !== 'tool_result') {
+                    throw new Error("Expected to have a user reply with the tool response");
+                }
+  
+                if (lastOutput.content[0].type === 'tool_result') {
+                  lastOutput.content[0] = {
+                    ...lastOutput.content[0],
+                    name: (tChunk.content[0] as ToolUseBlock).name
+                  } as ToolResultBlock;
+                }
+
+                controller.enqueue({
+                  id: lastOutput.id ?? v4(),
+                  role:'user',
+                  content: lastOutput.content,
+                  type: 'tool_result'
+                });
+
+              
+                const newStream = await getNext.bind(agent)();
+                const oldReader = reader;
+                reader = newStream.getReader()
+                oldReader.releaseLock()
+                
+              }
+            } 
+          } catch (err: unknown) {
+            const errorBlock: ErrorBlock = {
+              type: "error",
+              message: (err as Error).message
+            }
+            controller.enqueue({
+              id: v4(),
+              role:'assistant',
+              type: 'error',
+              content: [errorBlock]
+            } as Message)
+          }
+        }
+        await this.release(reader, controller)
+      }
+    })
+    return stream as ReadableStreamWithAsyncIterable<AChunk>
+  }
+
+  private async release<AChunk extends Message>(
+    reader: ReadableStreamDefaultReader<AChunk>, 
+    controller: ReadableStreamDefaultController<Message>
+  ) {
+    try {
+      reader.releaseLock()
+      controller.close()
+    } catch (err) {
+      console.log("error can be ignore but ", err)
+    }
+  }
+
+  /**
+   * Transforms the given stream from an AI provider into a Uaito Stream
+   * This also keeps track of the received messages
+   * @param input 
+   * @param transform 
+   * @returns 
+   */
+  async transformStream<AChunk, BChunk extends Message>(
+    input: ReadableStreamWithAsyncIterable<AChunk>,
+    transform: TransformStreamFn<unknown, BChunk>,
+  ): Promise<ReadableStreamWithAsyncIterable<BChunk>> {
+
+    const reader = input.getReader();
+
+    function emit(
+      controller: ReadableStreamDefaultController<BChunk>,
+      message: BChunk
+    ) {
+      controller.enqueue(message);
+    }
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        while(true) {
+          const s = await reader.read();
+          if (s.done) break;
+          
+          if (!s.value) {
+            continue;
+          }
+          const message = s.value instanceof Uint8Array ? transform(
+            JSON.parse(
+              Buffer.from(
+                s.value as unknown as Uint8Array
+              ).toString()
+            )
+          ) : transform(s.value);
+
+
+          if (message !== null) {
+            //Message pre-processing, cache and tools
+            const isErrorMessage = message.type === "error";
+            const isDeltaMessage = message.type === "delta";
+            const isToolDeltaMessage = message.type === "tool_delta";
+            const isToolUseMessage = message.type === "tool_use";
+            const isChunkMessage = message.type === "message";
+            const isUsageMessage = message.type === "usage";
+
+            if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage) {
+              emit(controller, message);
+            } else if (isDeltaMessage) {
+              for (const content of message.content) {
+                if (content.type === "usage") {
+                  const usageMessage = {
+                    id: v4(),
+                    role:'assistant',
+                    type: 'usage',
+                    content: [content]
+                  } as BChunk
+                  emit(controller, usageMessage)
+                } else if (content.type === "delta") {
+                  if (content.stop_reason === "max_tokens" || content.stop_reason === "end_turn") {
+                    emit(controller, message)
+                  } 
+                }
+              }
+            } 
+          } 
+        }
+        reader.releaseLock()
+      }
+    })
+    return stream as ReadableStream<BChunk> & AsyncIterable<BChunk>
+  }
+}
+</file>
+
+<file path="llm/HuggingFaceONNX.ts">
+import { v4 } from "uuid";
+
+import type {
+  BaseLLMCache,
+  OnTool,
+  ReadableStreamWithAsyncIterable,
+  Message,
+  HuggingFaceONNXOptions,
+  MessageInput,
+  MessageType,
+  ToolUseBlock,
+  ToolResultBlock,
+  TextBlock,
+} from "../types";
+import { LLMProvider } from "../types";
+
+import type {
+  Message as HMessage,
+  PreTrainedTokenizer,
+  PreTrainedModel,
+} from "@huggingface/transformers";
+import { AutoTokenizer, AutoModelForCausalLM, TextStreamer } from "@huggingface/transformers";
+
+
+
+import { BaseLLM } from "./Base";
+import type { TensorDataType } from "./huggingface/types";
+import { MessageArray } from "../utils";
+
+// Removed unused IM_START_TAG to satisfy linter and avoid confusion
+const IM_END_TAG = '<|im_end|>';
+
+const modelCache = new Map<string, PreTrainedModel>();
+const tokenizerCache = new Map<string, PreTrainedTokenizer>();
+
+type HuggingFaceMessage = HMessage & {
+  type?: MessageType,
+  id?: string
+}
+
+interface ParsedCall {
+  name: string;
+  positionalArgs: unknown[];
+  keywordArgs: Record<string, unknown>;
+}
+
+
+export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, HuggingFaceONNXOptions> {
+  public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
+  public loadProgress: number = 0;
+  public inputs: MessageArray<MessageInput> = new MessageArray();
+
+  private tokenizer!: PreTrainedTokenizer;
+  private model!: PreTrainedModel;
+  private currentMessageId: string | null = null;
+
+  constructor(
+    { options }: { options: HuggingFaceONNXOptions },
+    public onTool?: OnTool
+  ) {
+    super(LLMProvider.HuggingFaceONNX, options);
+    this.data.progress = 0;
+  }
+
+  async load() {
+    this.log(`Loading model: ${this.options.model}`);
+    const modelId = this.options.model;
+    
+    if (tokenizerCache.has(modelId)) {
+      this.tokenizer = tokenizerCache.get(modelId)!;
+    } else {
+      this.tokenizer = await AutoTokenizer.from_pretrained(modelId);
+      tokenizerCache.set(modelId, this.tokenizer);
+    }
+
+    this.log(`Tokenizer loaded for ${modelId}`);
+
+    if (modelCache.has(modelId)) {
+      this.model = modelCache.get(modelId)!;
+    } else {
+      this.model = await AutoModelForCausalLM.from_pretrained(modelId, {
+        device: this.options.device ?? "webgpu",
+        dtype: this.options.dtype ?? "auto",
+        progress_callback: (info: Record<string, unknown>) => {
+          if (info.status === "progress") {
+            const progress = parseInt(info.progress as string, 10);
+            this.data.progress = progress;
+            if (this.options.onProgress) {
+              this.options.onProgress(progress);
+            }
+          } else {
+            this.log(`Model loading status: ${info.status}`);
+          }
+        },
+      });
+      modelCache.set(modelId, this.model);
+    }
+    this.log(`Model loaded: ${modelId}`);
+  }
+
+  private fromInputToParam(model: MessageInput): HuggingFaceMessage {
+    const textContent = model.content
+      .filter((c): c is TextBlock => c.type === "text")
+      .map((c) => c.text)
+      .join("\n\n");
+
+    const toolUseContent = model.content
+      .filter((c): c is ToolUseBlock => c.type === "tool_use")
+      .map((toolUse) =>
+        JSON.stringify({
+          id: toolUse.id,
+          name: toolUse.name,
+          parameters: toolUse.input,
+        })
+      )
+      .join("\n");
+
+    const toolResultContent = model.content
+      .filter((c): c is ToolResultBlock => c.type === "tool_result")
+      .map((toolResult) => {
+        const textContent = (toolResult.content ?? [])
+          .filter((c): c is TextBlock => c.type === "text")
+          .map((c) => c.text)
+          .join("\n\n");
+        return JSON.stringify({
+          tool_use_id: toolResult.tool_use_id,
+          name: toolResult.name,
+          content: textContent,
+          is_error: toolResult.isError ?? false,
+        });
+      })
+      .join("\n");
+    
+    let role = model.role;
+    if (toolUseContent) role = 'assistant';
+    if (toolResultContent) role = 'tool';
+
+    const finalContent = [textContent, toolUseContent, toolResultContent].filter(Boolean).join('\n\n');
+
+    return {
+      role: role,
+      content: finalContent,
+    };
+  }
+
+  private getTensorData() {
+    const currentInputs =  Array.from(this.inputs)
+    //  .filter(m => !(m.content.length > 0 && m.content[0].type === 'tool_use'))
+      .map(this.fromInputToParam);
+    return this.tokenizer.apply_chat_template(currentInputs, {
+      tokenize: true,
+      add_generation_prompt: true,
+      return_tensor: true,
+      return_dict: true,
+      truncation: true,
+      tools: this.options.tools,
+    }) as TensorDataType;
+  }
+
+  private _parseArguments(argsString: string): string[] {
+    const args: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    let quoteChar = "";
+    let depth = 0;
+
+    for (let i = 0; i < argsString.length; i++) {
+      const char = argsString[i];
+
+      if (!inQuotes && (char === '"' || char === "'")) {
+        inQuotes = true;
+        quoteChar = char;
+        current += char;
+      } else if (inQuotes && char === quoteChar) {
+        inQuotes = false;
+        quoteChar = "";
+        current += char;
+      } else if (!inQuotes && char === "(") {
+        depth++;
+        current += char;
+      } else if (!inQuotes && char === ")") {
+        depth--;
+        current += char;
+      } else if (!inQuotes && char === "," && depth === 0) {
+        args.push(current.trim());
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+
+    if (current.trim()) {
+      args.push(current.trim());
+    }
+
+    return args;
+  };
+
+  private _extractPythonicCalls(toolCallContent: string): string[] {
+    try {
+      const cleanContent = toolCallContent.trim();
+
+      try {
+        const parsed = JSON.parse(cleanContent);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch {
+        // Fallback to manual parsing
+      }
+
+      if (cleanContent.startsWith("[") && cleanContent.endsWith("]")) {
+        const inner = cleanContent.slice(1, -1).trim();
+        if (!inner) return [];
+        return this._parseArguments(inner).map((call) =>
+          call.trim().replace(/^['"]|['"]$/g, ""),
+        );
+      }
+
+      return [cleanContent];
+    } catch (error) {
+      console.error("Error parsing tool calls:", error);
+      return [];
+    }
+  };
+
+  private _parsePythonicCall(command: string): ParsedCall | null {
+    const callMatch = command.match(/^([a-zA-Z0-9_]+)\((.*)\)$/s);
+    if (!callMatch) return null;
+
+    const [, name, argsStr] = callMatch;
+    const args = this._parseArguments(argsStr);
+    const positionalArgs: unknown[] = [];
+    const keywordArgs: Record<string, unknown> = {};
+
+    for (const arg of args) {
+      const kwargMatch = arg.match(/^([a-zA-Z0-9_]+)\s*=\s*(.*)$/s);
+      if (kwargMatch) {
+        const [, key, value] = kwargMatch;
+        try {
+          keywordArgs[key] = JSON.parse(value);
+        } catch {
+          keywordArgs[key] = value;
+        }
+      } else {
+        try {
+          positionalArgs.push(JSON.parse(arg));
+        } catch {
+          positionalArgs.push(arg);
+        }
+      }
+    }
+    return { name, positionalArgs, keywordArgs };
+  };
+
+  private _mapArgsToNamedParams(  paramNames: string[],  positionalArgs: unknown[], keywordArgs: Record<string, unknown>): Record<string, unknown> {
+    const namedParams: Record<string, unknown> = {};
+    positionalArgs.forEach((arg, idx) => {
+      if (idx < paramNames.length) {
+        namedParams[paramNames[idx]] = arg;
+      }
+    });
+    Object.assign(namedParams, keywordArgs);
+    return namedParams;
+  };
+
+  private state: {
+    buffer: string,
+    capturingToolCall: boolean
+  } = {
+      buffer: '',
+      capturingToolCall: false
+    }
+
+  private chunk(chunk: string): Message | null {
+    this.state.buffer += chunk;
+    this.currentMessageId ??= v4();
+
+    if (!this.state.capturingToolCall) {
+      const startIndex = this.state.buffer.indexOf('<|tool_call_start|>');
+      if (startIndex !== -1) {
+        const textPart = this.state.buffer.substring(0, startIndex);
+        this.state.buffer = this.state.buffer.substring(startIndex + '<|tool_call_start|>'.length);
+        this.state.capturingToolCall = true;
+
+        if (textPart) {
+          return {
+            id: this.currentMessageId,
+            role: 'assistant',
+            type: 'message',
+            chunk: true,
+            content: [{ type: 'text', text: textPart }]
+          };
+        }
+      }
+    }
+
+    if (this.state.capturingToolCall) {
+      const endIndex = this.state.buffer.indexOf('<|tool_call_end|>');
+      if (endIndex !== -1) {
+        const toolCallContent = this.state.buffer.substring(0, endIndex);
+        this.log(`Detected tool call content: "${toolCallContent}"`);
+        this.state.buffer = this.state.buffer.substring(endIndex + '<|tool_call_end|>'.length);
+        this.state.capturingToolCall = false;
+
+        const toolCalls = this._extractPythonicCalls(toolCallContent);
+        const toolUseBlocks: ToolUseBlock[] = toolCalls.flatMap(call => {
+          this.log(`Parsing tool call: "${call}"`);
+          const parsed = this._parsePythonicCall(call);
+          if (!parsed) return [];
+          
+          const { name, positionalArgs, keywordArgs } = parsed;
+          const toolSchema = this.options.tools?.find((t) => t.name === name);
+          const paramNames = toolSchema ? Object.keys(toolSchema.input_schema.properties) : [];
+          const input = this._mapArgsToNamedParams(paramNames, positionalArgs, keywordArgs);
+
+          return {
+            id: v4(),
+            name,
+            input,
+            type: 'tool_use'
+          };
+        });
+
+        if (toolUseBlocks.length > 0) {
+          this.log(`Emitting ${toolUseBlocks.length} tool_use blocks.`);
+          this.currentMessageId = null;
+          // For simplicity in this refactor, we'll wrap all tool calls in a single message.
+          // The `BaseLLM`'s `transformAutoMode` will handle dispatching them.
+          return {
+            id: v4(),
+            role: 'assistant',
+            type: 'tool_use',
+            content: toolUseBlocks
+          };
+        }
+      }
+    }
+    
+    // If no tool call markers are processed, treat the buffer as text
+    if (!this.state.capturingToolCall && chunk.indexOf('<|tool_call_start|>') === -1) {
+      const textToEmit = this.state.buffer;
+      this.state.buffer = '';
+      if (textToEmit) {
+        return {
+          id: this.currentMessageId,
+          role: 'assistant',
+          type: 'message',
+          chunk: true,
+          content: [{ type: 'text', text: textToEmit }]
+        };
+      }
+    }
+
+    return null;
+  }
+  
+  async createStream(input: TensorDataType): Promise<ReadableStreamWithAsyncIterable<string>> {
+    this.log("createStream called.");
+    this.state.buffer = '';
+    this.state.capturingToolCall = false;
+
+    const stream = new ReadableStream<string>({
+      start: async (controller) => {
+        this.log("ReadableStream started for model generation.");
+        const streamer = new TextStreamer(this.tokenizer, {
+          skip_prompt: true,
+          skip_special_tokens: false,
+          callback_function: (value: string) => {
+            controller.enqueue(value.replace(IM_END_TAG, ""));
+          },
+        });
+
+        try {
+          await this.model.generate({
+            ...input,
+            streamer,
+            // @ts-ignore
+            max_new_tokens: this.options.maxTokens ?? 4096,
+          });
+          
+          this.log("Model generation finished.");
+
+          if (this.state.buffer) {
+            const lastContent = this.state.buffer.replace(IM_END_TAG, "").trim()
+            if (lastContent) {
+              controller.enqueue(lastContent);
+            }
+            this.state.buffer = '';
+          }
+          
+          controller.close();
+        } catch (e) {
+          this.log(`Model generation error: ${e}`);
+          controller.error(e);
+        }
+      },
+    });
+
+    return stream as ReadableStreamWithAsyncIterable<string>;
+  }
+
+  private addDefaultItems(prompt: string, system: string, chainOfThought: string) {
+    if (this.inputs.length === 0 && system !== '') {
+      //Internal message
+      const systemPrompt: Message = {
+        id: v4(),
+        role: "system",
+        type: "message",
+        content: [{
+          text: system,
+          type: "text"
+        }]
+      }
+      this.inputs.push(systemPrompt as MessageInput);
+    }
+    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs)
+  }
+
+  async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    this.log("Starting performTaskStream");
+    await this.load();
+
+    this.addDefaultItems(prompt, system, chainOfThought);
+    const tensor = this.getTensorData();
+    this.log(`Tensor created. Shape: ${tensor.input_ids.dims}`);
+
+    const rawStream = await this.createStream(tensor);
+    const transformedStream = await this.transformStream<string, Message>(
+      rawStream,
+      this.chunk.bind(this)
+    );
+    const automodeStream = await this.transformAutoMode(
+      transformedStream,
+      async () => {
+        const nextTensor = this.getTensorData();
+        const nextRawStream = await this.createStream(nextTensor);
+        return this.transformStream<string, Message>(
+          nextRawStream,
+          this.chunk.bind(this)
+        );
+      },
+      this.onTool?.bind(this)
+    );
+
+    const lastMessage = this.inputs.slice(-1)[0];
+    if (!lastMessage || lastMessage.role !== 'user') {
+      return automodeStream;
+    }
+    
+    const userMessage: Message = {
+      ...(lastMessage as MessageInput),
+      id: lastMessage.id || v4(),
+      type: 'message',
+    };
+
+    const stream = new ReadableStream<Message>({
+      async start(controller) {
+        controller.enqueue(userMessage);
+
+        const reader = automodeStream.getReader();
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            controller.enqueue(value);
+          }
+          controller.close();
+        } catch (e) {
+          controller.error(e);
+        }
+      },
+      cancel(reason) {
+        automodeStream.cancel(reason);
+      },
+    });
+
+    return stream as ReadableStreamWithAsyncIterable<Message>;
+  }
+
+  performTaskNonStream(_prompt: string, _chainOfThought: string, _system: string): Promise<Message> {
+    throw new Error("Method not implemented.");
+  }
+
+}
+</file>
+
+<file path="llm/Ollama.ts">
+import { v4 } from 'uuid';
+
+import { BaseLLM } from "./Base";
+
+import {
+  Ollama as OllamaApi,
+  ChatRequest,
+  Message as OllamaMessage,
+  Tool as OllamaTool,
+  ChatResponse
+} from 'ollama/dist/browser.cjs'
+
+import {
+  LLMProvider,
+  Message,
+  MessageInput,
+  OnTool,
+  BaseLLMCache,
+  OllamaOptions,
+  ToolUseBlock,
+  TextBlock,
+  ReadableStreamWithAsyncIterable,
+} from "../types";
+import { MessageArray } from '../utils';
+
+type OllamaRequest = ChatRequest & {
+  stream?: false;
+};
+
+type OllamaRequestStream = ChatRequest & {
+  stream: true;
+};
+
+type ReduceOllamaMessage = Pick<OllamaMessage, 'role' | 'content' | 'images' | 'tool_calls'>
+
+
+/**
+ * A more complete implementation of the OpenAI-based LLM,
+ * mirroring the structure and patterns found in the Anthropic class.
+ */
+export class Ollama extends BaseLLM<LLMProvider.Ollama, OllamaOptions> {
+  private onTool?: OnTool;
+  private ollama: OllamaApi;
+  public inputs: MessageArray<MessageInput> = new MessageArray();
+
+  public cache: BaseLLMCache = {
+    toolInput: null,
+    chunks: '',
+    tokens: { input: 0, output: 0 }
+  };
+
+  constructor(
+    { options }: { options: OllamaOptions },
+    onTool?: OnTool
+  ) {
+    super(LLMProvider.Ollama, options);
+    this.onTool = onTool;
+    this.ollama = new OllamaApi(options);
+  }
+
+  /**
+   * Return max tokens or a default (e.g. 4096).
+   */
+  get maxTokens() {
+    return this.options.maxTokens ?? 4096;
+  }
+
+  /**
+   * Convert your internal message structure to parameters compatible
+   * with the Ollama API or your custom integration.
+   */
+  private fromInputToParam(model: MessageInput): OllamaMessage {
+    const ollamaMessage = model.content.reduce<ReduceOllamaMessage>((all, current) => {
+      if (current.type === 'text') {
+        all.content += current.text;
+      } else if (current.type === "tool_result") {
+        if (current.content) {
+          for (const content of current.content) {
+            if (content.type === "text") {
+              all.content += content.text;
+              all.role = "tool";
+            } else {
+              throw new Error("Not implemented");
+            }
+          }
+        }
+      } else if (current.type === "tool_use") {
+        if (!all.tool_calls) {
+          all.tool_calls = [];
+        }
+        all.tool_calls?.push({
+          function: {
+            name: current.name,
+            arguments: current.input as { [key: string]: any; }
+          }
+        })
+      }
+      return all
+    }, {
+      role: model.role,
+      content: '',
+      images: [],
+      tool_calls: []
+    })
+
+    return ollamaMessage
+  }
+
+  /**
+   * Return the messages with your internal format mapped to Ollama-compatible parameters.
+   */
+  get llmInputs() {
+    return this.inputs
+    .flatMap((input) => this.fromInputToParam(input))
+  }
+
+  /**
+   * Example chunk function that mimics partial streaming logic:
+   */
+  private chunk(chunk: ChatResponse): Message {
+    const message = chunk.message;
+    if (message.tool_calls?.length) {
+      const toolCall = message.tool_calls[0];
+      const toolUse: ToolUseBlock = {
+        id: v4(),
+        input: toolCall.function.arguments,
+        name: toolCall.function.name,
+        type: 'tool_use',
+      }
+      this.cache.toolInput = toolUse;
+      return {
+        id: v4(),
+        type: 'tool_use',
+        content: [toolUse],
+        role: 'assistant',
+      }
+    } else if (typeof message.content === "string") {
+      const textBlock: TextBlock = {
+        type: 'text',
+        text: message.content,
+      }
+      return {
+        id: v4(),
+        type: 'message',
+        chunk: false,
+        content: [textBlock],
+        role: 'assistant',
+      }
+    }
+    throw new Error("Not implemented");
+  }
+
+  
+
+  /**
+   * Example streaming task, similar to the Anthropic / OpenAI classes.
+   */
+  async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    await this.ollama.pull({ model: this.options.model });
+
+    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
+
+    const request: OllamaRequestStream = {
+      model: this.options.model,
+      stream: true,
+      messages: [
+        {
+          role: "system",
+          content: system,
+        },
+        ...this.inputs.map(this.fromInputToParam)
+      ],
+      tools: this.ollamaTools
+    };
+
+    this.cache.tokens.input = 0;
+    this.cache.tokens.output = 0;
+
+    const createStream = async (params: OllamaRequestStream):Promise<ReadableStreamWithAsyncIterable<any>> => {
+      return this.retryApiCall(async () => {
+        const stream = await this.retryApiCall(async () => this.ollama.chat(params));
+        const redeable =  new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const chunk of stream) {
+                controller.enqueue(chunk);
+              }
+              controller.close();
+            } catch (error) {
+              controller.error(error);
+            }
+          }
+        });
+        return redeable as ReadableStreamWithAsyncIterable<ChatResponse>
+      });
+    };
+
+    const stream = await createStream(request);
+    const transform = await this.transformStream<
+      ChatResponse, 
+      Message
+    >(
+      stream, 
+      this.chunk.bind(this)
+    );
+
+    const automodeStream = await this.transformAutoMode(
+      transform,
+      async () => {
+        const newStream = await createStream({
+          ...request,
+          messages: [
+            {
+              role: "system",
+              content: system,
+            },
+            ...this.llmInputs
+          ],
+          stream: true,
+        });
+        return this.transformStream<ChatResponse, Message>(
+          newStream,
+          this.chunk.bind(this)
+        );
+      },
+      this.onTool?.bind(this)
+    );
+
+    return automodeStream;
+  }
+
+
+  get ollamaTools() {
+    const tools = this.options.tools ?? [];
+    return tools.map((tool: any) => {
+      const ollamaTool: OllamaTool = {
+        type: 'function',
+        function: {
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.input_schema
+        }
+      }
+      return ollamaTool;
+    })
+  }
+
+  /**
+   * Example non-streaming task
+   */
+  async performTaskNonStream(prompt: string, chainOfThought: string, system: string): Promise<Message> {
+    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
+    await this.ollama.pull({ model: this.options.model });
+    while (true) {
+      const request: OllamaRequest = {
+        model: this.options.model,
+        stream: false,
+        messages: this.inputs.map(this.fromInputToParam),
+        tools: this.ollamaTools
+      };
+      const response = await this.retryApiCall(async () => this.ollama.chat(request));
+      const message = this.chunk(response);
+      this.inputs.push(message)
+      if (message.type === "tool_use") {
+        const toolUse = message.content[0] as ToolUseBlock;
+        const tool = (this.options.tools ?? []).find((tool: any) => tool.name === toolUse.name);
+        if (tool && this.onTool) {
+          await this.onTool.bind(this)(message, this.options.signal);
+        }
+      } else {
+        if (response.done && response.done_reason === "stop") {
+          return message;
+        }
+      }
+    }
+    throw new Error("Invalid response");
+  }
+}
+</file>
+
+<file path="llm/Openai.ts">
+import OpenAIAPI from 'openai';
+import { v4 } from 'uuid';
+import { BaseLLM } from "./Base";
+import {
+  LLMProvider,
+  OpenAIOptions,
+  Message,
+  MessageInput,
+  ToolUseBlock,
+  OnTool,
+  DeltaBlock,
+  TextBlock,
+  BaseLLMCache,
+  ReadableStreamWithAsyncIterable
+} from "../types";
+import {
+  ChatCompletionContentPart,
+  ChatCompletionContentPartText,
+  ChatCompletionContentPartImage,
+  ChatCompletionMessageParam,
+  ChatCompletionToolMessageParam,
+  FunctionDefinition,
+  ChatCompletionAssistantMessageParam,
+} from 'openai/resources';
+import { ToolInputDelta } from '../types';
+import { Stream } from 'openai/streaming';
+import { MessageArray } from '..';
+
+
+/**
+ * A more complete implementation of the OpenAI-based LLM,
+ * mirroring the structure and patterns found in the Anthropic class.
+ */
+export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
+  private onTool?: OnTool;
+  private openai: OpenAIAPI;
+  public inputs: MessageArray<MessageInput> = new MessageArray();
+
+  public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
+
+  constructor(
+    { options }: { options: OpenAIOptions },
+    onTool?: OnTool
+  ) {
+    super(LLMProvider.OpenAI, options);
+    this.onTool = onTool;
+
+    // Initialize the OpenAI client
+    this.openai = new OpenAIAPI({
+      apiKey: options.apiKey,
+    });
+  }
+
+  /**
+   * Return max tokens or a default (e.g. 4096).
+   */
+  get maxTokens() {
+    return this.options.maxTokens ?? 4096;
+  }
+
+  private fromInputToParam(model: MessageInput): ChatCompletionMessageParam {
+    const content: Array<ChatCompletionContentPart> = [];
+    const filteredContent = model.content
+      .filter((c) =>
+        c.type !== "tool_delta" &&
+        c.type !== "usage" &&
+        c.type !== "delta" &&
+        c.type !== "error"
+      );
+
+    const messageParam: ChatCompletionMessageParam = {
+      role: model.role as any,
+      content:[],
+    };
+
+    for (const c of filteredContent) {
+
+      if (c.type === "text") {
+        const textBlock: ChatCompletionContentPartText = {
+          type: 'text',
+          text: c.text,
+        };
+        content.push(textBlock);
+      } else if (c.type === "image") {
+        const imageBlock: ChatCompletionContentPartImage = {
+          type: 'image_url',
+          image_url: {
+            url: c.source.data,
+          },
+        };
+        content.push(imageBlock);
+      } else if (c.type === "tool_result") {
+        const toolContent = (c.content ?? []).map((inner) => {
+          if (inner.type === "text") {
+            return <ChatCompletionContentPartText>{
+              type: 'text',
+              text: inner.text,
+            };
+          }
+          return {
+            type: 'text',
+            text: `[Unhandled content type: ${inner.type}]`,
+          } as ChatCompletionContentPartText;
+        });
+
+        content.push(...toolContent);
+
+
+        (messageParam as unknown as ChatCompletionToolMessageParam).tool_call_id = c.tool_use_id;
+        (messageParam as unknown as ChatCompletionToolMessageParam).role = "tool";
+
+      } else if (c.type === "tool_use") {
+        (messageParam as ChatCompletionAssistantMessageParam).tool_calls = [
+          {
+            id: c.id!,
+            type: "function",
+            function: {
+              name: c.name!,
+              arguments:JSON.stringify(c.input),
+            }
+          }
+        ]
+        messageParam.content = null
+      }
+    }
+
+    if (messageParam.content !== null) {
+      messageParam.content = content;
+    }
+
+    return messageParam;
+  }
+
+  get tools() {
+    return this.options.tools?.map((tool) => {
+      const parsedTool = JSON.parse(JSON.stringify(tool));
+      const functionDefinition: FunctionDefinition = {
+        name: parsedTool.name,
+        description: parsedTool.description,
+        parameters: parsedTool.input_schema
+      }
+      return {
+        type: "function" as const,
+        function: functionDefinition
+      }
+    })
+  }
+
+
+  get llmInputs() {
+    return this.inputs
+    .flatMap((input) => this.fromInputToParam(input))
+    .filter((c) => {
+      if (Array.isArray(c.content) && c.content.length === 0) {
+        return false;
+      }
+      return true;
+    })
+  }
+
+   async performTaskStream(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+  ): Promise<ReadableStreamWithAsyncIterable<Message>> {
+
+    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
+    
+    const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
+
+    let request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
+      model: this.options.model,
+      messages: [
+        {
+          role: "system",
+          content: system,
+        },
+        ...this.llmInputs,
+      ],
+      max_tokens: this.maxTokens,
+      stream: true,
+      tools
+    };
+
+    // Try to preserve usage if we have it
+    this.cache.tokens.input = 0;
+    this.cache.tokens.output = 0;
+
+    const createStream = async (params: OpenAIAPI.Chat.ChatCompletionCreateParams) => {
+      return this.retryApiCall(async () => {
+        const stream = await this.openai.chat.completions.create(params) as Stream<OpenAIAPI.Chat.Completions.ChatCompletionChunk>;
+        return stream.toReadableStream() as ReadableStreamWithAsyncIterable<OpenAIAPI.Chat.Completions.ChatCompletionChunk>
+      });
+    };
+
+    const stream = await createStream(request);
+    const transform = await this.transformStream<
+      OpenAIAPI.Chat.Completions.ChatCompletionChunk, 
+      Message
+    >(
+      stream,
+      this.chunk.bind(this)
+    );
+
+    // auto-mode logic
+    const automodeStream = await this.transformAutoMode(
+      transform,
+      async () => {
+        const newStream = await createStream({
+          ...request,
+          messages: [
+            {
+              role: "system",
+              content: system,
+            },
+            ...this.llmInputs
+          ],
+          stream: true,
+        });
+        return this.transformStream<OpenAIAPI.Chat.Completions.ChatCompletionChunk, Message>(
+          newStream,
+          this.chunk.bind(this)
+        );
+      },
+      this.onTool?.bind(this)
+    );
+
+    return automodeStream;
+  }
+
+   async performTaskNonStream(
+    prompt: string,
+    chainOfThought: string,
+    system: string,
+  ): Promise<Message> {
+    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
+    this.cache.tokens.input = 0;
+    this.cache.tokens.output = 0;
+    let sdkMessage: Message;
+    const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
+
+    while(true) {
+      const request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
+        model: this.options.model,
+        messages: [
+          {
+            role: "system",
+            content: system,
+          },
+          ...this.inputs.map(this.fromInputToParam),
+        ],
+        max_tokens: this.maxTokens,
+        tools
+      };
+      const response = await this.openai.chat.completions.create(request);
+      this.cache.tokens.input = response.usage?.prompt_tokens ?? this.cache.tokens.input;
+      this.cache.tokens.output = response.usage?.completion_tokens ?? this.cache.tokens.output;
+      const [{ finish_reason, message }] = response.choices;
+      let role = message?.role || "assistant";
+      let content = message?.content || "";
+      if (finish_reason === "tool_calls") {
+        const toolCall = message?.tool_calls?.[0];
+        if (toolCall &&
+          this.onTool &&
+          this.tools?.find((t) => t.function.name === toolCall.function.name)) {
+          const toolInputBlock: ToolUseBlock = {
+            type: 'tool_use',
+            input: toolCall.function.arguments,
+            name: toolCall.function.name,
+            id: toolCall.id,
+          }
+          sdkMessage = {
+            id: v4(),
+            role: role,
+            type: 'tool_use',
+            content: [toolInputBlock]
+          }
+          this.inputs.push(sdkMessage)
+
+          await this.onTool?.bind(this)(sdkMessage, this.options.signal);
+        }
+      } else if (finish_reason === "stop") {
+        const textBlock: TextBlock = {
+          type: 'text',
+          text: content
+        }
+        sdkMessage = {
+          id: v4(),
+          role: role,
+          type: 'message',
+          content: [textBlock]
+        }
+        this.inputs.push(sdkMessage)
+
+        break;
+      } else if (finish_reason === "length" || finish_reason === "content_filter") {
+        const textBlock: TextBlock = {
+          type: "text",
+          text: content
+        };
+        sdkMessage = {
+          id: v4(),
+          role,
+          type: "message",
+          content: [textBlock]
+        };
+        this.inputs.push(sdkMessage)
+
+        break;
+      } else {
+        const fallbackBlock: TextBlock = {
+          type: 'text',
+          text: content
+        };
+        sdkMessage = {
+          id: v4(),
+          role,
+          type: 'message',
+          content: [fallbackBlock]
+        };
+        this.inputs.push(sdkMessage)
+
+        break;
+      }
+    }
+    return {
+      id: sdkMessage!.id,
+      role: sdkMessage!.role,
+      type: "message",
+      content: sdkMessage!.content
+    };
+  }
+
+
+  private chunk(
+    chunk: OpenAIAPI.Chat.Completions.ChatCompletionChunk,
+  ): Message | null {
+    if (chunk.object !== "chat.completion.chunk") {
+      return null;
+    }
+    const [choice] = chunk.choices;
+    if (!choice) {
+      return null;
+    }
+
+    const delta = choice.delta;
+    //Tools
+    if (delta && delta.tool_calls) {
+      const toolCall = delta.tool_calls[0];
+      const args = !toolCall.function || toolCall.function.arguments === ""
+        ? "{}"
+        : (toolCall.function.arguments ?? "{}");
+
+      if (toolCall.function?.name) {
+        const tool_delta: ToolInputDelta = {
+          id: toolCall.id!,
+          name: toolCall.function?.name,
+          type: 'tool_delta',
+          partial: args,
+        };
+        this.cache.toolInput = tool_delta;
+        const message:Message =  {
+          id: chunk.id,
+          role: 'assistant',
+          type: 'tool_delta',
+          content: [tool_delta]
+        };
+        return message;
+      }
+    }
+
+    const finishReason = choice.finish_reason;
+
+    if (finishReason === "tool_calls") {
+      const deltaBlock = this.cache.toolInput! as ToolInputDelta;
+      const toolUseBlock: ToolUseBlock = {
+        id: deltaBlock.id!,
+        name: deltaBlock.name!,
+        input: JSON.parse(deltaBlock.partial),
+        type: 'tool_use'
+      }
+      const message:Message =  {
+        id: chunk.id,
+        role: 'assistant',
+        type: 'tool_use',
+        content: [toolUseBlock]
+      };
+      return message;
+    }
+
+    if (finishReason === "stop" || finishReason === "length") {
+      const deltaBlock: DeltaBlock = {
+        type: 'delta',
+        // "stop_reason" can be "stop", "length", etc.
+        // For simplicity, just set it to "end_turn" if "stop".
+        stop_reason: finishReason === "stop"
+          ? "end_turn"
+          : "max_tokens",
+        stop_sequence: null
+      };
+      const message:Message =  {
+        id: chunk.id,
+        role: 'assistant',
+        type: 'delta',
+        content: [deltaBlock]
+      };
+      return message;
+    }
+
+    // 3) Check if there's partial text content
+    if (choice.delta?.content) {
+      const textBlock: TextBlock = {
+        type: 'text',
+        text: choice.delta.content
+      };
+      const message:Message =  {
+        id: chunk.id,
+        role: 'assistant',
+        type: 'message',
+        chunk: true,
+        content: [textBlock]
+      };
+      return message;
+    }
+
+    return null;
+  }
+}
+</file>
+
+<file path="cli.ts">
+#!/usr/bin/env node
+
+import fs from 'fs';
+import path from 'path';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+
+import { LLMProvider, BinConfig, OnTool, Tool } from './types';
+import { Agent } from './agents/index';
+import { MessageArray } from './utils';
+
+
+
+
+// Add a command named "run" (you can rename it). 
+// The command loads a configuration file specified via --config or defaults to uaito.config.json.
+yargs(hideBin(process.argv))
+    .command(
+        'run <message>',
+        'Runs the application with a given configuration',
+        (yargs) => {
+            return yargs
+                .positional('message', {
+                    type: 'string',
+                    describe: 'Message to send to the agent',
+                })
+                .option('config', {
+                    alias: 'c',
+                    type: 'string',
+                    default: 'uaito.config.js',
+                    describe: 'Path to a configuration file. Defaults to [cwd]/uaito.config.js',
+                })
+                .option('agent', {
+                    alias: 'a',
+                    type: 'string',
+                    describe: 'Agent name to load specific config (uaito.[agent].js)',
+                })
+                .option('verbose', {
+                    alias: 'v',
+                    type: 'boolean',
+                    default: false,
+                    describe: 'Show detailed log output',
+                })
+                .option('stream', {
+                    alias: 's',
+                    type: 'boolean',
+                    default: false,
+                    describe: 'Use streaming mode',
+                });
+        },
+        async (argv) => {
+            // Capture the message from the positional argument
+            if (!argv.message) {
+                console.error('You need to specify a message');
+                process.exit(1);
+            }
+            const message = argv.message;
+            
+            // Determine config file path based on agent option
+            const configFileName = argv.agent 
+                ? `uaito.${argv.agent}.js`
+                : 'uaito.config.js';
+            
+            const configPath = path.resolve(process.cwd(), configFileName);
+            let fileContents: BinConfig<LLMProvider> = (await import(configPath)).default;
+
+            try {
+                const onTool = fileContents?.onTool;
+                const tools = fileContents?.tools;
+                const createSystemPrompt = fileContents?.createSystemPrompt;
+                const chainOfThought = fileContents?.chainOfThought ??  `Answer the user's request using relevant tools only if the tool exists and is relevant. 
+                Before calling a tool, do some internal analysis. 
+                1. First, determine if you have access to the requested tool.
+                2. Second, think about which of the provided tools is the relevant tool to answer the user's request. 
+                3. Third, go through each of the required parameters of the relevant tool and determine if the user has directly provided or given enough information to infer a value. 
+                When deciding if the parameter can be inferred, carefully consider all the context to see if it supports a specific value.
+                If all of the required parawmeters are present or can be reasonably inferred, close the thinking tag and proceed with the tool call. 
+                BUT, if one of the values for a required parameter is missing, 
+                DO NOT invoke the function (not even with fillers for the missing params) and instead, ask the user to provide the missing parameters. 
+                DO NOT ask for more information on optional parameters if it is not provided.
+                DO NOT reflect on the quality of the returned search results in your response.`;
+
+
+                // Check if config file exists
+                if (!fs.existsSync(configPath)) {
+                    console.error(`Configuration file not found at: ${configPath}`);
+                    console.error(argv.agent
+                        ? `Please create a config file named uaito.${argv.agent}.js`
+                        : 'Please create a config file or specify one using the --config option');
+                    process.exit(1);
+                }
+                if (argv.verbose) {
+                    console.log('Raw configuration file contents:\n', fileContents);
+                }
+
+
+                const agent = new Agent(
+                    fileContents.provider,
+                    fileContents.options,
+                    onTool,
+                    MessageArray.from([]),
+                    tools
+                );
+
+                const useStream = argv.stream ? true: undefined;
+                const {response} = await agent.performTask(
+                    message,
+                    chainOfThought,
+                    createSystemPrompt ? createSystemPrompt(tools ?? []) : '',
+                    useStream 
+                );
+
+                if (useStream) {
+                    for await (const chunk of response) {
+                        agent.log(`Stream response: ${chunk.type}: ${JSON.stringify(chunk, null, 2)}`);
+                    }
+                } else {
+                    agent.log(`Final response: ${JSON.stringify(response, null, 2)}`);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                process.exit(1);
+            }
+        }
+    )
+    .demandCommand(1, 'You need to specify a command')
+    .strict()
+    .help()
+    .argv;
+</file>
+
+<file path="config.ts">
+export const ANSI_RED = '\x1b[31m';
+export const ANSI_GREEN = '\x1b[32m';
+export const ANSI_GRAY = '\x1b[90m';
+export const ANSI_BLUE = '\x1b[34m';
+export const ANSI_RESET = '\x1b[0m';
+export const ANSI_YELLOW = '\x1b[33m';
+</file>
+
+<file path="index.ts">
+export * from './types'
+export * from './config';
+export * from './agents/index';
+export * from './llm/Base';
+export * from './utils'
+</file>
+
+<file path="types.ts">
+import { AbortSignal } from 'abort-controller';
+
+import type { Anthropic } from "./llm/Anthropic";
+import type { OpenAI } from "./llm/Openai";
+import type { Ollama } from "./llm/Ollama";
+import type { Agent } from "./agents";
+import { HuggingFaceONNX } from './llm/HuggingFaceONNX';
+import { MessageArray } from './utils';
+
+export enum HuggingFaceONNXModels {
+  Llama32_3B = "onnx-community/Llama-3.2-3B-Instruct-onnx-web",
+  Llama32_1B = "onnx-community/Llama-3.2-1B-Instruct-q4f16",
+  Test2 = "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
+  Test = "elribonazo/demo",
+  LMF2_350M = `onnx-community/LFM2-350M-ONNX`,
+  LMF2_700M = `onnx-community/LFM2-700M-ONNX`,
+  LMF2_1_2B = `onnx-community/LFM2-1.2B-ONNX`
+
+}
+
+export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
+export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;
+export type OpenAIOptions = { apiKey?: string } & BaseLLMOptions;
+export type OllamaOptions = { host: string } & BaseLLMOptions;
+export type HuggingFaceONNXOptions =  BaseLLMOptions & {
+  model: HuggingFaceONNXModels,
+  dtype: DType,
+  device: "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm" | "dml" | "webnn" | "webnn-npu" | "webnn-gpu" | "webnn-cpu" | Record<string, "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm"  | "webnn-cpu"> | undefined
+};
+export type Tool = {
+  id?: number;
+  name: string;
+  description: string;
+  input_schema: {
+    type: "object";
+    properties: Record<string, {
+      type: string;
+      description: string;
+      default?: unknown;
+    }>;
+    required?: string[];
+  };
+  code?: string;
+  enabled?: boolean;
+  isCollapsed?: boolean;
+};
+export type DType = "auto" | "fp32" | "fp16" | "q8" | "int8" | "uint8" | "q4" | "bnb4" | "q4f16" | Record<string, "auto" | "fp32" | "fp16" | "q8" | "int8" | "uint8" | "q4" | "bnb4" | "q4f16"> | undefined
+
+export type BaseLLMCache = {
+    toolInput: BlockType | null,
+    chunks: string | null,
+    tokens: {
+      input: number,
+      output: number
+    }
+  }
+
+export enum LLMProvider {
+  OpenAI = 'OpenAI',
+  Anthropic = 'Anthropic',
+  Ollama = 'Ollama',
+  HuggingFaceONNX = 'HuggingFaceONNX'
+}
+
+export type OnTool<T extends LLMProvider = LLMProvider> = (
+  this: Agent<T>,
+  message: Message, 
+  signal?: AbortSignal
+) => Promise<void>
+
+export interface SearchReplaceBlock {
+  search: string;
+  replace: string;
+}
+
+export type AgentTypeToOptions = {
+    [LLMProvider.Anthropic]: AnthropicOptions;
+    [LLMProvider.OpenAI]: OpenAIOptions;
+    [LLMProvider.Ollama]: OllamaOptions;
+    [LLMProvider.HuggingFaceONNX]: HuggingFaceONNXOptions;
+    [name: string]: unknown
+  };
+
+export type AgentTypeToClass = {
+  [LLMProvider.Anthropic]: Anthropic;
+  //Todo: replace when done
+  [LLMProvider.OpenAI]: OpenAI;
+  [LLMProvider.Ollama]: Ollama;
+  [LLMProvider.HuggingFaceONNX]: HuggingFaceONNX;
+  [name: string]: unknown
+};
+
+export type BinConfig<P extends LLMProvider> = {
+  provider: P,
+  options: AgentTypeToOptions[P],
+  tools?: Tool[],
+  createSystemPrompt?: (tools: Tool[]) => string,
+  chainOfThought?: string,
+  onTool?: OnTool,
+}
+
+export type USAGE = {
+  input_tokens: number;
+  output_tokens: number;
+}
+
+export type MessageType =
+  'message' |
+  ToolInputDelta['type'] |
+  ToolUseBlock['type'] |
+  ToolResultBlock['type'] |
+  DeltaBlock['type'] |
+  UsageBlock['type'] | 
+  ErrorBlock['type']
+
+
+export type ImageBlock = {
+  source: {
+    data: string;
+    media_type: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+    type: 'base64';
+  };
+  type: 'image';
+}
+
+export type TextBlock = {
+  text: string;
+  type: 'text';
+}
+
+
+export type ToolUseBlock = {
+  id: string;
+  input: unknown;
+  name: string;
+  type: 'tool_use';
+}
+
+export type ToolInputDelta = {
+  id?:string,
+  name?:string,
+  partial:string,
+  type: 'tool_delta';
+}
+
+export type ToolResultBlock = {
+  tool_use_id: string;
+  name: string,
+  type: 'tool_result';
+  content?: MessageContent[];
+  isError?: boolean;
+}
+
+export type ToolBlock = ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
+export type Role = 'assistant' | 'user' | 'system' | 'tool';
+
+export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock;
+export type Message = {
+  id: string,
+  type: MessageType,
+  content: BlockType[],
+  chunk?: boolean,
+  role: Role
+}
+
+export type DeltaBlock =   {
+  type:'delta',
+  stop_reason: 'end_turn' | 'max_tokens' | 'stop_sequence' | 'tool_use' | null;
+
+  stop_sequence: string | null;
+
+}
+
+export type UsageBlock = {
+  type: 'usage',
+  input?: number,
+  output?: number
+}
+
+export type ErrorBlock = {
+  type:'error',
+  message: string
+}
+
+export type MessageContent = ArrayElementType<Message['content']>
+
+export type MessageInput = {
+  id?: string,
+  type?: MessageType,
+  role: Role,
+  content: MessageContent[]
+}
+
+export type BaseLLMOptions = {
+    model: string,
+    tools?: Tool[]
+    maxTokens?: number,
+    signal?: AbortSignal,
+    directory?: string,
+    onProgress?: (progress: number) => void,
+    inputs:  MessageArray<MessageInput>
+}
+
+export type ReadableStreamWithAsyncIterable<T> = ReadableStream<T> & AsyncIterable<T>;
+
+export abstract class Runner {
+   abstract performTaskStream(
+    userPrompt: string,
+    chainOfThought: string,
+    system: string,
+): Promise<ReadableStreamWithAsyncIterable<Message>>;
+
+ abstract performTaskNonStream(
+    userPrompt: string,
+    chainOfThought: string,
+    system: string,
+): Promise<Message>;
+}
+</file>
+
+<file path="utils.ts">
+import { v4 } from "uuid";
+import { Message, MessageInput, Role } from "./types";
+
+function isValidRole(role: any): role is Role {
+  return role === 'assistant' || role === 'user' || role === 'system' || role === 'ipython';
+}
+
+function isValidMessageContent(content: any): boolean {
+  if (typeof content !== 'object' || content === null) {
+    return false;
+  }
+  switch (content.type) {
+    case 'text':
+      return typeof content.text === 'string';
+    case 'image':
+      return typeof content.source === 'object' 
+        && typeof content.source.data === 'string'
+        && ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(content.source.media_type)
+        && content.source.type === 'base64';
+    case 'tool_start':
+    case 'tool_use':
+      return typeof content.id === 'string'
+        && typeof content.name === 'string'
+        && content.input !== undefined;
+    case 'tool_delta':
+      return typeof content.partial === 'string';
+    case 'tool_result':
+      return typeof content.tool_use_id === 'string'
+        && (Array.isArray(content.content) || content.content === undefined)
+        && (typeof content.isError === 'boolean' || content.isError === undefined);
+    case 'delta':
+      return ['end_turn', 'max_tokens', 'stop_sequence', 'tool_use', null].includes(content.stop_reason)
+        && (typeof content.stop_sequence === 'string' || content.stop_sequence === null);
+    case 'usage':
+      return (typeof content.input === 'number' || content.input === undefined)
+        && (typeof content.output === 'number' || content.output === undefined);
+    case 'error':
+      return typeof content.message === 'string';
+    default:
+      return false;
+  }
+}
+
+function validateMessageInput(item: any): item is MessageInput {
+  const contentValid = item.content.every(isValidMessageContent);
+  if (!item.id) {
+    item.id = v4();
+  }
+  return item.role !== undefined &&
+    item.content !== undefined && 
+    isValidRole(item.role) && 
+    contentValid;
+}
+
+export class MessageArray<T extends MessageInput> extends Array<T> {
+
+  static from(items: MessageInput[]): MessageArray<MessageInput> {
+    return new MessageArray(items);
+  }
+
+  constructor(items: T[] = []) {
+    super(...(Array.isArray(items) ? items : [items]));
+    return new Proxy(this, {
+      get: (target: typeof this, prop:string | symbol, receiver: any) => {
+        if (prop === 'push') {
+          return  (...items: T[] | T[][]): number => {
+            for (const item of items) {
+              if (Array.isArray(item)) {
+                for (const im of item) {
+                  if (validateMessageInput(im)) {
+                    const lastOne = target[target.length - 1];
+                    if (this.isSameRole(lastOne, im)) {
+                      if (Array.isArray(lastOne.content) && Array.isArray(im.content)) {
+                        Array.prototype.push.call(lastOne.content, ...im.content);
+                      } else {
+                        Array.prototype.push.call(target, im);
+                      }
+                    } else {
+                      Array.prototype.push.call(target, im);
+                    }
+                  } else {
+                    debugger;
+                    console.error('Invalid Array message input, skipping:', im);
+                  }
+                }
+              } else {
+                if (validateMessageInput(item)) {
+                  const lastOne = target[target.length - 1];
+                  if (this.isSameRole(lastOne, item)) {
+                    if (Array.isArray(lastOne.content) && Array.isArray(item.content)) {
+                      Array.prototype.push.call(lastOne.content, ...item.content);
+                    } else {
+                      Array.prototype.push.call(target, item);
+                    }
+                  } else {
+                    Array.prototype.push.call(target, item);
+                  }
+                } else {
+                  debugger;
+                  console.error('Invalid message input, skipping:', item);
+                }
+              }
+            }
+            return target.length;
+          };
+        }
+        return Reflect.get(target, prop, receiver);
+      }
+    });
+  }
+
+  protected isSameRole(lastOne: T, item: T): boolean {
+    const isTool = item.content.some((c) => c.type === 'tool_result');
+    return lastOne?.role === item.role && item.role === "user" && !isTool;
+  }
+}
+</file>
+
+</files>

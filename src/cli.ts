@@ -7,6 +7,7 @@ import { hideBin } from 'yargs/helpers';
 
 import { LLMProvider, BinConfig, OnTool, Tool } from './types';
 import { Agent } from './agents/index';
+import { MessageArray } from './utils';
 
 
 
@@ -63,16 +64,11 @@ yargs(hideBin(process.argv))
             const configPath = path.resolve(process.cwd(), configFileName);
             let fileContents: BinConfig<LLMProvider> = (await import(configPath)).default;
 
-
-    
-
-    
-
             try {
                 const onTool = fileContents?.onTool;
                 const tools = fileContents?.tools;
                 const createSystemPrompt = fileContents?.createSystemPrompt;
-                const chainOfThought = fileContents?.chainOfThought ??  `Answer the user's request using relevant tools only if the tool exists. 
+                const chainOfThought = fileContents?.chainOfThought ??  `Answer the user's request using relevant tools only if the tool exists and is relevant. 
                 Before calling a tool, do some internal analysis. 
                 1. First, determine if you have access to the requested tool.
                 2. Second, think about which of the provided tools is the relevant tool to answer the user's request. 
@@ -102,8 +98,7 @@ yargs(hideBin(process.argv))
                     fileContents.provider,
                     fileContents.options,
                     onTool,
-                    [],
-                    undefined,
+                    MessageArray.from([]),
                     tools
                 );
 

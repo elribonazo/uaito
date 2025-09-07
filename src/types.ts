@@ -1,16 +1,50 @@
-import { JSONObject } from "llamaindex";
 import { AbortSignal } from 'abort-controller';
 
-import { Anthropic } from "./llm/anthropic";
-import { MessageArray } from "./utils";
-import { Agent } from "./agents";
+import type { Anthropic } from "./llm/Anthropic";
+import type { OpenAI } from "./llm/Openai";
+import type { Ollama } from "./llm/Ollama";
+import type { Agent } from "./agents";
+import { HuggingFaceONNX } from './llm/HuggingFaceONNX';
+import { MessageArray } from './utils';
+
+export enum HuggingFaceONNXModels {
+  Llama32_3B = "onnx-community/Llama-3.2-3B-Instruct-onnx-web",
+  Llama32_1B = "onnx-community/Llama-3.2-1B-Instruct-q4f16",
+  Test2 = "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
+  Test = "elribonazo/demo",
+  LMF2_350M = `onnx-community/LFM2-350M-ONNX`,
+  LMF2_700M = `onnx-community/LFM2-700M-ONNX`,
+  LMF2_1_2B = `onnx-community/LFM2-1.2B-ONNX`
+
+}
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;
 export type OpenAIOptions = { apiKey?: string } & BaseLLMOptions;
 export type OllamaOptions = { host: string } & BaseLLMOptions;
-
-export type Tool = JSONObject;
+export type HuggingFaceONNXOptions =  BaseLLMOptions & {
+  model: HuggingFaceONNXModels,
+  dtype: DType,
+  device: "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm" | "dml" | "webnn" | "webnn-npu" | "webnn-gpu" | "webnn-cpu" | Record<string, "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm"  | "webnn-cpu"> | undefined
+};
+export type Tool = {
+  id?: number;
+  name: string;
+  description: string;
+  input_schema: {
+    type: "object";
+    properties: Record<string, {
+      type: string;
+      description: string;
+      default?: unknown;
+    }>;
+    required?: string[];
+  };
+  code?: string;
+  enabled?: boolean;
+  isCollapsed?: boolean;
+};
+export type DType = "auto" | "fp32" | "fp16" | "q8" | "int8" | "uint8" | "q4" | "bnb4" | "q4f16" | Record<string, "auto" | "fp32" | "fp16" | "q8" | "int8" | "uint8" | "q4" | "bnb4" | "q4f16"> | undefined
 
 export type BaseLLMCache = {
     toolInput: BlockType | null,
@@ -24,11 +58,12 @@ export type BaseLLMCache = {
 export enum LLMProvider {
   OpenAI = 'OpenAI',
   Anthropic = 'Anthropic',
-  Ollama = 'Ollama'
+  Ollama = 'Ollama',
+  HuggingFaceONNX = 'HuggingFaceONNX'
 }
 
-export type OnTool = (
-  this: Agent,
+export type OnTool<T extends LLMProvider = LLMProvider> = (
+  this: Agent<T>,
   message: Message, 
   signal?: AbortSignal
 ) => Promise<void>
@@ -42,13 +77,16 @@ export type AgentTypeToOptions = {
     [LLMProvider.Anthropic]: AnthropicOptions;
     [LLMProvider.OpenAI]: OpenAIOptions;
     [LLMProvider.Ollama]: OllamaOptions;
+    [LLMProvider.HuggingFaceONNX]: HuggingFaceONNXOptions;
     [name: string]: unknown
   };
 
 export type AgentTypeToClass = {
   [LLMProvider.Anthropic]: Anthropic;
   //Todo: replace when done
-  [LLMProvider.OpenAI]: any;
+  [LLMProvider.OpenAI]: OpenAI;
+  [LLMProvider.Ollama]: Ollama;
+  [LLMProvider.HuggingFaceONNX]: HuggingFaceONNX;
   [name: string]: unknown
 };
 
@@ -114,7 +152,7 @@ export type ToolResultBlock = {
 }
 
 export type ToolBlock = ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
-export type Role = 'assistant' | 'user';
+export type Role = 'assistant' | 'user' | 'system' | 'tool';
 
 export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock;
 export type Message = {
@@ -147,6 +185,8 @@ export type ErrorBlock = {
 export type MessageContent = ArrayElementType<Message['content']>
 
 export type MessageInput = {
+  id?: string,
+  type?: MessageType,
   role: Role,
   content: MessageContent[]
 }
@@ -157,6 +197,7 @@ export type BaseLLMOptions = {
     maxTokens?: number,
     signal?: AbortSignal,
     directory?: string,
+    onProgress?: (progress: number) => void,
     inputs:  MessageArray<MessageInput>
 }
 
