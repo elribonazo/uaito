@@ -1,58 +1,72 @@
 {
-  "name": "@uaito/sdk",
-  "version": "0.3.0",
-  "description": "UAITO Typescript SDK",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
-  "files": [
-    "build/**/*"
+  "name": "uaito",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "packageManager": "yarn@4.9.1",
+  "workspaces": [
+    "packages/sdk",
+    "playground/nextjs",
+    "playground/node"
   ],
   "scripts": {
-    "build": "rm -rf build && npm run types && node ./esbuild.mjs",
-    "types": "npm run types:default",
-    "types:default": "npx tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "npm run build"
-  },
-  "author": "elribonazo <elribonazo@uaito.io>",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/uaito/sdk-typescript.git"
-  },
-  "keywords": [
-    "uaito",
-    "sdk",
-    "typescript"
-  ],
-  "publishConfig": {
-    "access": "public"
+    "clean": "npx nx run-many --target=clean --verbose && rm -rf node_modules",
+    "docs": "npx typedoc",
+    "build": "npx nx run-many --verbose  -p @uaito/sdk @uaito/nextjs @uaito/node --target=build",
+    "test": "npx nx run-many --target=test --verbose",
+    "lint": "yarn biome lint",
+    "lint:ci": "yarn biome ci",
+    "lint:fix": "yarn biome format --write && yarn biome lint --write"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.20",
-    "@types/node": "^14.18.63",
-    "@types/yargs": "^17.0.33",
-    "dotenv": "^16.4.7",
-    "esbuild-node-externals": "^1.16.0",
-    "esbuild-plugin-glob": "^2.2.3",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "@biomejs/biome": "2.0.0",
+    "@nx/jest": "21.4.1",
+    "@nx/js": "21.4.1",
+    "@nx/react-native": "21.4.1",
+    "@nx/vite": "21.4.1",
+    "@nx/web": "21.4.1",
+    "@shipgirl/typedoc-plugin-versions": "^0.3.1",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "@trust0/ridb-build": "^0.0.21",
+    "@types/jest": "30.0.0",
+    "@types/node": "^20.14.2",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "@vitest/browser": "^3.0.8",
+    "@vitest/coverage-istanbul": "^3.0.8",
+    "@vitest/ui": "^3.0.8",
+    "dts-bundle-generator": "^9.5.1",
+    "esbuild": "^0.25.4",
+    "esbuild-node-externals": "^1.18.0",
+    "jest": "30.0.5",
+    "jiti": "2.4.2",
+    "jsdom": "^25.0.1",
+    "lerna": "^8.2.1",
+    "npm-check-updates": "^17.1.15",
+    "nx": "21.4.1",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "typedoc": "^0.28.4",
+    "typedoc-plugin-coverage": "^4.0.1",
+    "typedoc-plugin-markdown": "^4.6.3",
+    "typedoc-plugin-merge-modules": "^7.0.0",
+    "typedoc-plugin-rename-defaults": "^0.7.3",
+    "typedoc-theme-hierarchy": "^6.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.2.1",
+    "vite-plugin-top-level-await": "^1.5.0",
+    "vite-plugin-wasm": "^3.4.1",
+    "vitest": "^3.0.8",
+    "webdriverio": "^9.16.2"
+  },
+  "optionalDependencies": {
+    "@esbuild/darwin-arm64": "^0.25.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.24.0"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.36.3",
-    "@huggingface/transformers": "^3.7.1",
-    "@monaco-editor/react": "^4.7.0",
-    "abort-controller": "^3.0.0",
-    "idb": "^8.0.3",
-    "llamaindex": "^0.8.32",
-    "lodash": "^4.17.21",
-    "ollama": "^0.5.13",
-    "openai": "^4.83.0",
-    "uuid": "^10.0.0",
-    "yargs": "^18.0.0"
-  },
-  "bin": {
-    "uaito": "build/cli.js"
-  },
-  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
+    "chromedriver": "^138.0.1"
+  }
 }

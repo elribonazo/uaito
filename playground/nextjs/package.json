@@ -11,7 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@monaco-editor/react": "^4.7.0",
-    "@uaito/sdk": "../",
+    "@uaito/sdk": "workspace:*",
     "idb": "^8.0.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.542.0",

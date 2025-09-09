@@ -9,6 +9,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@uaito/sdk": ".."
+    "@uaito/sdk": "workspace:*"
   }
 }
