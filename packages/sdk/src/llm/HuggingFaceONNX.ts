@@ -19,7 +19,7 @@ import type {
   PreTrainedTokenizer,
   PreTrainedModel,
 } from "@huggingface/transformers";
-import { AutoTokenizer, AutoModelForCausalLM, TextStreamer } from "@huggingface/transformers";
+import { AutoTokenizer, AutoModelForCausalLM, TextStreamer, AutoConfig } from "@huggingface/transformers";
 
 
 
@@ -74,13 +74,24 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     }
 
     this.log(`Tokenizer loaded for ${modelId}`);
-
     if (modelCache.has(modelId)) {
       this.model ??= modelCache.get(modelId)!;
     } else {
+      const config =  await AutoConfig.from_pretrained(modelId);
+
       this.model ??= await AutoModelForCausalLM.from_pretrained(modelId, {
         device: this.options.device ?? "webgpu",
         dtype: this.options.dtype ?? "auto",
+        config: {
+          ...config,
+           'transformers.js_config':{
+            ...config["transformers.js_config"],
+            kv_cache_dtype:{
+              "q4f16": "float16" as const,
+              "fp16": "float16" as const
+            } as any
+           }
+        } ,
         progress_callback: (info: Record<string, unknown>) => {
           if (info.status === "progress") {
             const progress = parseInt(info.progress as string, 10);
@@ -145,14 +156,10 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
 
   private getTensorData() {
     const currentInputs =  Array.from(this.inputs)
-    //  .filter(m => !(m.content.length > 0 && m.content[0].type === 'tool_use'))
       .map(this.fromInputToParam);
     return this.tokenizer.apply_chat_template(currentInputs, {
-      tokenize: true,
       add_generation_prompt: true,
-      return_tensor: true,
       return_dict: true,
-      truncation: true,
       tools: this.options.tools,
     }) as TensorDataType;
   }
@@ -369,35 +376,36 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     this.state.buffer = '';
     this.state.capturingToolCall = false;
 
+    let __past_key_values: any =null;
+
     const stream = new ReadableStream<string>({
       start: async (controller) => {
         this.log("ReadableStream started for model generation.");
-        const streamer = new TextStreamer(this.tokenizer, {
-          skip_prompt: true,
-          skip_special_tokens: false,
-          callback_function: (value: string) => {
-            controller.enqueue(value.replace(IM_END_TAG, ""));
-          },
-        });
 
         try {
-          await this.model.generate({
-            ...input,
-            streamer,
-            // @ts-ignore
-            max_new_tokens: this.options.maxTokens ?? 4096,
+          const streamer = new TextStreamer(this.tokenizer, {
+            skip_prompt: true,
+            skip_special_tokens: false,
+            callback_function: (value: string) => {
+              controller.enqueue(value.replace(IM_END_TAG, ""));
+            },
           });
-          
-          this.log("Model generation finished.");
+      
+      
+          const { past_key_values } = await (this.model as any).generate({
+           ...input,
+           past_key_values:__past_key_values,
+            do_sample: false,
+            generation_config:{
+              output_attentions: true,
+              max_new_tokens: this.options.maxTokens ?? 4096,
+            },
+            streamer,
+            return_dict_in_generate: true,
+          });
 
-          if (this.state.buffer) {
-            const lastContent = this.state.buffer.replace(IM_END_TAG, "").trim()
-            if (lastContent) {
-              controller.enqueue(lastContent);
-            }
-            this.state.buffer = '';
-          }
-          
+          __past_key_values = past_key_values;
+         
           controller.close();
         } catch (e) {
           this.log(`Model generation error: ${e}`);

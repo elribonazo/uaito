@@ -82,8 +82,8 @@ export class Agent<T extends LLMProvider> {
             },
                 this.onTool) as AgentTypeToClass[T];
         } else if (this.type === LLMProvider.HuggingFaceONNX) {
-            const Llama = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
-            this.client ??= new Llama({
+            const HuggingFace = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
+            this.client ??= new HuggingFace({
                 options: this.options as HuggingFaceONNXOptions
             },
                 this.onTool

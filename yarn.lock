@@ -3321,7 +3321,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@huggingface/transformers@npm:^3.0.2, @huggingface/transformers@npm:^3.7.1":
+"@huggingface/transformers@npm:^3.0.2, @huggingface/transformers@npm:^3.7.2":
   version: 3.7.2
   resolution: "@huggingface/transformers@npm:3.7.2"
   dependencies:
@@ -8717,7 +8717,7 @@ __metadata:
   dependencies:
     "@anthropic-ai/sdk": "npm:^0.36.3"
     "@esbuild-plugins/node-resolve": "npm:^0.2.2"
-    "@huggingface/transformers": "npm:^3.7.1"
+    "@huggingface/transformers": "npm:^3.7.2"
     "@monaco-editor/react": "npm:^4.7.0"
     "@types/lodash": "npm:^4.17.20"
     "@types/node": "npm:^14.18.63"
@@ -8730,6 +8730,7 @@ __metadata:
     llamaindex: "npm:^0.8.32"
     lodash: "npm:^4.17.21"
     ollama: "npm:^0.5.13"
+    onnxruntime-web: "npm:1.14.0"
     openai: "npm:^4.83.0"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.4"

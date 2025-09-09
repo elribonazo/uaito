@@ -41,16 +41,20 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
-    "@huggingface/transformers": "^3.7.1",
+    "@huggingface/transformers": "^3.7.2",
     "@monaco-editor/react": "^4.7.0",
     "abort-controller": "^3.0.0",
     "idb": "^8.0.3",
     "llamaindex": "^0.8.32",
     "lodash": "^4.17.21",
     "ollama": "^0.5.13",
+    "onnxruntime-web": "1.14.0",
     "openai": "^4.83.0",
     "uuid": "^10.0.0",
     "yargs": "^18.0.0"
+  },
+  "resolutions": {
+    "onnxruntime-web": "1.14.0"
   },
   "bin": {
     "uaito": "build/cli.js"
