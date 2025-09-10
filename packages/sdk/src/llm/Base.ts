@@ -167,9 +167,11 @@ async runSafeCommand(
       if (found) {
           return input;
       } else {
-          if (input[input.length - 1].role === 'user') {
+          if (input[input.length - 1].role === 'user' && input[input.length - 1].content[0].type === 'text') {
+            debugger;
               input[input.length - 1].content.push({ type: 'text', text: promptWithChainOfThought });
           } else {
+            debugger;
               input.push({ role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] })
           }
           return input;
@@ -196,7 +198,6 @@ async runSafeCommand(
     getNext: () => Promise<ReadableStreamWithAsyncIterable<AChunk>>,
     onTool?:OnTool
   ) {
-    const agent = this;
     const stream = new ReadableStream({
        start :async (controller) => {
         let reader: ReadableStreamDefaultReader<AChunk> = input.getReader();
@@ -221,7 +222,7 @@ async runSafeCommand(
             ) {
               controller.enqueue(tChunk)
             } else if (tChunk.type === "tool_use") {
-              agent.inputs.push(tChunk);
+              this.inputs.push(tChunk);
               controller.enqueue({
                 id: tChunk.id,
                 role: tChunk.role,
@@ -239,7 +240,7 @@ async runSafeCommand(
                   toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                 }
                 await onTool.bind(this)(tChunk, this.options.signal);
-                const lastOutput = agent.inputs[agent.inputs.length - 1];
+                const lastOutput = this.inputs[this.inputs.length - 1];
                 if (lastOutput.role !== "user" || lastOutput.content[0].type !== 'tool_result') {
                     throw new Error("Expected to have a user reply with the tool response");
                 }
@@ -252,14 +253,14 @@ async runSafeCommand(
                 }
 
                 controller.enqueue({
-                  id: lastOutput.id ?? v4(),
+                  id: v4(),
                   role:'user',
                   content: lastOutput.content,
                   type: 'tool_result'
                 });
 
               
-                const newStream = await getNext.bind(agent)();
+                const newStream = await getNext.bind(this)();
                 const oldReader = reader;
                 reader = newStream.getReader()
                 oldReader.releaseLock()

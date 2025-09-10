@@ -2,10 +2,11 @@
 
 import Image from "next/image"
 import { useEffect, useMemo, useRef, useState, useCallback } from "react"
+import { v4 } from "uuid";
 import { createSystemPrompt } from "../constants/prompts";
 import { tools as defaultTools } from "../constants/tools";
 import type { HuggingFaceONNXOptions, Message, TextBlock, ToolUseBlock, Tool as BaseTool } from "@uaito/sdk";
-import { Agent, LLMProvider, HuggingFaceONNXModels, MessageArray } from "@uaito/sdk";
+import { Agent, LLMProvider, HuggingFaceONNXModels } from "@uaito/sdk";
 import { Messages } from "./Messages";
 import { openDB, type IDBPDatabase } from "idb";
 import ToolItem from "./ToolItem";
@@ -62,8 +63,7 @@ function useUaito<T extends LLMProvider>(
       input_schema: tool.input_schema
     }));
     const hfOptions: HuggingFaceONNXOptions = {
-      model: HuggingFaceONNXModels.LMF2_1_2B,
-      inputs: new MessageArray([]),
+      model: HuggingFaceONNXModels.QWEN_1,
       dtype: "q4f16",
       device: "webgpu",
       tools: baseTools,
@@ -131,7 +131,14 @@ function useUaito<T extends LLMProvider>(
 
 
   useEffect(() => {
-    agent.load()
+    try {
+      agent.load().catch((erro) => {
+        console.error(erro)
+        debugger
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }, [agent])
 
   return {
@@ -302,13 +309,23 @@ export function new_tool(parameter1, parameter2) {
 
   const onChatSubmit = useCallback(async () => {
    try {
+    if (!userInput.trim()) return;
+
     setVerboseLog([])
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     abortControllerRef.current = new AbortController();
 
-    agent.clear();
+    const userMessage: Message = {
+      id: v4(),
+      role: 'user',
+      type: 'message',
+      content: [{ type: 'text', text: userInput }],
+    };
+    setChatHistory(prev => [...prev, userMessage]);
+    
+
     agent.client.log = (message: string) => {
       setVerboseLog(prev => [...prev, message]);
     }
@@ -316,7 +333,7 @@ export function new_tool(parameter1, parameter2) {
     const enabledTools = tools.filter(tool => tool.enabled !== false);
     const { response } = await agent.performTask(
       userInput,
-      '',
+      '',//
       createSystemPrompt(enabledTools as BaseTool[]),
       true
     );
@@ -349,6 +366,9 @@ export function new_tool(parameter1, parameter2) {
           // append the text to the existing text block.
           const existingBlock = newChatHistory[index].content[0] as TextBlock;
           const newChunkBlock = message.content[0] as TextBlock;
+
+          debugger;
+
           newChatHistory[index] = {
             ...newChatHistory[index],
             content: [

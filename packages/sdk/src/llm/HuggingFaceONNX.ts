@@ -26,6 +26,7 @@ import { AutoTokenizer, AutoModelForCausalLM, TextStreamer, AutoConfig } from "@
 import { BaseLLM } from "./Base";
 import type { TensorDataType } from "./huggingface/types";
 import { MessageArray } from "../utils";
+import { extractPythonicCalls, mapArgsToNamedParams, parsePythonicCall } from "./huggingface/utils";
 
 // Removed unused IM_START_TAG to satisfy linter and avoid confusion
 const IM_END_TAG = '<|im_end|>';
@@ -38,11 +39,6 @@ type HuggingFaceMessage = HMessage & {
   id?: string
 }
 
-interface ParsedCall {
-  name: string;
-  positionalArgs: unknown[];
-  keywordArgs: Record<string, unknown>;
-}
 
 
 export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, HuggingFaceONNXOptions> {
@@ -109,30 +105,37 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     this.log(`Model loaded: ${modelId}`);
   }
 
-  private fromInputToParam(model: MessageInput): HuggingFaceMessage {
-    const textContent = model.content
+  private fromInputToParam(message: MessageInput): HuggingFaceMessage {
+    const { content } = message;
+    let role = message.role;
+
+
+    const textContent = content
       .filter((c): c is TextBlock => c.type === "text")
       .map((c) => c.text)
       .join("\n\n");
 
-    const toolUseContent = model.content
+    const toolUseContent = content
       .filter((c): c is ToolUseBlock => c.type === "tool_use")
       .map((toolUse) =>
         JSON.stringify({
           id: toolUse.id,
           name: toolUse.name,
           parameters: toolUse.input,
+          type: 'tool_use'
         })
       )
       .join("\n");
 
-    const toolResultContent = model.content
+    const toolResultContent = content
       .filter((c): c is ToolResultBlock => c.type === "tool_result")
       .map((toolResult) => {
+
         const textContent = (toolResult.content ?? [])
           .filter((c): c is TextBlock => c.type === "text")
           .map((c) => c.text)
           .join("\n\n");
+
         return JSON.stringify({
           tool_use_id: toolResult.tool_use_id,
           name: toolResult.name,
@@ -141,13 +144,20 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
         });
       })
       .join("\n");
-    
-    let role = model.role;
-    if (toolUseContent) role = 'assistant';
+
+      
+    if (toolUseContent) {
+      return {
+        id: message.id,
+        role: 'assistant',
+        content: toolUseContent,
+      };
+      
+    }
+
     if (toolResultContent) role = 'tool';
 
     const finalContent = [textContent, toolUseContent, toolResultContent].filter(Boolean).join('\n\n');
-
     return {
       role: role,
       content: finalContent,
@@ -155,128 +165,19 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
   }
 
   private getTensorData() {
-    const currentInputs =  Array.from(this.inputs)
+    const currentInputs =  Array.from([
+      ...this.inputs
+    ])
+      .filter((m) => m.content.length >  0 && m.content[0].type !== 'tool_use' && m.role !== 'tool')
       .map(this.fromInputToParam);
+
+      debugger;
     return this.tokenizer.apply_chat_template(currentInputs, {
       add_generation_prompt: true,
       return_dict: true,
       tools: this.options.tools,
     }) as TensorDataType;
   }
-
-  private _parseArguments(argsString: string): string[] {
-    const args: string[] = [];
-    let current = "";
-    let inQuotes = false;
-    let quoteChar = "";
-    let pDepth = 0; 
-    let bDepth = 0; 
-
-    for (let i = 0; i < argsString.length; i++) {
-      const char = argsString[i];
-
-      if (!inQuotes && (char === '"' || char === "'")) {
-        inQuotes = true;
-        quoteChar = char;
-        current += char;
-      } else if (inQuotes && char === quoteChar) {
-        inQuotes = false;
-        quoteChar = "";
-        current += char;
-      } else if (!inQuotes && char === "(") {
-        pDepth++;
-        current += char;
-      } else if (!inQuotes && char === ")") {
-        pDepth--;
-        current += char;
-      } else if (!inQuotes && char === "{") {
-        bDepth++;
-        current += char;
-      } else if (!inQuotes && char === "}") {
-        bDepth--;
-        current += char;
-      } else if (!inQuotes && char === "," && pDepth === 0 && bDepth === 0) {
-        args.push(current.trim());
-        current = "";
-      } else {
-        current += char;
-      }
-    }
-
-    if (current.trim()) {
-      args.push(current.trim());
-    }
-
-    return args;
-  };
-
-  private _extractPythonicCalls(toolCallContent: string): string[] {
-    try {
-      const cleanContent = toolCallContent.trim();
-
-      try {
-        const parsed = JSON.parse(cleanContent);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      } catch {
-        // Fallback to manual parsing
-      }
-
-      if (cleanContent.startsWith("[") && cleanContent.endsWith("]")) {
-        const inner = cleanContent.slice(1, -1).trim();
-        if (!inner) return [];
-        return this._parseArguments(inner).map((call) =>
-          call.trim().replace(/^['"]|['"]$/g, ""),
-        );
-      }
-
-      return [cleanContent];
-    } catch (error) {
-      console.error("Error parsing tool calls:", error);
-      return [];
-    }
-  };
-
-  private _parsePythonicCall(command: string): ParsedCall | null {
-    const callMatch = command.match(/^([a-zA-Z0-9_]+)\((.*)\)$/s);
-    if (!callMatch) return null;
-
-    const [, name, argsStr] = callMatch;
-    const args = this._parseArguments(argsStr);
-    const positionalArgs: unknown[] = [];
-    const keywordArgs: Record<string, unknown> = {};
-
-    for (const arg of args) {
-      const kwargMatch = arg.match(/^([a-zA-Z0-9_]+)\s*=\s*(.*)$/s);
-      if (kwargMatch) {
-        const [, key, value] = kwargMatch;
-        try {
-          keywordArgs[key] = JSON.parse(value);
-        } catch {
-          keywordArgs[key] = value;
-        }
-      } else {
-        try {
-          positionalArgs.push(JSON.parse(arg));
-        } catch {
-          positionalArgs.push(arg);
-        }
-      }
-    }
-    return { name, positionalArgs, keywordArgs };
-  };
-
-  private _mapArgsToNamedParams(  paramNames: string[],  positionalArgs: unknown[], keywordArgs: Record<string, unknown>): Record<string, unknown> {
-    const namedParams: Record<string, unknown> = {};
-    positionalArgs.forEach((arg, idx) => {
-      if (idx < paramNames.length) {
-        namedParams[paramNames[idx]] = arg;
-      }
-    });
-    Object.assign(namedParams, keywordArgs);
-    return namedParams;
-  };
 
   private state: {
     buffer: string,
@@ -291,13 +192,18 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     this.currentMessageId ??= v4();
 
     if (!this.state.capturingToolCall) {
-      debugger;
-      const startIndex = this.state.buffer.indexOf('<|tool_call_start|>');
+      const startIndex = this.state.buffer.indexOf('<|tool_call_start|>') !== -1? 
+        this.state.buffer.indexOf('<|tool_call_start|>') : 
+        this.state.buffer.indexOf('<tool_call>');
+      
       if (startIndex !== -1) {
-        const textPart = this.state.buffer.substring(0, startIndex);
-        this.state.buffer = this.state.buffer.substring(startIndex + '<|tool_call_start|>'.length);
+        if (this.state.buffer.indexOf('<|tool_call_start|>') !== -1) {
+          this.state.buffer = this.state.buffer.substring(startIndex + '<|tool_call_start|>'.length);
+        } else if (this.state.buffer.indexOf('<tool_call>') !== -1) {
+          this.state.buffer = this.state.buffer.substring(startIndex + '<tool_call>'.length);
+        }
         this.state.capturingToolCall = true;
-
+        const textPart = this.state.buffer.substring(0, startIndex);
         if (textPart) {
           return {
             id: this.currentMessageId,
@@ -311,24 +217,32 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     }
 
     if (this.state.capturingToolCall) {
-      const endIndex = this.state.buffer.indexOf('<|tool_call_end|>');
+      const endIndex = this.state.buffer.indexOf('<|tool_call_end|>') !== -1? 
+        this.state.buffer.indexOf('<|tool_call_end|>') : 
+        this.state.buffer.indexOf( '</tool_call>');
+
       if (endIndex !== -1) {
-        debugger;
         const toolCallContent = this.state.buffer.substring(0, endIndex);
         this.log(`Detected tool call content: "${toolCallContent}"`);
-        this.state.buffer = this.state.buffer.substring(endIndex + '<|tool_call_end|>'.length);
+        if (this.state.buffer.indexOf('<|tool_call_end|>') !== -1) {
+          this.state.buffer = this.state.buffer.substring(endIndex + '<|tool_call_end|>'.length);
+        } else if (this.state.buffer.indexOf('</tool_call>') !== -1) {
+          this.state.buffer = this.state.buffer.substring(endIndex + '</tool_call>'.length);
+        }
         this.state.capturingToolCall = false;
 
-        const toolCalls = this._extractPythonicCalls(toolCallContent);
+        const toolCalls = extractPythonicCalls(toolCallContent);
+
+
         const toolUseBlocks: ToolUseBlock[] = toolCalls.flatMap(call => {
           this.log(`Parsing tool call: "${call}"`);
-          const parsed = this._parsePythonicCall(call);
+          const parsed = parsePythonicCall(call);
           if (!parsed) return [];
           
           const { name, positionalArgs, keywordArgs } = parsed;
           const toolSchema = this.options.tools?.find((t) => t.name === name);
           const paramNames = toolSchema ? Object.keys(toolSchema.input_schema.properties) : [];
-          const input = this._mapArgsToNamedParams(paramNames, positionalArgs, keywordArgs);
+          const input = mapArgsToNamedParams(paramNames, positionalArgs, keywordArgs);
 
           return {
             id: v4(),
@@ -354,7 +268,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     }
     
     // If no tool call markers are processed, treat the buffer as text
-    if (!this.state.capturingToolCall && chunk.indexOf('<|tool_call_start|>') === -1) {
+    if (!this.state.capturingToolCall && (chunk.indexOf('<|tool_call_start|>') === -1 && chunk.indexOf('<tool_call>') === -1)) {
       const textToEmit = this.state.buffer;
       this.state.buffer = '';
       if (textToEmit) {
@@ -387,12 +301,15 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
             skip_prompt: true,
             skip_special_tokens: false,
             callback_function: (value: string) => {
-              controller.enqueue(value.replace(IM_END_TAG, ""));
+              controller.enqueue(value
+                .replace(IM_END_TAG, "")
+                .replace(' <|endoftext|>', "</think>")
+              );
             },
           });
       
       
-          const { past_key_values } = await (this.model as any).generate({
+          const { sequences, past_key_values } = await (this.model as any).generate({
            ...input,
            past_key_values:__past_key_values,
             do_sample: false,
@@ -403,6 +320,22 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
             streamer,
             return_dict_in_generate: true,
           });
+
+          const response = this.tokenizer
+          .batch_decode(sequences.slice(null, [input.input_ids.dims[1], null]), {
+            skip_special_tokens: false,
+          })[0]
+          .replace(/<\|im_end\|>$/, "");
+          this.currentMessageId= null
+
+
+         this.inputs.push({
+          id: v4(),
+          role: 'assistant',
+          type: 'message',
+          content: [{ type: 'text', text: response }]
+      })
+
 
           __past_key_values = past_key_values;
          
@@ -431,7 +364,12 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
       }
       this.inputs.push(systemPrompt as MessageInput);
     }
-    this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs)
+    this.inputs =  MessageArray.from(
+      [
+        ...this.inputs,
+        { role: 'user', content: [{ type: 'text', text: `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}` }] }
+      ]
+    )
   }
 
   async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
@@ -439,6 +377,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     await this.load();
 
     this.addDefaultItems(prompt, system, chainOfThought);
+    debugger;
     const tensor = this.getTensorData();
     this.log(`Tensor created. Shape: ${tensor.input_ids.dims}`);
 
@@ -460,39 +399,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
       this.onTool?.bind(this)
     );
 
-    const lastMessage = this.inputs.slice(-1)[0];
-    if (!lastMessage || lastMessage.role !== 'user') {
-      return automodeStream;
-    }
-    
-    const userMessage: Message = {
-      ...(lastMessage as MessageInput),
-      id: lastMessage.id || v4(),
-      type: 'message',
-    };
-
-    const stream = new ReadableStream<Message>({
-      async start(controller) {
-        controller.enqueue(userMessage);
-
-        const reader = automodeStream.getReader();
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            controller.enqueue(value);
-          }
-          controller.close();
-        } catch (e) {
-          controller.error(e);
-        }
-      },
-      cancel(reason) {
-        automodeStream.cancel(reason);
-      },
-    });
-
-    return stream as ReadableStreamWithAsyncIterable<Message>;
+    return automodeStream;
   }
 
   performTaskNonStream(_prompt: string, _chainOfThought: string, _system: string): Promise<Message> {
