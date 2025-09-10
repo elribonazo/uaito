@@ -141,7 +141,7 @@ export class Agent<T extends LLMProvider> {
         prompt: string,
         chainOfThought: string,
         system: string,
-        stream?: boolean
+        stream: boolean = true
     ): Promise<{
         usage: { input: number, output: number },
         response: Message | (ReadableStream<Message> & AsyncIterable<Message>)

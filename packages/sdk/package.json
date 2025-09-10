@@ -1,6 +1,6 @@
 {
   "name": "@uaito/sdk",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "UAITO Typescript SDK",
   "main": "build/index.js",
   "module": "build/index.mjs",
@@ -45,7 +45,6 @@
     "@monaco-editor/react": "^4.7.0",
     "abort-controller": "^3.0.0",
     "idb": "^8.0.3",
-    "llamaindex": "^0.8.32",
     "lodash": "^4.17.21",
     "ollama": "^0.5.13",
     "onnxruntime-web": "1.14.0",

@@ -333,7 +333,7 @@ export function new_tool(parameter1, parameter2) {
     const enabledTools = tools.filter(tool => tool.enabled !== false);
     const { response } = await agent.performTask(
       userInput,
-      '',//
+      '',//createChainOfThought(enabledTools as BaseTool[])
       createSystemPrompt(enabledTools as BaseTool[]),
       true
     );

@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  mongodb_uaito:
+    image: mongo:latest
+    container_name: mongodb_uaito
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: default12345
+    ports:
+      - "27017:27017"

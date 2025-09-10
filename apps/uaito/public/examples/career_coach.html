@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Career Coach Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        header {
+            background-color: rgba(44, 62, 80, 0.9);
+            color: #ecf0f1;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+        header.scrolled {
+            background-color: rgba(44, 62, 80, 1);
+        }
+        nav {
+            background-color: transparent;
+            padding: 0.5rem;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+        nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        nav ul li a:hover {
+            color: #3498db;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: #fff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .hero {
+            background-image: url('https://picsum.photos/1920/1080');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+        }
+        .hero-content {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 10px;
+        }
+        .services {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .service {
+            flex-basis: calc(33.333% - 20px);
+            background: #f4f4f4;
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .service:hover {
+            transform: translateY(-10px);
+        }
+        .testimonial {
+            background-color: #ecf0f1;
+            padding: 40px 0;
+            text-align: center;
+        }
+        .testimonial-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 2rem;
+        }
+        .social-icons {
+            margin-top: 20px;
+        }
+        .social-icons a {
+            color: #ecf0f1;
+            font-size: 24px;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #3498db;
+        }
+        .contact-form {
+            background-color: #f4f4f4;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .contact-form fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        .contact-form legend {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        .submit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Your Name</h1>
+        <p>Professional Career Coach</p>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-content" data-aos="fade-up">
+            <h2>Elevate Your Career</h2>
+            <p>Expert guidance to help you reach your professional goals</p>
+            <a href="#contact" class="btn">Get Started</a>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <section id="about" data-aos="fade-up">
+            <h2>About Me</h2>
+            <img src="https://picsum.photos/300/300" alt="Your Name" style="float: left; margin-right: 20px; border-radius: 50%;">
+            <p>With [X] years of experience in career development and coaching, I've helped hundreds of professionals navigate their career paths, overcome challenges, and achieve their dreams. My approach combines industry insights, personalized strategies, and actionable advice to ensure your success.</p>
+        </section>
+
+        <section id="services" data-aos="fade-up">
+            <h2>My Services</h2>
+            <div class="services">
+                <div class="service" data-aos="fade-up" data-aos-delay="100">
+                    <img src="https://picsum.photos/300/200" alt="Career Assessment" style="width: 100%; border-radius: 5px;">
+                    <h3>Career Assessment</h3>
+                    <p>Discover your strengths, passions, and ideal career path through comprehensive assessments and guided self-reflection.</p>
+                </div>
+                <div class="service" data-aos="fade-up" data-aos-delay="200">
+                    <img src="https://picsum.photos/300/200" alt="Resume & Portfolio Building" style="width: 100%; border-radius: 5px;">
+                    <h3>Resume & Portfolio Building</h3>
+                    <p>Craft compelling resumes and portfolios that showcase your unique value proposition to potential employers.</p>
+                </div>
+                <div class="service" data-aos="fade-up" data-aos-delay="300">
+                    <img src="https://picsum.photos/300/200" alt="Interview Preparation" style="width: 100%; border-radius: 5px;">
+                    <h3>Interview Preparation</h3>
+                    <p>Master the art of interviewing with personalized coaching sessions, mock interviews, and feedback.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonial" data-aos="fade-up">
+            <div class="testimonial-content">
+                <h2>What My Clients Say</h2>
+                <blockquote>
+                    "Working with [Your Name] was a game-changer for my career. Their insights and guidance helped me land my dream job!"
+                </blockquote>
+                <p>- Jane Doe, Marketing Executive</p>
+            </div>
+        </section>
+
+        <section id="contact" data-aos="fade-up">
+            <h2>Contact Me</h2>
+            <p>Ready to take the next step in your career? Get in touch today!</p>
+            <div class="contact-form">
+                <form>
+                    <fieldset>
+                        <legend>Send me a message</legend>
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Your Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Your Name - Career Coach. All rights reserved.</p>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true,
+        });
+
+        window.addEventListener('scroll', function() {
+            var header = document.querySelector('header');
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+    </script>
+</body>
+</body>
+</html>

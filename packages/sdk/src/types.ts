@@ -5,7 +5,6 @@ import type { OpenAI } from "./llm/Openai";
 import type { Ollama } from "./llm/Ollama";
 import type { Agent } from "./agents";
 import { HuggingFaceONNX } from './llm/HuggingFaceONNX';
-import { MessageArray } from './utils';
 
 export enum HuggingFaceONNXModels {
   Llama32_3B = "onnx-community/Llama-3.2-3B-Instruct-onnx-web",
@@ -17,6 +16,17 @@ export enum HuggingFaceONNXModels {
   LMF2_1_2B = "onnx-community/LFM2-1.2B-ONNX",
   QWEN_1 = "onnx-community/Qwen3-0.6B-ONNX",
   QWEN_2 = "onnx-community/Qwen3-1.7B-ONNX"
+}
+
+export enum AnthropicModels {
+  'claude-3-5-sonnet' = 'claude-3-5-sonnet-20240620',
+  'claude-3-haiku' = 'claude-3-haiku-20240307',
+  'claude-3-opus' = 'claude-3-opus-20240229',
+  'claude-4-sonnet' = 'claude-sonnet-4-20250514'
+}
+
+export enum OpenAIModels {
+  'gpt-4o' = 'gpt-4o',
 }
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Check if .env file exists and load it
+if [ -f .env.release ]; then
+    echo "Loading environment variables from .env file..."
+    # Load environment variables from .env file
+    export $(grep -v '^#' .env.release | xargs)
+else
+    echo "No .env.release file found. Ensure IMAGE_NAME, REGISTRY, and NEXT_PUBLIC_ENDPOINT are set in the environment."
+fi
+
+# Check if IMAGE_NAME and REGISTRY are set
+if [ -z "$IMAGE_NAME" ]; then
+    echo "Error: IMAGE_NAME is not set. Please set it in .env file or as an environment variable."
+    exit 1
+fi
+
+if [ -z "$REGISTRY" ]; then
+    echo "Error: REGISTRY is not set. Please set it in .env file or as an environment variable."
+    exit 1
+fi
+
+echo "Using IMAGE_NAME: $IMAGE_NAME"
+echo "Using REGISTRY: $REGISTRY"
+
+# Use the variables in the docker commands
+DOCKER_BUILDKIT=1 docker build --platform linux/amd64 \
+    -t ${IMAGE_NAME}:latest .
+
+docker tag ${IMAGE_NAME}:latest ${REGISTRY}/${IMAGE_NAME}:latest
+docker push ${REGISTRY}/${IMAGE_NAME}:latest

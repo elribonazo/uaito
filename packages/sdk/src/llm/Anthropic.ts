@@ -84,8 +84,10 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           }
           return toolResultBlock
         })
+    
+        
     return {
-      ...model,
+      role: model.role,
       content
     } as MessageParam
   }
@@ -215,8 +217,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       }
       return true;
     })
-    .flatMap(({role, content}) => ({role, content}))
-
+    .flat()
   }
 
    async performTaskStream(

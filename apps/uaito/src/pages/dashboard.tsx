@@ -1,0 +1,478 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaApple, FaWindows } from 'react-icons/fa';
+import { ComputerDesktopIcon, EyeIcon, EyeSlashIcon, WindowIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import Stripe from 'stripe'
+import type { GetServerSidePropsContext, InferGetServerSidePropsType } from "next"
+import { getServerSession } from "next-auth/next"
+import { useSession, signOut } from "next-auth/react";
+import { AnimatedText } from '../components/AnimatedText';
+import SpaceBackground from '../components/SpaceBackground';
+import Authenticate from '@/components/Authenticate';
+import { authOptions } from './api/auth/[...nextauth]';
+import StripePricingTable from '@/components/PricingTable';
+import Link from 'next/link';
+import Footer from '@/components/Footer';
+import { IUsage, UsageModel } from '../db/models/Usage';
+import { UserModel } from '../db/models/User';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import moment from 'moment-timezone';
+
+const Header: React.FC = () => (
+  <header className="w-full text-center mb-8">
+    <h1 className="text-6xl md:text-8xl font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
+      <AnimatedText />
+    </h1>
+  </header>
+);
+
+const SubscriptionUpgrade: React.FC<{}> = () => (
+  <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-4">
+    <h2 className="text-3xl font-bold text-gray-800 mb-4">Upgrade Your Subscription</h2>
+    <p className="text-xl text-gray-600 mb-6">You still don't have any subscription and you need one to use the service!</p>
+    <p className="text-lg text-gray-700 mb-6">Choose the plan that best fits your needs and start enjoying these amazing benefits today!</p>
+    <StripePricingTable
+      pricingTableId='prctbl_1PjkoELPQsMrIxE7LXQEx6ke'
+      publishableKey='pk_test_51PgOgiLPQsMrIxE7dwh1dZnInmccnXXJ8hVisXOOf79RN4tPO1c4zV3onsCt0b6j2pqZQ4qVwv10iahAClBnTvrr00MSUAVpY2'
+    />
+    <p className="mt-6 text-sm text-gray-500">Need help choosing? Contact our support team for personalized assistance.</p>
+  </div>
+);
+
+const WelcomeSection: React.FC<{ email: string }> = ({ email }) => (
+  <div className="flex justify-between items-center mb-6">
+    <h2 className="text-3xl font-bold">Welcome back, {email}!</h2>
+    <button
+      onClick={() => signOut()}
+      className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm transition duration-300"
+    >
+      Sign Out
+    </button>
+  </div>
+);
+
+const processHourlyData = (usage: IUsage[]) => {
+  const userTimezone = moment.tz.guess();
+  const today = moment().tz(userTimezone).startOf('day');
+  const hourlyData = Array.from({ length: 24 }, (_, i) => ({
+    hour: i,
+    input: 0,
+    output: 0
+  }));
+
+  usage.forEach(entry => {
+    const entryDate = moment(entry.createdAt).tz(userTimezone);
+    if (entryDate.isSameOrAfter(today)) {
+      const hour = entryDate.hour();
+      hourlyData[hour].input += entry.input;
+      hourlyData[hour].output += entry.output;
+    }
+  });
+
+  return hourlyData;
+};
+
+const processDailyData = (usage: IUsage[]) => {
+  const userTimezone = moment.tz.guess();
+  const dailyData = usage.reduce((acc, entry) => {
+    const date = moment(entry.createdAt).tz(userTimezone).format('YYYY-MM-DD');
+    const existingEntry = acc.find(item => item.date === date);
+    if (existingEntry) {
+      existingEntry.input += entry.input;
+      existingEntry.output += entry.output;
+    } else {
+      acc.push({ date, input: entry.input, output: entry.output });
+    }
+    return acc;
+  }, [] as { date: string; input: number; output: number }[]);
+
+  return dailyData.sort((a, b) => moment(a.date).diff(moment(b.date)));
+};
+
+const hasMultipleDaysData = (usage: IUsage[]): boolean => {
+  if (usage.length === 0) return false;
+  const uniqueDays = new Set(usage.map(entry => new Date(entry.createdAt).toDateString()));
+  return uniqueDays.size > 1;
+};
+
+const UsageGraph: React.FC<{ usage: IUsage[]; type: 'today' | '30d' }> = ({ usage, type }) => {
+  const data = type === 'today' ? processHourlyData(usage) : processDailyData(usage);
+
+  // Calculate totals for today
+  const todayTotals = type === 'today' ? data.reduce(
+    (acc, hour) => ({
+      input: acc.input + hour.input,
+      output: acc.output + hour.output
+    }),
+    { input: 0, output: 0 }
+  ) : null;
+
+  // Custom legend that includes totals for today
+  const CustomLegend = ({ payload }: any) => {
+    if (type !== 'today' || !todayTotals) return <Legend />;
+    
+    return (
+      <ul className="recharts-default-legend" style={{ padding: 0, margin: 0, textAlign: 'center' }}>
+        {payload.map((entry: any, index: number) => (
+          <li key={`item-${index}`} style={{ display: 'inline-block', marginRight: 10 }}>
+            <svg className="recharts-surface" width="14" height="14" viewBox="0 0 32 32" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }}>
+              <path fill="none" stroke={entry.color} strokeWidth="4" d="M0,16h32" />
+            </svg>
+            <span style={{ color: entry.color }}>
+              {entry.value} ({entry.dataKey === 'input' ? todayTotals.input : todayTotals.output})
+            </span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip bg-gray-800 p-2 rounded shadow-lg">
+          <p className="label text-sm">{`Time: ${label}`}</p>
+          {payload.map((pld: any) => (
+            <p key={pld.dataKey} style={{ color: pld.color }} className="text-sm">
+              {`${pld.name}: ${pld.value}`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const ActiveDot = (props: any) => {
+    const { cx, cy, stroke, dataKey } = props;
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={4} fill={stroke} />
+        <circle cx={cx} cy={cy} r={8} fill={stroke} fillOpacity={0.2} />
+      </g>
+    );
+  };
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <XAxis 
+          dataKey={type === 'today' ? 'hour' : 'date'}
+          tickFormatter={type === 'today' 
+            ? (hour: number) => hour === 23 ? '24:00' : hour.toString().padStart(2, '0') + ':00'
+            : (date) => moment(date).format('MM/DD')}
+          stroke="#888"
+          axisLine={{ stroke: '#888' }}
+          tickLine={{ stroke: '#888' }}
+        />
+        <YAxis 
+          stroke="#888"
+          axisLine={{ stroke: '#888' }}
+          tickLine={{ stroke: '#888' }}
+        />
+        <Tooltip 
+          content={<CustomTooltip />}
+          labelFormatter={type === 'today'
+            ? (hour: number) => {
+                const start = hour.toString().padStart(2, '0') + ':00';
+                const end = hour === 23 ? '23:59' : (hour + 1).toString().padStart(2, '0') + ':00';
+                return `${start} - ${end}`;
+              }
+            : (date) => moment(date).format('YYYY-MM-DD')}
+        />
+        <Legend content={<CustomLegend />} />
+        <Line 
+          type="monotone" 
+          dataKey="input" 
+          stroke="#8884d8" 
+          name="Input" 
+          strokeWidth={2}
+          dot={false}
+          activeDot={<ActiveDot />}
+        />
+        <Line 
+          type="monotone" 
+          dataKey="output" 
+          stroke="#82ca9d" 
+          name="Output" 
+          strokeWidth={2}
+          dot={false}
+          activeDot={<ActiveDot />}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
+
+const RevealableApiKey: React.FC<{  }> = () => {
+  const [apiKey, setApiKey] = useState<string>('');
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+
+  const toggleReveal = useCallback(() => {
+    fetch(`/api/key`).then((r) => r.json()).then((response) => {
+      setApiKey(response.apiKey ?? '')
+      setIsRevealed(!isRevealed);
+    })
+  }, [isRevealed]);
+
+  const showTemporaryNotification = useCallback(() => {
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 800); // Hide after 1.5 seconds
+  }, []);
+
+  const copyToClipboard = useCallback(() => {
+    navigator.clipboard.writeText(apiKey).then(() => {
+      setIsRevealed(false); // Hide the input after copying
+      showTemporaryNotification();
+    });
+  }, [apiKey, showTemporaryNotification]);
+
+  const maskedApiKey = apiKey.replace(/./g, '•');
+
+  return (
+    <div className="relative w-full">
+      <div className="flex w-full">
+        <input
+          type="text"
+          placeholder='Click the eye icon to disclose your api key'
+          readOnly
+          disabled
+          value={isRevealed ? apiKey : maskedApiKey}
+          className="flex-grow bg-gray-700 text-white px-3 py-2 rounded-l-md"
+        />
+        <div className="flex">
+          {isRevealed && (
+            <button
+              onClick={copyToClipboard}
+              className="bg-gray-600 text-gray-200 px-3 py-2 text-xs transition duration-300 hover:bg-gray-500"
+            >
+              Copy
+            </button>
+          )}
+          <button
+            onClick={toggleReveal}
+            className={`flex items-center px-3 py-2 text-gray-400 hover:text-white bg-gray-600 hover:bg-gray-500 transition duration-300 ${isRevealed ? 'rounded-r-md' : ''}`}
+          >
+            {isRevealed ? (
+              <EyeSlashIcon className="h-5 w-5" />
+            ) : (
+              <EyeIcon className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+      </div>
+      {showNotification && (
+        <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-green-500 text-white text-sm rounded-md shadow-lg transition-opacity duration-300 ease-in-out opacity-100">
+          API key copied to clipboard!
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Dashboard: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (props:any) => {
+  const { data: session, status } = useSession();
+  const [subscription] = useState(props.pageProps.subscription);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (status === 'loading') return;
+    setLoading(false);
+    if (props.pageProps.error) {
+      setError(props.pageProps.error);
+    }
+    if (props.userTimezone) {
+      moment.tz.setDefault(props.userTimezone);
+    }
+  }, [status, props.pageProps, props.userTimezone]);
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString();
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+    </div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <div className="bg-red-600 p-4 rounded-lg">
+        <p className="text-xl font-bold">Error: {error}</p>
+        <p>Please try again later or contact support.</p>
+      </div>
+    </div>;
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col relative bg-gray-900 text-white font-roboto">
+      <SpaceBackground />
+      <main className="flex-grow z-10 px-4 py-8">
+        <Header />
+        {session ? (
+          <section className="max-w-6xl mx-auto">
+            <WelcomeSection email={session.user?.email || ''} />
+            <div className="space-y-6">
+              {subscription ? (
+               <>
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 className="text-2xl font-bold mb-4">Your Subscription</h3>
+                  <div className="space-y-2">
+                    <p><span className="font-semibold">Plan:</span> {subscription.plan.nickname || subscription.plan.id}</p>
+                    <p><span className="font-semibold">Status:</span> <span className="capitalize">{subscription.status}</span></p>
+                    <p><span className="font-semibold">Current Period:</span> {formatDate(subscription.current_period_start)} - {formatDate(subscription.current_period_end)}</p>
+                    <p><span className="font-semibold">Amount:</span> ${(subscription.plan.amount / 100).toFixed(2)} / {subscription.plan.interval}</p>
+                  </div>
+                  <div className="mt-6 grid md:grid-cols-2 gap-6">
+                    <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
+                      <h4 className="text-xl font-bold mb-3">Start Chatting</h4>
+                      <p className="text-gray-300 mb-4">
+                        Begin an AI-powered conversation right in your browser. Perfect for quick queries and on-the-go access.
+                      </p>
+                      <Link href="/chat" className="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300">
+                        <ComputerDesktopIcon className="inline-block w-6 h-6 mr-2" />
+                        Launch Web Chat
+                      </Link>
+                    </div>
+                    <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
+                      <h4 className="text-xl font-bold mb-3">Download Our Software</h4>
+                      <p className="text-gray-300 mb-4">
+                        Get the full UAITO experience with our desktop application. Available for macOS and Windows.
+                      </p>
+                      <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        <Link 
+                          href="/api/download/arm64-mac.zip" 
+                          className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300"
+                        >
+                          <FaApple className="h-6 w-6 mr-2" />
+                          <span>macOS (ARM64)</span>
+                        </Link>
+                        <Link 
+                          href="/api/download/exe" 
+                          className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300"
+                        >
+                          <FaWindows className="h-6 w-6 mr-2" />
+                          <span>Windows</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 className="text-2xl font-bold mb-4">Your API Key</h3>
+                  <RevealableApiKey />
+                </div>
+                <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 className="text-2xl font-bold mb-4">Your Usage</h3>
+                  
+                  <h4 className="text-xl font-semibold mb-2">Today's Usage</h4>
+                  <UsageGraph usage={props.pageProps.usage} type="today" />
+                  <div className="mt-2 mb-6">
+                    <p className="text-sm text-gray-400">Graph shows input and output usage grouped by hour for today.</p>
+                  </div>
+
+                  {hasMultipleDaysData(props.pageProps.usage) && (
+                    <>
+                      <h4 className="text-xl font-semibold mb-2">Past 30 Days</h4>
+                      <UsageGraph usage={props.pageProps.usage} type="30d" />
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-400">Graph shows input and output usage grouped by day for the past 30 days.</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+               </>
+              ) : (
+                <SubscriptionUpgrade />
+              )}
+            </div>
+          </section>
+        ) : (
+          <Authenticate />
+        )}
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+type UserSession = {
+  user?: {
+    email: string
+  }
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2024-06-20',
+    })
+    const session = await getServerSession<any, UserSession>(context.req, context.res, authOptions)
+    if (!session) {
+      return  {
+        props:{
+          subscription: null,
+          usage: [],
+          userTimezone: 'UTC'
+        }
+      }
+    }
+    const customers = await stripe.customers.list({
+      email: session.user?.email,
+      limit: 1
+    })
+    let subscription:Stripe.Subscription|null = null
+    if (customers.data.length > 0) {
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customers.data[0].id,
+        status: 'active',
+        limit: 1
+      })
+      if (subscriptions.data.length > 0) {
+        subscription = subscriptions.data[0]
+      }
+    }
+
+    const user = await UserModel.findOne({email: session.user?.email})
+    if (!user) {
+      throw new Error("User not found")
+    }
+
+    const userTimezone = context.req.headers['x-timezone'] as string || 'UTC';
+    
+    const thirtyDaysAgo = moment().tz(userTimezone).subtract(30, 'days').toDate();
+
+    const usage = await UsageModel.find({
+      userId: user.id,
+      createdAt: { $gte: thirtyDaysAgo }
+    })
+    .sort({ createdAt: 1 });
+
+    const parsedUsage: IUsage[] = JSON.parse(
+      JSON.stringify( 
+        usage.map((u) => ({...u.toObject(), id: u.id, createdAt: moment(u.createdAt).tz(userTimezone).format()}))
+      )
+    );
+
+    return {
+      props: {
+        subscription: subscription,
+        usage: parsedUsage,
+        userTimezone: userTimezone
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching subscription:', error)
+    return  {
+      props:{
+        subscription: null,
+        usage: [],
+        error: 'Failed to fetch subscription',
+        userTimezone: 'UTC'
+      }
+    }
+  }
+}
+
+export default Dashboard

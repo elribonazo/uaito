@@ -168,10 +168,8 @@ async runSafeCommand(
           return input;
       } else {
           if (input[input.length - 1].role === 'user' && input[input.length - 1].content[0].type === 'text') {
-            debugger;
               input[input.length - 1].content.push({ type: 'text', text: promptWithChainOfThought });
           } else {
-            debugger;
               input.push({ role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] })
           }
           return input;
