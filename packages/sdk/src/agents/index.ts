@@ -1,4 +1,4 @@
-import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, OllamaOptions, AgentTypeToClass, HuggingFaceONNXOptions, ToolUseBlock } from "../types";
+import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, AgentTypeToClass, HuggingFaceONNXOptions, ToolUseBlock } from "../types";
 import { BaseLLM } from "../llm/Base";
 import { MessageArray } from "../utils";
 
@@ -75,12 +75,6 @@ export class Agent<T extends LLMProvider> {
             },
                 this.onTool
             ) as AgentTypeToClass[T];
-        } else if (this.type === LLMProvider.Ollama) {
-            const Ollama = (await import("../llm/Ollama")).Ollama;
-            this.client ??= new Ollama({
-                options: this.options as OllamaOptions
-            },
-                this.onTool) as AgentTypeToClass[T];
         } else if (this.type === LLMProvider.HuggingFaceONNX) {
             const HuggingFace = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
             this.client ??= new HuggingFace({

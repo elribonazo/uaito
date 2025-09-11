@@ -22,8 +22,6 @@ function toProvider(p: string | string[] | undefined): LLMProvider {
       return LLMProvider.OpenAI;
     case 'Anthropic':
       return LLMProvider.Anthropic;
-    case 'Ollama':
-      return LLMProvider.Ollama;
     case 'HuggingFaceONNX':
       return LLMProvider.HuggingFaceONNX;
     default:

@@ -2,7 +2,6 @@ import { AbortSignal } from 'abort-controller';
 
 import type { Anthropic } from "./llm/Anthropic";
 import type { OpenAI } from "./llm/Openai";
-import type { Ollama } from "./llm/Ollama";
 import type { Agent } from "./agents";
 import { HuggingFaceONNX } from './llm/HuggingFaceONNX';
 
@@ -32,7 +31,6 @@ export enum OpenAIModels {
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;
 export type OpenAIOptions = { apiKey?: string } & BaseLLMOptions;
-export type OllamaOptions = { host: string } & BaseLLMOptions;
 export type HuggingFaceONNXOptions =  BaseLLMOptions & {
   model: HuggingFaceONNXModels,
   dtype: DType,
@@ -69,7 +67,6 @@ export type BaseLLMCache = {
 export enum LLMProvider {
   OpenAI = 'OpenAI',
   Anthropic = 'Anthropic',
-  Ollama = 'Ollama',
   HuggingFaceONNX = 'HuggingFaceONNX'
 }
 
@@ -87,16 +84,13 @@ export interface SearchReplaceBlock {
 export type AgentTypeToOptions = {
     [LLMProvider.Anthropic]: AnthropicOptions;
     [LLMProvider.OpenAI]: OpenAIOptions;
-    [LLMProvider.Ollama]: OllamaOptions;
     [LLMProvider.HuggingFaceONNX]: HuggingFaceONNXOptions;
     [name: string]: unknown
   };
 
 export type AgentTypeToClass = {
   [LLMProvider.Anthropic]: Anthropic;
-  //Todo: replace when done
   [LLMProvider.OpenAI]: OpenAI;
-  [LLMProvider.Ollama]: Ollama;
   [LLMProvider.HuggingFaceONNX]: HuggingFaceONNX;
   [name: string]: unknown
 };

@@ -184,7 +184,7 @@ const Config: React.FC = () => {
   const [currentProvider, setCurrentProvider] = useState<LLMProvider>(original);
   const enableSwitch = false;
   const onConfigToggle = () => {
-    const next = currentProvider === LLMProvider.Anthropic ? LLMProvider.Ollama : LLMProvider.Anthropic;
+    const next = currentProvider === LLMProvider.Anthropic ? LLMProvider.OpenAI : LLMProvider.Anthropic;
     setCurrentProvider(next);
   };
 
@@ -199,7 +199,7 @@ const Config: React.FC = () => {
             onClick={onConfigToggle}
             className="my-6 px-4 py-2 font-semibold text-sm bg-blue-500 text-white rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200"
           >
-            {currentProvider === LLMProvider.Anthropic ? 'Switch to Ollama' : 'Switch to Anthropic'}
+            {currentProvider === LLMProvider.Anthropic ? 'Switch to OpenAI' : 'Switch to Anthropic'}
           </button>
           }
           {currentProvider === LLMProvider.Anthropic ? <Anthropic /> : <p>Not supported</p>}
