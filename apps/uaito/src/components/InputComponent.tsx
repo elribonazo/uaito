@@ -20,7 +20,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
   const [searchText, setSearchText] = useState('');
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
-  const currentChat = app.user
+  const currentChat = app.user;
   const isLoading = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
   

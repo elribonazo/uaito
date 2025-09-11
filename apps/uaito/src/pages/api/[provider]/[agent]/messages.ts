@@ -180,36 +180,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           name: currentUser.name
         }
       )
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const usage = (value?.content?? []).find((content) => content.type === "usage");
-        if (usage ) {
-          const existingUser = await findUserByEmail(email);
-          if (!existingUser) {
-            throw new Error("Unexpected user not found")
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          };
+          const usage = (value?.content?? []).find((content) => content.type === "usage");
+          if (usage ) {
+            const existingUser = await findUserByEmail(email);
+            if (!existingUser) {
+              throw new Error("Unexpected user not found")
+            }
+            await createUsage(
+              existingUser,
+              threadId,
+              usage.input,
+              usage.output
+            )
           }
-          await createUsage(
-            existingUser,
-            threadId,
-            usage.input,
-            usage.output
-          )
-        }
-        const chunk = JSON.stringify(value);
-        res.write(chunk.toString() +  SEPARATOR);
-        if (value.type === "delta") {
-          const deltaBlock = value.content.find((block) => block.type === "delta");
-          if (deltaBlock) {
-            const stopReason = deltaBlock.stop_reason;
-            console.log("Stream ended:", stopReason);
-            if (stopReason === "end_turn" || stopReason === "max_tokens") {
-              break;
+          const chunk = JSON.stringify(value);
+          res.write(chunk.toString() +  SEPARATOR);
+          if (value.type === "delta") {
+            const deltaBlock = value.content.find((block) => block.type === "delta");
+            if (deltaBlock) {
+              const stopReason = deltaBlock.stop_reason;
+              console.log("Stream ended:", stopReason);
+              if (stopReason === "end_turn" || stopReason === "max_tokens") {
+                break;
+              }
             }
           }
-        }
-      
-    }
+        
+      }
+      } catch (err) {
+        //ignore for now
+      }
+     
   } catch (error) {
     console.error("Error:", error);
     const errorBlock: ErrorBlock = {

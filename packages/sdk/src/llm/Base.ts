@@ -202,7 +202,10 @@ async runSafeCommand(
         
         while (true) {
           const readerResult = await reader.read();
-          if (readerResult.done) break;
+          if (readerResult.done) {
+            controller.close();
+            break;
+          }
 
           try {
             if (!readerResult.value) {
@@ -321,7 +324,10 @@ async runSafeCommand(
       async start(controller) {
         while(true) {
           const s = await reader.read();
-          if (s.done) break;
+          if (s.done) {
+            controller.close();
+            break;
+          }
           
           if (!s.value) {
             continue;

@@ -50,8 +50,6 @@ export const MessageItem:React.FC<{
         return <ToolComponent messageId={`msg-${id}-block`} {...content} />
     } else if (content.type === "tool_result") {
         return <ToolComponent messageId={`msg-${id}-block`} {...content} />
-    } else {
-        debugger;
     }
 }
 
@@ -74,7 +72,6 @@ export const Message: React.FC<{
         }
          )
     }
-    debugger;
     //TODO: should not be needed but for some reason the message comes wrong in here
     return null
 };

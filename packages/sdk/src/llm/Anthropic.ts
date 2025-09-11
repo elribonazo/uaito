@@ -182,7 +182,10 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           role: 'assistant',
           type: 'delta',
           content: [
-            chunk.delta as DeltaBlock,
+            {
+              ...chunk.delta,
+              type: 'delta'
+            } as DeltaBlock,
             usageBlock
           ]
         }

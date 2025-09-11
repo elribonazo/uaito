@@ -300,9 +300,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
             skip_prompt: true,
             skip_special_tokens: false,
             callback_function: (value: string) => {
-              controller.enqueue(value
-                .replace(IM_END_TAG, "")
-                .replace(' <|endoftext|>', "</think>")
+              controller.enqueue(value .replace(IM_END_TAG, "")
               );
             },
           });
@@ -320,22 +318,23 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
             return_dict_in_generate: true,
           });
 
-          const response = this.tokenizer
-          .batch_decode(sequences.slice(null, [input.input_ids.dims[1], null]), {
-            skip_special_tokens: false,
-          })[0]
-          .replace(/<\|im_end\|>$/, "");
+          if (sequences) {
+            const response = this.tokenizer
+            .batch_decode(sequences.slice(null, [input.input_ids.dims[1], null]), {
+              skip_special_tokens: false,
+            })[0]
+            .replace(IM_END_TAG, "");
+
+                this.inputs.push({
+                  id: v4(),
+                  role: 'assistant',
+                  type: 'message',
+                  content: [{ type: 'text', text: response }]
+              })
+          }
+
+        
           this.currentMessageId= null
-
-
-         this.inputs.push({
-          id: v4(),
-          role: 'assistant',
-          type: 'message',
-          content: [{ type: 'text', text: response }]
-      })
-
-
           __past_key_values = past_key_values;
          
           controller.close();

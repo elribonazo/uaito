@@ -142,6 +142,7 @@ export const streamMessage = createAsyncThunk(
         dtype: "q4f16",
         device,
         tools: [],
+        signal: signal as any,
         onProgress: (progress) => {
           const now = Date.now();
           // Only dispatch if enough time has passed or if progress is complete (100%)
@@ -192,37 +193,33 @@ Maintain neutrality, avoid verbosity, and focus on delivering value.`,
       
       // Convert ReadableStream<Message> to ReadableStream<Uint8Array>
       const uint8ArrayStream = new ReadableStream<any>({
-        start(controller) {
+        start: async (controller) => {
           const reader = response.getReader();
           
-          async function pump() {
-            try {
-              while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                  controller.close();
-                  break;
-                }
-                
-                // Serialize the Message to JSON and encode as Uint8Array
-                const jsonString = JSON.stringify(value) + "<-[*0M0*]->";
-                const uint8Array = new TextEncoder().encode(jsonString);
-                controller.enqueue(uint8Array);
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) {
+                controller.close();
+                break;
               }
-            } catch (error) {
-              controller.error(error);
+
+              
+              // Serialize the Message to JSON and encode as Uint8Array
+              const jsonString = JSON.stringify(value) + "<-[*0M0*]->";
+              const uint8Array = new TextEncoder().encode(jsonString);
+              controller.enqueue(uint8Array);
             }
+          } catch (error) {
+            controller.error(error);
           }
-          
-          pump();
         }
       });
 
       await processStream(uint8ArrayStream, options.session, dispatch)
 
-      return fulfillWithValue(null)
+      return fulfillWithValue(1)
     } catch (error) {
-
       const err = 'An error occurred. Please try again later.' + (error as Error).message
       const userMessage: Message =  {
         role:'assistant',

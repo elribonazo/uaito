@@ -26,7 +26,6 @@ export class UaitoAPI {
     return response.json()
    } catch (err) {
     console.log(err);
-    debugger;
    }
   }
 
