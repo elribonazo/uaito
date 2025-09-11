@@ -12,16 +12,6 @@ if (!process.env.NEXTAUTH_URL) {
     process.env.NEXTAUTH_URL = process.env.PUBLIC_URL || 'http://localhost:3005'
 }
 
-export async function ensureUserExists(user: { name: string; email: string }) {
-    const existingUser = await User.findOne({ email: user.email });
-    if (!existingUser) {
-        await User.create({
-            name: user.name,
-            email: user.email,
-        });
-    }
-}
-
 interface CustomSession extends NextAuthSession {
   user: {
     _id: string;
@@ -171,6 +161,15 @@ if (process.env.AUTH_KEYCLOACK_ID && process.env.AUTH_KEYCLOACK_SECRET && proces
         clientId: process.env.AUTH_KEYCLOACK_ID,
         clientSecret: process.env.AUTH_KEYCLOACK_SECRET,
         issuer: process.env.AUTH_KEYCLOACK_ISSUER,
+        profile(profile) {
+          return {
+            id: profile.sub,
+            name: profile.name ?? profile.preferred_username,
+            email: profile.email,
+            image: profile.picture,
+            emailVerified: profile.email_verified ? new Date() : null,
+          }
+        }
     }));
 }
 
@@ -188,6 +187,33 @@ export const authOptions: NextAuthOptions = {
     error: '/error'
   },
   callbacks: {
+      async signIn({ user, account }) {
+          if (!user.email) return false;
+          await db.connect();
+
+          const existingAccount = await Account.findOne({ provider: account.provider, providerAccountId: account.providerAccountId });
+          if (existingAccount) {
+              return true;
+          }
+
+          const existingUser = await User.findOne({ email: user.email });
+          if (existingUser) {
+              await Account.create({
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  refresh_token: account.refresh_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                  session_state: account.session_state,
+              });
+          }
+          return true;
+      },
       session: async ({ session, user }: { session: NextAuthSession; user: AdapterUser }): Promise<CustomSession> => {
           const customSession: CustomSession = {
               ...session,
