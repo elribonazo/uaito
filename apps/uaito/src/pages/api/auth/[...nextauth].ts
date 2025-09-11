@@ -29,141 +29,111 @@ interface CustomSession extends NextAuthSession {
   } & DefaultSession['user'];
 }
 
-const createMongooseAdapter = (): Adapter => {
-    const withDbConnection = <T extends (...args: any[]) => Promise<any>>(fn: T) =>
-    async (...args: Parameters<T>): Promise<ReturnType<T>> => {
+const MongooseAdapter: Adapter = {
+    async createUser(data) {
         await db.connect();
-        return fn(...args);
-    };
-
-    const adapterMethods = {
-        createUser: async (data: Omit<AdapterUser, "id">) => {
-            const user = await User.create({
-                ...data,
-            })
-            const userObj = user.toObject();
-            return {
-                ...userObj,
-                id: (userObj as any)._id.toString(),
-            } as AdapterUser
-        },
-        getUser: async (id) => {
-            const user = await User.findById(id).exec()
-            if (!user) return null
-            const userObj = user.toObject();
-            return {
-                ...userObj,
-                id: (userObj as any)._id.toString(),
-            } as AdapterUser
-        },
-        getUserByEmail: async (email) => {
-            const user = await User.findOne({ email }).exec()
-            if (!user) return null
-            const userObj = user.toObject();
-            return {
-                ...userObj,
-                id: (userObj as any)._id.toString(),
-            } as AdapterUser
-        },
-        getUserByAccount: async ({ provider, providerAccountId }) => {
-            const account = await Account.findOne({ provider, providerAccountId }).exec()
-            if (!account) return null
-            const user = await User.findById(account.userId).exec()
-            if (!user) return null
-            const userObj = user.toObject();
-            return {
-                ...userObj,
-                id: (userObj as any)._id.toString(),
-            } as AdapterUser;
-        },
-        updateUser: async (data) => {
-            const user = await User.findByIdAndUpdate(
-                data.id,
-                data,
-                { new: true }
-            ).exec()
-            if (!user) throw new Error('User not found')
-            const userObj = user.toObject();
-            return {
-                ...userObj,
-                id: (userObj as any)._id.toString(),
-            } as AdapterUser
-        },
-        deleteUser: async (userId) => {
-            await Promise.all([
-                Account.deleteMany({ userId }).exec(),
-                Session.deleteMany({ userId }).exec(),
-                User.findByIdAndDelete(userId).exec()
-            ])
-        },
-        linkAccount: async (data: AdapterAccount) => {
-            await Account.create({
-                ...data,
-            })
-        },
-        unlinkAccount: async ({ provider, providerAccountId }) => {
-            await Account.findOneAndDelete({ provider, providerAccountId })
-        },
-        createSession: async (data) => {
-            const session = await Session.create({
-                ...data,
-            })
-            return session.toObject() as AdapterSession
-        },
-        getSessionAndUser: async (sessionToken) => {
-            const session = await Session.findOne({ sessionToken }).lean().exec()
-            if (!session) return null
-            const user = await User.findById(session.userId).lean().exec()
-            if (!user) return null
-            const userObj = { ...user, id: user._id.toString() } as AdapterUser;
-            return {
-                session: {
-                  ...session,
-                  userId: session.userId.toString(),
-                  expires: session.expires as Date,
-                  sessionToken: session.sessionToken,
-                },
-                user: userObj
-            }
-        },
-        updateSession: async (data) => {
-            const session = await Session.findOneAndUpdate(
-                { sessionToken: data.sessionToken },
-                data,
-                { new: true }
-            ).lean().exec()
-            if (!session) return null
-            return {
-                ...session,
-                expires: session.expires as Date,
-            }
-        },
-        deleteSession: async (sessionToken) => {
-            await Session.findOneAndDelete({ sessionToken }).exec()
-        },
-        createVerificationToken: async (data) => {
-            const verificationToken = await VerificationToken.create({
-                ...data,
-            })
-            return verificationToken.toObject();
-        },
-        useVerificationToken: async ({ identifier, token }) => {
-            const verificationToken = await VerificationToken.findOneAndDelete({
-                identifier,
-                token
-            }).lean().exec()
-            if (!verificationToken) return null
-            return {
-                ...verificationToken,
-                expires: verificationToken.expires as Date,
-            };
+        const user = await User.create(data);
+        return {
+            ...user.toObject(),
+            id: user._id.toString(),
+            emailVerified: user.emailVerified ?? null,
+        };
+    },
+    async getUser(id) {
+        await db.connect();
+        const user = await User.findById(id).lean().exec();
+        if (!user) return null;
+        return { ...user, id: user._id.toString(), emailVerified: user.emailVerified ?? null, };
+    },
+    async getUserByEmail(email) {
+        await db.connect();
+        const user = await User.findOne({ email }).lean().exec();
+        if (!user) return null;
+        return { ...user, id: user._id.toString(), emailVerified: user.emailVerified ?? null, };
+    },
+    async getUserByAccount({ provider, providerAccountId }) {
+        await db.connect();
+        const account = await Account.findOne({ provider, providerAccountId }).lean().exec();
+        if (!account) return null;
+        const user = await User.findById(account.userId).lean().exec();
+        if (!user) return null;
+        return { ...user, id: user._id.toString(), emailVerified: user.emailVerified ?? null, };
+    },
+    async updateUser(data) {
+        await db.connect();
+        const { id, ...rest } = data;
+        const user = await User.findByIdAndUpdate(id, rest, { new: true, runValidators: true, lean: true }).exec();
+        if (!user) {
+            throw new Error("User not found during update");
         }
-    }
-    
-    return Object.fromEntries(
-        Object.entries(adapterMethods).map(([name, handler]) => [name, withDbConnection(handler)])
-    ) as Adapter
-}
+        return { ...user, id: user._id.toString(), emailVerified: user.emailVerified ?? null, };
+    },
+    async deleteUser(userId) {
+        await db.connect();
+        await Promise.all([
+            User.findByIdAndDelete(userId),
+            Account.deleteMany({ userId }),
+            Session.deleteMany({ userId }),
+        ]);
+    },
+    async linkAccount(data) {
+        await db.connect();
+        const account = await Account.create(data);
+        return account.toObject();
+    },
+    async unlinkAccount({ provider, providerAccountId }) {
+        await db.connect();
+        await Account.findOneAndDelete({ provider, providerAccountId });
+    },
+    async createSession(data) {
+        await db.connect();
+        const session = await Session.create(data);
+        return session.toObject();
+    },
+    async getSessionAndUser(sessionToken) {
+        await db.connect();
+        const session = await Session.findOne({ sessionToken }).lean().exec();
+        if (!session) return null;
+        const user = await User.findById(session.userId).lean().exec();
+        if (!user) return null;
+        return {
+            session: {
+                ...session,
+                userId: session.userId.toString(),
+                expires: new Date(session.expires.toString()),
+            },
+            user: { ...user, id: user._id.toString(), emailVerified: user.emailVerified ?? null, },
+        };
+    },
+    async updateSession(data) {
+        await db.connect();
+        const session = await Session.findOneAndUpdate(
+            { sessionToken: data.sessionToken },
+            data,
+            { new: true, lean: true }
+        ).exec();
+        if (!session) return null;
+        return { ...session, expires: new Date(session.expires.toString()) };
+    },
+    async deleteSession(sessionToken) {
+        await db.connect();
+        await Session.findOneAndDelete({ sessionToken });
+    },
+    async createVerificationToken(data) {
+        await db.connect();
+        const verificationToken = await VerificationToken.create(data);
+        return verificationToken.toObject();
+    },
+    async useVerificationToken({ identifier, token }) {
+        await db.connect();
+        const verificationToken = await VerificationToken.findOneAndDelete({
+            identifier,
+            token,
+        }).lean().exec();
+        if (!verificationToken) return null;
+        return { ...verificationToken, expires: new Date(verificationToken.expires.toString()) };
+    },
+};
 
 const providers: Provider[] = [];
 
@@ -186,7 +156,7 @@ if (process.env.AUTH_KEYCLOACK_ID && process.env.AUTH_KEYCLOACK_SECRET && proces
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET || 'vqUHfA39DPNWoBFVGrOtDLdRuCiJYODrYoApKdBWmPU=',
-  adapter: createMongooseAdapter(),
+  adapter: MongooseAdapter,
   useSecureCookies: process.env.NODE_ENV === "production",
   session: {
     strategy: "database",
@@ -198,33 +168,18 @@ export const authOptions: NextAuthOptions = {
     error: '/error'
   },
   callbacks: {
-      async signIn({ user, account }) {
-          if (!user.email || !account) return false;
-          await db.connect();
-
-          const existingAccount = await Account.findOne({ provider: account?.provider, providerAccountId: account?.providerAccountId });
-          if (existingAccount) {
-              return true;
-          }
-
-          const existingUser = await User.findOne({ email: user.email });
-          if (existingUser) {
-              await Account.create({
-                  userId: existingUser.id,
-                  type: account.type,
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                  access_token: account.access_token,
-                  refresh_token: account.refresh_token,
-                  expires_at: account.expires_at,
-                  token_type: account.token_type,
-                  scope: account.scope,
-                  id_token: account.id_token,
-                  session_state: account.session_state,
-              });
-          }
-          return true;
-      },
+    async signIn({ user, account }) {
+      if (!user.email || !account) {
+        return false;
+      }
+      await db.connect();
+      const existingUser = await User.findOne({ email: user.email });
+      if (existingUser) {
+        return true;
+      }
+      // New user, let the adapter handle creation.
+      return true;
+    },
       session: async ({ session, user }: { session: NextAuthSession; user: AdapterUser }): Promise<CustomSession> => {
           const customSession: CustomSession = {
               ...session,
