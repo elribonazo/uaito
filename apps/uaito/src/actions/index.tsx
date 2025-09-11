@@ -135,10 +135,12 @@ export const streamMessage = createAsyncThunk(
       // Use selected model or default to QWEN_1
       const selectedModel = options.model ? options.model as HuggingFaceONNXModels : HuggingFaceONNXModels.QWEN_1;
       
+      const device = (typeof navigator !== 'undefined' && (navigator as any).gpu) ? "webgpu" : "wasm";
+
       const hfOptions: HuggingFaceONNXOptions = {
         model: selectedModel,
         dtype: "q4f16",
-        device: "webgpu",
+        device,
         tools: [],
         onProgress: (progress) => {
           const now = Date.now();

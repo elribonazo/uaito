@@ -6,11 +6,10 @@ import type { Agent } from "./agents";
 import { HuggingFaceONNX } from './llm/HuggingFaceONNX';
 
 export enum HuggingFaceONNXModels {
-  Llama32_1B = "onnx-community/Llama-3.2-1B-Instruct-q4f16",
-  // LMF2_350M = "onnx-community/LFM2-350M-ONNX",
-  // LMF2_700M = "onnx-community/LFM2-700M-ONNX",
-  LMF2_1_2B = "onnx-community/LFM2-1.2B-ONNX",
-  QWEN_1 = "onnx-community/Qwen3-0.6B-ONNX",
+  JANO = "onnx-community/Jan-nano-ONNX",
+  QWEN3 = "onnx-community/Qwen3-0.6B-ONNX",
+  Llama32 = "onnx-community/Llama-3.2-1B-Instruct-q4f16",
+  LMF2 = "onnx-community/LFM2-1.2B-ONNX",
 }
 
 export enum AnthropicModels {
