@@ -1,4 +1,4 @@
-import createConfig from '@trust0/ridb-build';
+import createConfig from '@uaito/build';
 
 export default createConfig({
   format:[ 'esm'],

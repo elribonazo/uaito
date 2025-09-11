@@ -1,0 +1,13 @@
+node_modules/*
+cjs/*
+esm/*
+umd/*
+.idea
+coverage
+./build
+build/*
+build
+node_modules
+.nx
+.nx/*
+./.nx/*

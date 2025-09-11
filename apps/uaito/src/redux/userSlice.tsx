@@ -1,10 +1,12 @@
-import { createSlice, PayloadAction, SerializedError } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction, SerializedError } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
 import { getApiKey, streamMessage } from '@/actions';
 import StripePricingTable from '@/components/PricingTable';
-import { Session } from 'next-auth';
-import { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ToolBlock, UsageBlock } from '@uaito/sdk';
+import type { Session } from 'next-auth';
+import { LLMProvider } from '@uaito/sdk';
+import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ToolBlock, UsageBlock } from '@uaito/sdk';
 
 export type MessageState = Message;
 export type UserSession = {
@@ -34,7 +36,7 @@ export type FeatureSectionProps = {
     title: string,
     chats: FeaturedChat[], 
     reverse?: boolean,
-    preview?: any
+    preview?: React.ReactNode
 }
 export interface ChatState {
   error: SerializedError | null,
@@ -47,8 +49,11 @@ export interface ChatState {
     input: number,
     output: number
   },
+  provider: LLMProvider | null;
+  selectedModel: string | null;
   isFetchingUsageToken: boolean;
   hasFetchedUsageToken: boolean;
+  downloadProgress: number | null;
 }
 
 export const initialState: ChatState = {
@@ -62,8 +67,11 @@ export const initialState: ChatState = {
     input: 0,
     output: 0
   },
+  provider: null,
+  selectedModel: null,
   isFetchingUsageToken:false,
-  hasFetchedUsageToken: false
+  hasFetchedUsageToken: false,
+  downloadProgress: null,
 };
 
 export interface PushChatMessage {
@@ -78,8 +86,33 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    setProvider: (state, action: PayloadAction<LLMProvider>) => {
+      state.provider = action.payload;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('uaito-selected-provider', action.payload);
+      }
+    },
+    setSelectedModel: (state, action: PayloadAction<string>) => {
+      state.selectedModel = action.payload;
+      if (typeof window !== 'undefined' && state.provider) {
+        localStorage.setItem(`uaito-selected-model-${state.provider}`, action.payload);
+      }
+    },
+    initializeProvider: (state) => {
+      if (typeof window !== 'undefined') {
+        const savedProvider = localStorage.getItem('uaito-selected-provider') as LLMProvider;
+        if (savedProvider && Object.values(LLMProvider).includes(savedProvider)) {
+          state.provider = savedProvider;
+        } else {
+          state.provider = LLMProvider.Anthropic;
+        }
+      }
+    },
+    setDownloadProgress: (state, action: PayloadAction<number | null>) => {
+      state.downloadProgress = action.payload;
+    },
     pushChatMessage: (state, action: PayloadAction<PushChatMessage>) => {
-      const { chatMessage: { message }, session } = action.payload;
+      const { chatMessage: { message } } = action.payload;
       if (message.type === "error") {
         toast(
           <div>
@@ -114,8 +147,8 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getApiKey.pending, (state, action) => {
-      state.error = null,
+    builder.addCase(getApiKey.pending, (state) => {
+      state.error = null;
       state.isFetchingUsageToken = true;
       state.hasFetchedUsageToken = false;
     })
@@ -125,12 +158,12 @@ const userSlice = createSlice({
       state.hasFetchedUsageToken = false;
     })
     builder
-      .addCase(streamMessage.pending, (state, action) => {
+      .addCase(streamMessage.pending, (state) => {
         state.state = "streaming"
         state.error = null;
       })
     builder
-      .addCase(streamMessage.fulfilled, (state, action: PayloadAction<null>) => {
+      .addCase(streamMessage.fulfilled, (state) => {
         state.state = "ready"
         state.error = null;
       })
@@ -142,5 +175,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { pushChatMessage } = userSlice.actions;
+export const { pushChatMessage, setDownloadProgress, initializeProvider, setProvider, setSelectedModel } = userSlice.actions;
 export default userSlice.reducer;

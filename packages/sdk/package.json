@@ -33,6 +33,7 @@
     "@types/lodash": "^4.17.20",
     "@types/node": "^14.18.63",
     "@types/yargs": "^17.0.33",
+    "@uaito/build": "workspace:*",
     "dotenv": "^16.4.7",
     "esbuild-node-externals": "^1.16.0",
     "esbuild-plugin-glob": "^2.2.3",
@@ -41,19 +42,13 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
-    "@huggingface/transformers": "^3.7.1",
-    "@monaco-editor/react": "^4.7.0",
+    "@huggingface/transformers": "3.7.1",
     "abort-controller": "^3.0.0",
     "idb": "^8.0.3",
     "lodash": "^4.17.21",
-    "onnxruntime-web": "1.14.0",
     "openai": "^4.83.0",
     "uuid": "^10.0.0",
     "yargs": "^18.0.0"
-  },
-  "resolutions": {
-    "onnxruntime-web": "1.14.0",
-    "@llamaindex/openai": "0.4.19"
   },
   "bin": {
     "uaito": "build/cli.js"

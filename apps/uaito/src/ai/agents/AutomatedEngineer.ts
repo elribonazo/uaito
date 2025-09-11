@@ -1,7 +1,7 @@
 
 import fs from 'fs-extra';
 import type { Browser } from "playwright";
-import { Agent, LLMProvider, type AgentTypeToOptions, type MessageInput, type OnTool, ANSI_BLUE, type Tool, MessageArray } from "@uaito/sdk";
+import { Agent, type LLMProvider, type AgentTypeToOptions, type MessageInput, type OnTool, ANSI_BLUE, type Tool, type MessageArray } from "@uaito/sdk";
 import { chromium } from "playwright";
 import { runTavilySearch } from '../tools/tavily';
 import { extractAllText } from '../tools/extractWebContent';

@@ -1,5 +1,5 @@
 'use client'
-import {  TextBlock } from "@uaito/sdk";
+import type {  TextBlock } from "@uaito/sdk";
 import Image from 'next/image';
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Parallax } from 'react-scroll-parallax';

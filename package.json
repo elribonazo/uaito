@@ -11,12 +11,13 @@
     "playground/nextjs",
     "playground/node",
     "apps/uaito",
-    "apps/electron"
+    "apps/electron",
+    "packages/build"
   ],
   "scripts": {
     "clean": "npx nx run-many --target=clean --verbose && rm -rf node_modules",
     "docs": "npx typedoc",
-    "build": "npx nx run-many --verbose  -p @uaito/sdk @uaito/nextjs @uaito/node @uaito/electron @uaito/site --target=build",
+    "build": "npx nx run-many --verbose -p @uaito/build @uaito/sdk @uaito/nextjs @uaito/node @uaito/site  --target=build",
     "test": "npx nx run-many --target=test --verbose",
     "lint": "yarn biome lint",
     "lint:ci": "yarn biome ci",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.0",
+    "@esbuild-plugins/node-resolve": "^0.2.2",
     "@nx/jest": "21.4.1",
     "@nx/js": "21.4.1",
     "@nx/react-native": "21.4.1",
@@ -46,8 +48,6 @@
     "jest": "30.0.5",
     "jiti": "2.4.2",
     "jsdom": "^25.0.1",
-    "lerna": "^8.2.1",
-    "npm-check-updates": "^17.1.15",
     "nx": "21.4.1",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
@@ -70,9 +70,5 @@
   },
   "dependencies": {
     "chromedriver": "^138.0.1"
-  },
-  "resolutions": {
-    "onnxruntime-web": "1.14.0",
-    "@llamaindex/openai": "0.4.19"
   }
 }

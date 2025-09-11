@@ -1,4 +1,4 @@
-import { Tool } from "@uaito/sdk";
+import type { Tool } from "@uaito/sdk";
 
 
 

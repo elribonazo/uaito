@@ -1,7 +1,7 @@
 'use client'
 import 'react-toastify/dist/ReactToastify.css';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -10,7 +10,6 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from './api/auth/[...nextauth]';
 import SpaceBackground from '@/components/SpaceBackground';
 import dynamic from 'next/dynamic';
-import { UserSession } from '@/redux/userSlice';
 import { ToastContainer } from 'react-toastify';
 import Stripe from 'stripe';
 import { AnimatedText } from '@/components/AnimatedText';
@@ -19,33 +18,67 @@ import { useMountedApp } from '@/redux/store';
 import { signOut } from 'next-auth/react';
 import { ArrowRightEndOnRectangleIcon, UserIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { useState } from 'react';
-import { AgentSelector } from '@/components/AgentSelector';
-import Provider from '@/components/Provider';
+import { ModelSelector } from '@/components/ModelSelector';
 import { LLMProvider } from '@uaito/sdk';
+import { initializeProvider, setProvider, setSelectedModel } from '@/redux/userSlice';
+import { useDispatch } from 'react-redux';
 
 const InputComponent = dynamic(() => import('@/components/InputComponent'), {
   ssr: false,
 });
 
+const Provider = dynamic(() => import('@/components/Provider'), {
+  ssr: false,
+});
+
 const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = () => {
-  const app = useMountedApp();
-  const [agent, setAgent] = useState<string>('orquestrator')
-  const [provider, setProvider] = useState<LLMProvider>(LLMProvider.HuggingFaceONNX)
+  const dispatch = useDispatch();
+  const [agent, setAgent] = useState<string>('orquestrator');
+  const [selectedModel, setSelectedModelState] = useState<string>('');
+  const { user: { provider, downloadProgress, usage }} = useMountedApp()
+  const isDownloading = provider === LLMProvider.HuggingFaceONNX && downloadProgress !== null && downloadProgress < 100;
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    dispatch(initializeProvider());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
+
+  const handleProviderSelect = (selectedProvider: LLMProvider) => {
+    dispatch(setProvider(selectedProvider));
+  };
+
+  const handleModelSelect = (model: string) => {
+    setSelectedModelState(model);
+    dispatch(setSelectedModel(model));
+  };
+
   return <div className={`bg-gray-100 dark:bg-gray-900 transition-colors duration-300`}>
     <SpaceBackground />
    
-      <header className="shadow-sm flex h-[48px] sticky z-50 items-center justify-between">
+      {
+        loaded && <>
+        <header className="shadow-sm flex h-[48px] sticky z-50 items-center justify-between">
         <h1 className="ml-5 text-2xl  font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
           <AnimatedText />
         </h1>
         <div className="flex-grow"></div>
         <div className='flex items-center space-x-3 mr-4'>
-          <TokenCounter input={app.user.usage.input} output={app.user.usage.output} />
-          <Provider onSelected={(p) => setProvider(p)} />
-          <AgentSelector onSelected={(agent) => {
-            setAgent(agent.toLowerCase())
-          }}/>
+        {isDownloading && (
+            <div className="flex items-center space-x-2">
+              <span className="text-white text-sm">Downloading Model:</span>
+              <div className="w-32 bg-gray-700 rounded-full h-2.5">
+                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${downloadProgress}%` }}></div>
+              </div>
+              <span className="text-white text-sm">{downloadProgress}%</span>
+            </div>
+          )}
+          <TokenCounter input={usage.input} output={usage.output} />
+          {provider && <Provider value={provider} onSelected={handleProviderSelect} />}
+          <ModelSelector onSelected={handleModelSelect} />
           <div className="pt-3 ">
             <Link
               href={"/dashboard"}
@@ -57,6 +90,7 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
           <div className="pt-3 ">
             <button
               onClick={() => signOut()}
+              type="button"
               className="bg-red-600 hover:bg-red-700 text-white  p-2 rounded transition duration-300 flex items-center justify-center"
             >
               <ArrowRightEndOnRectangleIcon className="h-5 w-5" />
@@ -66,7 +100,7 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
       </header>
   
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <InputComponent agent={agent} provider={provider} />
+        {provider && <InputComponent agent={agent} provider={provider} model={selectedModel} />}
         <ToastContainer
           autoClose={5000}
           hideProgressBar={true}
@@ -79,6 +113,8 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
           theme={typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
         />
       </main>
+        </>
+      }
     
       
   
@@ -88,11 +124,14 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
 
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not set');
+  }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2024-06-20',
   })
-  const session = await getServerSession<any, UserSession>(context.req, context.res, authOptions)
-  if (!session) {
+  const session = await getServerSession(context.req, context.res, authOptions)
+  if (!session || !session.user?.email) {
     return {
       redirect: {
         destination: "/dashboard",
@@ -101,7 +140,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
   }
   const customers = await stripe.customers.list({
-    email: session.user?.email,
+    email: session.user.email,
     limit: 1
   })
 

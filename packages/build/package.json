@@ -1,0 +1,40 @@
+{
+  "name": "@uaito/build",
+  "version": "0.0.0",
+  "description": "Build package for uaito",
+  "module": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "default": "./build/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "elribonazo@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trust0-project/RIDB.git"
+  },
+  "license": "Apache-2.0",
+  "files": [
+    "./build/**/*",
+    "./**/*.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "clean": "rm -rf build node_modules",
+    "build": "rm -rf build && npx tsup --config tsup.config.ts --dts",
+    "test": "echo 'No tests for this package'"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.0",
+    "typescript": "^5.8.3"
+  }
+}

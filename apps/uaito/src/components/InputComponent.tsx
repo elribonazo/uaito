@@ -11,7 +11,7 @@ import { TextBlockParam } from '@anthropic-ai/sdk/resources';
 import { useSession } from 'next-auth/react';
 import { LLMProvider } from '@uaito/sdk';
 
-const InputComponent: React.FC<{agent?: string, provider?: LLMProvider}> = (props) => {
+const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
   const app = useMountedApp();
   const session = useSession();
   
@@ -68,7 +68,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider}> = (prop
       textarea.style.height = 'auto';
       textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
     }
-  }, [input]);
+  }, []);
 
   const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
@@ -126,7 +126,8 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider}> = (prop
       signal: abortControllerRef.current.signal,
       dispatch: app.dispatch,
       session: session.data,
-      provider: props.provider
+      provider: props.provider,
+      model: props.model
     })
 
     setInput('');

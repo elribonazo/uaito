@@ -38,6 +38,7 @@ async function AutomatedEngineerTask(
   isGod: boolean,
   directory: string,
   prompt: string,
+  selectedModel?: string,
   tools?: Tool[]
 ):Promise<{hash: Uint8Array, stream:ReadableStream<Message>}> {
   const availableTools = tools && Array.isArray(tools) ? 
@@ -59,7 +60,14 @@ async function AutomatedEngineerTask(
     return {name, description, input_schema}
   })
   const apiKey = type === LLMProvider.Anthropic ? process.env.ANTHROPIC_API_KEY :  process.env.OPENAI_API_KEY;
-  const model = type === LLMProvider.Anthropic ? AnthropicModels['claude-4-sonnet'] : OpenAIModels["gpt-4o"];
+  
+  // Use selected model or fall back to defaults
+  let model: string;
+  if (selectedModel) {
+    model = selectedModel;
+  } else {
+    model = type === LLMProvider.Anthropic ? AnthropicModels['claude-4-sonnet'] : OpenAIModels["gpt-4o"];
+  }
   const options: AnthropicOptions = {
     apiKey: apiKey,
     model,
@@ -142,7 +150,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       return input
     });
-    const { prompt, directory, tools } = parsedBody;
+    const { prompt, directory, tools, model } = parsedBody;
     const gods = process.env.GODS ? process.env.GODS.split(",").map((e) => e.trim()): [];
     const email = currentUser.email
     const isGod = gods.includes(email);
@@ -161,6 +169,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         isGod,
         directory,
         prompt,
+        model,
         tools
       )
       const reader = stream.getReader();

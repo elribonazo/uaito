@@ -1,5 +1,4 @@
 import { SparklesIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
-import { LLMProvider } from "@uaito/sdk";
 import { useState, useEffect } from "react";
 const enabledAgents = [
     'Orquestrator',

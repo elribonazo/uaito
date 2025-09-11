@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-sync-scripts */
 import type { Metadata } from 'next'
 
 
@@ -31,7 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`bg-gray-100 dark:bg-gray-900 dark:text-white`}>  
         {children} 
-        
+        <script src="https://unpkg.com/onnxruntime-web@1.14.0/dist/ort.webgpu.min.js"></script>
       </body>
     </html>
   )

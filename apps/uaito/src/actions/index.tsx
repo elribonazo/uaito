@@ -5,7 +5,7 @@ import { Agent, HuggingFaceONNXModels, HuggingFaceONNXOptions, LLMProvider, Mess
 import { v4 } from 'uuid';
 
 import type { AppDispatch } from "@/redux/store";
-import { pushChatMessage } from "@/redux/userSlice";
+import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
 
 interface StreamInput {
   agent?: string,
@@ -14,6 +14,7 @@ interface StreamInput {
   inputs: MessageArray<MessageInput>,
   signal: AbortSignal,
   provider?: LLMProvider,
+  model?: string,
   dispatch: AppDispatch
 }
 
@@ -78,14 +79,13 @@ export const getApiKey =  createAsyncThunk(
 export const streamMessage = createAsyncThunk(
   'user/message',
   async (options: StreamInput, { fulfillWithValue, rejectWithValue }) => {
+    const {
+      prompt,
+      inputs,
+      signal,
+      dispatch,
+    } = options;
     try {
-      const {
-        prompt,
-        inputs,
-        signal,
-        dispatch,
-      } = options;
-
       const provider = options.provider ?? LLMProvider.HuggingFaceONNX;
       const agent = options.agent ?? 'orquestrator';
       const userMessage: Message =  {
@@ -112,7 +112,8 @@ export const streamMessage = createAsyncThunk(
           method: 'POST',
           body: JSON.stringify({ 
             prompt,  
-            inputs: inputs.map((i) => typeof i.content === 'string'? {...i, content:[{type: 'text', text:i}]}: i)
+            inputs: inputs.map((i) => typeof i.content === 'string'? {...i, content:[{type: 'text', text:i}]}: i),
+            model: options.model
           }),
           signal: signal,
           credentials: 'include'
@@ -127,12 +128,29 @@ export const streamMessage = createAsyncThunk(
         return fulfillWithValue(null)
       }
 
+      // Throttle progress updates to reduce dispatch frequency
+      let lastProgressDispatch = 0;
+      const PROGRESS_THROTTLE_MS = 100; // Dispatch at most every 100ms
+
+      // Use selected model or default to QWEN_1
+      const selectedModel = options.model ? options.model as HuggingFaceONNXModels : HuggingFaceONNXModels.QWEN_1;
+      
       const hfOptions: HuggingFaceONNXOptions = {
-        model: HuggingFaceONNXModels.QWEN_1,
+        model: selectedModel,
         dtype: "q4f16",
         device: "webgpu",
         tools: [],
+        onProgress: (progress) => {
+          const now = Date.now();
+          // Only dispatch if enough time has passed or if progress is complete (100%)
+          if (now - lastProgressDispatch >= PROGRESS_THROTTLE_MS || progress >= 100) {
+            dispatch(setDownloadProgress(progress));
+            lastProgressDispatch = now;
+          }
+        }
       };
+
+      dispatch(setDownloadProgress(0));
 
       const __agent = new Agent(
         LLMProvider.HuggingFaceONNX, 
@@ -202,7 +220,26 @@ Maintain neutrality, avoid verbosity, and focus on delivering value.`,
 
       return fulfillWithValue(null)
     } catch (error) {
-      return rejectWithValue('An error occurred. Please try again later.' + (error as Error).message);
+
+      const err = 'An error occurred. Please try again later.' + (error as Error).message
+      const userMessage: Message =  {
+        role:'assistant',
+        type:'message',
+        id: v4(),
+        content: [
+          { type:'text', text: err }
+        ]
+      }
+
+      dispatch(
+        pushChatMessage({
+          session:options.session,
+          chatMessage: {
+            message: userMessage,
+          }
+        })
+      )
+      return rejectWithValue(err);
     }
   }
 )

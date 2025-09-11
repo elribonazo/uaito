@@ -206,7 +206,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
         const textPart = this.state.buffer.substring(0, startIndex);
         if (textPart) {
           return {
-            id: this.currentMessageId,
+            id: this.currentMessageId!,
             role: 'assistant',
             type: 'message',
             chunk: true,
@@ -273,7 +273,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
       this.state.buffer = '';
       if (textToEmit) {
         return {
-          id: this.currentMessageId,
+          id: this.currentMessageId!,
           role: 'assistant',
           type: 'message',
           chunk: true,

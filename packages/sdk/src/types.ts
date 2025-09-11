@@ -28,6 +28,7 @@ export enum OpenAIModels {
   'gpt-4o' = 'gpt-4o',
 }
 
+
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;
 export type OpenAIOptions = { apiKey?: string } & BaseLLMOptions;
@@ -75,6 +76,8 @@ export type OnTool<T extends LLMProvider = LLMProvider> = (
   message: Message, 
   signal?: AbortSignal
 ) => Promise<void>
+
+
 
 export interface SearchReplaceBlock {
   search: string;
@@ -220,4 +223,9 @@ export abstract class Runner {
     system: string,
 ): Promise<Message>;
 }
-  
+
+export const AgentTypeToModel = {
+  [LLMProvider.Anthropic]: AnthropicModels,
+  [LLMProvider.OpenAI]: OpenAIModels,
+  [LLMProvider.HuggingFaceONNX]: HuggingFaceONNXModels,
+};
