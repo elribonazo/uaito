@@ -20,8 +20,7 @@ FROM base as builder
 WORKDIR /app
 
 # Install all workspace dependencies
-# Use cache mount to speed up subsequent builds
-RUN --mount=type=cache,target=/root/.yarn/berry/cache yarn install
+RUN yarn install
 
 # Copy the entire monorepo source code
 COPY . .
@@ -80,7 +79,7 @@ COPY --from=builder /app/packages/build/build ./packages/build/build
 COPY --from=builder /app/packages/sdk/build ./packages/sdk/build
 
 # Install only production dependencies
-RUN --mount=type=cache,target=/root/.yarn/berry/cache yarn install --production
+RUN yarn install --production
 
 # Copy the built Next.js app from the builder
 COPY --from=builder /app/apps/uaito/.next ./apps/uaito/.next
