@@ -21,15 +21,13 @@ const PrivacyPolicy: React.FC = () => {
           
           <PolicySection title="1. Information We Collect">
             <p>1.1. Personal Information: We collect your email address, name, and profile information when you create an account using Google Sign-In.</p>
-            <p>1.2. Stripe: Through Stripe APIs, we access, store and manage your subscription life-cycle, billing period..</p>
-            <p>1.3. Usage Data: We collect information about how you interact with UAITO.io, including chat logs and usage patterns.</p>
+            <p>1.2. Usage Data: We collect information about how you interact with UAITO.io, including chat logs and usage patterns.</p>
           </PolicySection>
           
           <PolicySection title="2. How We Use Your Information">
             <p>2.1. To provide and improve our services.</p>
             <p>2.2. To personalize your experience and offer more relevant responses.</p>
             <p>2.3. To communicate with you about your account and our services.</p>
-            <p>2.4. To process payments and manage subscriptions through our payment processor, Stripe.</p>
           </PolicySection>
           
           <PolicySection title="3. Google API Services User Data Policy">
@@ -43,14 +41,13 @@ const PrivacyPolicy: React.FC = () => {
           
           <PolicySection title="4. Data Storage and Security">
             <p>4.1. We implement industry-standard security measures to protect your personal information.</p>
-            <p>4.2. Your data, including that received from Google or Stripe APIs, is encrypted and stored securely.</p>
+            <p>4.2. Your data, including that received from Google APIs, is encrypted and stored securely.</p>
             <p>4.3. We retain your data for as long as necessary to provide our services and comply with legal obligations.</p>
           </PolicySection>
           
           <PolicySection title="5. Data Sharing">
             <p>5.1. We do not sell your personal information to third parties.</p>
-            <p>5.2. We may share your information with service providers who help us operate our business, such as Stripe for payment processing.</p>
-            <p>5.3. We may disclose your information if required by law or to protect our rights and the safety of our users.</p>
+            <p>5.2. We may disclose your information if required by law or to protect our rights and the safety of our users.</p>
           </PolicySection>
           
           <PolicySection title="6. Your Rights and Choices">

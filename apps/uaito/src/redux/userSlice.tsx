@@ -119,10 +119,7 @@ const userSlice = createSlice({
             <p>{message.content[0].type === "error" ?
             message.content[0].message :
             'An unexpected error ocurred'} </p>
-            <StripePricingTable 
-            pricingTableId={'prctbl_1Po5DTLPQsMrIxE72WzZJGj7'} 
-            publishableKey='pk_test_51PgOgiLPQsMrIxE7dwh1dZnInmccnXXJ8hVisXOOf79RN4tPO1c4zV3onsCt0b6j2pqZQ4qVwv10iahAClBnTvrr00MSUAVpY2'
-            />
+                           
             </div>,
           { position: 'bottom-right', })
         return state

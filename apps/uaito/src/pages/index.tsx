@@ -3,7 +3,7 @@ import { ParallaxProvider } from 'react-scroll-parallax';
 import { Bars3Icon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import Link from 'next/link';
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { AnimatedText } from '@/components/AnimatedText';
 import { FeatureSection } from '@/components/FeaturedSection';
 import { FadeInSection } from '@/components/ClientSideComponents';
@@ -74,7 +74,7 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                             </div>
                         </>
                     ) : (
-                        <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden text-neutral-200 hover:text-neutral-600">
+                        <button type="button" onClick={() => setMobileMenuOpen(true)} className="lg:hidden text-neutral-200 hover:text-neutral-600">
                             <Bars3Icon className="h-6 w-6" />
                         </button>
                     )}
@@ -114,8 +114,8 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                             />
                             <Card
                                 variant="project"
-                                title="Precise subscription invoicing"
-                                description="Get through with your subscription limits or purchase higher limits to run tasks that are more complex, or longer."
+                                title="Precise usage tracking"
+                                description="Track your usage and stay within your limits."
                                 imageUrl="/input.png"
                             />
                         </div>
@@ -144,7 +144,7 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
 
                             <div className="flex flex-col items-center justify-center bg-gray-900/80 rounded-lg p-6 text-center transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 transform hover:scale-105 border border-purple-500/30">
                                 <span className="text-6xl mb-4">?</span>
-                                <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110">
+                                <button type="button" className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110">
                                     Join Us
                                 </button>
                             </div>
@@ -161,7 +161,7 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                         <div className="space-y-8">
                             <div>
                                 <h3 className="text-2xl font-semibold text-white mb-2">What is UAITO and how it works?</h3>
-                                <p className="text-gray-300">UAITO combines AI and machine learning to offer you a feature complete AI Orquestrator through a subscription based service.</p>
+                                <p className="text-gray-300">UAITO combines AI and machine learning to offer you a feature complete AI Orquestrator.</p>
                             </div>
                             <div>
                                 <h3 className="text-2xl font-semibold text-white mb-2">What is an AI Orquestrator?</h3>

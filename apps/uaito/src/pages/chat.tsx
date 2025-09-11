@@ -11,7 +11,6 @@ import { authOptions } from './api/auth/[...nextauth]';
 import SpaceBackground from '@/components/SpaceBackground';
 import dynamic from 'next/dynamic';
 import { ToastContainer } from 'react-toastify';
-import Stripe from 'stripe';
 import { AnimatedText } from '@/components/AnimatedText';
 import { TokenCounter } from '@/components/TokenCounter';
 import { useMountedApp } from '@/redux/store';
@@ -33,7 +32,7 @@ const Provider = dynamic(() => import('@/components/Provider'), {
 
 const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = () => {
   const dispatch = useDispatch();
-  const [agent, setAgent] = useState<string>('orquestrator');
+  const agent = 'orquestrator';
   const [selectedModel, setSelectedModelState] = useState<string>('');
   const { user: { provider, downloadProgress, usage }} = useMountedApp()
   const isDownloading = provider === LLMProvider.HuggingFaceONNX && downloadProgress !== null && downloadProgress < 100;
@@ -124,12 +123,6 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
 
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY is not set');
-  }
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2024-06-20',
-  })
   const session = await getServerSession(context.req, context.res, authOptions)
   if (!session || !session.user?.email) {
     return {
@@ -139,32 +132,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
     }
   }
-  const customers = await stripe.customers.list({
-    email: session.user.email,
-    limit: 1
-  })
-
-  if (customers.data.length > 0) {
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customers.data[0].id,
-      status: 'active',
-      limit: 1
-    })
-
-    if (subscriptions.data.length > 0) {
-      return {
-        props: {
-          subscription: subscriptions.data[0]
-        }
-      }
-    }
-  }
 
   return {
-    redirect: {
-      destination: "/dashboard",
-      permanent: false,
-    },
+    props: {
+    }
   }
 }
 

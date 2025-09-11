@@ -32,8 +32,6 @@ export const baseAgentConfig: AgentTypeToOptions[keyof AgentTypeToOptions] = {
 }
 
 export const config = {
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
   PORT: parseInt(process.env.PORT || '3000', 10),
   REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
   MONGODB_URL: process.env.MONGODB_URL || 'mongodb://root:default12345@localhost:27017/admin',

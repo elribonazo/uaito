@@ -8,10 +8,10 @@ import { findUserByEmail, IUser } from "@/db/models/User"
 import { createUsage } from '@/db/models/Usage';
 import { getSessionUser } from '@/utils/getSessionUser';
 import db from '@/db';
-import { ensureUserExists } from '../../auth/[...nextauth]';
 import { AutomatedEngineer } from '@/ai/agents/AutomatedEngineer';
 import { createChainOfThought } from '@/ai/prompts/AutomatedEngineer';
 import { onTool as SystemOnTool } from '../../../../ai/agents/onTool';
+import { ensureUserExists } from '../../auth/[...nextauth]';
 
 const SEPARATOR = "<-[*0M0*]->"
 

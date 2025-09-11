@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  reactStrictMode: false,
+  images: {
+    unoptimized: true,
+  },
+  assetPrefix: '/',
   // Indicate that these packages should not be bundled by webpack
   serverExternalPackages: ['sharp',"ollama", 'onnxruntime-node'],
   webpack: (config:any, { isServer }:any) => {

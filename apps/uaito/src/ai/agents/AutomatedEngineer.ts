@@ -1,9 +1,9 @@
 
 import fs from 'fs-extra';
-import type { Browser } from "playwright";
-import { Agent, type LLMProvider, type AgentTypeToOptions, type MessageInput, type OnTool, ANSI_BLUE, type Tool, type MessageArray } from "@uaito/sdk";
-import { chromium } from "playwright";
-import { runTavilySearch } from '../tools/tavily';
+import type { Agent, LLMProvider, AgentTypeToOptions, MessageInput, OnTool, MessageArray } from "@uaito/sdk";
+import { ANSI_BLUE, type Tool } from "@uaito/sdk";
+import { chromium, type Browser } from "playwright";
+import { runTavilySearch, type TavilySearchResult } from '../tools/tavily';
 import { extractAllText } from '../tools/extractWebContent';
 import {  safeCommands } from '../../config';
 
@@ -72,7 +72,7 @@ export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
       return directory;
     }
   
-    async tavilySearch(query: string): Promise<any[]> {
+    async tavilySearch(query: string): Promise<{ type: string, text: string | undefined}[] | { type: string, text: string }[]> {
       const result = await runTavilySearch(query);
       const content = [
         {
@@ -80,7 +80,7 @@ export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
           text: result.answer
         }
       ]
-      result.images.map((img: string) => {
+      result.images.forEach((img: string) => {
         content.push({type:'text', text:`Image ${img}\r\n`})
       });
       return content

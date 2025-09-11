@@ -25,22 +25,16 @@ const PrivacyPolicy: React.FC = () => {
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">2. Use of Personal Information</h2>
           <p>2.1. We collect and use your email address to provide and improve our services, send important notifications, and manage your account.</p>
-          <p>2.2. Your email may be shared with Stripe, our payment processor, for billing and subscription management purposes.</p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4">3. Subscription and Billing</h2>
-          <p>3.1. We use Stripe for managing subscriptions and processing payments.</p>
-          <p>3.2. By subscribing to our services, you agree to pay all fees associated with your subscription plan.</p>
-          <p>3.3. You are responsible for keeping your payment information up to date.</p>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">3. Data Protection and Privacy</h2>
+          <p>3.1. We are committed to protecting your personal information and will only use it as described in our Privacy Policy.</p>
+          <p>3.2. By using our services, you consent to the collection and use of your information as outlined in our Privacy Policy.</p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4">4. Data Protection and Privacy</h2>
-          <p>4.1. We are committed to protecting your personal information and will only use it as described in our Privacy Policy.</p>
-          <p>4.2. By using our services, you consent to the collection and use of your information as outlined in our Privacy Policy.</p>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">4. Termination of Services</h2>
+          <p>4.1. We reserve the right to terminate or suspend your account and access to our services at our sole discretion, without notice, for conduct that we believe violates these Terms and Conditions or is harmful to other users, us, or third parties, or for any other reason.</p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4">5. Termination of Services</h2>
-          <p>5.1. We reserve the right to terminate or suspend your account and access to our services at our sole discretion, without notice, for conduct that we believe violates these Terms and Conditions or is harmful to other users, us, or third parties, or for any other reason.</p>
-          
-          <h2 className="text-2xl font-semibold mt-8 mb-4">6. Changes to Terms</h2>
-          <p>6.1. We may modify these Terms and Conditions at any time. We will notify you of any significant changes via email.</p>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">5. Changes to Terms</h2>
+          <p>5.1. We may modify these Terms and Conditions at any time. We will notify you of any significant changes via email.</p>
           
           <p className="mt-8">By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.</p>
         </div>

@@ -1,7 +1,7 @@
-import { Agent, ToolUseBlock, Message, LLMProvider, type MessageInput, MessageArray, type AgentTypeToOptions  } from "@uaito/sdk";
+import type { Agent, ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray, AgentTypeToOptions  } from "@uaito/sdk";
 import type { AutomatedEngineer } from "./AutomatedEngineer";
 import { ToolModel } from '@/db/models/Tool';
-import type {AbortSignal} from 'abort-controller';
+import type { AbortSignal } from 'abort-controller';
 import { AbortController } from 'abort-controller';
 import { Execution } from "./Execution";
 import { AnthropicModels } from "@uaito/sdk";
@@ -43,29 +43,29 @@ export async function onTool<T extends LLMProvider>(
         throw new Error("You must use ToolUseBlockParam on onTool content, string is not yet supported")
     }
     const tool = content.find(
-        (content): content is ToolUseBlock => content.type === 'tool_use',
+        (contentBlock): contentBlock is ToolUseBlock => contentBlock.type === 'tool_use',
     );
     if (!tool) {
         throw new Error("Could not find ToolUseBlockParam on onTool")
     }
     const canUse = this.tools.find((toolN) => toolN.name === tool.name)
     if (!canUse) {
-        throw new Error(`Invalid tool ${tool.name} is not enabled in your subscription`)
+        throw new Error(`Invalid tool ${tool.name}`)
     }
 
     const localTools = ['tavilySearch', 'browseWebPage'];
-    const toolName = tool.name as any;
+    const toolName = tool.name as 'tavilySearch' | 'browseWebPage' | 'executeCommand' | 'editAndApply' | 'createFile' | 'createFolder' | 'readFile' | 'listFiles';
     const toolFunction = (this as any)[toolName];
 
     const agentOptions = this.options as AgentTypeToOptions[T];
     if (agentOptions) {
         agentOptions.tools = [];
-        (agentOptions as any).inputs = MessageArray.from([])
+        (agentOptions as AgentTypeToOptions[T]).inputs = MessageArray.from([])
     }
 
     const execution = new Execution(LLMProvider.Anthropic, {
         ...agentOptions,
-        model: AnthropicModels['claude-4-sonnet'],
+        model: AnthropicModels['claude-3-5-sonnet'],
         maxTokens: 4096
     })
     if (localTools.includes(tool.name)) {
@@ -73,10 +73,10 @@ export async function onTool<T extends LLMProvider>(
         if (tool.name === "browseWebPage" && typeof toolFunction === 'function') {
             await this.runSafeCommand(
                 tool,
-                async (instance) => {
-                    const codeInput = tool.input as any;
-                    const key = tool.name as any;
-                    const method = (instance as any)[key];
+                async (instance: AutomatedEngineer<T>) => {
+                    const codeInput = tool.input as { url: string, extractText?: boolean };
+                    const key = tool.name;
+                    const method = instance[key];
                     if (!method || typeof method !== 'function') {
                         throw new Error(`The method ${method} does not exist in AutomatedEngineer, must be implemented first.`)
                     }
@@ -100,9 +100,9 @@ export async function onTool<T extends LLMProvider>(
             await this.runSafeCommand(
                 tool,
                 async (instance: AutomatedEngineer<T>) => {
-                    const codeInput = tool.input as any;
-                    const key = tool.name as any;
-                    const method = (instance as any)[key];
+                    const codeInput = tool.input as { query: string };
+                    const key = tool.name;
+                    const method = instance[key];
                     if (!method || typeof method !== 'function') {
                         throw new Error(`The method ${method} does not exist in AutomatedEngineer, must be implemented first.`)
                     }
@@ -148,7 +148,7 @@ export async function onTool<T extends LLMProvider>(
                                 content: [
                                     {
                                         type: 'text',
-                                        text: ((executionAnalize.response as Message).content[0] as any).text
+                                        text: ((executionAnalize.response as Message).content[0] as TextBlock).text
                                     }
                                 ]
                             }
@@ -169,7 +169,7 @@ export async function onTool<T extends LLMProvider>(
                     })
                 }
             }
-        } catch (err: unknown) {
+        } catch (err) {
             abortController.abort()
         }
     }

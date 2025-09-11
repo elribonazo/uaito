@@ -1,17 +1,24 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import type { Document, Model } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface IUser extends Document {
   name: string;
   email: string;
+  emailVerified?: Date;
+  image?: string;
   password?: string,
   apiKey?: string,
   createdAt: Date;
 }
 
 const UserSchema: Schema = new Schema({
+  _id: { type: String, default: () => uuidv4() },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  emailVerified: { type: Date },
+  image: { type: String },
   password: {type: String, required: false},
   apiKey: {type: String, required: false},
   createdAt: { type: Date, default: Date.now }

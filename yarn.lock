@@ -7291,7 +7291,6 @@ __metadata:
     redux-thunk: "npm:^3.1.0"
     rimraf: "npm:^3.0.2"
     scrolly-video: "npm:^0.0.24"
-    stripe: "npm:^16.6.0"
     style-loader: "npm:^4.0.0"
     tailwindcss: "npm:^3.4.6"
     ts-loader: "npm:^9.5.1"
