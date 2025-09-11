@@ -35,7 +35,7 @@ const MongooseAdapter: Adapter = {
         const user = await User.create(data);
         return {
             ...user.toObject(),
-            id: user._id.toString(),
+            id: (user as any)._id.toString(),
             emailVerified: user.emailVerified ?? null,
         };
     },

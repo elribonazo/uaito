@@ -133,7 +133,7 @@ export const streamMessage = createAsyncThunk(
       const PROGRESS_THROTTLE_MS = 100; // Dispatch at most every 100ms
 
       // Use selected model or default to QWEN_1
-      const selectedModel = options.model ? options.model as HuggingFaceONNXModels : HuggingFaceONNXModels.QWEN_1;
+      const selectedModel = options.model ? options.model as HuggingFaceONNXModels : HuggingFaceONNXModels.QWEN3;
       
       const device = (typeof navigator !== 'undefined' && (navigator as any).gpu) ? "webgpu" : "wasm";
 
