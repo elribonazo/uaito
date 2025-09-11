@@ -1,7 +1,6 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "Dockerfile",
-  "dockerfileContext": "../../",
+  "dockerfilePath": "./apps/uaito/Dockerfile",
   "args": {
     "NODE_ENV": "production"
   }
