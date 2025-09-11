@@ -51,6 +51,7 @@ COPY . .
 RUN yarn install --immutable
 
 # Build the SDK package first (required by the site)
+RUN yarn workspace @uaito/build build
 RUN yarn workspace @uaito/sdk build
 
 # Build the site
