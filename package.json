@@ -72,6 +72,7 @@
     "chromedriver": "^138.0.1"
   },
   "resolutions": {
-    "@llamaindex/openai": "npm:openai@^4.83.0"
+    "onnxruntime-web": "1.14.0",
+    "@llamaindex/openai": "0.4.19"
   }
 }
