@@ -70,5 +70,8 @@
   },
   "dependencies": {
     "chromedriver": "^138.0.1"
+  },
+  "resolutions": {
+    "@llamaindex/openai": "npm:openai@^4.83.0"
   }
 }

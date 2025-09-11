@@ -19,15 +19,11 @@ COPY playground/node/package.json ./playground/node/
 # Install all workspace dependencies
 RUN yarn
 
-# Install playwright with deps for the uaito app
-RUN npx -y playwright@1.46.0 install --with-deps
-RUN npx playwright install
-
 # Copy the entire monorepo source code
 COPY . .
 
 # Build the SDK package first (required by the site)
-RUN yarn workspace @uaito/sdk run build
+RUN yarn build
 
 # Build the site
 WORKDIR /app/apps/uaito
@@ -54,7 +50,6 @@ ENV GITHUB_REPO=${GITHUB_REPO}
 ARG GITHUB_PAT
 ENV GITHUB_PAT=${GITHUB_PAT}
 
-RUN yarn build
 EXPOSE 3000
 
 CMD GODS=${GODS} MONGODB_URL=${MONGODB_URL} GCLIENT_ID=${GCLIENT_ID} GCLIENT_SECTET=${GCLIENT_SECTET} ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} NEXT_PUBLIC_MAX_TOKENS=${NEXT_PUBLIC_MAX_TOKENS} MAX_TOKENS=${MAX_TOKENS} OPENAI_API_KEY=${OPENAI_API_KEY} npx next start 

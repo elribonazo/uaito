@@ -46,14 +46,12 @@
     "abort-controller": "^3.0.0",
     "idb": "^8.0.3",
     "lodash": "^4.17.21",
-    "ollama": "^0.5.13",
-    "onnxruntime-web": "1.14.0",
     "openai": "^4.83.0",
     "uuid": "^10.0.0",
     "yargs": "^18.0.0"
   },
   "resolutions": {
-    "onnxruntime-web": "1.14.0"
+    "@llamaindex/openai": "0.4.19"
   },
   "bin": {
     "uaito": "build/cli.js"
