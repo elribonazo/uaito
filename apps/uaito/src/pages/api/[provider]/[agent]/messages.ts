@@ -59,7 +59,7 @@ async function AutomatedEngineerTask(
     return {name, description, input_schema}
   })
   const apiKey = type === LLMProvider.Anthropic ? process.env.ANTHROPIC_API_KEY :  process.env.OPENAI_API_KEY;
-  const model = type === LLMProvider.Anthropic ? AnthropicModels['claude-4'] : OpenAIModels["gpt-4o"];
+  const model = type === LLMProvider.Anthropic ? AnthropicModels['claude-4-sonnet'] : OpenAIModels["gpt-4o"];
   const options: AnthropicOptions = {
     apiKey: apiKey,
     model,
