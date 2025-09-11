@@ -17,7 +17,7 @@ COPY playground/nextjs/package.json ./playground/nextjs/
 COPY playground/node/package.json ./playground/node/
 
 # Install all workspace dependencies
-RUN yarn
+RUN yarn install --frozen-lockfile
 
 # Copy the entire monorepo source code
 COPY . .
