@@ -17,7 +17,7 @@ COPY playground/nextjs/package.json ./playground/nextjs/
 COPY playground/node/package.json ./playground/node/
 
 # Install all workspace dependencies
-RUN yarn install --frozen-lockfile
+RUN yarn
 
 # Install playwright with deps for the uaito app
 RUN npx -y playwright@1.46.0 install --with-deps
