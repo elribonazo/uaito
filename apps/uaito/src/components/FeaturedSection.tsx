@@ -131,7 +131,6 @@ export const FeatureSection: React.FC<Partial<FeatureSectionProps>> = ({ title, 
                                         <div className={`max-w-[calc(100%-40px)] p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-900'}`}>
                                         {
                                             (msg.visibleContent ?? []).map((content,  i) => {
-                                                debugger;
                                                 return <Markdown key={'markdown'+index+i} searchText={''}>
                                                 {(content as TextBlock).text}
                                             </Markdown>
@@ -142,7 +141,6 @@ export const FeatureSection: React.FC<Partial<FeatureSectionProps>> = ({ title, 
                                         : 
 
                                         (msg.visibleContent ?? []).map((content, i) => {
-                                            debugger;
                                             if (content.type === "text") {
                                                 return <div key={'markdown-2-'+index+i} className={`p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-900'}`}>
                                                     <Markdown searchText={''}>

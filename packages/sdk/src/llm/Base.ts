@@ -281,22 +281,10 @@ async runSafeCommand(
             } as Message)
           }
         }
-        await this.release(reader, controller)
+        reader.releaseLock()
       }
     })
     return stream as ReadableStreamWithAsyncIterable<AChunk>
-  }
-
-  private async release<AChunk extends Message>(
-    reader: ReadableStreamDefaultReader<AChunk>, 
-    controller: ReadableStreamDefaultController<Message>
-  ) {
-    try {
-      reader.releaseLock()
-      controller.close()
-    } catch (err) {
-      console.log("error can be ignore but ", err)
-    }
   }
 
   /**
