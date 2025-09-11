@@ -41,15 +41,20 @@ COPY playground/nextjs/package.json ./playground/nextjs/
 COPY playground/node/package.json ./playground/node/
 
 # Install all workspace dependencies
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 # Copy the entire monorepo source code
 COPY . .
 
+# Reinstall to ensure workspace linking after copying source
+RUN yarn install --immutable
+
 # Build the SDK package first (required by the site)
-RUN yarn build
+RUN yarn workspace @uaito/sdk build
 
 # Build the site
+RUN yarn workspace @uaito/site build
+
 WORKDIR /app/apps/uaito
 
 EXPOSE 3000
