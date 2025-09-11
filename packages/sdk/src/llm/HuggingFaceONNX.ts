@@ -171,7 +171,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
       .filter((m) => m.content.length >  0 && m.content[0].type !== 'tool_use' && m.role !== 'tool')
       .map(this.fromInputToParam);
 
-      debugger;
     return this.tokenizer.apply_chat_template(currentInputs, {
       add_generation_prompt: true,
       return_dict: true,
@@ -377,7 +376,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     await this.load();
 
     this.addDefaultItems(prompt, system, chainOfThought);
-    debugger;
     const tensor = this.getTensorData();
     this.log(`Tensor created. Shape: ${tensor.input_ids.dims}`);
 

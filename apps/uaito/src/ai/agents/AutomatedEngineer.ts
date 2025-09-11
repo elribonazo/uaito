@@ -1,6 +1,6 @@
 
 import fs from 'fs-extra';
-import type { Agent, LLMProvider, AgentTypeToOptions, MessageInput, OnTool, MessageArray } from "@uaito/sdk";
+import  { Agent, LLMProvider, AgentTypeToOptions, MessageInput, OnTool, MessageArray } from "@uaito/sdk";
 import { ANSI_BLUE, type Tool } from "@uaito/sdk";
 import { chromium, type Browser } from "playwright";
 import { runTavilySearch, type TavilySearchResult } from '../tools/tavily';

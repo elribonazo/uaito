@@ -60,6 +60,7 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
 
   constructor(items: T[] = []) {
     super(...(Array.isArray(items) ? items : [items]));
+    // biome-ignore lint/correctness/noConstructorReturn: okey
     return new Proxy(this, {
       get: (target: typeof this, prop:string | symbol, receiver: any) => {
         if (prop === 'push') {
@@ -79,7 +80,6 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
                       Array.prototype.push.call(target, im);
                     }
                   } else {
-                    debugger;
                     console.error('Invalid Array message input, skipping:', im);
                   }
                 }
@@ -96,7 +96,6 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
                     Array.prototype.push.call(target, item);
                   }
                 } else {
-                  debugger;
                   console.error('Invalid message input, skipping:', item);
                 }
               }
