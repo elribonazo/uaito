@@ -199,10 +199,10 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
       async signIn({ user, account }) {
-          if (!user.email) return false;
+          if (!user.email || !account) return false;
           await db.connect();
 
-          const existingAccount = await Account.findOne({ provider: account.provider, providerAccountId: account.providerAccountId });
+          const existingAccount = await Account.findOne({ provider: account?.provider, providerAccountId: account?.providerAccountId });
           if (existingAccount) {
               return true;
           }
