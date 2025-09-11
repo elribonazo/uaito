@@ -12,6 +12,17 @@ if (!process.env.NEXTAUTH_URL) {
     process.env.NEXTAUTH_URL = process.env.PUBLIC_URL || 'http://localhost:3005'
 }
 
+export async function ensureUserExists(user: { name: string; email: string }) {
+    const existingUser = await User.findOne({ email: user.email });
+    if (!existingUser) {
+        await User.create({
+            name: user.name,
+            email: user.email,
+        });
+    }
+}
+
+
 interface CustomSession extends NextAuthSession {
   user: {
     _id: string;
