@@ -134,7 +134,6 @@ function useUaito<T extends LLMProvider>(
     try {
       agent.load().catch((erro) => {
         console.error(erro)
-        debugger
       })
     } catch (error) {
       console.error(error)
@@ -367,7 +366,6 @@ export function new_tool(parameter1, parameter2) {
           const existingBlock = newChatHistory[index].content[0] as TextBlock;
           const newChunkBlock = message.content[0] as TextBlock;
 
-          debugger;
 
           newChatHistory[index] = {
             ...newChatHistory[index],
