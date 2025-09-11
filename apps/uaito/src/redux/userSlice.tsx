@@ -3,7 +3,6 @@ import type { PayloadAction, SerializedError } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
 import { getApiKey, streamMessage } from '@/actions';
-import StripePricingTable from '@/components/PricingTable';
 import type { Session } from 'next-auth';
 import { LLMProvider } from '@uaito/sdk';
 import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ToolBlock, UsageBlock } from '@uaito/sdk';

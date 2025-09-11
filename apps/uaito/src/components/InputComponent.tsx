@@ -145,10 +145,10 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
 
   return (
     <div className="flex flex-col h-full rounded-lg w-full max-w-full transition-colors duration-300">
-      {isSearchEnabled && <SearchBar 
+      {isSearchEnabled && searchInputRef && <SearchBar 
         defaultValue={searchText} 
         onChange={setSearchText} 
-        inputRef={searchInputRef}
+        inputRef={searchInputRef as any}
       />}
       <div className="fixed bottom-0 left-0 right-0 dark:bg-gray-900 transition-colors duration-300">
         <div className="flex flex-col h-full">

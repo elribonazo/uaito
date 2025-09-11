@@ -43,7 +43,7 @@ const createMongooseAdapter = (): Adapter => {
             const userObj = user.toObject();
             return {
                 ...userObj,
-                id: userObj._id.toString(),
+                id: (userObj as any)._id.toString(),
             } as AdapterUser
         },
         getUser: async (id) => {
@@ -52,7 +52,7 @@ const createMongooseAdapter = (): Adapter => {
             const userObj = user.toObject();
             return {
                 ...userObj,
-                id: userObj._id.toString(),
+                id: (userObj as any)._id.toString(),
             } as AdapterUser
         },
         getUserByEmail: async (email) => {
@@ -61,7 +61,7 @@ const createMongooseAdapter = (): Adapter => {
             const userObj = user.toObject();
             return {
                 ...userObj,
-                id: userObj._id.toString(),
+                id: (userObj as any)._id.toString(),
             } as AdapterUser
         },
         getUserByAccount: async ({ provider, providerAccountId }) => {
@@ -72,7 +72,7 @@ const createMongooseAdapter = (): Adapter => {
             const userObj = user.toObject();
             return {
                 ...userObj,
-                id: userObj._id.toString(),
+                id: (userObj as any)._id.toString(),
             } as AdapterUser;
         },
         updateUser: async (data) => {
@@ -85,7 +85,7 @@ const createMongooseAdapter = (): Adapter => {
             const userObj = user.toObject();
             return {
                 ...userObj,
-                id: userObj._id.toString(),
+                id: (userObj as any)._id.toString(),
             } as AdapterUser
         },
         deleteUser: async (userId) => {

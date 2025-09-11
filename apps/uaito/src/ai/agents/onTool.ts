@@ -1,4 +1,4 @@
-import type { Agent, ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray, AgentTypeToOptions  } from "@uaito/sdk";
+import { Agent, ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray, AgentTypeToOptions, TextBlock  } from "@uaito/sdk";
 import type { AutomatedEngineer } from "./AutomatedEngineer";
 import { ToolModel } from '@/db/models/Tool';
 import type { AbortSignal } from 'abort-controller';
@@ -58,12 +58,7 @@ export async function onTool<T extends LLMProvider>(
     const toolFunction = (this as any)[toolName];
 
     const agentOptions = this.options as AgentTypeToOptions[T];
-    if (agentOptions) {
-        agentOptions.tools = [];
-        (agentOptions as AgentTypeToOptions[T]).inputs = MessageArray.from([])
-    }
-
-    const execution = new Execution(LLMProvider.Anthropic, {
+    const execution = new Execution(this.type, {
         ...agentOptions,
         model: AnthropicModels['claude-3-5-sonnet'],
         maxTokens: 4096

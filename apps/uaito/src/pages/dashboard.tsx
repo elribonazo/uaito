@@ -100,7 +100,7 @@ const CustomLegend: FC<{ payload?: any[], todayTotals: {input: number, output: n
     );
   };
 
-  const CustomTooltip: FC<TooltipProps<number, string>> = ({ active, payload, label }) => {
+  const CustomTooltip: FC<TooltipProps<number, string>> = ({ active, payload, label }:any) => {
     if (active && payload && payload.length) {
       return (
         <div className="custom-tooltip bg-gray-800 p-2 rounded shadow-lg">
