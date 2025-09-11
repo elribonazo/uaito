@@ -48,7 +48,9 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Build the SDK package first (required by the site)
-RUN yarn build
+RUN yarn workspace @uaito/build build
+RUN yarn workspace @uaito/sdk build
+RUN yarn workspace @uaito/site build
 
 WORKDIR /app/apps/uaito
 
