@@ -31,7 +31,7 @@ RUN corepack enable
 RUN corepack prepare yarn@4.9.1 --activate
 
 # Copy root package.json and yarn.lock for workspace setup
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml ./
 
 # Copy all workspace package.json files for proper dependency resolution
 COPY packages/build/package.json ./packages/build/
