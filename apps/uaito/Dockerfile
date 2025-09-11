@@ -1,19 +1,34 @@
-# Stage 1: Build the site
+# Stage 1: Build the monorepo
 FROM node:20
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available)
-COPY package*.json ./
+# Copy root package.json and yarn.lock for workspace setup
+COPY package.json yarn.lock ./
 
-# Install dependencies
-RUN npx -y playwright@1.46.0 install --with-deps    
-RUN npm i     
+# Copy all workspace package.json files for proper dependency resolution
+COPY packages/sdk/package.json ./packages/sdk/
+COPY apps/uaito/package.json ./apps/uaito/
+COPY apps/electron/package.json ./apps/electron/
+COPY playground/nextjs/package.json ./playground/nextjs/
+COPY playground/node/package.json ./playground/node/
+
+# Install all workspace dependencies
+RUN yarn install --frozen-lockfile
+
+# Install playwright with deps for the uaito app
+RUN npx -y playwright@1.46.0 install --with-deps
 RUN npx playwright install
 
-# Copy the rest of the project files
+# Copy the entire monorepo source code
 COPY . .
-WORKDIR /app
 
+# Build the SDK package first (required by the site)
+RUN yarn workspace @uaito/sdk run build
+
+# Build the site
+WORKDIR /app/apps/uaito
+
+# Set environment variables
 ARG MAX_TOKENS
 ENV MAX_TOKENS=${MAX_TOKENS}
 ARG ANTHROPIC_API_KEY
@@ -35,7 +50,7 @@ ENV GITHUB_REPO=${GITHUB_REPO}
 ARG GITHUB_PAT
 ENV GITHUB_PAT=${GITHUB_PAT}
 
-RUN npm run build
+RUN yarn build
 EXPOSE 3000
 
 CMD GODS=${GODS} MONGODB_URL=${MONGODB_URL} GCLIENT_ID=${GCLIENT_ID} GCLIENT_SECTET=${GCLIENT_SECTET} ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} NEXT_PUBLIC_MAX_TOKENS=${NEXT_PUBLIC_MAX_TOKENS} MAX_TOKENS=${MAX_TOKENS} OPENAI_API_KEY=${OPENAI_API_KEY} npx next start 
