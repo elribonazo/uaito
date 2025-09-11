@@ -2,6 +2,10 @@
 FROM node:20
 WORKDIR /app
 
+# Enable corepack and set correct yarn version
+RUN corepack enable
+RUN corepack prepare yarn@4.9.1 --activate
+
 # Copy root package.json and yarn.lock for workspace setup
 COPY package.json yarn.lock ./
 
