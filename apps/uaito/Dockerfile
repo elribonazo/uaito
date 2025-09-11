@@ -34,6 +34,7 @@ RUN corepack prepare yarn@4.9.1 --activate
 COPY package.json yarn.lock ./
 
 # Copy all workspace package.json files for proper dependency resolution
+COPY packages/build/package.json ./packages/build/
 COPY packages/sdk/package.json ./packages/sdk/
 COPY apps/uaito/package.json ./apps/uaito/
 COPY apps/electron/package.json ./apps/electron/
