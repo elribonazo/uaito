@@ -113,6 +113,7 @@ const userSlice = createSlice({
     pushChatMessage: (state, action: PayloadAction<PushChatMessage>) => {
       const { chatMessage: { message } } = action.payload;
       if (message.type === "error") {
+        debugger;
         toast(
           <div>
             <p>{message.content[0].type === "error" ?
