@@ -23902,7 +23902,6 @@ __metadata:
     jiti: "npm:2.4.2"
     jsdom: "npm:^25.0.1"
     nx: "npm:21.4.1"
-    playright: "npm:^0.0.22"
     prettier: "npm:^3.5.3"
     tsup: "npm:^8.4.0"
     typedoc: "npm:^0.28.4"
