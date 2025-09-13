@@ -43,6 +43,8 @@ COPY playground/node/package.json ./playground/node/
 
 # Install all workspace dependencies
 RUN yarn install --frozen-lockfile
+RUN npx playwright install-deps    
+RUN npx playwright install
 
 # Copy the entire monorepo source code
 COPY . .
@@ -56,8 +58,6 @@ WORKDIR /app/apps/uaito
 
 EXPOSE 3000
 
-RUN npx playwright install-deps    
-RUN npx playwright install
 
 CMD GODS=${GODS} MONGODB_URL=${MONGODB_URL} GCLIENT_ID=${GCLIENT_ID} GCLIENT_SECTET=${GCLIENT_SECTET} ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} NEXT_PUBLIC_MAX_TOKENS=${NEXT_PUBLIC_MAX_TOKENS} MAX_TOKENS=${MAX_TOKENS} OPENAI_API_KEY=${OPENAI_API_KEY} npx next start 
 
