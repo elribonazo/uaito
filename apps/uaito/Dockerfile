@@ -2,6 +2,9 @@
 FROM node:20
 WORKDIR /app
 
+RUN npx playwright install-deps    
+RUN npx playwright install
+
 # Set environment variables
 ARG MAX_TOKENS
 ENV MAX_TOKENS=${MAX_TOKENS}
@@ -43,8 +46,6 @@ COPY playground/node/package.json ./playground/node/
 
 # Install all workspace dependencies
 RUN yarn install --immutable
-RUN npx playwright install-deps    
-RUN npx playwright install
 
 # Copy the entire monorepo source code
 COPY . .
