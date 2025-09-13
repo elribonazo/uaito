@@ -71,7 +71,7 @@ async function AutomatedEngineerTask(
     apiKey: apiKey,
     model,
     signal: abortController.signal,
-    maxTokens: process.env.MAX_TOKENS && !isGod ?parseInt(process.env.MAX_TOKENS): 8192,
+    maxTokens: process.env.MAX_TOKENS && !isGod ?parseInt(process.env.MAX_TOKENS): 64000,
     tools:activeTools
   };
   const hash = new SHA512();
