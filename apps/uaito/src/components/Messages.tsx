@@ -93,7 +93,35 @@ export const Message: React.FC<{
     return null
 };
 
-export const Messages: React.FC<{ searchText: string, messages: MessageState[] }> = (props) => {
+const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => void }) => {
+    const prompts = [
+        "Generate a picture of space",
+        "Explain quantum computing in simple terms",
+        "What is the capital of France?",
+        "Write a short story about a robot who discovers music"
+    ];
+
+    return (
+        <div className="flex-grow flex flex-col items-center justify-center mt-20">
+            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">AI Chat</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+                {prompts.map((prompt, index) => (
+                    <button
+                        key={prompt}
+                        type="button"
+                        onClick={() => onPromptClick(prompt)}
+                        className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 text-left"
+                    >
+                        <p className="text-gray-900 dark:text-white font-semibold">{prompt}</p>
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
+export const Messages: React.FC<{ searchText: string, messages: MessageState[], onPromptClick: (prompt: string) => void }> = (props) => {
     const messages: MessageState[] = props.messages;
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -135,9 +163,5 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[] }
         );
     }
 
-    return (
-        <div className="flex-grow flex items-center justify-center mt-20">
-            <p className='text-gray-700 dark:text-gray-300'>No messages yet. Start a conversation!</p>
-        </div>
-    );
+    return <ExamplePrompts onPromptClick={props.onPromptClick} />;
 };

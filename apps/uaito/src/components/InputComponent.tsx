@@ -7,9 +7,9 @@ import React, {
 import { useMountedApp } from '../redux/store';
 import SearchBar from './SearchBar';
 import { Messages } from './Messages';
-import { TextBlockParam } from '@anthropic-ai/sdk/resources';
+import type { TextBlockParam } from '@anthropic-ai/sdk/resources';
 import { useSession } from 'next-auth/react';
-import { LLMProvider } from '@uaito/sdk';
+import { MessageArray, type LLMProvider, type Message, type MessageInput } from '@uaito/sdk';
 
 const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
   const app = useMountedApp();
@@ -29,7 +29,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
 
   const [input, setInput] = useState(retry ? 
     (lastMessage.content[0] as TextBlockParam)?.text ?? '' :
-    'Who\'s elribonazo?');
+    '');
 
   useEffect(() => {
     const handleScrollToNextResult = () => {
@@ -62,6 +62,61 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
     };
   }, [isSearchEnabled]);
 
+  const sendMessage = (prompt:string) => {
+    if (!prompt.trim() || isLoading) return;
+    if (!session || !session.data) return
+    abortControllerRef.current = new AbortController();
+
+    const reducedInputs = (messages as Message[]).reduce<Message[]>((all, current) => {
+      if (current.type === "tool_use") {
+        const lastMessage = all[all.length - 1];
+        const updatedLastMessage = {
+          ...lastMessage,
+          content: [
+            ...lastMessage.content,...current.content
+          ]
+        };
+        all.pop();
+        all.push(updatedLastMessage)
+        return all;
+      }
+      if (current.type === "message") {
+        const last = all[all.length-1]
+        if (last && current.role === last.role) {
+          const updated = [
+            ...all.slice(0, all.length-1),
+            {
+              role:current.role,
+              content: [
+                ...last.content,
+                ...current.content
+              ],
+              id: last.id,
+              type: last.type
+            }
+          ] as Message[];
+          return updated
+        }
+      }
+      
+      all.push(current);
+      return all
+    }, []).map((item) => ({role: item.role, content: item.content})) as MessageInput[]
+
+    app.streamMessage({
+      agent:props.agent,
+      prompt: prompt,
+      inputs: MessageArray.from(reducedInputs),
+      signal: abortControllerRef.current.signal,
+      dispatch: app.dispatch,
+      session: session.data,
+      provider: props.provider,
+      model: props.model
+    })
+
+    setInput('');
+  }
+  
   useEffect(() => {
     const textarea = document.querySelector('textarea');
     if (textarea) {
@@ -82,52 +137,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
-    if (!session || !session.data) return 
-    abortControllerRef.current = new AbortController();
-
-    const reducedInputs = messages.reduce((all, current) => {
-      if (current.type === "tool_use") {
-        const lastMessage = all[all.length - 1];
-        const updatedLastMessage = {
-          ...lastMessage,
-          content: [
-            ...lastMessage.content,...current.content
-          ]
-        };
-        return [...all.slice(0, -1), updatedLastMessage];
-      }
-      if (current.type === "message") {
-        const last = all[all.length-1]
-        if (last && current.role === last.role) {
-          return [
-            ...all.slice(0, all.length-1),
-            {
-              role:current.role,
-              content: [
-                ...last.content,
-                ...current.content
-              ]
-            }
-          ]
-        }
-      }
-      
-      return [...all, current];
-    }, [] as any).map((item:any) => ({role: item.role, content: item.content}))
-
-    app.streamMessage({
-      agent:props.agent,
-      prompt: input,
-      inputs: reducedInputs,
-      signal: abortControllerRef.current.signal,
-      dispatch: app.dispatch,
-      session: session.data,
-      provider: props.provider,
-      model: props.model
-    })
-
-    setInput('');
+    sendMessage(input);
   };
 
   const handleStopRequest = () => {
@@ -150,10 +160,13 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
       <div className="fixed bottom-0 left-0 right-0 dark:bg-gray-900 transition-colors duration-300">
         <div className="flex flex-col h-full">
           <div className="h-[calc(100vh-theme(spacing.32))] overflow-auto p-4 relative">
-            <Messages searchText={searchText} messages={messages} />
+            <Messages searchText={searchText} messages={messages} onPromptClick={(prompt) => {
+              setInput(prompt);
+              sendMessage(prompt);
+            }}/>
           </div>
           <div className="p-4 border-t border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
-            <form className="flex space-x-2">
+            <form className="flex space-x-2" onSubmit={handleSubmit}>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -166,8 +179,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
               />
               {
                 !isLoading && input.length > 0 && <button
-                type="button"
-                onClick={handleSubmit} 
+                type="submit"
                 className=" sm:w-auto px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
                 disabled={isLoading}
               >

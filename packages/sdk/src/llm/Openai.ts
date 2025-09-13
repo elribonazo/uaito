@@ -46,7 +46,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   private openai: OpenAIAPI;
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
-  public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
+  public cache: BaseLLMCache & { imageGenerationCallId: string | null, imageBase64: string | null } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 }, imageGenerationCallId:null, imageBase64:null }
 
   // Track function calls in the current turn
   private functionCallsByItemId: Record<string, { name?: string, call_id?: string }> = {};
@@ -141,6 +141,9 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
 
   get tools() {
     const functionTools: ResponsesTool[] | undefined = this.options.tools?.map((tool) => {
+      if ("type" in tool && tool.type === "image_generation") {
+        return tool as any;
+      }
       const parsedTool = JSON.parse(JSON.stringify(tool));
       const functionTool: FunctionTool = {
         type: 'function',
@@ -275,10 +278,14 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
     
-    const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
+    this.options.tools?.push({
+      'type': 'image_generation',
+      'size': '1024x1024',
+      'output_format': 'png',
+      'model': 'gpt-image-1',
+    } as any)
 
-    tools?.push({type: 'image_generation'})
-
+    const tools = this.tools && this.tools.length > 0 ? this.tools : []
     const request: ResponseCreateParamsStreaming = {
       model: this.options.model,
       input: this.llmInputs as ResponseCreateParamsStreaming['input'],
@@ -414,6 +421,62 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
         };
       }
       return null;
+    }
+
+    if (chunk.type === 'response.image_generation_call.generating') {
+      return {
+        chunk: true,
+        id: this.cache.imageGenerationCallId!,
+        role: 'assistant',
+        type: 'message',
+        content: [
+          {
+            type:'text', text: 'Generating image...\r\n\n\r\n'
+          }
+        ]
+      }
+    }
+
+    if (chunk.type === 'response.image_generation_call.completed') {
+      return {
+        role: 'assistant',
+        id: v4(),
+        type: 'message',
+        content: [
+          { type: 'image', source: { data: this.cache.imageBase64!, media_type: 'image/png', type: 'base64' } }
+        ]
+      }
+    }
+
+    if (chunk.type === 'response.image_generation_call.in_progress') {
+      this.cache.imageGenerationCallId = chunk.item_id;
+      return {
+        chunk: true,
+        id: this.cache.imageGenerationCallId,
+        role: 'assistant',
+        type: 'message',
+        content: [
+          {
+            type:'text', text: 'Creating image... \r\n\n\r\n'
+          }
+        ]
+      }
+    }
+
+    if (chunk.type === "response.image_generation_call.partial_image") {
+      const imageBase64 = chunk.partial_image_b64;
+      this.cache.imageBase64 = imageBase64;
+      return {
+        chunk: true,
+        id: this.cache.imageGenerationCallId!,
+        role: 'assistant',
+        type: 'message',
+        content: [
+          {
+            type:'text', text: 'Processing image...\r\n\n\r\n'
+          }
+        ]
+      }
     }
 
     // Function call arguments streaming delta

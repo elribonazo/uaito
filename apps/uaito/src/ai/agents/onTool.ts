@@ -48,9 +48,13 @@ export async function onTool<T extends LLMProvider>(
     if (!tool) {
         throw new Error("Could not find ToolUseBlockParam on onTool")
     }
-    const canUse = this.options.tools.find((toolN) => toolN.name === tool.name)
+    const canUse = this.tools.find((toolN) => toolN.name === tool.name || (toolN as any).type === tool.name)
     if (!canUse) {
         throw new Error(`Invalid tool ${tool.name}`)
+    }
+
+    if ((canUse as any).type === "image_generation") {   
+        return 
     }
 
     const localTools = ['tavilySearch', 'browseWebPage'];
