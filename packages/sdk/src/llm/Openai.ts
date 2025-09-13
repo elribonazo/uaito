@@ -277,6 +277,8 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     
     const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
 
+    tools?.push({type: 'image_generation'})
+
     const request: ResponseCreateParamsStreaming = {
       model: this.options.model,
       input: this.llmInputs as ResponseCreateParamsStreaming['input'],
