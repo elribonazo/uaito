@@ -56,7 +56,8 @@ WORKDIR /app/apps/uaito
 
 EXPOSE 3000
 
-RUN ../../node_modules/.bin/playwright install
+RUN npx playwright install-deps    
+RUN npx playwright install
 
 CMD GODS=${GODS} MONGODB_URL=${MONGODB_URL} GCLIENT_ID=${GCLIENT_ID} GCLIENT_SECTET=${GCLIENT_SECTET} ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} NEXT_PUBLIC_MAX_TOKENS=${NEXT_PUBLIC_MAX_TOKENS} MAX_TOKENS=${MAX_TOKENS} OPENAI_API_KEY=${OPENAI_API_KEY} npx next start 
 
