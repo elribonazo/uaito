@@ -42,7 +42,7 @@ COPY playground/nextjs/package.json ./playground/nextjs/
 COPY playground/node/package.json ./playground/node/
 
 # Install all workspace dependencies
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 RUN npx playwright install-deps    
 RUN npx playwright install
 
