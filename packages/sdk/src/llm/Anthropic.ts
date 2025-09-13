@@ -248,8 +248,8 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       this.cache.tokens.input = chunk.message.usage.input_tokens;
       const usageBlock: UsageBlock = {
         type: "usage",
-        output: 0,
-        input: this.cache.tokens.input
+        output: this.cache.tokens.output ?? 0,
+        input: this.cache.tokens.input,
       }
       return {
         id: v4(),

@@ -124,8 +124,20 @@ const userSlice = createSlice({
         return state
       }
       if (message.type === "usage" && message.content[0].type === "usage") {
-        state.usage.input = message.content[0].input ?? 0;
-        state.usage.output = message.content[0].output ?? 0;
+        state.usage.input += message.content[0].input ?? 0;
+        state.usage.output += message.content[0].output ?? 0;
+      } else if (message.type === "delta"){
+        const [usageBlock] = message.content.filter((block) => block.type === "usage");
+        const deltaBlocks = message.content.filter((block) => block.type === "delta");
+        if (usageBlock) {
+          state.usage.input += usageBlock.input ?? 0;
+          state.usage.output += usageBlock.output ?? 0;
+        }
+
+        state.messages.push({
+          ...message,
+          content: deltaBlocks
+        })
       } else {
         const existingIndex = state.messages.findIndex((m) =>  message.id === m.id);
         if (existingIndex < 0) {

@@ -10,6 +10,7 @@ import {
   OnTool,
   DeltaBlock,
   TextBlock,
+  UsageBlock,
   BaseLLMCache,
   ReadableStreamWithAsyncIterable
 } from "../types";
@@ -315,6 +316,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
         this.cache.tokens.input = usage.input_tokens ?? 0;
         this.cache.tokens.output = usage.output_tokens ?? 0;
       }
+      debugger;
       // Reset chunk id on turn completion
       this.cache.chunks = null;
       const deltaBlock: DeltaBlock = {
@@ -322,11 +324,16 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
         stop_reason: 'end_turn',
         stop_sequence: null,
       };
+      const usageBlock: UsageBlock = {
+        type: 'usage',
+        input: this.cache.tokens.input,
+        output: this.cache.tokens.output,
+      };
       return {
         id: v4(),
         role: 'assistant',
         type: 'delta',
-        content: [deltaBlock]
+        content: [deltaBlock, usageBlock]
       };
     }
 
