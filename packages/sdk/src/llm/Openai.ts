@@ -222,114 +222,12 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
           this.chunk.bind(this)
         );
       },
-      this.onTool?.bind(this)
+      this.onTool
     );
 
     return automodeStream;
   }
 
-   async performTaskNonStream(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
-  ): Promise<Message> {
-    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
-    this.cache.tokens.input = 0;
-    this.cache.tokens.output = 0;
-    let sdkMessage: Message;
-    const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
-
-    while(true) {
-      const request: OpenAIAPI.Chat.ChatCompletionCreateParams = {
-        model: this.options.model,
-        messages: [
-          {
-            role: "system",
-            content: system,
-          },
-          ...this.inputs.map(this.fromInputToParam),
-        ],
-        max_tokens: this.maxTokens,
-        tools
-      };
-      const response = await this.openai.chat.completions.create(request);
-      this.cache.tokens.input = response.usage?.prompt_tokens ?? this.cache.tokens.input;
-      this.cache.tokens.output = response.usage?.completion_tokens ?? this.cache.tokens.output;
-      const [{ finish_reason, message }] = response.choices;
-      let role = message?.role || "assistant";
-      let content = message?.content || "";
-      if (finish_reason === "tool_calls") {
-        const toolCall = message?.tool_calls?.[0];
-        if (toolCall &&
-          this.onTool &&
-          this.tools?.find((t) => t.function.name === toolCall.function.name)) {
-          const toolInputBlock: ToolUseBlock = {
-            type: 'tool_use',
-            input: toolCall.function.arguments,
-            name: toolCall.function.name,
-            id: toolCall.id,
-          }
-          sdkMessage = {
-            id: v4(),
-            role: role,
-            type: 'tool_use',
-            content: [toolInputBlock]
-          }
-          this.inputs.push(sdkMessage)
-
-          await this.onTool?.bind(this)(sdkMessage, this.options.signal);
-        }
-      } else if (finish_reason === "stop") {
-        const textBlock: TextBlock = {
-          type: 'text',
-          text: content
-        }
-        sdkMessage = {
-          id: v4(),
-          role: role,
-          type: 'message',
-          content: [textBlock]
-        }
-        this.inputs.push(sdkMessage)
-
-        break;
-      } else if (finish_reason === "length" || finish_reason === "content_filter") {
-        const textBlock: TextBlock = {
-          type: "text",
-          text: content
-        };
-        sdkMessage = {
-          id: v4(),
-          role,
-          type: "message",
-          content: [textBlock]
-        };
-        this.inputs.push(sdkMessage)
-
-        break;
-      } else {
-        const fallbackBlock: TextBlock = {
-          type: 'text',
-          text: content
-        };
-        sdkMessage = {
-          id: v4(),
-          role,
-          type: 'message',
-          content: [fallbackBlock]
-        };
-        this.inputs.push(sdkMessage)
-
-        break;
-      }
-    }
-    return {
-      id: sdkMessage!.id,
-      role: sdkMessage!.role,
-      type: "message",
-      content: sdkMessage!.content
-    };
-  }
 
 
   private chunk(

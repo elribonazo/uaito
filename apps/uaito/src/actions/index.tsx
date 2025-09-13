@@ -76,6 +76,8 @@ export const getApiKey =  createAsyncThunk(
   })
 
 
+const agents: Map<string, any> = new Map();
+
 export const streamMessage = createAsyncThunk(
   'user/message',
   async (options: StreamInput, { fulfillWithValue, rejectWithValue }) => {
@@ -105,7 +107,7 @@ export const streamMessage = createAsyncThunk(
           }
         })
       )
-      
+
       if (!withWebGPU.includes(provider)) {
         const url = `/api/${provider}/${agent}/messages`
         const response = await fetch(url, {
@@ -128,7 +130,9 @@ export const streamMessage = createAsyncThunk(
         return fulfillWithValue(null)
       }
 
-      // Throttle progress updates to reduce dispatch frequency
+      //WEBGPU AGENTS
+      if (!agents.has(`${provider}-${agent}`)) {
+             // Throttle progress updates to reduce dispatch frequency
       let lastProgressDispatch = 0;
       const PROGRESS_THROTTLE_MS = 100; // Dispatch at most every 100ms
 
@@ -155,12 +159,16 @@ export const streamMessage = createAsyncThunk(
 
       dispatch(setDownloadProgress(0));
 
-      const __agent = new Agent(
+      const newAgent = new Agent(
         LLMProvider.HuggingFaceONNX, 
-        hfOptions,       
+        hfOptions,      
         async function (this: Agent<typeof provider>, message: Message, _signal) { }
       );
+        agents.set(`${provider}-${agent}`, newAgent);
+      }
 
+
+      const __agent = agents.get(`${provider}-${agent}`);
       const { response } = await __agent.performTask(
         prompt,
         '',

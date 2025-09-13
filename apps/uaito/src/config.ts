@@ -28,7 +28,6 @@ export const baseAgentConfig: AgentTypeToOptions[keyof AgentTypeToOptions] = {
   apiKey: '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',
   model: defaultModel,
   maxTokens: defaultMaxTokens,
-  project: 'sample37651',
 }
 
 export const config = {

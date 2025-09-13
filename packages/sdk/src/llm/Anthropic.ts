@@ -1,6 +1,6 @@
 import SDK from '@anthropic-ai/sdk';
 import { v4 } from 'uuid';
-import { ImageBlockParam, MessageParam, TextBlockParam, ToolResultBlockParam, ToolUseBlockParam } from '@anthropic-ai/sdk/resources';
+import { ImageBlockParam, MessageParam, RedactedThinkingBlockParam, ServerToolUseBlockParam, TextBlockParam, ThinkingBlockParam, ToolResultBlockParam, ToolUseBlockParam, WebSearchToolResultBlockParam } from '@anthropic-ai/sdk/resources';
 import { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider, BlockType, BaseLLMCache, ReadableStreamWithAsyncIterable } from "../types";
 import { BaseLLM } from "./Base";
 import { MessageArray } from '../utils';
@@ -34,7 +34,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   private fromInputToParam(model: MessageInput): MessageParam {
-    const content: Array<TextBlockParam | ImageBlockParam | ToolUseBlockParam | ToolResultBlockParam>
+    const content
       = model.content
         .filter((contentModel) =>
           contentModel.type !== "tool_delta" &&
@@ -53,6 +53,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
             const imageBlock: ImageBlockParam = contentModel
             return imageBlock
           } else if (contentModel.type === "tool_use") {
+            debugger;
             const toolUseBlock: ToolUseBlockParam = {
               type: 'tool_use',
               id: contentModel.id,
@@ -60,6 +61,35 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
               name: contentModel.name
             }
             return toolUseBlock
+          } else if (contentModel.type === "thinking") {
+            debugger;
+            const thinkingBlock: ThinkingBlockParam = {
+              type: 'thinking',
+              thinking: contentModel.thinking,
+              signature: contentModel.signature
+            }
+            return thinkingBlock
+          } else if (contentModel.type === "redacted_thinking") {
+            const redactedThinkingBlock: RedactedThinkingBlockParam = {
+              type: 'redacted_thinking',
+              data: contentModel.data
+            }
+            return redactedThinkingBlock
+          } else if (contentModel.type === "server_tool_use") {
+            const serverToolUseBlock: ServerToolUseBlockParam = {
+              type: 'server_tool_use',
+              id: contentModel.id,
+              input: contentModel.input,
+              name: contentModel.name
+            }
+            return serverToolUseBlock
+          } else if (contentModel.type === "web_search_tool_result") {
+            const webSearchToolResultBlock: WebSearchToolResultBlockParam = {
+              type: 'web_search_tool_result',
+              content: contentModel.content,
+              tool_use_id: contentModel.tool_use_id
+            }
+            return webSearchToolResultBlock
           }
 
           const toolResultBlock: ToolResultBlockParam = {
@@ -95,19 +125,25 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   private chunk(
     chunk: SDK.RawMessageStreamEvent
   ): Message | null {
+    console.log('kkkkkk chunk', chunk);
     if (chunk.type === "content_block_start") {
       if (chunk.content_block.type === 'tool_use') {
         this.cache.chunks = null
         this.cache.toolInput = chunk.content_block
-        this.cache.toolInput.input = ""
+        this.cache.toolInput.input = "";
+        (this.cache.toolInput as any).partial = ""
         const toolUseBlock: ToolUseBlock = chunk.content_block
         this.cache.toolInput = toolUseBlock;
         return {
           id: v4(),
           role: 'assistant',
-          type: 'tool_use',
+          type: 'tool_delta',
           content: [
-            toolUseBlock
+            {
+              type: 'tool_delta',
+              name: chunk.content_block.name,
+              partial: ''
+            }
           ]
         }
       }
@@ -128,11 +164,25 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         }
       } else if (delta.type === 'input_json_delta') {
         this.cache.chunks = null
+        debugger;
         const toolInputBlock: ToolInputDelta = {
           type: 'tool_delta',
-          partial: delta.partial_json
+          partial: delta.partial_json ?? ''
         }
-        this.cache.toolInput = toolInputBlock;
+        if (!this.cache.toolInput) {
+          (this.cache.toolInput as any) = {
+            ...toolInputBlock,
+            partial: ''
+          };
+        }
+        
+        (this.cache.toolInput as any).partial += delta.partial_json ?? '';
+
+        try {
+          (this.cache.toolInput as any).input = JSON.parse(toolInputBlock.partial)
+        } catch  {
+        }
+       
         return {
           id: v4(),
           role: 'assistant',
@@ -140,24 +190,29 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           content: [toolInputBlock]
         }
       }
-    } else if (chunk.type === "content_block_stop") {
-      this.cache.chunks = null
-      const isTool = this.cache.toolInput?.type === "tool_use";
-      if (isTool) {
-        const toolInput = this.cache.toolInput as SDK.ToolUseBlock;
-        this.cache.toolInput = null
-        return {
-          id: v4(),
-          role: 'assistant',
-          type: 'tool_use',
-          content: [toolInput]
-        }
-      }
     } else if (chunk.type === "message_delta") {
       this.cache.tokens.output = chunk.usage.output_tokens;
       this.cache.chunks = null;
 
-      if (chunk.delta.stop_reason === "max_tokens") {
+      if (chunk.delta.stop_reason === "tool_use") {
+        const isTool = this.cache.toolInput?.type === "tool_use";
+        if (isTool) {
+          (this.cache.toolInput as any).partial = (this.cache.toolInput as any).partial.replace(/undefined(.*)$/, '$1');
+          const toolInput = this.cache.toolInput as SDK.ToolUseBlock;
+          const cached = (this.cache.toolInput as any);
+          try {
+            toolInput.input = JSON.parse((cached as any).partial)
+            delete (toolInput.input as any).partial
+          } catch  {
+          }
+          return {
+            id: v4(),
+            role: 'assistant',
+            type: 'tool_use',
+            content: [toolInput]
+          }
+        }
+      }else if (chunk.delta.stop_reason === "max_tokens") {
         const errorBlock: ErrorBlock = {
           type: 'error',
           message: `Exceeding the token limit, ${chunk.usage.output_tokens}`
@@ -228,8 +283,9 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    debugger;
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
-
+    debugger;
     const params: SDK.MessageCreateParams = {
       max_tokens: this.maxTokens,
       system: system,
@@ -237,6 +293,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       model: this.options.model,
       tools: this.options.tools
     };
+    debugger;
     const apiHeaders: Record<string, string> = {}
 
     const options = { headers: apiHeaders, signal: this.options?.signal as any }
@@ -270,7 +327,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           this.chunk.bind(this)
         )
       },
-      this.onTool?.bind(this)
+      this.onTool
     )
     
 
@@ -310,7 +367,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         );
         console.log(`[task messages]tool is ${tool?.name}`);
         if (tool && this.onTool) {
-          await this.onTool.bind(this)(message, this.options.signal);
+          await this.onTool.bind(message, this.options.signal);
         } else {
           console.log(`[task messages] tool not found ${tool?.name}`);
         }

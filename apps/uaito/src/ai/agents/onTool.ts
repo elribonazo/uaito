@@ -48,14 +48,13 @@ export async function onTool<T extends LLMProvider>(
     if (!tool) {
         throw new Error("Could not find ToolUseBlockParam on onTool")
     }
-    const canUse = this.tools.find((toolN) => toolN.name === tool.name)
+    const canUse = this.options.tools.find((toolN) => toolN.name === tool.name)
     if (!canUse) {
         throw new Error(`Invalid tool ${tool.name}`)
     }
 
     const localTools = ['tavilySearch', 'browseWebPage'];
     const toolName = tool.name as 'tavilySearch' | 'browseWebPage' | 'executeCommand' | 'editAndApply' | 'createFile' | 'createFolder' | 'readFile' | 'listFiles';
-    const toolFunction = (this as any)[toolName];
 
     const agentOptions = this.options as AgentTypeToOptions[T];
     const execution = new Execution(this.type, {
@@ -64,8 +63,7 @@ export async function onTool<T extends LLMProvider>(
         maxTokens: 4096
     })
     if (localTools.includes(tool.name)) {
-
-        if (tool.name === "browseWebPage" && typeof toolFunction === 'function') {
+        if (tool.name === "browseWebPage") {
             await this.runSafeCommand(
                 tool,
                 async (instance: AutomatedEngineer<T>) => {
@@ -76,7 +74,7 @@ export async function onTool<T extends LLMProvider>(
                         throw new Error(`The method ${method} does not exist in AutomatedEngineer, must be implemented first.`)
                     }
                     const result = await method.bind(this)(codeInput.url, codeInput.extractText ?? false);
-                    (this.inputs as MessageArray<MessageInput>).push({
+                    (this.client.inputs as MessageArray<MessageInput>).push({
                         role:'user',
                         content:[{
                             name: tool.name,
@@ -91,10 +89,11 @@ export async function onTool<T extends LLMProvider>(
                         }]
                     })
                 })
-        } else if (tool.name === "tavilySearch" && typeof toolFunction === 'function') {
+        } else if (tool.name === "tavilySearch") {
             await this.runSafeCommand(
                 tool,
                 async (instance: AutomatedEngineer<T>) => {
+                    debugger;
                     const codeInput = tool.input as { query: string };
                     const key = tool.name;
                     const method = instance[key];
@@ -102,7 +101,7 @@ export async function onTool<T extends LLMProvider>(
                         throw new Error(`The method ${method} does not exist in AutomatedEngineer, must be implemented first.`)
                     }
                     const list = await method.bind(this)(codeInput.query)
-                    inputs.push({
+                    instance.client.inputs.push({
                         role:'user',
                         content: [
                             {
@@ -129,28 +128,28 @@ export async function onTool<T extends LLMProvider>(
             const input = JSON.parse(completed.input ?? '{}');
             if (completed) {
                 if (toolName === "executeCommand") {
-                    const response = JSON.parse(completed.content)[0].text;
-                    const executionAnalize = await execution.request(input.code, response)
-                    
-                    inputs.push({
-                        role:'user',
-                        content: [
-                            {
-                                name: tool.name,
-                                type: 'tool_result',
-                                tool_use_id: tool.id,
-                                isError: completed.error,
-                                content: [
-                                    {
-                                        type: 'text',
-                                        text: ((executionAnalize.response as Message).content[0] as TextBlock).text
-                                    }
-                                ]
-                            }
-                        ]
-                    })
+                    throw new Error("executeCommand is not implemented")
+                    // const response = JSON.parse(completed.content)[0].text;
+                    // const executionAnalize = await execution.request(input.code, response)
+                    // this.client.inputs.push({
+                    //     role:'user',
+                    //     content: [
+                    //         {
+                    //             name: tool.name,
+                    //             type: 'tool_result',
+                    //             tool_use_id: tool.id,
+                    //             isError: completed.error,
+                    //             content: [
+                    //                 {
+                    //                     type: 'text',
+                    //                     text: ((executionAnalize.response as Message).content[0] as TextBlock).text
+                    //                 }
+                    //             ]
+                    //         }
+                    //     ]
+                    // })
                 }  else {
-                    inputs.push({
+                    this.client.inputs.push({
                         role:'user',
                         content: [
                             {

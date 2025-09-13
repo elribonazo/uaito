@@ -41,7 +41,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.36.3",
+    "@anthropic-ai/sdk": "^0.62.0",
     "@huggingface/transformers": "3.7.1",
     "abort-controller": "^3.0.0",
     "idb": "^8.0.3",

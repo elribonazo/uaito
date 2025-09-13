@@ -3,7 +3,7 @@ import { MessageState } from '../redux/userSlice';
 import { Markdown } from './Markdown';
 import { ToolComponent } from './ToolComponent';
 import { useMountedApp } from '../redux/store';
-import { TextBlock, ToolBlock, ImageBlock, DeltaBlock } from '@uaito/sdk';
+import { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock } from '@uaito/sdk';
 
 export const MessageContainer = ({ id, isUser, children }) => {
     return (
@@ -23,7 +23,7 @@ export const MessageContainer = ({ id, isUser, children }) => {
 export const MessageItem:React.FC<{
     id: string, 
     isUser: boolean,
-    content: TextBlock | ToolBlock | ImageBlock | DeltaBlock,
+    content: TextBlock | ToolBlock | ImageBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock,
     searchText: string,
     type: MessageState['type']
 }> = ({id, isUser, content, searchText}) => {

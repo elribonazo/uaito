@@ -64,49 +64,6 @@ export abstract class BaseLLM<
 }
 
 /**
- * Perform a task using the LLM.
- * @param prompt - The user prompt.
- * @param stream - Whether to stream the response.
- * @returns A Promise resolving to either a ReadableStream of Messages or a single Message.
- */
-performTask(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
-    stream?: true
-): Promise<{
-    usage: { input: number, output: number },
-    response: ReadableStream<Message> & AsyncIterable<Message>
-}>;
-performTask(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
-    stream?: false
-): Promise<{
-    usage: { input: number, output: number },
-    response: Message
-}>;
-async performTask(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
-    stream?: boolean
-): Promise<{
-    usage: { input: number, output: number },
-    response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
-}> {
-    const response = stream === true ?
-        await this.retryApiCall(() => this.performTaskStream(prompt, chainOfThought, system)) :
-        await this.retryApiCall(() => this.performTaskNonStream(prompt, chainOfThought, system));
-
-    return {
-        usage: this.cache.tokens,
-        response
-    }
-}
-
-/**
  * Run a command safely, catching and handling any errors.
  * @param tool - The tool being used.
  * @param input - Array of input messages.
@@ -223,6 +180,7 @@ async runSafeCommand(
             ) {
               controller.enqueue(tChunk)
             } else if (tChunk.type === "tool_use") {
+              debugger;
               this.inputs.push(tChunk);
               controller.enqueue({
                 id: tChunk.id,
@@ -233,26 +191,30 @@ async runSafeCommand(
               if (onTool && tChunk.content[0].type === "tool_use" ) {
                 const toolUse = tChunk.content[0] as ToolUseBlock;
                 const cacheEntry = (this.cache.toolInput ?? {}) as ToolInputDelta;
-                const partial = cacheEntry?.partial || (cacheEntry as unknown as { input: string }).input;
+                const partial = cacheEntry?.partial || (cacheEntry as any).input;
                 if (partial) {
-                  toolUse.input = {}  
+                  try {
+                    toolUse.input = JSON.parse(partial)
+                  } catch {
+                  }
                 } else {
-                  
                   toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                 }
+                debugger;
                 await onTool.bind(this)(tChunk, this.options.signal);
                 const lastOutput = this.inputs[this.inputs.length - 1];
                 if (lastOutput.role !== "user" || lastOutput.content[0].type !== 'tool_result') {
                     throw new Error("Expected to have a user reply with the tool response");
                 }
   
+                debugger;
                 if (lastOutput.content[0].type === 'tool_result') {
                   lastOutput.content[0] = {
                     ...lastOutput.content[0],
                     name: (tChunk.content[0] as ToolUseBlock).name
                   } as ToolResultBlock;
                 }
-
+                this.cache.toolInput = null;
                 controller.enqueue({
                   id: v4(),
                   role:'user',
@@ -337,7 +299,6 @@ async runSafeCommand(
             const isToolUseMessage = message.type === "tool_use";
             const isChunkMessage = message.type === "message";
             const isUsageMessage = message.type === "usage";
-
             if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage) {
               emit(controller, message);
             } else if (isDeltaMessage) {

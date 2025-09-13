@@ -27,7 +27,7 @@ export const AnimatedText: React.FC<{text?:string}> = (props) => {
       <span className="inline-block">
         {text.split('').map((letter, index) => (
           <span
-            key={index}
+            key={`text-${index}${letter}`}
             className={`font-bold transition-all duration-300 ${index < visibleLetters ? 'opacity-100' : 'opacity-0'
               }`}
             style={{

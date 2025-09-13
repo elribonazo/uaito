@@ -1,4 +1,4 @@
-import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, AgentTypeToClass, HuggingFaceONNXOptions, ToolUseBlock } from "../types";
+import { MessageInput, BaseLLMOptions, AnthropicOptions, Message, OnTool, AgentTypeToOptions, LLMProvider, Tool, OpenAIOptions, AgentTypeToClass, HuggingFaceONNXOptions, ToolUseBlock, ReadableStreamWithAsyncIterable } from "../types";
 import { BaseLLM } from "../llm/Base";
 import { MessageArray } from "../utils";
 
@@ -16,9 +16,27 @@ export const LOG_ANSI_YELLOW = "\u001B[33m";
 export class Agent<T extends LLMProvider> {
     private MAX_RETRIES = 10;
     private RETRY_DELAY = 3000; // 3 seconds
-    /** The LLM client used by the agent. */
     public client!: AgentTypeToClass[T];
+    protected name: string;
 
+    
+    private _systemPrompt: string = '';
+    private _chainOfThought: string = '';
+
+    public get systemPrompt() {
+        return this._systemPrompt;
+    }
+
+    public get chainOfThought() {
+        return this._chainOfThought;
+    }
+
+    public get tools() {
+        return this.options.tools ?? [];
+    }
+
+
+    
     /**
      * Log a message with the agent's color and name.
      * @param message - The message to log.
@@ -27,7 +45,6 @@ export class Agent<T extends LLMProvider> {
         console.log(`${this.color}[${this.name}] ${message}${LOG_ANSI_RESET}`);
     }
 
-    protected name: string;
     /**
      * Create a new Agent instance.
      * @param type - The type of LLM provider.
@@ -37,12 +54,15 @@ export class Agent<T extends LLMProvider> {
         public type: LLMProvider,
         protected options: AgentTypeToOptions[typeof type],
         protected onTool?: OnTool,
-        public inputs: MessageArray<MessageInput> = new MessageArray(),
-        public tools: Tool[] = [],
         protected color: string = LOG_ANSI_BLUE,
         name?: string
     ) {
         this.name = name ?? this.type.toString();
+     }
+
+     async addInputs(inputs: MessageArray<MessageInput>) {
+        await this.getClient();
+        this.client.inputs = inputs;
      }
 
     get data() {
@@ -66,21 +86,21 @@ export class Agent<T extends LLMProvider> {
             this.client ??= new Anthropic({
                 options: this.options as AnthropicOptions
             },
-                this.onTool,
+                this.onTool?.bind(this),
             ) as AgentTypeToClass[T];
         } else if (this.type === LLMProvider.OpenAI) {
             const OpenAI = (await import("../llm/Openai")).OpenAI;
             this.client ??= new OpenAI({
                 options: this.options as OpenAIOptions
             },
-                this.onTool
+                this.onTool?.bind(this)
             ) as AgentTypeToClass[T];
         } else if (this.type === LLMProvider.HuggingFaceONNX) {
             const HuggingFace = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
             this.client ??= new HuggingFace({
                 options: this.options as HuggingFaceONNXOptions
             },
-                this.onTool
+                this.onTool?.bind(this)
             ) as AgentTypeToClass[T];
         } else {
             throw new Error("not implemented")
@@ -113,40 +133,18 @@ export class Agent<T extends LLMProvider> {
      * @param stream - Whether to stream the response.
      * @returns A Promise resolving to either a ReadableStream of Messages or a single Message.
      */
-    performTask(
-        prompt: string,
-        chainOfThought: string,
-        system: string,
-        stream?: true
-    ): Promise<{
-        usage: { input: number, output: number },
-        response: ReadableStream<Message> & AsyncIterable<Message>
-    }>;
-    performTask(
-        prompt: string,
-        chainOfThought: string,
-        system: string,
-        stream?: false
-    ): Promise<{
-        usage: { input: number, output: number },
-        response: Message
-    }>;
     async performTask(
         prompt: string,
-        chainOfThought: string,
-        system: string,
-        stream: boolean = true
     ): Promise<{
         usage: { input: number, output: number },
-        response: Message | (ReadableStream<Message> & AsyncIterable<Message>)
+        response: ReadableStreamWithAsyncIterable<Message>
     }> {
         const client = await this.getClient();
-        const response = stream === true ?
-            await this.retryApiCall(() => client.performTaskStream(prompt, chainOfThought, system)) :
-            await this.retryApiCall(() => client.performTaskNonStream(prompt, chainOfThought, system));
-
+        const {cache:{tokens: usage}} = client;
+        const {systemPrompt, chainOfThought} = this;
+        const response = await client.performTaskStream(prompt, chainOfThought, systemPrompt);
         return {
-            usage: client.cache.tokens,
+            usage,
             response
         }
     }

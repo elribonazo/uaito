@@ -299,7 +299,6 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
             <div className="space-y-6">
                <>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                  <div className="mt-6 grid md:grid-cols-2 gap-6">
                     <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
                       <h4 className="text-xl font-bold mb-3">Start Chatting</h4>
                       <p className="text-gray-300 mb-4">
@@ -310,32 +309,10 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
                         Launch Web Chat
                       </Link>
                     </div>
-                    <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
-                      <h4 className="text-xl font-bold mb-3">Download Our Software</h4>
-                      <p className="text-gray-300 mb-4">
-                        Get the full UAITO experience with our desktop application. Available for macOS and Windows.
-                      </p>
-                      <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-                        <Link 
-                          href="/api/download/arm64-mac.zip" 
-                          className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300"
-                        >
-                          <FaApple className="h-6 w-6 mr-2" />
-                          <span>macOS (ARM64)</span>
-                        </Link>
-                        <Link 
-                          href="/api/download/exe" 
-                          className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300"
-                        >
-                          <FaWindows className="h-6 w-6 mr-2" />
-                          <span>Windows</span>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
                 </div>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
                   <h3 className="text-2xl font-bold mb-4">Your API Key</h3>
+                  <p className="text-gray-300 mb-4">Use this to integrate the UAITO API into your own projects.</p>
                   <RevealableApiKey />
                 </div>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg">

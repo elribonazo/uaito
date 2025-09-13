@@ -19,18 +19,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anthropic-ai/sdk@npm:^0.36.3":
-  version: 0.36.3
-  resolution: "@anthropic-ai/sdk@npm:0.36.3"
-  dependencies:
-    "@types/node": "npm:^18.11.18"
-    "@types/node-fetch": "npm:^2.6.4"
-    abort-controller: "npm:^3.0.0"
-    agentkeepalive: "npm:^4.2.1"
-    form-data-encoder: "npm:1.7.2"
-    formdata-node: "npm:^4.3.2"
-    node-fetch: "npm:^2.6.7"
-  checksum: 10c0/9d92e78282ce8389570522e5bf14a9fb35dcaa74e70e44d2318e7c45b5c40ce9445f0a14a244d66b9a9991b6832d728c003eda3d5b01c01fe4cef3dc9811a8f7
+"@anthropic-ai/sdk@npm:^0.62.0":
+  version: 0.62.0
+  resolution: "@anthropic-ai/sdk@npm:0.62.0"
+  bin:
+    anthropic-ai-sdk: bin/cli
+  checksum: 10c0/883a5e1d74df192c43c98cb8f195f1515bf4a73ad7fefb75823c808c444eaf19169d9e0c9cd042aad5f0ad7271dd8e266ebf964b069b8b1077dca4b3ef5a903c
   languageName: node
   linkType: hard
 
@@ -7218,7 +7212,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@uaito/sdk@workspace:packages/sdk"
   dependencies:
-    "@anthropic-ai/sdk": "npm:^0.36.3"
+    "@anthropic-ai/sdk": "npm:^0.62.0"
     "@esbuild-plugins/node-resolve": "npm:^0.2.2"
     "@huggingface/transformers": "npm:3.7.1"
     "@types/lodash": "npm:^4.17.20"

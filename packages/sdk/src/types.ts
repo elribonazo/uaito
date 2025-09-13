@@ -83,14 +83,12 @@ export type AgentTypeToOptions = {
     [LLMProvider.Anthropic]: AnthropicOptions;
     [LLMProvider.OpenAI]: OpenAIOptions;
     [LLMProvider.HuggingFaceONNX]: HuggingFaceONNXOptions;
-    [name: string]: unknown
   };
 
 export type AgentTypeToClass = {
   [LLMProvider.Anthropic]: Anthropic;
   [LLMProvider.OpenAI]: OpenAI;
   [LLMProvider.HuggingFaceONNX]: HuggingFaceONNX;
-  [name: string]: unknown
 };
 
 export type BinConfig<P extends LLMProvider> = {
@@ -157,13 +155,55 @@ export type ToolResultBlock = {
 export type ToolBlock = ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
 export type Role = 'assistant' | 'user' | 'system' | 'tool';
 
-export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock;
+export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock | ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock;
 export type Message = {
   id: string,
   type: MessageType,
   content: BlockType[],
   chunk?: boolean,
   role: Role
+}
+export interface WebSearchResultBlock {
+  encrypted_content: string;
+
+  page_age: string | null;
+
+  title: string;
+
+  type: 'web_search_result';
+
+  url: string;
+}
+
+export type WebSearchToolResultBlockContent = WebSearchToolResultError | Array<WebSearchResultBlock>;
+export interface WebSearchToolResultError {
+  error_code:
+    | 'invalid_tool_input'
+    | 'unavailable'
+    | 'max_uses_exceeded'
+    | 'too_many_requests'
+    | 'query_too_long';
+
+  type: 'web_search_tool_result_error';
+}
+
+
+export interface WebSearchToolResultBlock {
+  content: WebSearchToolResultBlockContent;
+
+  tool_use_id: string;
+
+  type: 'web_search_tool_result';
+}
+
+export interface ServerToolUseBlock {
+  id: string;
+
+  input: unknown;
+
+  name: 'web_search';
+
+  type: 'server_tool_use';
 }
 
 export type DeltaBlock =   {
@@ -184,6 +224,20 @@ export type ErrorBlock = {
   type:'error',
   message: string
 }
+export interface RedactedThinkingBlock {
+  data: string;
+
+  type: 'redacted_thinking';
+}
+
+export interface ThinkingBlock {
+  signature: string;
+
+  thinking: string;
+
+  type: 'thinking';
+}
+
 
 export type MessageContent = ArrayElementType<Message['content']>
 
@@ -211,12 +265,6 @@ export abstract class Runner {
     chainOfThought: string,
     system: string,
 ): Promise<ReadableStreamWithAsyncIterable<Message>>;
-
- abstract performTaskNonStream(
-    userPrompt: string,
-    chainOfThought: string,
-    system: string,
-): Promise<Message>;
 }
 
 export const AgentTypeToModel = {

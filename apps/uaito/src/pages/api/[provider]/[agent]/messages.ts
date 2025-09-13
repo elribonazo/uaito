@@ -9,7 +9,7 @@ import { createUsage } from '@/db/models/Usage';
 import { getSessionUser } from '@/utils/getSessionUser';
 import db from '@/db';
 import { AutomatedEngineer } from '@/ai/agents/AutomatedEngineer';
-import { createChainOfThought } from '@/ai/prompts/AutomatedEngineer';
+import { createSystemPrompt } from '@/ai/prompts/AutomatedEngineer';
 import { onTool as SystemOnTool } from '../../../../ai/agents/onTool';
 import { ensureUserExists } from '../../auth/[...nextauth]';
 
@@ -54,7 +54,6 @@ async function AutomatedEngineerTask(
     browseWebPageTool,
     tavilySearch,
   ];
-  const chainOfThought = createChainOfThought(availableTools);
   const activeTools = availableTools.map((tool) => {
     const {name, description, input_schema} = tool;
     return {name, description, input_schema}
@@ -92,9 +91,14 @@ async function AutomatedEngineerTask(
     'Connection': 'keep-alive',
     'X-Thread-Id': threadId
   });
-  const agent = new AutomatedEngineer(
+
+
+
+  const agent =  await AutomatedEngineer.create(
     type,
     options,
+    directory,
+    inputs,
     function onTool(
       this: Agent<LLMProvider.Anthropic>,
       message: Message,
@@ -103,15 +107,12 @@ async function AutomatedEngineerTask(
           currentUser.id,
           threadId,
           message,
-          this.inputs, 
           abortController
         )
       },
-    directory,
-    inputs,
-    chainOfThought
+    
   );
-  const { response } = await agent.performTask(prompt, '', chainOfThought, true);
+  const { response } = await agent.performTask(prompt);
   return {
     stream:response,
     hash:hashId

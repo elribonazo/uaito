@@ -29,7 +29,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
 
   const [input, setInput] = useState(retry ? 
     (lastMessage.content[0] as TextBlockParam)?.text ?? '' :
-    '');
+    'Who\'s elribonazo?');
 
   useEffect(() => {
     const handleScrollToNextResult = () => {

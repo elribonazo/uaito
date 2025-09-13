@@ -18,7 +18,7 @@
     "@octokit/rest": "^21.0.2",
     "@uaito/sdk": "workspace:*",
     "next": "15.5.3",
-      "next-auth": "^4.24.11",
+    "next-auth": "^4.24.11",
     "next-redux-wrapper": "^8.1.0",
     "nextjs-cors": "^2.2.0",
     "react": "^19.0.0",

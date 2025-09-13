@@ -9,7 +9,7 @@ const fsTools = [
    "executeCommand"
 ]
 
-export const createChainOfThought = (tools: Tool[]) => {
+export const createSystemPrompt = (tools: Tool[]) => {
 
    const hasFS = fsTools.some((tool) => tools.some((utool) => utool.name === tool));
 
@@ -50,7 +50,7 @@ export const createChainOfThought = (tools: Tool[]) => {
 ${capabilities.map((capability, i) => `${i+1}. ${capability}`).join("\r\n")}
 
 Available tools and their optimal use cases:
-${tools.map((tool, i) => `${i+1}. ${tool.name}`).join("\r\n")}
+${tools.map(({name, ...tool}, i) => `${i+1}. ${name}: ${tool.description}`).join("\r\n")}
 
 Tool Usage Guidelines:
 ${usageGuidelines.map((usage) => `- ${usage}`).join("\r\n")}

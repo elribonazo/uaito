@@ -393,14 +393,11 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
           this.chunk.bind(this)
         );
       },
-      this.onTool?.bind(this)
+      this.onTool
     );
 
     return automodeStream;
   }
 
-  performTaskNonStream(_prompt: string, _chainOfThought: string, _system: string): Promise<Message> {
-    throw new Error("Method not implemented.");
-  }
 
 }

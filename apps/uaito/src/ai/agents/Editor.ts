@@ -5,7 +5,15 @@ export class Editor extends Agent<LLMProvider.Anthropic> {
     protected color = ANSI_YELLOW;
     protected name = "Editor";
     public inputs: MessageArray<MessageInput> = MessageArray.from([]);
-    protected _systemPrompt: string = `You are an AI coding agent that generates edit instructions for code files. Your task is to analyze the provided code and generate SEARCH/REPLACE blocks for necessary changes. Follow these steps:
+
+    private fileContent!: string;
+    private instructions!: string;
+    private projectContext!: string;
+    private memoryContext!: string;
+    private fullFileContentsContext!: string;
+
+    override get systemPrompt() {
+        return `You are an AI coding agent that generates edit instructions for code files. Your task is to analyze the provided code and generate SEARCH/REPLACE blocks for necessary changes. Follow these steps:
 
     1. Review the entire file content to understand the context:
     $$file_content
@@ -47,17 +55,6 @@ export class Editor extends Agent<LLMProvider.Anthropic> {
 
     If no changes are needed, return an empty list.
 `
-
-public  tools: Tool[] = []
-    private fileContent!: string;
-    private instructions!: string;
-    private projectContext!: string;
-    private memoryContext!: string;
-    private fullFileContentsContext!: string;
-
-
-    get systemPrompt() {
-        return this._systemPrompt
             .replace("$$file_content", this.fileContent)
             .replace("$$instructions", this.instructions)
             .replace("$$project_context", this.projectContext)
@@ -65,12 +62,8 @@ public  tools: Tool[] = []
             .replace("$$full_file_contents_context", this.fullFileContentsContext)
     }
 
-    createInitialMessageInput(
-        prompt: string, 
-        input: MessageArray<MessageInput>
-    ): MessageArray<MessageInput> {
-        input.push({ role: 'user', content: [{ text: prompt, type: 'text' }] });
-        return input;
+    override get chainOfThought() {
+        return ``;
     }
 
     parseSearchReplaceBlocks(responseText: string): SearchReplaceBlock[] {
@@ -132,9 +125,6 @@ public  tools: Tool[] = []
 
         const response = await this.performTask(
             "Generate SEARCH/REPLACE blocks for the necessary changes.",
-            this.systemPrompt,
-            '',
-            false
         );
         return response;
     }

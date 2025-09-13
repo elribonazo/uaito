@@ -1,9 +1,13 @@
-import { Agent, type MessageInput, ANSI_YELLOW, type Tool, MessageArray, LLMProvider } from "@uaito/sdk";
+import { Agent, type MessageInput, ANSI_YELLOW, type Tool, MessageArray, LLMProvider, AgentTypeToOptions, OnTool } from "@uaito/sdk";
 
-export class Execution extends Agent<LLMProvider.Anthropic> {
+export class Execution<T extends LLMProvider> extends Agent<T> {
     protected override color = ANSI_YELLOW;
     protected override name = "Executor"
-    protected _systemPrompt: string = `You are an AI code execution agent. 
+    private code!: string;
+    private execution_result!: string;
+
+    get systemPrompt() {
+        return `You are an AI code execution agent. 
     Your task is to analyze the provided code and its execution result from the 'code_execution_env' virtual environment, then provide a concise summary of what worked, what didn't work, and any important observations. Follow these steps:
     1. Review the code that was executed in the 'code_execution_env' virtual environment:
     $$command
@@ -20,17 +24,25 @@ export class Execution extends Agent<LLMProvider.Anthropic> {
 
     Be concise and focus on the most important aspects of the code execution within the 'code_execution_env' virtual environment.
     IMPORTANT: PROVIDE ONLY YOUR ANALYSIS AND OBSERVATIONS. DO NOT INCLUDE ANY PREFACING STATEMENTS OR EXPLANATIONS OF YOUR ROLE.`
-    public override tools: Tool[] = []
-
-    public override inputs: MessageArray<MessageInput> = MessageArray.from([]);
-    private code!: string;
-    private execution_result!: string;
-
-    get systemPrompt() {
-        return this._systemPrompt
             .replace("$$command", this.code)
             .replace("$$result", this.execution_result)
     }
+
+    get tools() {
+        return this.options.tools ?? [];
+    }
+
+    get chainOfThought() {
+        return ``;
+    }
+
+     constructor(
+        public type: T,
+        protected llmOptions:AgentTypeToOptions[typeof type],
+        protected onTool?: OnTool,
+      ) {
+        super(type, llmOptions, onTool)
+      }
 
     createInitialMessageInput(
         prompt: string, 
@@ -44,11 +56,6 @@ export class Execution extends Agent<LLMProvider.Anthropic> {
         this.code = code;
         this.execution_result = execution_result;
         const prompt = `Analyze this code execution from the 'code_execution_env' virtual environment:\n\nCode:\n${code}\n\nExecution Result:\n${execution_result}`
-        return this.performTask(
-            prompt,
-            "",
-            this.systemPrompt,
-            false
-        )
+        return this.performTask( prompt )
     }
 }

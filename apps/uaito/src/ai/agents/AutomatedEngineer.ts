@@ -3,33 +3,26 @@ import fs from 'fs-extra';
 import  { Agent, LLMProvider, AgentTypeToOptions, MessageInput, OnTool, MessageArray } from "@uaito/sdk";
 import { ANSI_BLUE, type Tool } from "@uaito/sdk";
 import { chromium, type Browser } from "playwright";
-import { runTavilySearch, type TavilySearchResult } from '../tools/tavily';
+import { runTavilySearch } from '../tools/tavily';
 import { extractAllText } from '../tools/extractWebContent';
 import {  safeCommands } from '../../config';
+import { createSystemPrompt } from '../prompts/AutomatedEngineer';
 
 
 export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
     protected color = ANSI_BLUE;
     protected name = "Engineer"
-    public override tools: Tool[]
-  
-    constructor(
-      public type: T,
-      protected llmOptions:AgentTypeToOptions[typeof type],
-      protected onTool: OnTool,
-      protected directory: string,
-      public inputs: MessageArray<MessageInput>,
-      public systemPrompt: string,
     
-    ) {
-      //TODO
-      const tools = llmOptions.tools ?? [];
-      super(type, llmOptions, onTool, inputs, tools)
-      this.tools = tools;
+    get tools() {
+        return this.options.tools ?? [];
     }
-  
-    createInitialMessageInput(prompt: string, input: MessageArray<MessageInput>): MessageArray<MessageInput> {
-      const chainOfThought = `Answer the user's request using relevant tools only if the tool exists. 
+
+    override get systemPrompt() {
+      return createSystemPrompt(this.options.tools);
+    }
+
+    override get chainOfThought() {
+      return `Answer the user's request using relevant tools only if the tool exists. 
   Before calling a tool, do some analysis within <thinking></thinking> tags. 
   1. First, determine if you have access to the requested tool.
   2. Second, think about which of the provided tools is the relevant tool to answer the user's request. 
@@ -40,19 +33,30 @@ export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
   DO NOT invoke the function (not even with fillers for the missing params) and instead, ask the user to provide the missing parameters. 
   DO NOT ask for more information on optional parameters if it is not provided.
   DO NOT reflect on the quality of the returned search results in your response.`
-      input.push({
-        role: 'user',
-        content: [{
-          text: `${prompt}\r\n\r\n${chainOfThought}`, type: 'text'
-        }]
-      })
-  
-      return input;
     }
   
+    private constructor(
+      public type: T,
+      protected llmOptions:AgentTypeToOptions[typeof type],
+      protected onTool: OnTool,
+      protected directory: string
+    ) {
+      super(type, llmOptions, onTool);
+    }
 
+    static async create<T extends LLMProvider>(
+       type: T,
+       llmOptions:AgentTypeToOptions[typeof type],
+       directory: string,
+       inputs: MessageArray<MessageInput>,
+       onTool: OnTool,
+    ) {
+      const instance = new AutomatedEngineer(type, llmOptions, onTool, directory);
+      await instance.addInputs(inputs);
+      return instance;
+    }
 
-
+  
     safeCommand(command: string) {
       const commands = command.split("&&");
       commands.forEach((splitCommand) => {
