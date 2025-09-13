@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { MessageState } from '../redux/userSlice';
+import type { MessageState } from '../redux/userSlice';
 import { Markdown } from './Markdown';
 import { ToolComponent } from './ToolComponent';
+import { ThinkingComponent } from './ThinkingComponent';
 import { useMountedApp } from '../redux/store';
-import { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock } from '@uaito/sdk';
+import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock } from '@uaito/sdk';
 
-export const MessageContainer = ({ id, isUser, children }) => {
+export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: boolean, children: React.ReactNode}) => {
     return (
         <div
             key={`msg-${id}`}
@@ -38,14 +39,17 @@ export const MessageItem:React.FC<{
         return <img
             src={`data:${content.source.media_type};${content.source.type},${content.source.data}`}
             style={{ width: "250px", height: "auto" }}
+            alt="generated content"
         />
+    } else if (content.type === "thinking") {
+        return <ThinkingComponent thinking={content.thinking} />;
     } else if (content.type === "tool_use") {
         return <ToolComponent messageId={`msg-${id}-block`} {...content} />
     }else if (content.type === "tool_result") {
         const toolIndex = app.user.messages.findIndex((m) =>  m.type === "tool_use" &&  m.id === content.tool_use_id);
 
    
-        const toolName = toolIndex >= 0 ?  ( app.user.messages[toolIndex] as any).name: content.name
+        const toolName = toolIndex >= 0 ?  ( app.user.messages[toolIndex].content[0] as ToolUseBlock).name: content.name
             
         return <ToolComponent messageId={`msg-${id}-block`} {...{
             ...content,
@@ -96,7 +100,16 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[] }
                     return tooled
                 }
             }
-            return [...tooled, currentMessage]
+            const existingMessageIndex = tooled.findIndex(m => m.id === currentMessage.id);
+            if (existingMessageIndex !== -1) {
+                const existingMessage = tooled[existingMessageIndex];
+                if (currentMessage.type === 'thinking' && existingMessage.type === 'thinking') {
+                    (existingMessage.content[0] as ThinkingBlock).thinking = (currentMessage.content[0] as ThinkingBlock).thinking;
+                    return tooled;
+                }
+            }
+            tooled.push(currentMessage);
+            return tooled;
         }, []);
         return (
             <>

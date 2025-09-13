@@ -112,7 +112,8 @@ export type MessageType =
   ToolResultBlock['type'] |
   DeltaBlock['type'] |
   UsageBlock['type'] | 
-  ErrorBlock['type']
+  ErrorBlock['type'] |
+  ThinkingBlock['type']
 
 
 export type ImageBlock = {
