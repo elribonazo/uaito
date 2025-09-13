@@ -53,7 +53,6 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
             const imageBlock: ImageBlockParam = contentModel
             return imageBlock
           } else if (contentModel.type === "tool_use") {
-            debugger;
             const toolUseBlock: ToolUseBlockParam = {
               type: 'tool_use',
               id: contentModel.id,
@@ -62,7 +61,6 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
             }
             return toolUseBlock
           } else if (contentModel.type === "thinking") {
-            debugger;
             const thinkingBlock: ThinkingBlockParam = {
               type: 'thinking',
               thinking: contentModel.thinking,
@@ -164,7 +162,6 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         }
       } else if (delta.type === 'input_json_delta') {
         this.cache.chunks = null
-        debugger;
         const toolInputBlock: ToolInputDelta = {
           type: 'tool_delta',
           partial: delta.partial_json ?? ''
@@ -283,9 +280,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
-    debugger;
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
-    debugger;
     const params: SDK.MessageCreateParams = {
       max_tokens: this.maxTokens,
       system: system,
@@ -293,9 +288,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       model: this.options.model,
       tools: this.options.tools
     };
-    debugger;
     const apiHeaders: Record<string, string> = {}
-
     const options = { headers: apiHeaders, signal: this.options?.signal as any }
 
     const createStream = async () => {

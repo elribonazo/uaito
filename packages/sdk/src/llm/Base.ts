@@ -180,7 +180,6 @@ async runSafeCommand(
             ) {
               controller.enqueue(tChunk)
             } else if (tChunk.type === "tool_use") {
-              debugger;
               this.inputs.push(tChunk);
               controller.enqueue({
                 id: tChunk.id,
@@ -200,14 +199,12 @@ async runSafeCommand(
                 } else {
                   toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                 }
-                debugger;
                 await onTool.bind(this)(tChunk, this.options.signal);
                 const lastOutput = this.inputs[this.inputs.length - 1];
                 if (lastOutput.role !== "user" || lastOutput.content[0].type !== 'tool_result') {
                     throw new Error("Expected to have a user reply with the tool response");
                 }
   
-                debugger;
                 if (lastOutput.content[0].type === 'tool_result') {
                   lastOutput.content[0] = {
                     ...lastOutput.content[0],

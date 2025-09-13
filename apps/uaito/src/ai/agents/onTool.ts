@@ -93,7 +93,7 @@ export async function onTool<T extends LLMProvider>(
             await this.runSafeCommand(
                 tool,
                 async (instance: AutomatedEngineer<T>) => {
-                    debugger;
+                    
                     const codeInput = tool.input as { query: string };
                     const key = tool.name;
                     const method = instance[key];
