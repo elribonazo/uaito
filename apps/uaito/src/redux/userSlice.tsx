@@ -143,9 +143,12 @@ const userSlice = createSlice({
         if (existingIndex < 0) {
           state.messages.push(message)
         } else if (existingIndex > 0) {
-          if (state.messages[existingIndex]?.chunk &&
-            state.messages[existingIndex]?.content[0].type === "text") {
-            state.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
+          if (state.messages[existingIndex]?.chunk ) {
+              if (state.messages[existingIndex]?.content[0].type === "text") {
+                state.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
+              } else if (state.messages[existingIndex]?.content[0].type === "thinking") {
+                state.messages[existingIndex].content[0].thinking += (message.content[0] as any).thinking
+              }
           } else {
             state.messages.push(message)
           }

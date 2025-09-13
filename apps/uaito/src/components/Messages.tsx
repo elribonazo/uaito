@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { MessageState } from '../redux/userSlice';
 import { Markdown } from './Markdown';
 import { ToolComponent } from './ToolComponent';
 import { ThinkingComponent } from './ThinkingComponent';
 import { useMountedApp } from '../redux/store';
-import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock } from '@uaito/sdk';
+import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock, SignatureDeltaBlock } from '@uaito/sdk';
 
 export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: boolean, children: React.ReactNode}) => {
     return (
@@ -24,10 +24,11 @@ export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: 
 export const MessageItem:React.FC<{
     id: string, 
     isUser: boolean,
-    content: TextBlock | ToolBlock | ImageBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock,
+    content: TextBlock | ToolBlock | ImageBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock,
     searchText: string,
-    type: MessageState['type']
-}> = ({id, isUser, content, searchText}) => {
+    type: MessageState['type'],
+    messages?: MessageState[]
+}> = ({id, isUser, content, searchText, messages}) => {
     const app = useMountedApp();
     if (content.type === "text") {
         return <MessageContainer id={id} isUser={isUser}>
@@ -42,7 +43,9 @@ export const MessageItem:React.FC<{
             alt="generated content"
         />
     } else if (content.type === "thinking") {
-        return <ThinkingComponent thinking={content.thinking} />;
+        return <ThinkingComponent thinking={content.thinking} messages={messages} currentMessageId={id} />;
+    } else if (content.type === "redacted_thinking") {
+        return <ThinkingComponent thinking="[Thinking content redacted]" messages={messages} currentMessageId={id} />;
     } else if (content.type === "tool_use") {
         return <ToolComponent messageId={`msg-${id}-block`} {...content} />
     }else if (content.type === "tool_result") {
@@ -55,14 +58,22 @@ export const MessageItem:React.FC<{
             ...content,
             name: toolName
         }} />
+    } else if (content.type === "signature_delta") {
+        // Handle signature delta - could render as a special text block or ignore
+        return <MessageContainer id={id} isUser={isUser}>
+            <Markdown searchText={searchText}>
+                {content.signature || ''}
+            </Markdown>
+        </MessageContainer>
     }
 }
 
 export const Message: React.FC<{
     message: MessageState,
-    searchText: string
+    searchText: string,
+    messages?: MessageState[]
 }> = (props) => {
-    const { message, searchText } = props;
+    const { message, searchText, messages } = props;
     const { id, role, content, type } = message;
     const isUser = role === 'user';
     if (Array.isArray(content)) {
@@ -73,7 +84,8 @@ export const Message: React.FC<{
             isUser={isUser} 
             content={currentContent} 
             searchText={searchText}
-             type={type}/>
+            type={type}
+            messages={messages}/>
         }
          )
     }
@@ -104,7 +116,6 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[] }
             if (existingMessageIndex !== -1) {
                 const existingMessage = tooled[existingMessageIndex];
                 if (currentMessage.type === 'thinking' && existingMessage.type === 'thinking') {
-                    (existingMessage.content[0] as ThinkingBlock).thinking = (currentMessage.content[0] as ThinkingBlock).thinking;
                     return tooled;
                 }
             }
@@ -117,6 +128,7 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[] }
                     key={`msg-cmp-${message.id}-${i}`}
                     message={message}
                     searchText={props.searchText}
+                    messages={toolledMessages}
                 />)}
                 <div ref={messagesEndRef} />
             </>

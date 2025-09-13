@@ -33,7 +33,7 @@ async function runTavilySearch(
       api_key: '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',
       query: query,
       include_answer: true,
-      search_depth: 'advanced',
+      search_depth: searchDepth,
       include_images: true
     });
     return response.data

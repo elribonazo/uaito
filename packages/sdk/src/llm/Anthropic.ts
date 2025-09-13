@@ -1,10 +1,10 @@
 import SDK from '@anthropic-ai/sdk';
 import { v4 } from 'uuid';
-import { ImageBlockParam, MessageParam, RedactedThinkingBlockParam, ServerToolUseBlockParam, TextBlockParam, ThinkingBlockParam, ToolResultBlockParam, ToolUseBlockParam, WebSearchToolResultBlockParam } from '@anthropic-ai/sdk/resources';
-import { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, LLMProvider, BlockType, BaseLLMCache, ReadableStreamWithAsyncIterable } from "../types";
+import type { ImageBlockParam, MessageParam, RedactedThinkingBlockParam, ServerToolUseBlockParam, SignatureDelta, TextBlockParam, ThinkingBlockParam, ToolResultBlockParam, ToolUseBlockParam, WebSearchToolResultBlockParam } from '@anthropic-ai/sdk/resources';
+import type { AnthropicOptions, MessageInput, Message, ToolUseBlock, ToolInputDelta, DeltaBlock, OnTool, UsageBlock, ErrorBlock, BlockType, BaseLLMCache, ReadableStreamWithAsyncIterable } from "../types";
 import { BaseLLM } from "./Base";
 import { MessageArray } from '../utils';
-
+import { LLMProvider } from '../types'
 type AnthropicConstructor = {
   options: AnthropicOptions,
   onTool?: OnTool
@@ -34,86 +34,92 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   private fromInputToParam(model: MessageInput): MessageParam {
-    const content
-      = model.content
-        .filter((contentModel) =>
-          contentModel.type !== "tool_delta" &&
-          contentModel.type !== 'usage' &&
-          contentModel.type !== "delta" &&
-          contentModel.type !== "error"
-        )
-        .map((contentModel) => {
-          if (contentModel.type === "text") {
-            const textBlock: TextBlockParam = {
-              type: 'text',
-              text: contentModel.text
-            }
-            return textBlock
-          } else if (contentModel.type === "image") {
-            const imageBlock: ImageBlockParam = contentModel
-            return imageBlock
-          } else if (contentModel.type === "tool_use") {
-            const toolUseBlock: ToolUseBlockParam = {
-              type: 'tool_use',
-              id: contentModel.id,
-              input: contentModel.input,
-              name: contentModel.name
-            }
-            return toolUseBlock
-          } else if (contentModel.type === "thinking") {
-            const thinkingBlock: ThinkingBlockParam = {
-              type: 'thinking',
-              thinking: contentModel.thinking,
-              signature: contentModel.signature
-            }
-            return thinkingBlock
-          } else if (contentModel.type === "redacted_thinking") {
-            const redactedThinkingBlock: RedactedThinkingBlockParam = {
-              type: 'redacted_thinking',
-              data: contentModel.data
-            }
-            return redactedThinkingBlock
-          } else if (contentModel.type === "server_tool_use") {
-            const serverToolUseBlock: ServerToolUseBlockParam = {
-              type: 'server_tool_use',
-              id: contentModel.id,
-              input: contentModel.input,
-              name: contentModel.name
-            }
-            return serverToolUseBlock
-          } else if (contentModel.type === "web_search_tool_result") {
-            const webSearchToolResultBlock: WebSearchToolResultBlockParam = {
-              type: 'web_search_tool_result',
-              content: contentModel.content,
-              tool_use_id: contentModel.tool_use_id
-            }
-            return webSearchToolResultBlock
-          }
 
-          const toolResultBlock: ToolResultBlockParam = {
-            is_error: contentModel.isError,
-            tool_use_id: contentModel.tool_use_id,
-            type: contentModel.type,
-            content: contentModel.content!
-              .map((content) => {
-                if (content.type === "image") {
-                  const imageBlock: ImageBlockParam = content
-                  return imageBlock
-                }
-                if (content.type === "text") {
-                  const textBlock: TextBlockParam = {
-                    type: 'text',
-                    text: content.text
-                  }
-                  return textBlock;
-                }
-                return content
-              }) as any
-          }
-          return toolResultBlock
-        })
+    const filteredContent = model.content
+      .filter((contentModel) =>
+        contentModel.type !== "tool_delta" &&
+        contentModel.type !== 'usage' &&
+        contentModel.type !== "delta" &&
+        contentModel.type !== "error"
+      );
+
+    const content = filteredContent.map((contentModel) => {
+      if (contentModel.type === "text") {
+        const textBlock: TextBlockParam = {
+          type: 'text',
+          text: contentModel.text
+        }
+        return textBlock
+      } else if (contentModel.type === "image") {
+        const imageBlock: ImageBlockParam = contentModel
+        return imageBlock
+      } else if (contentModel.type === "tool_use") {
+        const toolUseBlock: ToolUseBlockParam = {
+          type: 'tool_use',
+          id: contentModel.id,
+          input: contentModel.input,
+          name: contentModel.name
+        }
+        return toolUseBlock
+      } else if (contentModel.type === "signature_delta") {
+        const signatureDeltaBlock: SignatureDelta = {
+          type: 'signature_delta',
+          signature: contentModel.signature
+        }
+        return signatureDeltaBlock
+      } else if (contentModel.type === "thinking") {
+        const thinkingBlock: ThinkingBlockParam = {
+          type: 'thinking',
+          thinking: contentModel.thinking,
+          signature: contentModel.signature
+        }
+        return thinkingBlock
+      } else if (contentModel.type === "redacted_thinking") {
+        const redactedThinkingBlock: RedactedThinkingBlockParam = {
+          type: 'redacted_thinking',
+          data: contentModel.data
+        }
+        return redactedThinkingBlock
+      } else if (contentModel.type === "server_tool_use") {
+        const serverToolUseBlock: ServerToolUseBlockParam = {
+          type: 'server_tool_use',
+          id: contentModel.id,
+          input: contentModel.input,
+          name: contentModel.name
+        }
+        return serverToolUseBlock
+      } else if (contentModel.type === "web_search_tool_result") {
+        const webSearchToolResultBlock: WebSearchToolResultBlockParam = {
+          type: 'web_search_tool_result',
+          content: contentModel.content,
+          tool_use_id: contentModel.tool_use_id
+        }
+        return webSearchToolResultBlock
+      }
+
+      const toolResultBlock: ToolResultBlockParam = {
+        is_error: contentModel.isError,
+        tool_use_id: contentModel.tool_use_id,
+        type: contentModel.type,
+        content: contentModel.content!
+          .map((content) => {
+            if (content.type === "image") {
+              const imageBlock: ImageBlockParam = content
+              return imageBlock
+            }
+            if (content.type === "text") {
+              const textBlock: TextBlockParam = {
+                type: 'text',
+                text: content.text
+              }
+              return textBlock;
+            }
+            return content
+          }) as any
+      }
+      return toolResultBlock
+    }).filter(Boolean) // Remove null values from signature_delta entries
     
-        
     return {
       role: model.role,
       content
@@ -123,17 +129,20 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   private chunk(
     chunk: SDK.RawMessageStreamEvent
   ): Message | null {
-    console.log('kkkkkk chunk', chunk);
+
+    console.log('Processing chunk:', chunk.type, chunk);
+    
     if (chunk.type === "content_block_start") {
+      this.cache.chunks = v4()
       if (chunk.content_block.type === 'tool_use') {
-        this.cache.chunks = null
+       
         this.cache.toolInput = chunk.content_block
         this.cache.toolInput.input = "";
         (this.cache.toolInput as any).partial = ""
         const toolUseBlock: ToolUseBlock = chunk.content_block
         this.cache.toolInput = toolUseBlock;
         return {
-          id: v4(),
+          id:  this.cache.chunks,
           role: 'assistant',
           type: 'tool_delta',
           content: [
@@ -141,6 +150,32 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
               type: 'tool_delta',
               name: chunk.content_block.name,
               partial: ''
+            }
+          ]
+        }
+      } else if (chunk.content_block.type === 'thinking') {
+        return {
+          id:  this.cache.chunks,
+          role: 'assistant',
+          type: 'thinking',
+          chunk: true,
+          content: [
+            {
+              type: 'thinking',
+              thinking: chunk.content_block.thinking || '',
+              signature: ''
+            }
+          ]
+        }
+      } else if (chunk.content_block.type === 'redacted_thinking') {
+        return {
+          id:  this.cache.chunks,
+          role: 'assistant',
+          type: 'redacted_thinking',
+          content: [
+            {
+              type: 'redacted_thinking',
+              data: chunk.content_block.data || ''
             }
           ]
         }
@@ -157,6 +192,20 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
             {
               type: 'text',
               text: delta.text,
+            }
+          ]
+        }
+      } else if (delta.type === 'thinking_delta') {
+        return {
+          id:  this.cache.chunks!,
+          role: 'assistant',
+          type: 'thinking',
+          chunk: true,
+          content: [
+            {
+              type: 'thinking',
+              thinking: delta.thinking || '',
+              signature: '' // Signature will be provided separately via signature_delta
             }
           ]
         }
@@ -186,7 +235,20 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           type: 'tool_delta',
           content: [toolInputBlock]
         }
-      }
+      } else if (delta.type === "signature_delta") {
+        return {
+          id:  this.cache.chunks!,
+          role: 'assistant',
+          type: 'signature_delta',
+       
+          content: [
+            {
+              type: 'signature_delta',
+              signature: delta.signature || ''
+            }
+          ]
+        }
+      } 
     } else if (chunk.type === "message_delta") {
       this.cache.tokens.output = chunk.usage.output_tokens;
       this.cache.chunks = null;
@@ -259,20 +321,22 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           usageBlock
         ]
       }
-    }
+    } 
     return null
   }
 
   get llmInputs() {
-    return this.inputs
-    .flatMap((input) => this.fromInputToParam(input))
-    .filter((c) => {
-      if (Array.isArray(c.content) && c.content.length === 0) {
-        return false;
-      }
-      return true;
-    })
-    .flat()
+    const messages = this.inputs
+      .flatMap((input) => this.fromInputToParam(input))
+      .filter((c) => {
+        if (c.content && Array.isArray(c.content) && c.content.length === 0) {
+          return false;
+        }
+        return true;
+      })
+      .flat();
+      debugger;
+    return messages;
   }
 
    async performTaskStream(
@@ -286,7 +350,11 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       system: system,
       messages:this.llmInputs,
       model: this.options.model,
-      tools: this.options.tools
+      tools: this.options.tools,
+      thinking: {
+        type: "enabled",
+        budget_tokens: this.maxTokens - 1000
+    },
     };
     const apiHeaders: Record<string, string> = {}
     const options = { headers: apiHeaders, signal: this.options?.signal as any }
@@ -314,7 +382,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       transform,
       async () => {
         params.messages = this.llmInputs
-        const stream =await createStream();
+        const stream = await createStream();
         return this.transformStream<SDK.RawMessageStreamEvent, Message>(
           stream, 
           this.chunk.bind(this)
@@ -327,51 +395,5 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     return automodeStream
   }
 
-   async performTaskNonStream(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
-  ): Promise<Message> {
-    const apiHeaders: Record<string, string> = {
-      'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
-    }
-    const apiOptions = { headers: apiHeaders, signal: this.options?.signal as any }
-    this.inputs.push(...this.includeLastPrompt(prompt, chainOfThought, this.inputs))
-    let sdkMessage: SDK.Messages.Message;
-    while(true) {
-      const params: SDK.MessageCreateParamsNonStreaming = {
-        max_tokens: this.maxTokens,
-        system: system,
-        messages: this.inputs.map(this.fromInputToParam),
-        model: this.options.model,
-        // @ts-ignore
-        tools: this.options.tools,
-        stream: false
-      };
-      sdkMessage = await this.retryApiCall(() => this.api.messages.create(params, apiOptions));
-      const message = {role: sdkMessage.role, content: sdkMessage.content};
-      this.inputs.push(message)
-
-      if (sdkMessage.stop_reason === "end_turn") break;
-      if (sdkMessage.stop_reason === "tool_use") {
-        const tool = sdkMessage.content.find(
-          (content): content is SDK.ToolUseBlock => content.type === 'tool_use',
-        );
-        console.log(`[task messages]tool is ${tool?.name}`);
-        if (tool && this.onTool) {
-          await this.onTool.bind(message, this.options.signal);
-        } else {
-          console.log(`[task messages] tool not found ${tool?.name}`);
-        }
-        // The next iteration will include any (tool) content appended in onTool if needed
-      } 
-    }
-    return {
-      id: sdkMessage.id,
-      role: sdkMessage.role,
-      type: "message",
-      content: sdkMessage.content
-    };
-  }
+   
 }

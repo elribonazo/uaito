@@ -87,6 +87,16 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
     abortControllerRef.current = new AbortController();
 
     const reducedInputs = messages.reduce((all, current) => {
+      if (current.type === "tool_use") {
+        const lastMessage = all[all.length - 1];
+        const updatedLastMessage = {
+          ...lastMessage,
+          content: [
+            ...lastMessage.content,...current.content
+          ]
+        };
+        return [...all.slice(0, -1), updatedLastMessage];
+      }
       if (current.type === "message") {
         const last = all[all.length-1]
         if (last && current.role === last.role) {
@@ -101,22 +111,9 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
             }
           ]
         }
-        return [...all, current];
       }
-      if (current.type === "tool_use") {
-        const lastMessage = all[all.length - 1];
-        const updatedLastMessage = {
-          ...lastMessage,
-          content: [
-            ...lastMessage.content,...current.content
-          ]
-        };
-        return [...all.slice(0, -1), updatedLastMessage];
-      }
-      if (current.type === "tool_result") {
-        return [...all, current];
-      }
-      return all;
+      
+      return [...all, current];
     }, [] as any).map((item:any) => ({role: item.role, content: item.content}))
 
     app.streamMessage({

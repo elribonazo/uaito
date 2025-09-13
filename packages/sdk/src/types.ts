@@ -1,9 +1,9 @@
-import { AbortSignal } from 'abort-controller';
+import type { AbortSignal } from 'abort-controller';
 
 import type { Anthropic } from "./llm/Anthropic";
 import type { OpenAI } from "./llm/Openai";
 import type { Agent } from "./agents";
-import { HuggingFaceONNX } from './llm/HuggingFaceONNX';
+import type { HuggingFaceONNX } from './llm/HuggingFaceONNX';
 
 export enum HuggingFaceONNXModels {
   JANO = "onnx-community/Jan-nano-ONNX",
@@ -113,7 +113,9 @@ export type MessageType =
   DeltaBlock['type'] |
   UsageBlock['type'] | 
   ErrorBlock['type'] |
-  ThinkingBlock['type']
+  ThinkingBlock['type'] |
+  RedactedThinkingBlock['type'] | 
+  SignatureDeltaBlock['type']
 
 
 export type ImageBlock = {
@@ -156,7 +158,7 @@ export type ToolResultBlock = {
 export type ToolBlock = ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
 export type Role = 'assistant' | 'user' | 'system' | 'tool';
 
-export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock | ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock;
+export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock | ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock;
 export type Message = {
   id: string,
   type: MessageType,
@@ -237,6 +239,12 @@ export interface ThinkingBlock {
   thinking: string;
 
   type: 'thinking';
+}
+
+export interface SignatureDeltaBlock {
+  signature: string;
+
+  type: 'signature_delta';
 }
 
 

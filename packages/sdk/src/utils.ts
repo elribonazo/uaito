@@ -36,6 +36,10 @@ function isValidMessageContent(content: any): boolean {
         && (typeof content.output === 'number' || content.output === undefined);
     case 'error':
       return typeof content.message === 'string';
+    case "thinking":
+    case "redacted_thinking":
+    case "signature_delta":
+      return true;
     default:
       return false;
   }

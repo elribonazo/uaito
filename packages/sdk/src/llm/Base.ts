@@ -1,4 +1,3 @@
-import type { AbortSignal } from 'abort-controller';
 import type { 
   BaseLLMOptions, 
   Message,
@@ -179,6 +178,19 @@ async runSafeCommand(
               tChunk.type === "message"
             ) {
               controller.enqueue(tChunk)
+            } else if (tChunk.type === "thinking" || tChunk.type === "redacted_thinking" || tChunk.type === "signature_delta") {
+              // Only push non-chunked thinking/signature blocks to inputs for context preservation
+              const lastInput = this.inputs[this.inputs.length - 1];
+              if (lastInput.type !== "thinking" && lastInput.type !== "signature_delta") {
+                this.inputs.push(tChunk);
+              } else {
+                if (tChunk.type === "thinking") {
+                  (this.inputs[this.inputs.length - 1].content[0] as any).thinking += (tChunk.content[0] as any).thinking;
+                } else {
+                  (this.inputs[this.inputs.length - 1].content[0] as any).signature += (tChunk.content[0] as any).signature;
+                }
+              }
+              controller.enqueue(tChunk);
             } else if (tChunk.type === "tool_use") {
               this.inputs.push(tChunk);
               controller.enqueue({
@@ -228,6 +240,7 @@ async runSafeCommand(
               }
             } 
           } catch (err: unknown) {
+            console.error('Error in transformAutoMode:', err);
             const errorBlock: ErrorBlock = {
               type: "error",
               message: (err as Error).message
@@ -296,7 +309,10 @@ async runSafeCommand(
             const isToolUseMessage = message.type === "tool_use";
             const isChunkMessage = message.type === "message";
             const isUsageMessage = message.type === "usage";
-            if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage) {
+            const isThinkingMessage = message.type === "thinking";
+            const isRedactedThinkingMessage = message.type === "redacted_thinking";
+            const isSignatureDeltaMessage = message.type === "signature_delta";
+            if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage || isThinkingMessage || isRedactedThinkingMessage || isSignatureDeltaMessage) {
               emit(controller, message);
             } else if (isDeltaMessage) {
               for (const content of message.content) {
