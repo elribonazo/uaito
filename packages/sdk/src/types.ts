@@ -12,7 +12,6 @@ export enum HuggingFaceONNXModels {
   LMF2 = "onnx-community/LFM2-1.2B-ONNX"
 }
 export enum AnthropicModels {
-  'claude-4-opus' = "claude-opus-4-1-20250805",
   'claude-4-sonnet' = "claude-sonnet-4-20250514"
 }
 export enum OpenAIModels {
