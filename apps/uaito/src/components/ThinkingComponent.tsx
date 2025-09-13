@@ -7,44 +7,50 @@ export const ThinkingComponent: React.FC<{
   messages?: MessageState[];
   currentMessageId?: string;
 }> = ({ thinking, messages = [], currentMessageId }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [isThinkingComplete, setIsThinkingComplete] = useState(false);
   const [shouldFadeOut, setShouldFadeOut] = useState(false);
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
+  const [dots, setDots] = useState('');
+
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Measure content height on mount
+  // Animated dots effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev === '...' ? '' : prev + '.'));
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Measure content height
   useEffect(() => {
     if (containerRef.current && contentHeight === undefined) {
       setContentHeight(containerRef.current.scrollHeight);
     }
-  }, [contentHeight]);
+  }, [contentHeight, thinking]); // Update height when thinking changes
 
+  // Fade out logic
   useEffect(() => {
     if (!messages.length || !currentMessageId) return;
 
-    // Find the current thinking message
     const currentThinkingIndex = messages.findIndex(msg => msg.id === currentMessageId);
     if (currentThinkingIndex === -1) return;
 
-    // Check if there are any non-thinking messages after this thinking message
     const hasNonThinkingAfter = messages.slice(currentThinkingIndex + 1).some(msg => 
       msg.type !== 'thinking' && msg.type !== 'redacted_thinking'
     );
 
     if (hasNonThinkingAfter && !shouldFadeOut) {
-      // Start fade out animation
       setShouldFadeOut(true);
       
-      // Complete removal after animation
       const timer = setTimeout(() => {
         setIsThinkingComplete(true);
-      }, 800); // Match the animation duration
+      }, 500); // Reduced animation duration for simplicity
       return () => clearTimeout(timer);
     }
   }, [messages, currentMessageId, shouldFadeOut]);
 
-  // Don't render if thinking is complete
   if (isThinkingComplete) {
     return null;
   }
@@ -52,32 +58,24 @@ export const ThinkingComponent: React.FC<{
   return (
     <div 
       ref={containerRef}
-      className="relative w-full transition-all duration-700 ease-out overflow-hidden"
+      className="relative w-full transition-all duration-500 ease-out bg-gray-50 dark:bg-gray-800/30 rounded-lg border border-gray-200 dark:border-gray-700"
       style={{
         height: shouldFadeOut ? 0 : contentHeight || 'auto',
         opacity: shouldFadeOut ? 0 : 1,
         marginTop: shouldFadeOut ? 0 : '1rem',
-        paddingTop: shouldFadeOut ? 0 : '0.5rem',
-        paddingBottom: shouldFadeOut ? 0 : '0.5rem',
-        transform: shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)'
+        padding: shouldFadeOut ? 0 : '0.75rem 1rem',
+        transform: shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
+        overflow: shouldFadeOut ? 'hidden' : 'visible'
       }}
     >
-      <button 
-        className="flex items-center justify-start space-x-2 bg-transparent border-none outline-none focus:outline-none"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        type="button"
-      >
-        <LightBulbIcon className="w-5 h-5 text-yellow-400 animate-pulse" />
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Thinking...</span>
-      </button>
-      
-      {isHovered && thinking && (
-        <div className="absolute bottom-full left-0 mb-2 w-max max-w-md p-3 bg-gray-800 text-white text-xs rounded-lg shadow-lg z-10 break-words whitespace-pre-wrap">
-          <p className="font-semibold mb-1">Assistant's thought process:</p>
-          {thinking}
+      <div className="flex items-start space-x-3">
+        <LightBulbIcon className="w-5 h-5 text-yellow-400 animate-pulse flex-shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+            {thinking || 'Thinking'}{dots}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

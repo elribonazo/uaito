@@ -9,20 +9,15 @@ export enum HuggingFaceONNXModels {
   JANO = "onnx-community/Jan-nano-ONNX",
   QWEN3 = "onnx-community/Qwen3-0.6B-ONNX",
   Llama32 = "onnx-community/Llama-3.2-1B-Instruct-q4f16",
-  LMF2 = "onnx-community/LFM2-1.2B-ONNX",
+  LMF2 = "onnx-community/LFM2-1.2B-ONNX"
 }
-
 export enum AnthropicModels {
-  'claude-3-5-sonnet' = 'claude-3-5-sonnet-20240620',
-  'claude-3-haiku' = 'claude-3-haiku-20240307',
-  'claude-3-opus' = 'claude-3-opus-20240229',
-  'claude-4-sonnet' = 'claude-sonnet-4-20250514'
+  'claude-4-opus' = "claude-opus-4-1-20250805",
+  'claude-4-sonnet' = "claude-sonnet-4-20250514"
 }
-
 export enum OpenAIModels {
-  'gpt-4o' = 'gpt-4o',
+  'gpt-4o' = "gpt-4o"
 }
-
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;
