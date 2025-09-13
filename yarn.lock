@@ -7248,6 +7248,7 @@ __metadata:
     next-redux-wrapper: "npm:^8.1.0"
     nextjs-cors: "npm:^2.2.0"
     node-polyfill-webpack-plugin: "npm:^4.1.0"
+    playright: "npm:^0.0.22"
     postcss: "npm:^8.4.39"
     postcss-loader: "npm:^8.1.1"
     prettier: "npm:^3.3.3"
@@ -19246,6 +19247,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"playright@npm:^0.0.22":
+  version: 0.0.22
+  resolution: "playright@npm:0.0.22"
+  dependencies:
+    playwright: "npm:^1.12.2"
+    typescript: "npm:^4.1.2"
+  checksum: 10c0/86a0b6f996c635be2ac54b6358e56fc11cd1a74d13275e7586cc98a2a03b3b9e06590bc498adb77c3650cf62bd625c5c14cecda8ad5761c1fb8b2e14a021b889
+  languageName: node
+  linkType: hard
+
 "playwright-core@npm:1.55.0":
   version: 1.55.0
   resolution: "playwright-core@npm:1.55.0"
@@ -19255,7 +19266,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright@npm:^1.45.3":
+"playwright@npm:^1.12.2, playwright@npm:^1.45.3":
   version: 1.55.0
   resolution: "playwright@npm:1.55.0"
   dependencies:
@@ -23800,6 +23811,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:^4.1.2":
+  version: 4.9.5
+  resolution: "typescript@npm:4.9.5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/5f6cad2e728a8a063521328e612d7876e12f0d8a8390d3b3aaa452a6a65e24e9ac8ea22beb72a924fd96ea0a49ea63bb4e251fb922b12eedfb7f7a26475e5c56
+  languageName: node
+  linkType: hard
+
 "typescript@npm:~5.8.2":
   version: 5.8.3
   resolution: "typescript@npm:5.8.3"
@@ -23817,6 +23838,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/34d2a8e23eb8e0d1875072064d5e1d9c102e0bdce56a10a25c0b917b8aa9001a9cf5c225df12497e99da107dc379360bc138163c66b55b95f5b105b50578067e
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^4.1.2#optional!builtin<compat/typescript>":
+  version: 4.9.5
+  resolution: "typescript@patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/e3333f887c6829dfe0ab6c1dbe0dd1e3e2aeb56c66460cb85c5440c566f900c833d370ca34eb47558c0c69e78ced4bfe09b8f4f98b6de7afed9b84b8d1dd06a1
   languageName: node
   linkType: hard
 
@@ -23871,6 +23902,7 @@ __metadata:
     jiti: "npm:2.4.2"
     jsdom: "npm:^25.0.1"
     nx: "npm:21.4.1"
+    playright: "npm:^0.0.22"
     prettier: "npm:^3.5.3"
     tsup: "npm:^8.4.0"
     typedoc: "npm:^0.28.4"
