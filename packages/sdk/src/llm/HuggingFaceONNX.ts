@@ -180,29 +180,150 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
 
   private state: {
     buffer: string,
-    capturingToolCall: boolean
+    capturingToolCall: boolean,
+    inThinking: boolean,
+    openTag: '' | '<thinking>' | '<think>',
+    bufferTag: string,
+    carryVisible: string,
+    carryThinking: string,
   } = {
       buffer: '',
-      capturingToolCall: false
+      capturingToolCall: false,
+      inThinking: false,
+      openTag: '',
+      bufferTag: '',
+      carryVisible: '',
+      carryThinking: '',
     }
 
+  private processThinkingTags(delta: string) {
+    const state = this.state;
+    let s = (state.bufferTag || '') + (delta || '');
+    state.bufferTag = '';
+
+    const closeTagsByOpen: Record<string, string> = {
+      '<thinking>': '</thinking>',
+      '<think>': '</think>'
+    };
+
+    while (s.length > 0) {
+      if (!state.inThinking) {
+        const idxThinking = s.indexOf('<thinking>');
+        const idxThink = s.indexOf('<think>');
+        const hasOpen = idxThinking !== -1 || idxThink !== -1;
+        if (!hasOpen) {
+          state.carryVisible += s;
+          s = '';
+          break;
+        }
+        const idx = Math.min(...[idxThinking !== -1 ? idxThinking : Infinity, idxThink !== -1 ? idxThink : Infinity]);
+        const tag = idx === idxThinking ? '<thinking>' : '<think>';
+        if (idx > 0) {
+          state.carryVisible += s.slice(0, idx);
+        }
+        state.inThinking = true;
+        state.openTag = tag as '<thinking>' | '<think>';
+        s = s.slice(idx + tag.length);
+        continue;
+      } else {
+        const closeTag = closeTagsByOpen[state.openTag] || '</thinking>';
+        const closeIdx = s.indexOf(closeTag);
+        if (closeIdx === -1) {
+          state.carryThinking += s;
+          s = '';
+          break;
+        }
+        if (closeIdx > 0) {
+          state.carryThinking += s.slice(0, closeIdx);
+        }
+        state.inThinking = false;
+        state.openTag = '';
+        s = s.slice(closeIdx + closeTag.length);
+        continue;
+      }
+    }
+
+    // Keep at most a small potential tag prefix at the end for next round
+    const candidates = ['<thinking>', '</thinking>', '<think>', '</think>'];
+    const maxLen = Math.max(...candidates.map((t) => t.length));
+    const tail = (state.inThinking ? state.carryThinking : state.carryVisible).slice(-maxLen + 1);
+    for (const cand of candidates) {
+      const need = cand.length - 1;
+      if (tail && cand.startsWith(tail) && tail.length <= need) {
+        state.bufferTag = tail;
+        if (state.inThinking) {
+          state.carryThinking = state.carryThinking.slice(0, -tail.length);
+        } else {
+          state.carryVisible = state.carryVisible.slice(0, -tail.length);
+        }
+        break;
+      }
+    }
+  }
+
+  private takeThinkingChunk(): string {
+    const state = this.state;
+    const out = state.carryThinking;
+    state.carryThinking = '';
+    return out;
+  }
+
+  private takeVisibleChunk(): string {
+    const state = this.state;
+    const out = state.carryVisible;
+    state.carryVisible = '';
+    return out;
+  }
+
+
+
+
+  private thinkingId: string | null = null;
+
   private chunk(chunk: string): Message | null {
-    this.state.buffer += chunk;
-    this.currentMessageId ??= v4();
+    
+    this.processThinkingTags(chunk);
+
+    const thinkingText = this.takeThinkingChunk();
+    if (thinkingText) {
+      this.thinkingId ??= v4();
+      return {
+        id: this.thinkingId,
+        role: 'assistant',
+        type: 'thinking',
+        chunk: true,
+        content: [{
+          type: 'thinking',
+          thinking: thinkingText,
+          signature: ''
+        }]
+      };
+    }
+
+    
+
+    const visibleText = this.takeVisibleChunk();
+    if (visibleText) {
+      if (!this.state.buffer || this.state.buffer.length === 0) {
+        this.currentMessageId ??= v4();
+      }
+      this.state.buffer += visibleText;
+    }
+
 
     if (!this.state.capturingToolCall) {
-      const startIndex = this.state.buffer.indexOf('<|tool_call_start|>') !== -1? 
-        this.state.buffer.indexOf('<|tool_call_start|>') : 
+      const startIndex = this.state.buffer.indexOf('<|tool_call_start|>') !== -1?
+        this.state.buffer.indexOf('<|tool_call_start|>') :
         this.state.buffer.indexOf('<tool_call>');
       
       if (startIndex !== -1) {
+        const textPart = this.state.buffer.substring(0, startIndex);
         if (this.state.buffer.indexOf('<|tool_call_start|>') !== -1) {
           this.state.buffer = this.state.buffer.substring(startIndex + '<|tool_call_start|>'.length);
         } else if (this.state.buffer.indexOf('<tool_call>') !== -1) {
           this.state.buffer = this.state.buffer.substring(startIndex + '<tool_call>'.length);
         }
         this.state.capturingToolCall = true;
-        const textPart = this.state.buffer.substring(0, startIndex);
         if (textPart) {
           return {
             id: this.currentMessageId!,
@@ -216,8 +337,8 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     }
 
     if (this.state.capturingToolCall) {
-      const endIndex = this.state.buffer.indexOf('<|tool_call_end|>') !== -1? 
-        this.state.buffer.indexOf('<|tool_call_end|>') : 
+      const endIndex = this.state.buffer.indexOf('<|tool_call_end|>') !== -1?
+        this.state.buffer.indexOf('<|tool_call_end|>') :
         this.state.buffer.indexOf( '</tool_call>');
 
       if (endIndex !== -1) {
@@ -267,7 +388,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     }
     
     // If no tool call markers are processed, treat the buffer as text
-    if (!this.state.capturingToolCall && (chunk.indexOf('<|tool_call_start|>') === -1 && chunk.indexOf('<tool_call>') === -1)) {
+    if (!this.state.capturingToolCall) {
       const textToEmit = this.state.buffer;
       this.state.buffer = '';
       if (textToEmit) {
@@ -288,6 +409,11 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     this.log("createStream called.");
     this.state.buffer = '';
     this.state.capturingToolCall = false;
+    this.state.inThinking = false;
+    this.state.openTag = '';
+    this.state.bufferTag = '';
+    this.state.carryVisible = '';
+    this.state.carryThinking = '';
 
     let __past_key_values: any =null;
 
@@ -300,7 +426,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
             skip_prompt: true,
             skip_special_tokens: false,
             callback_function: (value: string) => {
-              controller.enqueue(value .replace(IM_END_TAG, "")
+              controller.enqueue(value.replace(IM_END_TAG, "")
               );
             },
           });

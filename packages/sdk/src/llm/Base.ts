@@ -8,7 +8,8 @@ import type {
   ToolResultBlock,
   ErrorBlock,
   ToolInputDelta,
-  BaseLLMCache
+  BaseLLMCache,
+  UsageBlock
 } from '../types';
 import { Runner } from '../types';
 import { v4 } from 'uuid';
@@ -213,8 +214,8 @@ async runSafeCommand(
                 }
                 await onTool.bind(this)(tChunk, this.options.signal);
                 const lastOutput = this.inputs[this.inputs.length - 1];
-                if (lastOutput.role !== "user" || lastOutput.content[0].type !== 'tool_result') {
-                    throw new Error("Expected to have a user reply with the tool response");
+                if (lastOutput.content[0].type !== 'tool_result') {
+                    throw new Error("Tool call finished but expected to have a user reply with the tool response");
                 }
   
                 if (lastOutput.content[0].type === 'tool_result') {
@@ -312,25 +313,44 @@ async runSafeCommand(
             const isThinkingMessage = message.type === "thinking";
             const isRedactedThinkingMessage = message.type === "redacted_thinking";
             const isSignatureDeltaMessage = message.type === "signature_delta";
+            let usageBlock: UsageBlock | null = null;
+
             if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage || isThinkingMessage || isRedactedThinkingMessage || isSignatureDeltaMessage) {
-              emit(controller, message);
+              for (const content of message.content) {
+                if (content.type === "usage") {
+                  const id =message.content.findIndex((c) => c.type === "usage");
+                  if (id !== -1) {
+                    usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
+                  }
+                }
+              }
+              if (message.content.length) {
+                emit(controller, message);
+
+              }
             } else if (isDeltaMessage) {
               for (const content of message.content) {
                 if (content.type === "usage") {
-                  const usageMessage = {
-                    id: v4(),
-                    role:'assistant',
-                    type: 'usage',
-                    content: [content]
-                  } as BChunk
-                  emit(controller, usageMessage)
-                } else if (content.type === "delta") {
-                  if (content.stop_reason === "max_tokens" || content.stop_reason === "end_turn") {
-                    emit(controller, message)
-                  } 
+                  const id = message.content.findIndex((c) => c.type === "usage");
+                  if (id !== -1) {
+                    usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
+                  }
                 }
               }
+              if (message.content.length) {
+                emit(controller, message);
+              }
             } 
+
+            if (usageBlock) {
+              const usageMessage = {
+                id: v4(),
+                role:'assistant',
+                type: 'usage',
+                content: [usageBlock]
+              } as BChunk
+              emit(controller, usageMessage);
+            }
           } 
         }
         reader.releaseLock()

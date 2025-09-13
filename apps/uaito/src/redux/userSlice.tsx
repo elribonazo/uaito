@@ -123,9 +123,9 @@ const userSlice = createSlice({
           { position: 'bottom-right', })
         return state
       }
-      if (message.type === "usage" && message.content[0].type === "usage") {
-        state.usage.input += message.content[0].input ?? 0;
-        state.usage.output += message.content[0].output ?? 0;
+      if (message.type === "usage") {
+        state.usage.input +=( message.content[0] as any).input ?? 0;
+        state.usage.output +=( message.content[0] as any).output ?? 0;
       } else if (message.type === "delta"){
         const [usageBlock] = message.content.filter((block) => block.type === "usage");
         const deltaBlocks = message.content.filter((block) => block.type === "delta");
@@ -148,7 +148,7 @@ const userSlice = createSlice({
                 state.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
               } else if (state.messages[existingIndex]?.content[0].type === "thinking") {
                 state.messages[existingIndex].content[0].thinking += (message.content[0] as any).thinking
-              }
+              } 
           } else {
             state.messages.push(message)
           }

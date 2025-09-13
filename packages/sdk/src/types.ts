@@ -15,7 +15,7 @@ export enum AnthropicModels {
   'claude-4-sonnet' = "claude-sonnet-4-20250514"
 }
 export enum OpenAIModels {
-  'gpt-4o' = "gpt-4o"
+  'gpt-5' = "gpt-5-nano-2025-08-07"
 }
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;

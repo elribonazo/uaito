@@ -2,14 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { AbortController } from 'abort-controller';
 import NextCors from 'nextjs-cors';
 import {SHA512} from '@stablelib/sha512';
-import { Agent, AnthropicModels, AnthropicOptions, ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, OpenAIModels, TextBlock, Tool } from '@uaito/sdk';
+import { Agent, AnthropicModels, AnthropicOptions, ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, OpenAIModels, Tool } from '@uaito/sdk';
 import { browseWebPageTool, createFileTool, createFolderTool, editAndApplyTool, executeCommandTool, readFileTool, tavilySearch } from '@/ai/tools';
 import { findUserByEmail, IUser } from "@/db/models/User"
 import { createUsage } from '@/db/models/Usage';
 import { getSessionUser } from '@/utils/getSessionUser';
 import db from '@/db';
 import { AutomatedEngineer } from '@/ai/agents/AutomatedEngineer';
-import { createSystemPrompt } from '@/ai/prompts/AutomatedEngineer';
 import { onTool as SystemOnTool } from '../../../../ai/agents/onTool';
 import { ensureUserExists } from '../../auth/[...nextauth]';
 

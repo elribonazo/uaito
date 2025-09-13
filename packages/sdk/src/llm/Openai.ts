@@ -1,8 +1,8 @@
 import OpenAIAPI from 'openai';
 import { v4 } from 'uuid';
 import { BaseLLM } from "./Base";
-import {
-  LLMProvider,
+import { LLMProvider } from "../types";
+import type {
   OpenAIOptions,
   Message,
   MessageInput,
@@ -32,8 +32,8 @@ import type {
   ResponseCompletedEvent,
   ResponseErrorEvent,
 } from 'openai/resources/responses/responses';
-import { ToolInputDelta } from '../types';
-import { Stream } from 'openai/streaming';
+import type { ToolInputDelta } from '../types';
+import type { Stream } from 'openai/streaming';
 import { MessageArray } from '..';
 
 
@@ -47,6 +47,18 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
   public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
+
+  // Track function calls in the current turn
+  private functionCallsByItemId: Record<string, { name?: string, call_id?: string }> = {};
+
+  // Internal state for extracting <thinking> tags
+  private _thinkingState?: {
+    inThinking: boolean,
+    openTag: '' | '<thinking>' | '<think>',
+    bufferTag: string,
+    carryVisible: string,
+    carryThinking: string,
+  };
 
   constructor(
     { options }: { options: OpenAIOptions },
@@ -143,18 +155,117 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   }
 
 
-  get llmInputs() {
+  get llmInputs(): ResponseInputItem[] {
     return this.inputs
-    .flatMap((input) => this.fromInputToParam(input) as any)
-    .filter((c: any) => {
-      if ((c as any).type === 'message') {
-        const content = (c as any).content ?? [];
-        if (Array.isArray(content) && content.length === 0) {
-          return false;
+      .map((input) => this.fromInputToParam(input))
+      .filter((c) => {
+        if (c.type === 'message') {
+          const content = (c as ResponseInputItem & { content?: unknown[] }).content ?? [];
+          if (Array.isArray(content) && content.length === 0) {
+            return false;
+          }
         }
+        return true;
+      });
+  }
+
+  /**
+   * Internal state for extracting <thinking> / <think> tags from streamed text.
+   */
+  private get thinkingState() {
+    this._thinkingState ??= {
+      inThinking: false,
+      openTag: '',
+      bufferTag: '',
+      carryVisible: '',
+      carryThinking: '',
+    };
+    return this._thinkingState as {
+      inThinking: boolean,
+      openTag: '' | '<thinking>' | '<think>',
+      bufferTag: string,
+      carryVisible: string,
+      carryThinking: string,
+    };
+  }
+
+  private processThinkingDelta(delta: string) {
+    const state = this.thinkingState;
+    let s = (state.bufferTag || '') + (delta || '');
+    state.bufferTag = '';
+
+    const closeTagsByOpen: Record<string, string> = {
+      '<thinking>': '</thinking>',
+      '<think>': '</think>'
+    };
+
+    while (s.length > 0) {
+      if (!state.inThinking) {
+        const idxThinking = s.indexOf('<thinking>');
+        const idxThink = s.indexOf('<think>');
+        const hasOpen = idxThinking !== -1 || idxThink !== -1;
+        if (!hasOpen) {
+          state.carryVisible += s;
+          s = '';
+          break;
+        }
+        const idx = Math.min(...[idxThinking !== -1 ? idxThinking : Infinity, idxThink !== -1 ? idxThink : Infinity]);
+        const tag = idx === idxThinking ? '<thinking>' : '<think>';
+        if (idx > 0) {
+          state.carryVisible += s.slice(0, idx);
+        }
+        state.inThinking = true;
+        state.openTag = tag as '<thinking>' | '<think>';
+        s = s.slice(idx + tag.length);
+        continue;
+      } else {
+        const closeTag = closeTagsByOpen[state.openTag] || '</thinking>';
+        const closeIdx = s.indexOf(closeTag);
+        if (closeIdx === -1) {
+          state.carryThinking += s;
+          s = '';
+          break;
+        }
+        if (closeIdx > 0) {
+          state.carryThinking += s.slice(0, closeIdx);
+        }
+        state.inThinking = false;
+        state.openTag = '';
+        s = s.slice(closeIdx + closeTag.length);
+        continue;
       }
-      return true;
-    })
+    }
+
+    // Keep at most a small potential tag prefix at the end for next round
+    const candidates = ['<thinking>', '</thinking>', '<think>', '</think>'];
+    const maxLen = Math.max(...candidates.map((t) => t.length));
+    const tail = (state.inThinking ? state.carryThinking : state.carryVisible).slice(-maxLen + 1);
+    for (const cand of candidates) {
+      const need = cand.length - 1;
+      if (tail && cand.startsWith(tail) && tail.length <= need) {
+        state.bufferTag = tail;
+        if (state.inThinking) {
+          state.carryThinking = state.carryThinking.slice(0, -tail.length);
+        } else {
+          state.carryVisible = state.carryVisible.slice(0, -tail.length);
+        }
+        break;
+      }
+    }
+  }
+
+  private takeThinkingChunk(): string {
+    const state = this.thinkingState;
+    const out = state.carryThinking;
+    state.carryThinking = '';
+    return out;
+  }
+
+  private takeVisibleChunk(): string {
+    const state = this.thinkingState;
+    const out = state.carryVisible;
+    state.carryVisible = '';
+    return out;
   }
 
    async performTaskStream(
@@ -162,23 +273,23 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
-
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
     
     const tools = this.tools && this.tools.length > 0 ? this.tools : undefined;
 
     const request: ResponseCreateParamsStreaming = {
       model: this.options.model,
-      input: this.llmInputs as any,
+      input: this.llmInputs as ResponseCreateParamsStreaming['input'],
       instructions: system,
       max_output_tokens: this.maxTokens,
       stream: true,
       tools,
     };
 
-    // Reset usage
+    // Reset usage and per-turn state
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
+    this.functionCallsByItemId = {};
 
     const createStream = async (params: ResponseCreateParamsStreaming) => {
       return this.retryApiCall(async () => {
@@ -202,7 +313,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       async () => {
         const newStream = await createStream({
           ...request,
-          input: this.llmInputs as any,
+          input: this.llmInputs as ResponseCreateParamsStreaming['input'],
           stream: true,
         });
         return this.transformStream<ResponseStreamEvent, Message>(
@@ -221,36 +332,71 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   private chunk(
     chunk: ResponseStreamEvent,
   ): Message | null {
-    // Initialize function call cache map
-    (this.data as any).__functionCallsByItemId ??= {} as Record<string, { name?: string, call_id?: string }>;
-
-    // Text streaming
+    // Text streaming (with thinking tag extraction)
     if (chunk.type === 'response.output_text.delta') {
       const { delta } = chunk as ResponseTextDeltaEvent;
       // Ensure a stable message id for all text deltas in this turn
       if (!this.cache.chunks) {
         this.cache.chunks = v4();
       }
-      const textBlock: TextBlock = {
-        type: 'text',
-        text: delta,
-      };
-      return {
-        id: this.cache.chunks!,
-        role: 'assistant',
-        type: 'message',
-        chunk: true,
-        content: [textBlock]
-      };
+
+      // Parse and buffer by thinking / visible
+      this.processThinkingDelta(delta || '');
+
+      const state = this.thinkingState;
+
+      // Emit pending visible or thinking fairly; prioritize thinking when we're inside
+      let toEmitType: 'thinking' | 'visible' | null = null;
+      if (state.carryThinking.length > 0) {
+        toEmitType = 'thinking';
+      } else if (state.carryVisible.length > 0) {
+        toEmitType = 'visible';
+      }
+
+      if (toEmitType === 'thinking') {
+        const thinkingText = this.takeThinkingChunk();
+        return {
+          id: this.cache.chunks as string,
+          role: 'assistant',
+          type: 'thinking',
+          chunk: true,
+          content: [
+            {
+              type: 'thinking',
+              thinking: thinkingText,
+              signature: ''
+            }
+          ]
+        };
+      }
+
+      if (toEmitType === 'visible') {
+        const textOut = this.takeVisibleChunk();
+        if (textOut.length === 0) return null;
+        const textBlock: TextBlock = {
+          type: 'text',
+          text: textOut,
+        };
+        const id = this.cache.chunks as string;
+        return {
+          id,
+          role: 'assistant',
+          type: 'message',
+          chunk: true,
+          content: [textBlock]
+        };
+      }
+
+      return null;
     }
 
     // Function call item added (gives us name and call_id)
     if (chunk.type === 'response.output_item.added') {
       const { item } = chunk as ResponseOutputItemAddedEvent;
       const outputItem = item as ResponseOutputItem;
-      if ((outputItem as any).type === 'function_call') {
-        const fc = outputItem as ResponseFunctionToolCallItem;
-        (this.data as any).__functionCallsByItemId[fc.id] = { name: fc.name, call_id: fc.call_id };
+      if (this.isFunctionCallItem(outputItem)) {
+        const fc = outputItem;
+        this.functionCallsByItemId[fc.id] = { name: fc.name, call_id: fc.call_id };
         const tool_delta: ToolInputDelta = {
           id: fc.id,
           name: fc.name,
@@ -274,7 +420,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       const itemId: string = ev.item_id;
       const current: ToolInputDelta = (this.cache.toolInput as ToolInputDelta) ?? {
         id: itemId,
-        name: (this.data as any).__functionCallsByItemId[itemId]?.name,
+        name: this.functionCallsByItemId[itemId]?.name,
         type: 'tool_delta',
         partial: '',
       };
@@ -292,7 +438,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     if (chunk.type === 'response.function_call_arguments.done') {
       const ev = chunk as ResponseFunctionCallArgumentsDoneEvent;
       const itemId: string = ev.item_id;
-      const meta = (this.data as any).__functionCallsByItemId[itemId] ?? {};
+      const meta = this.functionCallsByItemId[itemId] ?? {};
       const partial = (this.cache.toolInput as ToolInputDelta | null)?.partial ?? ev.arguments ?? '{}';
       const toolUseBlock: ToolUseBlock = {
         id: meta.call_id ?? itemId,
@@ -318,6 +464,16 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       }
       // Reset chunk id on turn completion
       this.cache.chunks = null;
+      // Reset thinking state for next turn
+      const state = this.thinkingState;
+      state.inThinking = false;
+      state.openTag = '';
+      state.bufferTag = '';
+      state.carryThinking = '';
+      state.carryVisible = '';
+      // Reset function calls map
+      this.functionCallsByItemId = {};
+
       const deltaBlock: DeltaBlock = {
         type: 'delta',
         stop_reason: 'end_turn',
@@ -352,5 +508,9 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     }
 
     return null;
+  }
+
+  private isFunctionCallItem(item: ResponseOutputItem): item is ResponseFunctionToolCallItem {
+    return (item as { type?: string }).type === 'function_call';
   }
 } 

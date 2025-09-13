@@ -81,30 +81,17 @@ export class Agent<T extends LLMProvider> {
     }
 
     private async getClient(): Promise<BaseLLM<any, BaseLLMOptions>> {
+        let client: new ({ options }: {options:AgentTypeToOptions[LLMProvider]}, onTool?: OnTool) => BaseLLM<LLMProvider, BaseLLMOptions>;
         if (this.type === LLMProvider.Anthropic) {
-            const Anthropic = (await import("../llm/Anthropic")).Anthropic;
-            this.client ??= new Anthropic({
-                options: this.options as AnthropicOptions
-            },
-                this.onTool?.bind(this),
-            ) as AgentTypeToClass[T];
+            client = (await import("../llm/Anthropic")).Anthropic;
         } else if (this.type === LLMProvider.OpenAI) {
-            const OpenAI = (await import("../llm/Openai")).OpenAI;
-            this.client ??= new OpenAI({
-                options: this.options as OpenAIOptions
-            },
-                this.onTool?.bind(this)
-            ) as AgentTypeToClass[T];
+            client = (await import("../llm/Openai")).OpenAI;
         } else if (this.type === LLMProvider.HuggingFaceONNX) {
-            const HuggingFace = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
-            this.client ??= new HuggingFace({
-                options: this.options as HuggingFaceONNXOptions
-            },
-                this.onTool?.bind(this)
-            ) as AgentTypeToClass[T];
+            client = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
         } else {
             throw new Error("not implemented")
         }
+        this.client = new client({ options: this.options}, this.onTool?.bind(this)) as AgentTypeToClass[T];
         this.client.log = this.log.bind(this);
         return this.client;
     }
@@ -143,10 +130,7 @@ export class Agent<T extends LLMProvider> {
         const {cache:{tokens: usage}} = client;
         const {systemPrompt, chainOfThought} = this;
         const response = await client.performTaskStream(prompt, chainOfThought, systemPrompt);
-        return {
-            usage,
-            response
-        }
+        return {  usage,    response  }
     }
 
     /**
