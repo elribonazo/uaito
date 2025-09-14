@@ -41,8 +41,8 @@ COPY packages/build/package.json ./packages/build/
 COPY packages/sdk/package.json ./packages/sdk/
 COPY apps/uaito/package.json ./apps/uaito/
 COPY apps/electron/package.json ./apps/electron/
-COPY playground/nextjs/package.json ./playground/nextjs/
-COPY playground/node/package.json ./playground/node/
+COPY packages/client/package.json ./packages/client/
+
 
 # Install all workspace dependencies
 RUN yarn install --immutable
