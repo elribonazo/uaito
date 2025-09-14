@@ -1,0 +1,24 @@
+{
+  "name": "@uaito/client",
+  "version": "0.0.1",
+  "description": "API client for Uaito platform",
+  "main": "./build/index.js",
+  "module": "./build/index.mjs",
+  "types": "./build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "rm -rf build && sh build.sh",
+    "clean": "rm -rf build"
+  },
+  "dependencies": {
+    "@uaito/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  },
+  "author": "Uaito",
+  "license": "MIT"
+}

@@ -8,6 +8,7 @@
   "packageManager": "yarn@4.9.1",
   "workspaces": [
     "packages/sdk",
+    "packages/client",
     "apps/uaito",
     "apps/electron",
     "packages/build"
@@ -15,7 +16,7 @@
   "scripts": {
     "clean": "npx nx run-many --target=clean --verbose && rm -rf node_modules",
     "docs": "npx typedoc",
-    "build": "npx nx run-many --verbose -p @uaito/build @uaito/sdk @uaito/nextjs @uaito/node @uaito/site  --target=build",
+    "build": "npx nx run-many --verbose -p @uaito/build @uaito/sdk @uaito/client @uaito/site  --target=build",
     "test": "npx nx run-many --target=test --verbose",
     "lint": "yarn biome lint",
     "lint:ci": "yarn biome ci",

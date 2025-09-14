@@ -1,0 +1,137 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "sync": {
+    "applyChanges": true,
+    "generatorOptions": {
+    }
+  },
+  "release": {
+    "releaseTagPattern": "{projectName}@{version}",
+    "git": {
+      "commit": true,
+      "commitMessage": "chore(release): {version} [skip ci]"
+    },
+    "projectsRelationship": "independent",
+    "version": {
+      "preVersionCommand": "sh release.sh",
+      "conventionalCommits": true,
+      "fallbackCurrentVersionResolver": "disk"
+    },
+    "changelog": {
+      "projectChangelogs": {
+        "createRelease": "github"
+      },
+      "github": {
+        "repo": "trust0/ridb"
+      }
+    },
+    "projects": [
+      "packages/*"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/build/**",
+        "{projectRoot}/.next/**",
+        "{projectRoot}/dist/**"
+      ],
+      "cache": true
+    },
+    "docs": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
+    },
+    "lint": {
+      "cache": false
+    },
+    "dev": {
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    },
+    "start": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
+    },
+    "test": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
+    },
+    "pods": {
+      "cache": false
+    },
+    "splashscreen": {
+      "cache": false
+    },
+    "types": {
+      "cache": false
+    }
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      }
+    },
+    {
+      "plugin": "@nx/react-native/plugin",
+      "options": {
+        "startTargetName": "react-native:start",
+        "upgradeTargetName": "update",
+        "bundleTargetName": "bundle",
+        "podInstallTargetName": "pod-install",
+        "runIosTargetName": "run-ios",
+        "runAndroidTargetName": "run-android",
+        "buildIosTargetName": "build-ios",
+        "buildAndroidTargetName": "build-android",
+        "syncDepsTargetName": "sync-deps"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "eslint:lint"
+      }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "vite:test",
+        "serveTargetName": "serve",
+        "devTargetName": "dev",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "vite:typecheck",
+        "buildDepsTargetName": "vite:build-deps",
+        "watchDepsTargetName": "vite:watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
+    }
+  ]
+}
