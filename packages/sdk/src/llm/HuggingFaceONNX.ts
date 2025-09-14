@@ -195,6 +195,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       .filter((m) => m.content.length >  0 && m.content[0].type !== 'tool_use' && m.role !== 'tool')
       .map(this.fromInputToParam);
 
+      debugger;
     return this.tokenizer.apply_chat_template(currentInputs, {
       add_generation_prompt: true,
       return_dict: true,
@@ -310,7 +311,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   private chunk(chunk: string): Message | null {
-    
+    this.log("KChunk"+  JSON.stringify(chunk, null, 2));
     this.processThinkingDelta(chunk);
 
     const state = this.thinkingState;
@@ -478,8 +479,12 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
             skip_prompt: true,
             skip_special_tokens: false,
             callback_function: (value: string) => {
-              controller.enqueue(value.replace(IM_END_TAG, "")
-              );
+              const chunk = value.replace(IM_END_TAG, "");
+              if (chunk !== "\n") {
+                controller.enqueue(value.replace(IM_END_TAG, ""));
+
+              }
+              
             },
           });
       
@@ -515,13 +520,12 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
            
              this.cache.textId= null
              __past_key_values = past_key_values;
+             controller.close();
           } catch { }
           
         } catch (e) {
           this.log(`Model generation error: ${e}`);
           controller.error(e);
-        } finally {
-          controller.close();
         }
       },
     });
@@ -554,11 +558,11 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.log("Starting performTaskStream");
     await this.load();
-
+    debugger;
     this.addDefaultItems(prompt, system, chainOfThought);
     const tensor = this.getTensorData();
     this.log(`Tensor created. Shape: ${tensor.input_ids.dims}`);
-
+    debugger;
     const rawStream = await this.createStream(tensor);
     const transformedStream = await this.transformStream<string, Message>(
       rawStream,

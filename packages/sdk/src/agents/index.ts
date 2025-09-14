@@ -84,7 +84,7 @@ export class Agent<T extends LLMProvider> {
     }
 
     private async loadClient(Client:new ({ options }: {options:AgentTypeToOptions[LLMProvider]}, onTool?: OnTool) => BaseLLM<LLMProvider, BaseLLMOptions>): Promise<AgentTypeToClass[T]> {
-        this.client ??= new Client({ options: this.options}, this.onTool?.bind(this)) as AgentTypeToClass[T];
+        this.client = new Client({ options: this.options}, this.onTool?.bind(this)) as AgentTypeToClass[T];
         this.client.log = this.log.bind(this);
         return this.client;
     }

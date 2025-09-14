@@ -218,13 +218,11 @@ async runSafeCommand(
                     throw new Error("Tool call finished but expected to have a user reply with the tool response");
                 }
   
-                if (lastOutput.content[0].type === 'tool_result') {
-                  lastOutput.content[0] = {
-                    ...lastOutput.content[0],
-                    name: (tChunk.content[0] as ToolUseBlock).name
-                  } as ToolResultBlock;
-                }
-                this.cache.toolInput = null;
+                lastOutput.content[0] = {
+                  ...lastOutput.content[0],
+                  name: (tChunk.content[0] as ToolUseBlock).name
+                } as ToolResultBlock;
+                debugger;
                 controller.enqueue({
                   id: v4(),
                   role:'user',
@@ -232,6 +230,8 @@ async runSafeCommand(
                   type: 'tool_result'
                 });
 
+                this.cache.toolInput = null;
+           
               
                 const newStream = await getNext.bind(this)();
                 const oldReader = reader;
@@ -242,6 +242,7 @@ async runSafeCommand(
             } 
           } catch (err: unknown) {
             console.error('Error in transformAutoMode:', err);
+            debugger;
             const errorBlock: ErrorBlock = {
               type: "error",
               message: (err as Error).message

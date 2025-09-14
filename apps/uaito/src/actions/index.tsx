@@ -176,21 +176,18 @@ export const streamMessage = createAsyncThunk(
 
       dispatch(setDownloadProgress(0));
 
-     
+      const imageAgent = new EdgeRuntimeAgentImage({});
+
 
       const newAgent = new EdgeRuntimeAgent(
         hfOptions,      
         async function (this: Agent<LLMProvider.Local>, message: Message) {
-          const imageAgent = new EdgeRuntimeAgentImage({});
           const toolUse = message.content.find(m => m.type === 'tool_use');
           const id = message.id;
           
           if (toolUse?.name === 'generateImage') {
-
             const input = toolUse?.input as { prompt: string };
             const { response } = await imageAgent.performTask(input.prompt);
-
-
             const toolResult: Message = {
               ...message,
               id,
