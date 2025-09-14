@@ -2,11 +2,12 @@
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { Session } from "next-auth";
-import { Agent, HuggingFaceONNXModels, HuggingFaceONNXOptions, LLMProvider, LOG_ANSI_BLUE, Message, MessageArray, MessageInput, OnTool } from "@uaito/sdk";
+import { Agent, HuggingFaceONNXModels, HuggingFaceONNXOptions, LLMProvider, LOG_ANSI_BLUE, Message, MessageArray, MessageInput, OnTool, ToolResultBlock } from "@uaito/sdk";
 import { v4 } from 'uuid';
 
 import type { AppDispatch } from "@/redux/store";
 import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
+import { EdgeRuntimeAgent, EdgeRuntimeAgentImage } from "@/ai/agents/EdgeRuntime";
 
 interface StreamInput {
   agent?: string,
@@ -20,64 +21,15 @@ interface StreamInput {
 }
 
 const withWebGPU = [
-  LLMProvider.HuggingFaceONNX
+  LLMProvider.Local,
 ]
-
-class EdgeAgent extends Agent<LLMProvider.HuggingFaceONNX> {
-  constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined, color?: string, name?: string) {
-    super(LLMProvider.HuggingFaceONNX, options, onTool, color, name);
-  }
-
-  get systemPrompt() {  
-    return `Your name is Uaito.
-You are an advanced AI assistant equipped with specialized tools to enhance query resolution. Your responses should be concise, helpful, and factually accurate.
-
-### Key Guidelines
-- **Internal Knowledge First**: Only use tools if the user's request explicitly requires information, computation, data retrieval, or verification that exceeds your internal knowledge or capabilities. For questions you can answer directly from your training data (up to your knowledge cutoff), respond immediately without tools.
-- **Step-by-Step Reasoning**: For every user query, think step-by-step in your internal reasoning (enclosed in <thinking> tags, which are not shown to the user). Analyze the query, check conversation history for context, determine if tools are strictly necessary, and plan your approach. If tools are needed, select the most relevant one(s) and explain why in your thinking.
-- **Conversation History**: Always reference the full conversation history, including past user messages, your responses, tool calls, and their results. Use this to maintain context, chain operations logically, avoid redundant tool calls, and build on previous steps. If a similar tool was used recently and its result is still valid/relevant, reference it instead of re-running unless the query demands fresh data or recomputation.
-- **Multi-Step Processes**: Break down complex queries into sequential steps. Use tools iteratively across turns if needed (e.g., use one tool's output as input for another). Do not attempt to resolve everything in one response if it requires chaining.
-- **Efficiency and Relevance**: Prioritize the fewest, most targeted tool calls. Invoke multiple tools in parallel only if they provide independent value without overlap. Craft precise arguments to get focused outputs.
-- **Error Handling**: If a tool returns an error, describe the issue clearly in your response, suggest alternatives (e.g., rephrasing the query or using a different tool), and do not fabricate results.
-- **Final Response**: After reasoning (and any tool calls), provide a direct, user-facing answer. If tools were used, incorporate their results seamlessly without mentioning the tools unless relevant to the explanation.
-
-### Tool Usage Format
-To use tools, output function calls in this exact XML format before your final response. Use <tool_call> and </tool_call> tags. You can call multiple tools in sequence or parallel by listing them one after another.
-Do not escape arguments; they are parsed as plain text. After tool results are provided (in the next system message), continue reasoning based on them and output your final response without further tool calls unless needed.
-
-If no tools are required, skip tool calls and go straight to your response.
-
-### Response Structure
-- Start with <think>your step-by-step reasoning here</think> (internal only).
-- If using tools, output the tool call(s) immediately after thinking.
-- After tool results (in subsequent interactions), end with your final, user-facing response. Do not include thinking or tool calls in the final output to the user.
-
-Maintain neutrality, avoid verbosity, and focus on delivering value.`;
-  }
-
-  get chainOfThought() {
-    return `Answer the user's request using relevant tools only if the tool exists. 
-Before calling a tool, do some analysis within <thinking></thinking> tags. 
-1. First, determine if you have access to the requested tool.
-2. Second, think about which of the provided tools is the relevant tool to answer the user's request. 
-3. Third, go through each of the required parameters of the relevant tool and determine if the user has directly provided or given enough information to infer a value. 
-When deciding if the parameter can be inferred, carefully consider all the context to see if it supports a specific value.
-If all of the required parawmeters are present or can be reasonably inferred, close the thinking tag and proceed with the tool call. 
-BUT, if one of the values for a required parameter is missing, 
-DO NOT invoke the function (not even with fillers for the missing params) and instead, ask the user to provide the missing parameters. 
-DO NOT ask for more information on optional parameters if it is not provided.
-DO NOT reflect on the quality of the returned search results in your response.`;
-  }
-}
 
 async function processStream(
   stream: ReadableStream<Uint8Array>,
   session: Session,
   dispatch: AppDispatch
 ) {
-  let buffer = '';
   const reader = stream.getReader();
-  const decoder = new TextDecoder();
   const delimiter = "<-[*0M0*]->";
 
   while (true) {
@@ -86,25 +38,18 @@ async function processStream(
       break;
     }
 
-    buffer += decoder.decode(value, { stream: true });
+    const message :Message= JSON.parse(Buffer.from(value).toString().replace(delimiter, ''));
     
-    let delimiterIndex: number | undefined;
-    while ((delimiterIndex = buffer.indexOf(delimiter)) !== -1) {
-      const message = buffer.slice(0, delimiterIndex);
-      buffer = buffer.slice(delimiterIndex + delimiter.length);
-      
-      if (message) {
-        try {
-          const parsed: Message = JSON.parse(message);
-          dispatch(
-            pushChatMessage({
-              session,
-              chatMessage: { message: parsed },
-            })
-          );
-        } catch (err) {
-          console.error("Failed to parse message:", err);
-        }
+    if (message) {
+      try {
+        dispatch(
+          pushChatMessage({
+            session,
+            chatMessage: { message: message },
+          })
+        );
+      } catch (err) {
+        console.error("Failed to parse message:", err);
       }
     }
   }
@@ -137,7 +82,7 @@ export const streamMessage = createAsyncThunk(
       dispatch,
     } = options;
     try {
-      const provider = options.provider ?? LLMProvider.HuggingFaceONNX;
+      const provider = options.provider ?? LLMProvider.Local;
       const agent = options.agent ?? 'orquestrator';
       const userMessage: Message =  {
         role:'user',
@@ -196,17 +141,17 @@ export const streamMessage = createAsyncThunk(
         device,
         tools: [
           {
-            name: "executeCommand",
-            description: "Execute commands in a unix shell. This tool should be used when you need to run code and see its output or check for errors. All code execution happens exclusively in this isolated environment. The tool will return the standard output, standard error, and return code of the executed code. Long-running processes will return a process ID for later management.",
+            name: "generateImage",
+            description: "Generate an image based on a prompt. This tool should be used when you need to generate an image based on a prompt.",
             input_schema: {
               type: "object",
               properties: {
-                code: {
+                prompt: {
                   type: "string",
-                  description: "The code to run in the unix environment. Make sure that it is a valid unix command"
+                  description: "A detailed prompt describing the picture, applying the visual style and quality of the picture."
                 }
               },
-              required: ["code"]
+              required: ["prompt"]
             }
           }
         ],
@@ -223,26 +168,63 @@ export const streamMessage = createAsyncThunk(
 
       dispatch(setDownloadProgress(0));
 
-      const newAgent = new EdgeAgent(
+     
+
+      const newAgent = new EdgeRuntimeAgent(
         hfOptions,      
-        async function (this: Agent<LLMProvider.HuggingFaceONNX>, message: Message) {
+        async function (this: Agent<LLMProvider.Local>, message: Message) {
+          const imageAgent = new EdgeRuntimeAgentImage({});
           const toolUse = message.content.find(m => m.type === 'tool_use');
-          this.client.inputs.push({
-            ...message,
-            type: 'tool_result',
-            content: [
-              {
-                name: (toolUse as any).name,
-                type: 'tool_result',
-                tool_use_id:(toolUse as any).id,
-                content:[{
-                  type: 'text',
-                  text: 'Hello, world!'
-                }]
+          const id = message.id;
+          
+          if (toolUse?.name === 'generateImage') {
+
+            const input = toolUse?.input as { prompt: string };
+            const { response } = await imageAgent.performTask(input.prompt);
+
+
+            const toolResult: Message = {
+              ...message,
+              id,
+              type: 'tool_result',
+              content: [
+                {
+                  name: (toolUse as any).name,
+                  type: 'tool_result',
+                  tool_use_id:id,
+                  content:[]
+                } as ToolResultBlock
+              ],
+              role: "user"
+            }
+            for await (const chunk of response) {
+              for (const content of chunk.content) {
+                (toolResult as any).content[0].content.push(content)
               }
-            ],
-            role: "user"
-          });
+            }
+
+            
+            this.client.inputs.push(toolResult);
+
+          } else {
+            this.client.inputs.push({
+              ...message,
+              id,
+              type: 'tool_result',
+              content: [
+                {
+                  name: (toolUse as any).name,
+                  type: 'tool_result',
+                  tool_use_id:id,
+                  content:[{
+                    type: 'text',
+                    text: 'Hello, world!'
+                  }]
+                }
+              ],
+              role: "user"
+            });
+          }
          },
         LOG_ANSI_BLUE,
         'EdgeAgent'
@@ -253,14 +235,13 @@ export const streamMessage = createAsyncThunk(
 
 
 
-      const __agent: Agent<LLMProvider.HuggingFaceONNX> = agents.get(`${provider}-${agent}`);
+      const __agent: Agent<LLMProvider.Local> = agents.get(`${provider}-${agent}`);
       const { response } = await __agent.performTask(prompt);
       
       // Convert ReadableStream<Message> to ReadableStream<Uint8Array>
       const uint8ArrayStream = new ReadableStream<Uint8Array>({
         start: async (controller) => {
           const reader = response.getReader();
-          
           try {
             while (true) {
               const { done, value } = await reader.read();
@@ -268,8 +249,7 @@ export const streamMessage = createAsyncThunk(
                 controller.close();
                 break;
               }
-              // Serialize the Message to JSON and encode as Uint8Array
-              const jsonString = JSON.stringify(value) + "<-[*0M0*]->";
+              const jsonString = JSON.stringify(value);
               const uint8Array = new TextEncoder().encode(jsonString);
               controller.enqueue(uint8Array);
             }

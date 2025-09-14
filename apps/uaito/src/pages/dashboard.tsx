@@ -78,7 +78,7 @@ const processDailyData = (usage: IUsage[]) => {
 const hasMultipleDaysData = (usage: IUsage[]): boolean => {
   if (usage.length === 0) return false;
   const uniqueDays = new Set(usage.map(entry => new Date(entry.createdAt).toDateString()));
-  debugger;
+  ;
   return uniqueDays.size > 1;
 };
 
@@ -289,7 +289,7 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
     </div>;
   }
 
-  debugger;
+  ;
 
   return (
     <div className="min-h-screen flex flex-col relative bg-gray-900 text-white font-roboto">

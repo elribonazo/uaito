@@ -4,6 +4,7 @@ import type { Anthropic } from "./llm/Anthropic";
 import type { OpenAI } from "./llm/Openai";
 import type { Agent } from "./agents";
 import type { HuggingFaceONNX } from './llm/HuggingFaceONNX';
+import { HuggingFaceONNXTextToImage } from './llm/HuggingFaceONNXImage';
 
 export enum HuggingFaceONNXModels {
   JANO = "onnx-community/Jan-nano-ONNX",
@@ -57,7 +58,8 @@ export type BaseLLMCache = {
 export enum LLMProvider {
   OpenAI = 'OpenAI',
   Anthropic = 'Anthropic',
-  HuggingFaceONNX = 'HuggingFaceONNX'
+  Local = 'Local',
+  LocalImage = 'LocalImageGeneration'
 }
 
 export type OnTool<T extends LLMProvider = LLMProvider> = (
@@ -76,13 +78,15 @@ export interface SearchReplaceBlock {
 export type AgentTypeToOptions = {
     [LLMProvider.Anthropic]: AnthropicOptions;
     [LLMProvider.OpenAI]: OpenAIOptions;
-    [LLMProvider.HuggingFaceONNX]: HuggingFaceONNXOptions;
+    [LLMProvider.Local]: HuggingFaceONNXOptions;
+    [LLMProvider.LocalImage]: {};
   };
 
 export type AgentTypeToClass = {
   [LLMProvider.Anthropic]: Anthropic;
   [LLMProvider.OpenAI]: OpenAI;
-  [LLMProvider.HuggingFaceONNX]: HuggingFaceONNX;
+  [LLMProvider.Local]: HuggingFaceONNX;
+  [LLMProvider.LocalImage]: HuggingFaceONNXTextToImage;
 };
 
 export type BinConfig<P extends LLMProvider> = {
@@ -273,5 +277,5 @@ export abstract class Runner {
 export const AgentTypeToModel = {
   [LLMProvider.Anthropic]: AnthropicModels,
   [LLMProvider.OpenAI]: OpenAIModels,
-  [LLMProvider.HuggingFaceONNX]: HuggingFaceONNXModels,
+  [LLMProvider.Local]: HuggingFaceONNXModels,
 };

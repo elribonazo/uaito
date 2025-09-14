@@ -202,7 +202,7 @@ async runSafeCommand(
               })
               if (onTool && tChunk.content[0].type === "tool_use" ) {
                 const toolUse = tChunk.content[0] as ToolUseBlock;
-                const cacheEntry = (this.cache.toolInput ?? {}) as ToolInputDelta;
+                const cacheEntry = (this.cache.toolInput ?? { input: tChunk.content[0].input}) as ToolInputDelta;
                 const partial = cacheEntry?.partial || (cacheEntry as any).input;
                 if (partial) {
                   try {

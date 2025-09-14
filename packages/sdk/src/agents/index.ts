@@ -32,7 +32,10 @@ export class Agent<T extends LLMProvider> {
     }
 
     public get tools() {
-        return this.options.tools ?? [];
+        if ('tools' in this.options) {
+            return this.options.tools ?? [];
+        }
+        return [];
     }
 
 
@@ -92,8 +95,10 @@ export class Agent<T extends LLMProvider> {
             client = (await import("../llm/Anthropic")).Anthropic;
         } else if (this.type === LLMProvider.OpenAI) {
             client = (await import("../llm/Openai")).OpenAI;
-        } else if (this.type === LLMProvider.HuggingFaceONNX) {
+        } else if (this.type === LLMProvider.Local) {
             client = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
+        } else if (this.type === LLMProvider.LocalImage) {
+            client = (await import("../llm/HuggingFaceONNXImage")).HuggingFaceONNXTextToImage;
         } else {
             throw new Error("not implemented")
         }

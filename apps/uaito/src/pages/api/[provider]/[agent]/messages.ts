@@ -21,8 +21,6 @@ function toProvider(p: string | string[] | undefined): LLMProvider {
       return LLMProvider.OpenAI;
     case 'Anthropic':
       return LLMProvider.Anthropic;
-    case 'HuggingFaceONNX':
-      return LLMProvider.HuggingFaceONNX;
     default:
       return LLMProvider.Anthropic;
   }
@@ -192,7 +190,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (!existingUser) {
               throw new Error("Unexpected user not found")
             }
-            debugger;
+            ;
             await createUsage(
               existingUser,
               threadId,

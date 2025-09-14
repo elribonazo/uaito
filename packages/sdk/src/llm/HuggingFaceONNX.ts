@@ -19,18 +19,18 @@ import type {
   PreTrainedTokenizer,
   PreTrainedModel,
 } from "@huggingface/transformers";
-import { AutoTokenizer, AutoModelForCausalLM, TextStreamer, AutoConfig } from "@huggingface/transformers";
-
-
-
+import {
+  AutoTokenizer,
+  AutoModelForCausalLM,
+  TextStreamer,
+  AutoConfig,
+} from "@huggingface/transformers";
 import { BaseLLM } from "./Base";
 import type { TensorDataType } from "./huggingface/types";
 import { MessageArray } from "../utils";
 import { extractPythonicCalls, mapArgsToNamedParams, parsePythonicCall } from "./huggingface/utils";
 
-// Removed unused IM_START_TAG to satisfy linter and avoid confusion
 const IM_END_TAG = '<|im_end|>';
-
 const modelCache = new Map<string, PreTrainedModel>();
 const tokenizerCache = new Map<string, PreTrainedTokenizer>();
 
@@ -39,9 +39,12 @@ type HuggingFaceMessage = HMessage & {
   id?: string
 }
 
+type GenerativeModel = PreTrainedModel & {
+  generate: (inputs: any, options?: any) => Promise<any>;
+};
 
 
-export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, HuggingFaceONNXOptions> {
+export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions> {
   public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
   public loadProgress: number = 0;
   public inputs: MessageArray<MessageInput> = new MessageArray();
@@ -54,7 +57,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     { options }: { options: HuggingFaceONNXOptions },
     public onTool?: OnTool
   ) {
-    super(LLMProvider.HuggingFaceONNX, options);
+    super(LLMProvider.Local, options);
     this.data.progress = 0;
   }
 
@@ -326,6 +329,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
         const textPart = this.state.buffer.substring(0, startIndex);
         if (this.state.buffer.indexOf('<|tool_call_start|>') !== -1) {
           this.state.buffer = this.state.buffer.substring(startIndex + '<|tool_call_start|>'.length);
+          this.currentMessageId = v4()
         } else if (this.state.buffer.indexOf('<tool_call>') !== -1) {
           this.state.buffer = this.state.buffer.substring(startIndex + '<tool_call>'.length);
         }
@@ -359,7 +363,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
 
         const toolCalls = extractPythonicCalls(toolCallContent);
 
-
         const toolUseBlocks: ToolUseBlock[] = toolCalls.flatMap(call => {
           this.log(`Parsing tool call: "${call}"`);
           const parsed = parsePythonicCall(call);
@@ -371,7 +374,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
           const input = mapArgsToNamedParams(paramNames, positionalArgs, keywordArgs);
 
           return {
-            id: v4(),
+            id: this.currentMessageId!,
             name,
             input,
             type: 'tool_use'
@@ -379,12 +382,13 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
         });
 
         if (toolUseBlocks.length > 0) {
+          const toolCallID = `${this.currentMessageId!}`;
           this.log(`Emitting ${toolUseBlocks.length} tool_use blocks.`);
           this.currentMessageId = null;
           // For simplicity in this refactor, we'll wrap all tool calls in a single message.
           // The `BaseLLM`'s `transformAutoMode` will handle dispatching them.
           return {
-            id: v4(),
+            id: toolCallID,
             role: 'assistant',
             type: 'tool_use',
             content: toolUseBlocks
@@ -421,7 +425,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     this.state.carryVisible = '';
     this.state.carryThinking = '';
 
-    let __past_key_values: any =null;
+    let __past_key_values: unknown = null;
 
     const stream = new ReadableStream<string>({
       start: async (controller) => {
@@ -438,7 +442,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
           });
       
       
-          const { sequences, past_key_values } = await (this.model as any).generate({
+          const { sequences, past_key_values } = await (this.model as GenerativeModel).generate({
            ...input,
            past_key_values:__past_key_values,
             do_sample: false,

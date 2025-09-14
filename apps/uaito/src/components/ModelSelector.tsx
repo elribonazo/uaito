@@ -86,7 +86,8 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
   
   // Check if selector should be disabled
   const isDisabled = !provider || availableModels.length <= 1;
-  const isDownloading = provider === LLMProvider.HuggingFaceONNX && downloadProgress !== null && downloadProgress < 100;
+  const webGPU = provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
+  const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
   
   if (!provider) {
     return null;

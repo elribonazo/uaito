@@ -6,7 +6,7 @@ import { useAppSelector } from "@/redux/store";
 const enabledProviders = [
     LLMProvider.Anthropic,
     LLMProvider.OpenAI,
-    LLMProvider.HuggingFaceONNX
+    LLMProvider.Local
 ]
 
 export const Provider: React.FC<{ 
@@ -18,7 +18,8 @@ export const Provider: React.FC<{
 
   const enabled = useMemo(() => enabledProviders.length > 1, []);
 
-  const isDownloading = value === LLMProvider.HuggingFaceONNX && downloadProgress !== null && downloadProgress < 100;
+  const webGPU = value === LLMProvider.Local || value === LLMProvider.LocalImage;
+  const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
 
   return (
     <div className="relative mt-3 py-1 w-48">

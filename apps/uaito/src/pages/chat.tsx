@@ -35,7 +35,8 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
   const agent = 'orquestrator';
   const [selectedModel, setSelectedModelState] = useState<string>('');
   const { user: { provider, downloadProgress, usage }} = useMountedApp()
-  const isDownloading = provider === LLMProvider.HuggingFaceONNX && downloadProgress !== null && downloadProgress < 100;
+  const webGPU = provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
+  const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
