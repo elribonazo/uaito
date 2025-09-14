@@ -192,6 +192,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (!existingUser) {
               throw new Error("Unexpected user not found")
             }
+            debugger;
             await createUsage(
               existingUser,
               threadId,

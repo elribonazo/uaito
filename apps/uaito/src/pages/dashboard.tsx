@@ -78,6 +78,7 @@ const processDailyData = (usage: IUsage[]) => {
 const hasMultipleDaysData = (usage: IUsage[]): boolean => {
   if (usage.length === 0) return false;
   const uniqueDays = new Set(usage.map(entry => new Date(entry.createdAt).toDateString()));
+  debugger;
   return uniqueDays.size > 1;
 };
 
@@ -288,6 +289,8 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
     </div>;
   }
 
+  debugger;
+
   return (
     <div className="min-h-screen flex flex-col relative bg-gray-900 text-white font-roboto">
       <SpaceBackground />
@@ -317,13 +320,7 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
                 </div>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
                   <h3 className="text-2xl font-bold mb-4">Your Usage</h3>
-                  
-                  <h4 className="text-xl font-semibold mb-2">Today's Usage</h4>
-                  <UsageGraph usage={props.pageProps.usage} type="today" />
-                  <div className="mt-2 mb-6">
-                    <p className="text-sm text-gray-400">Graph shows input and output usage grouped by hour for today.</p>
-                  </div>
-
+                
                   {hasMultipleDaysData(props.pageProps.usage) && (
                     <>
                       <h4 className="text-xl font-semibold mb-2">Past 30 Days</h4>

@@ -1,6 +1,7 @@
 
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IUser } from './User';
+import moment from 'moment';
 
 export interface IUsage extends Document {
   userId: string,
@@ -9,13 +10,14 @@ export interface IUsage extends Document {
   threadId: string,
   createdAt: Date,
 }
+const userTimezone = moment.tz.guess();
 
 const UsageSchema: Schema = new Schema({
   userId: { type: String, required: true },
   input: { type: Number, required: true },
   output: { type: Number, required: true },
   threadId: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now() }
+  createdAt: { type: Date, default: moment().tz(userTimezone) }
 })
 
 export const UsageModel: Model<IUsage> =
