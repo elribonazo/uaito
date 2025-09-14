@@ -8,8 +8,6 @@
   "packageManager": "yarn@4.9.1",
   "workspaces": [
     "packages/sdk",
-    "playground/nextjs",
-    "playground/node",
     "apps/uaito",
     "apps/electron",
     "packages/build"
