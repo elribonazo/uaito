@@ -178,7 +178,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           name: currentUser.name
         }
       )
-      try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
@@ -211,9 +210,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           }
         
-      }
-      } catch (err) {
-        //ignore for now
       }
      
   } catch (error) {

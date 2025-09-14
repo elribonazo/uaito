@@ -282,7 +282,7 @@ async runSafeCommand(
     }
 
     const stream = new ReadableStream({
-      async start(controller) {
+      start: async (controller) => {
         while(true) {
           const s = await reader.read();
           if (s.done) {
@@ -295,12 +295,11 @@ async runSafeCommand(
           }
           const message = s.value instanceof Uint8Array ? transform(
             JSON.parse(
-              Buffer.from(
-                s.value as unknown as Uint8Array
-              ).toString()
+              Buffer.from( s.value  ).toString()
             )
           ) : transform(s.value);
 
+          this.log("KMessage"+ JSON.stringify(message, null, 2));
 
           if (message !== null) {
             //Message pre-processing, cache and tools

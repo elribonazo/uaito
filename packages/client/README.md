@@ -23,7 +23,7 @@ import { UaitoClient, LLMProvider } from '@uaito/client';
 
 const client = new UaitoClient({
   apiKey: 'your-uaito-api-key',
-  baseUrl: 'https://your-uaito-instance.com' // optional, defaults to http://localhost:3000
+  baseUrl: 'https://your-uaito-instance.com' // optional, defaults to https://uaito.io
 });
 ```
 

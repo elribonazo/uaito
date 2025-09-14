@@ -29,7 +29,9 @@ async function processStream(
   session: Session,
   dispatch: AppDispatch
 ) {
+  let buffer = '';
   const reader = stream.getReader();
+  const decoder = new TextDecoder();
   const delimiter = "<-[*0M0*]->";
 
   while (true) {
@@ -38,24 +40,30 @@ async function processStream(
       break;
     }
 
-    const message :Message= JSON.parse(Buffer.from(value).toString().replace(delimiter, ''));
+    buffer += decoder.decode(value, { stream: true });
     
-    if (message) {
-      try {
-        dispatch(
-          pushChatMessage({
-            session,
-            chatMessage: { message: message },
-          })
-        );
-      } catch (err) {
-        console.error("Failed to parse message:", err);
+    let delimiterIndex: number | undefined;
+    while ((delimiterIndex = buffer.indexOf(delimiter)) !== -1) {
+      const message = buffer.slice(0, delimiterIndex);
+      buffer = buffer.slice(delimiterIndex + delimiter.length);
+      
+      if (message) {
+        try {
+          const parsed: Message = JSON.parse(message);
+          dispatch(
+            pushChatMessage({
+              session,
+              chatMessage: { message: parsed },
+            })
+          );
+        } catch (err) {
+          console.error("Failed to parse message:", err);
+        }
       }
     }
   }
   reader.releaseLock();
 }
-
 
 export const getApiKey =  createAsyncThunk(
   'user/key',
@@ -237,7 +245,8 @@ export const streamMessage = createAsyncThunk(
 
       const __agent: Agent<LLMProvider.Local> = agents.get(`${provider}-${agent}`);
       const { response } = await __agent.performTask(prompt);
-      
+      const delimiter = "<-[*0M0*]->";
+
       // Convert ReadableStream<Message> to ReadableStream<Uint8Array>
       const uint8ArrayStream = new ReadableStream<Uint8Array>({
         start: async (controller) => {
@@ -249,8 +258,11 @@ export const streamMessage = createAsyncThunk(
                 controller.close();
                 break;
               }
+              if (!value) {
+                continue;
+              }
               const jsonString = JSON.stringify(value);
-              const uint8Array = new TextEncoder().encode(jsonString);
+              const uint8Array = new TextEncoder().encode(jsonString + delimiter);
               controller.enqueue(uint8Array);
             }
           } catch (error) {

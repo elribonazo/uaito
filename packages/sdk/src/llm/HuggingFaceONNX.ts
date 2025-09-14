@@ -18,6 +18,7 @@ import type {
   Message as HMessage,
   PreTrainedTokenizer,
   PreTrainedModel,
+  Tensor,
 } from "@huggingface/transformers";
 import {
   AutoTokenizer,
@@ -40,19 +41,33 @@ type HuggingFaceMessage = HMessage & {
 }
 
 type GenerativeModel = PreTrainedModel & {
-  generate: (inputs: any, options?: any) => Promise<any>;
+  generate: (inputs: unknown, options?: unknown) => Promise<unknown>;
 };
 
+type GenerateOutput = {
+  sequences: Tensor,
+  past_key_values: unknown
+}
 
 export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions> {
-  public cache: BaseLLMCache = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
+  public cache: BaseLLMCache & {
+    thinkingId?: string | null,
+    textId?: string | null
+  } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
   public loadProgress: number = 0;
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
   private tokenizer!: PreTrainedTokenizer;
   private model!: PreTrainedModel;
   private currentMessageId: string | null = null;
-
+    // Internal state for extracting <thinking> tags
+  private _thinkingState?: {
+    inThinking: boolean,
+    openTag: '' | '<thinking>' | '<think>',
+    bufferTag: string,
+    carryVisible: string,
+    carryThinking: string,
+  };
   constructor(
     { options }: { options: HuggingFaceONNXOptions },
     public onTool?: OnTool
@@ -94,7 +109,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
             kv_cache_dtype:{
               "q4f16": "float16" as const,
               "fp16": "float16" as const
-            } as any
+            } as never
            }
         } ,
         progress_callback: (info: Record<string, unknown>) => {
@@ -190,23 +205,33 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   private state: {
     buffer: string,
     capturingToolCall: boolean,
-    inThinking: boolean,
-    openTag: '' | '<thinking>' | '<think>',
-    bufferTag: string,
-    carryVisible: string,
-    carryThinking: string,
   } = {
       buffer: '',
       capturingToolCall: false,
+    }
+
+  /**
+  * Internal state for extracting <thinking> / <think> tags from streamed text.
+  */
+  private get thinkingState() {
+    this._thinkingState ??= {
       inThinking: false,
       openTag: '',
       bufferTag: '',
       carryVisible: '',
       carryThinking: '',
-    }
+    };
+    return this._thinkingState as {
+      inThinking: boolean,
+      openTag: '' | '<thinking>' | '<think>',
+      bufferTag: string,
+      carryVisible: string,
+      carryThinking: string,
+    };
+  }
 
-  private processThinkingTags(delta: string) {
-    const state = this.state;
+  private processThinkingDelta(delta: string) {
+    const state = this.thinkingState;
     let s = (state.bufferTag || '') + (delta || '');
     state.bufferTag = '';
 
@@ -271,54 +296,64 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   private takeThinkingChunk(): string {
-    const state = this.state;
+    const state = this.thinkingState;
     const out = state.carryThinking;
     state.carryThinking = '';
     return out;
   }
 
   private takeVisibleChunk(): string {
-    const state = this.state;
+    const state = this.thinkingState;
     const out = state.carryVisible;
     state.carryVisible = '';
     return out;
   }
 
-
-
-
-  private thinkingId: string | null = null;
-
   private chunk(chunk: string): Message | null {
     
-    this.processThinkingTags(chunk);
+    this.processThinkingDelta(chunk);
 
-    const thinkingText = this.takeThinkingChunk();
-    if (thinkingText) {
-      this.currentMessageId = null;
-      this.thinkingId ??= v4();
+    const state = this.thinkingState;
+
+    // Emit pending visible or thinking fairly; prioritize thinking when we're inside
+    let toEmitType: 'thinking' | 'visible' | null = null;
+    if (state.carryThinking.length > 0) {
+      toEmitType = 'thinking';
+    } else if (state.carryVisible.length > 0) {
+      toEmitType = 'visible';
+    }
+
+    if (toEmitType === 'thinking') {
+      this.cache.textId = null;
+      if (!this.cache.thinkingId) {
+          this.cache.thinkingId = v4();
+      }
+      const thinkingText = this.takeThinkingChunk();
       return {
-        id: this.thinkingId,
+        id: this.cache.thinkingId,
         role: 'assistant',
         type: 'thinking',
         chunk: true,
-        content: [{
-          type: 'thinking',
-          thinking: thinkingText,
-          signature: ''
-        }]
+        content: [
+          {
+            type: 'thinking',
+            thinking: thinkingText,
+            signature: ''
+          }
+        ]
       };
     }
 
-    
-
-    const visibleText = this.takeVisibleChunk();
-    if (visibleText) {
-      this.thinkingId = null;
-      this.currentMessageId ??= v4();
-      this.state.buffer += visibleText;
+    if (toEmitType === 'visible') {
+      this.cache.thinkingId = null;
+      if (!this.cache.textId) {
+        this.cache.textId = v4();
+      }
+      const textOut = this.takeVisibleChunk();
+      if (textOut.length > 0) {
+        this.state.buffer += textOut;
+      }
     }
-
 
     if (!this.state.capturingToolCall) {
       const startIndex = this.state.buffer.indexOf('<|tool_call_start|>') !== -1?
@@ -329,14 +364,14 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
         const textPart = this.state.buffer.substring(0, startIndex);
         if (this.state.buffer.indexOf('<|tool_call_start|>') !== -1) {
           this.state.buffer = this.state.buffer.substring(startIndex + '<|tool_call_start|>'.length);
-          this.currentMessageId = v4()
+          this.cache.textId = v4()
         } else if (this.state.buffer.indexOf('<tool_call>') !== -1) {
           this.state.buffer = this.state.buffer.substring(startIndex + '<tool_call>'.length);
         }
         this.state.capturingToolCall = true;
-        if (textPart && this.currentMessageId) {
+        if (textPart && this.cache.textId) {
           return {
-            id: this.currentMessageId,
+            id: this.cache.textId,
             role: 'assistant',
             type: 'message',
             chunk: true,
@@ -373,8 +408,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
           const paramNames = toolSchema ? Object.keys(toolSchema.input_schema.properties) : [];
           const input = mapArgsToNamedParams(paramNames, positionalArgs, keywordArgs);
 
+          if (!this.cache.textId) return [];
           return {
-            id: this.currentMessageId!,
+            id: this.cache.textId,
             name,
             input,
             type: 'tool_use'
@@ -382,9 +418,10 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
         });
 
         if (toolUseBlocks.length > 0) {
-          const toolCallID = `${this.currentMessageId!}`;
+          if (!this.cache.textId) return null;
+          const toolCallID = `${this.cache.textId}`;
           this.log(`Emitting ${toolUseBlocks.length} tool_use blocks.`);
-          this.currentMessageId = null;
+          this.cache.textId = null;
           // For simplicity in this refactor, we'll wrap all tool calls in a single message.
           // The `BaseLLM`'s `transformAutoMode` will handle dispatching them.
           return {
@@ -401,9 +438,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     if (!this.state.capturingToolCall) {
       const textToEmit = this.state.buffer;
       this.state.buffer = '';
-      if (textToEmit && this.currentMessageId) {
+      if (textToEmit && this.cache.textId) {
         return {
-          id: this.currentMessageId,
+          id: this.cache.textId,
           role: 'assistant',
           type: 'message',
           chunk: true,
@@ -419,11 +456,16 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     this.log("createStream called.");
     this.state.buffer = '';
     this.state.capturingToolCall = false;
-    this.state.inThinking = false;
-    this.state.openTag = '';
-    this.state.bufferTag = '';
-    this.state.carryVisible = '';
-    this.state.carryThinking = '';
+    
+    const state = this.thinkingState;
+    state.inThinking = false;
+    state.openTag = '';
+    state.bufferTag = '';
+    state.carryThinking = '';
+    state.carryVisible = '';
+    
+    this.cache.thinkingId = null;
+    this.cache.textId = null;
 
     let __past_key_values: unknown = null;
 
@@ -442,41 +484,44 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
           });
       
       
-          const { sequences, past_key_values } = await (this.model as GenerativeModel).generate({
-           ...input,
-           past_key_values:__past_key_values,
-            do_sample: false,
-            generation_config:{
-              output_attentions: true,
-              max_new_tokens: this.options.maxTokens ?? 4096,
-            },
-            streamer,
-            return_dict_in_generate: true,
-          });
-
-          if (sequences) {
-            const response = this.tokenizer
-            .batch_decode(sequences.slice(null, [input.input_ids.dims[1], null]), {
-              skip_special_tokens: false,
-            })[0]
-            .replace(IM_END_TAG, "");
-
-                this.inputs.push({
-                  id: v4(),
-                  role: 'assistant',
-                  type: 'message',
-                  content: [{ type: 'text', text: response }]
-              })
-          }
-
-        
-          this.currentMessageId= null
-          __past_key_values = past_key_values;
-         
-          controller.close();
+          try {
+            const { sequences, past_key_values } = await (this.model as GenerativeModel).generate({
+              ...input,
+              past_key_values:__past_key_values,
+               do_sample: false,
+               generation_config:{
+                 output_attentions: true,
+                 max_new_tokens: this.options.maxTokens ?? 4096,
+               },
+               streamer,
+               return_dict_in_generate: true,
+             }) as GenerateOutput;
+   
+             if (sequences) {
+               const response = this.tokenizer
+               .batch_decode(sequences.slice(null, [input.input_ids.dims[1], 0]), {
+                 skip_special_tokens: false,
+               })[0]
+               .replace(IM_END_TAG, "");
+   
+                   this.inputs.push({
+                     id: v4(),
+                     role: 'assistant',
+                     type: 'message',
+                     content: [{ type: 'text', text: response }]
+                 })
+             }
+   
+           
+             this.cache.textId= null
+             __past_key_values = past_key_values;
+          } catch { }
+          
         } catch (e) {
           this.log(`Model generation error: ${e}`);
           controller.error(e);
+        } finally {
+          controller.close();
         }
       },
     });
@@ -484,7 +529,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     return stream as ReadableStreamWithAsyncIterable<string>;
   }
 
-  private addDefaultItems(prompt: string, system: string, chainOfThought: string) {
+  private addDefaultItems(prompt: string, chainOfThought: string, system: string) {
     if (this.inputs.length === 0 && system !== '') {
       //Internal message
       const systemPrompt: Message = {
