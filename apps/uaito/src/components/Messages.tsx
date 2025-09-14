@@ -96,7 +96,7 @@ export const Message: React.FC<{
 const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => void }) => {
     const prompts = [
         "Generate a picture of space",
-        "Explain quantum computing in simple terms",
+        "Find me the best steak Restaurants in Madrid, best price, meat quality and space for year 2025",
         "What is the capital of France?",
         "Write a short story about a robot who discovers music"
     ];

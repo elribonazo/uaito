@@ -46,7 +46,12 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   private openai: OpenAIAPI;
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
-  public cache: BaseLLMCache & { imageGenerationCallId: string | null, imageBase64: string | null } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 }, imageGenerationCallId:null, imageBase64:null }
+  public cache: BaseLLMCache & {
+    imageGenerationCallId: string | null,
+    imageBase64: string | null,
+    thinkingId?: string | null,
+    textId?: string | null
+  } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 }, imageGenerationCallId:null, imageBase64:null }
 
   // Track function calls in the current turn
   private functionCallsByItemId: Record<string, { name?: string, call_id?: string }> = {};
@@ -140,8 +145,10 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   }
 
   get tools() {
-    const functionTools: ResponsesTool[] | undefined = this.options.tools?.map((tool) => {
-      if ("type" in tool && tool.type === "image_generation") {
+    const functionTools: ResponsesTool[] | undefined = this.options.tools
+    ?.filter((tool) => tool.name !== "browseWebPage" && tool.name !== "tavilySearch" )
+    .map((tool) => {
+      if ("type" in tool && (tool.type === "image_generation" || tool.type === "web_search_preview")) {
         return tool as any;
       }
       const parsedTool = JSON.parse(JSON.stringify(tool));
@@ -285,7 +292,12 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       'model': 'gpt-image-1',
     } as any)
 
-    const tools = this.tools && this.tools.length > 0 ? this.tools : []
+    this.options.tools?.push({
+      type: "web_search_preview",
+      search_context_size: "low",
+    } as any)
+
+    const tools = (this.tools && this.tools.length > 0 ? this.tools : [])
     const request: ResponseCreateParamsStreaming = {
       model: this.options.model,
       input: this.llmInputs as ResponseCreateParamsStreaming['input'],
@@ -363,9 +375,13 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       }
 
       if (toEmitType === 'thinking') {
+        this.cache.textId = null;
+        if (!this.cache.thinkingId) {
+            this.cache.thinkingId = v4();
+        }
         const thinkingText = this.takeThinkingChunk();
         return {
-          id: this.cache.chunks as string,
+          id: this.cache.thinkingId,
           role: 'assistant',
           type: 'thinking',
           chunk: true,
@@ -380,15 +396,18 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       }
 
       if (toEmitType === 'visible') {
+        this.cache.thinkingId = null;
+        if (!this.cache.textId) {
+          this.cache.textId = v4();
+        }
         const textOut = this.takeVisibleChunk();
         if (textOut.length === 0) return null;
         const textBlock: TextBlock = {
           type: 'text',
           text: textOut,
         };
-        const id = this.cache.chunks as string;
         return {
-          id,
+          id: this.cache.textId,
           role: 'assistant',
           type: 'message',
           chunk: true,
@@ -529,6 +548,8 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       }
       // Reset chunk id on turn completion
       this.cache.chunks = null;
+      this.cache.textId = null;
+      this.cache.thinkingId = null;
       // Reset thinking state for next turn
       const state = this.thinkingState;
       state.inThinking = false;

@@ -63,7 +63,10 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     const modelId = this.options.model;
     
     if (tokenizerCache.has(modelId)) {
-      this.tokenizer ??= tokenizerCache.get(modelId)!;
+      const tokenizer = tokenizerCache.get(modelId);
+      if (tokenizer) {
+        this.tokenizer ??= tokenizer;
+      }
     } else {
       this.tokenizer ??= await AutoTokenizer.from_pretrained(modelId);
       tokenizerCache.set(modelId, this.tokenizer);
@@ -71,14 +74,17 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
 
     this.log(`Tokenizer loaded for ${modelId}`);
     if (modelCache.has(modelId)) {
-      this.model ??= modelCache.get(modelId)!;
+      const model = modelCache.get(modelId);
+      if (model) {
+        this.model ??= model;
+      }
     } else {
       const config =  await AutoConfig.from_pretrained(modelId);
 
       this.model ??= await AutoModelForCausalLM.from_pretrained(modelId, {
         device: this.options.device ?? "webgpu",
         dtype: this.options.dtype ?? "auto",
-        config: {
+        config: {
           ...config,
            'transformers.js_config':{
             ...config["transformers.js_config"],
@@ -286,6 +292,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
 
     const thinkingText = this.takeThinkingChunk();
     if (thinkingText) {
+      this.currentMessageId = null;
       this.thinkingId ??= v4();
       return {
         id: this.thinkingId,
@@ -304,9 +311,8 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
 
     const visibleText = this.takeVisibleChunk();
     if (visibleText) {
-      if (!this.state.buffer || this.state.buffer.length === 0) {
-        this.currentMessageId ??= v4();
-      }
+      this.thinkingId = null;
+      this.currentMessageId ??= v4();
       this.state.buffer += visibleText;
     }
 
@@ -324,9 +330,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
           this.state.buffer = this.state.buffer.substring(startIndex + '<tool_call>'.length);
         }
         this.state.capturingToolCall = true;
-        if (textPart) {
+        if (textPart && this.currentMessageId) {
           return {
-            id: this.currentMessageId!,
+            id: this.currentMessageId,
             role: 'assistant',
             type: 'message',
             chunk: true,
@@ -391,9 +397,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.HuggingFaceONNX, Huggin
     if (!this.state.capturingToolCall) {
       const textToEmit = this.state.buffer;
       this.state.buffer = '';
-      if (textToEmit) {
+      if (textToEmit && this.currentMessageId) {
         return {
-          id: this.currentMessageId!,
+          id: this.currentMessageId,
           role: 'assistant',
           type: 'message',
           chunk: true,
