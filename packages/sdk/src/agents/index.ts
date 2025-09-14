@@ -80,6 +80,12 @@ export class Agent<T extends LLMProvider> {
         this.client.inputs.length = 0;
     }
 
+    private async loadClient(Client:new ({ options }: {options:AgentTypeToOptions[LLMProvider]}, onTool?: OnTool) => BaseLLM<LLMProvider, BaseLLMOptions>): Promise<AgentTypeToClass[T]> {
+        this.client ??= new Client({ options: this.options}, this.onTool?.bind(this)) as AgentTypeToClass[T];
+        this.client.log = this.log.bind(this);
+        return this.client;
+    }
+
     private async getClient(): Promise<BaseLLM<any, BaseLLMOptions>> {
         let client: new ({ options }: {options:AgentTypeToOptions[LLMProvider]}, onTool?: OnTool) => BaseLLM<LLMProvider, BaseLLMOptions>;
         if (this.type === LLMProvider.Anthropic) {
@@ -91,9 +97,7 @@ export class Agent<T extends LLMProvider> {
         } else {
             throw new Error("not implemented")
         }
-        this.client = new client({ options: this.options}, this.onTool?.bind(this)) as AgentTypeToClass[T];
-        this.client.log = this.log.bind(this);
-        return this.client;
+        return this.loadClient(client);
     }
 
     async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
