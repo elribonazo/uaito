@@ -353,6 +353,7 @@ async runSafeCommand(
             }
           } 
         }
+        controller.close();
         reader.releaseLock()
       }
     })

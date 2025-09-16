@@ -38,16 +38,6 @@ export class Agent<T extends LLMProvider> {
         return [];
     }
 
-
-    
-    /**
-     * Log a message with the agent's color and name.
-     * @param message - The message to log.
-     */
-    log(message: string) {
-        console.log(`${this.color}[${this.name}] ${message}${LOG_ANSI_RESET}`);
-    }
-
     /**
      * Create a new Agent instance.
      * @param type - The type of LLM provider.
@@ -84,8 +74,7 @@ export class Agent<T extends LLMProvider> {
     }
 
     private async loadClient(Client:new ({ options }: {options:AgentTypeToOptions[LLMProvider]}, onTool?: OnTool) => BaseLLM<LLMProvider, BaseLLMOptions>): Promise<AgentTypeToClass[T]> {
-        this.client = new Client({ options: this.options}, this.onTool?.bind(this)) as AgentTypeToClass[T];
-        this.client.log = this.log.bind(this);
+        this.client ??= new Client({ options: this.options}, this.onTool?.bind(this)) as AgentTypeToClass[T];
         return this.client;
     }
 
@@ -113,7 +102,7 @@ export class Agent<T extends LLMProvider> {
             } catch (error) {
                 if (error instanceof Error && error.message.includes('APIConnectionError')) {
                     retries++;
-                    this.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
+                    this.client.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
                     await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
                 } else {
                     throw error; // Rethrow if it's not a connection error

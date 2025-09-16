@@ -51,7 +51,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     imageBase64: string | null,
     thinkingId?: string | null,
     textId?: string | null
-  } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 }, imageGenerationCallId:null, imageBase64:null }
+  } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 }, imageGenerationCallId: null, imageBase64: null }
 
   // Track function calls in the current turn
   private functionCallsByItemId: Record<string, { name?: string, call_id?: string }> = {};
@@ -146,21 +146,21 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
 
   get tools() {
     const functionTools: ResponsesTool[] | undefined = this.options.tools
-    ?.filter((tool) => tool.name !== "browseWebPage" && tool.name !== "tavilySearch" )
-    .map((tool) => {
-      if ("type" in tool && (tool.type === "image_generation" || tool.type === "web_search_preview")) {
-        return tool as any;
-      }
-      const parsedTool = JSON.parse(JSON.stringify(tool));
-      const functionTool: FunctionTool = {
-        type: 'function',
-        name: parsedTool.name,
-        description: parsedTool.description,
-        parameters: parsedTool.input_schema,
-        strict: false,
-      };
-      return functionTool;
-    });
+      ?.filter((tool) => tool.name !== "browseWebPage" && tool.name !== "tavilySearch")
+      .map((tool) => {
+        if ("type" in tool && (tool.type === "image_generation" || tool.type === "web_search_preview")) {
+          return tool as any;
+        }
+        const parsedTool = JSON.parse(JSON.stringify(tool));
+        const functionTool: FunctionTool = {
+          type: 'function',
+          name: parsedTool.name,
+          description: parsedTool.description,
+          parameters: parsedTool.input_schema,
+          strict: false,
+        };
+        return functionTool;
+      });
     return functionTools;
   }
 
@@ -278,13 +278,13 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     return out;
   }
 
-   async performTaskStream(
+  async performTaskStream(
     prompt: string,
     chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
-    
+
     this.options.tools?.push({
       'type': 'image_generation',
       'size': '1024x1024',
@@ -314,16 +314,13 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
 
     const createStream = async (params: ResponseCreateParamsStreaming) => {
       return this.retryApiCall(async () => {
-        const stream = await this.openai.responses.create(params) as Stream<ResponseStreamEvent>;
+        const stream = await this.openai.responses.create(params, {signal: this.options.signal}) as Stream<ResponseStreamEvent>;
         return stream.toReadableStream() as ReadableStreamWithAsyncIterable<ResponseStreamEvent>
       });
     };
 
     const stream = await createStream(request);
-    const transform = await this.transformStream<
-      ResponseStreamEvent, 
-      Message
-    >(
+    const transform = await this.transformStream<ResponseStreamEvent, Message>(
       stream,
       this.chunk.bind(this)
     );
@@ -377,7 +374,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
       if (toEmitType === 'thinking') {
         this.cache.textId = null;
         if (!this.cache.thinkingId) {
-            this.cache.thinkingId = v4();
+          this.cache.thinkingId = v4();
         }
         const thinkingText = this.takeThinkingChunk();
         return {
@@ -450,7 +447,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
         type: 'message',
         content: [
           {
-            type:'text', text: 'Generating image...\r\n\n\r\n'
+            type: 'text', text: 'Generating image...\r\n\n\r\n'
           }
         ]
       }
@@ -476,7 +473,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
         type: 'message',
         content: [
           {
-            type:'text', text: 'Creating image... \r\n\n\r\n'
+            type: 'text', text: 'Creating image... \r\n\n\r\n'
           }
         ]
       }
@@ -492,7 +489,7 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
         type: 'message',
         content: [
           {
-            type:'text', text: 'Processing image...\r\n\n\r\n'
+            type: 'text', text: 'Processing image...\r\n\n\r\n'
           }
         ]
       }

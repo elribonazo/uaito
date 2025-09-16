@@ -1,5 +1,3 @@
-import type { AbortSignal } from 'abort-controller';
-
 import type { Anthropic } from "./llm/Anthropic";
 import type { OpenAI } from "./llm/Openai";
 import type { Agent } from "./agents";

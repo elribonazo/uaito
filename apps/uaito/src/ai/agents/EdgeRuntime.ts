@@ -42,7 +42,7 @@ Maintain neutrality, avoid verbosity, and focus on delivering value.`;
 
   get chainOfThought() {
     return `Answer the user's request using relevant tools only if the tool exists. 
-Before calling a tool, do some analysis within <thinking></thinking> tags. 
+Before calling a tool, always do some analysis within <thinking></thinking> tags. 
 1. First, determine if you have access to the requested tool.
 2. Second, think about which of the provided tools is the relevant tool to answer the user's request. 
 3. Third, go through each of the required parameters of the relevant tool and determine if the user has directly provided or given enough information to infer a value. 

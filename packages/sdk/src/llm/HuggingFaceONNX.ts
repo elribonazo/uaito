@@ -14,11 +14,12 @@ import type {
 } from "../types";
 import { LLMProvider } from "../types";
 
-import type {
+import {
   Message as HMessage,
   PreTrainedTokenizer,
   PreTrainedModel,
   Tensor,
+  InterruptableStoppingCriteria,
 } from "@huggingface/transformers";
 import {
   AutoTokenizer,
@@ -50,17 +51,14 @@ type GenerateOutput = {
 }
 
 export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions> {
-  public cache: BaseLLMCache & {
-    thinkingId?: string | null,
-    textId?: string | null
-  } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
+  public cache: BaseLLMCache & { thinkingId?: string | null, textId?: string | null } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 } }
   public loadProgress: number = 0;
   public inputs: MessageArray<MessageInput> = new MessageArray();
-
   private tokenizer!: PreTrainedTokenizer;
   private model!: PreTrainedModel;
-  private currentMessageId: string | null = null;
-    // Internal state for extracting <thinking> tags
+  private stoppingCriteria = new InterruptableStoppingCriteria();
+
+  // Internal state for extracting <thinking> tags
   private _thinkingState?: {
     inThinking: boolean,
     openTag: '' | '<thinking>' | '<think>',
@@ -68,6 +66,8 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     carryVisible: string,
     carryThinking: string,
   };
+
+  
   constructor(
     { options }: { options: HuggingFaceONNXOptions },
     public onTool?: OnTool
@@ -76,10 +76,22 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     this.data.progress = 0;
   }
 
+  async runAbortable<Fn extends Promise<unknown>>(fn: Fn) {
+    return new Promise( (resolve, reject) => {
+      this.options.signal?.addEventListener('abort', () => {  
+        if (!this.stoppingCriteria.interrupted ) {
+          this.stoppingCriteria.interrupt();
+        }
+        reject(new Error('Operation aborted'));
+      });
+      fn.then(resolve).catch(reject);
+    });
+  }
+
   async load() {
     this.log(`Loading model: ${this.options.model}`);
     const modelId = this.options.model;
-    
+
     if (tokenizerCache.has(modelId)) {
       const tokenizer = tokenizerCache.get(modelId);
       if (tokenizer) {
@@ -97,21 +109,21 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
         this.model ??= model;
       }
     } else {
-      const config =  await AutoConfig.from_pretrained(modelId);
+      const config = await AutoConfig.from_pretrained(modelId);
 
       this.model ??= await AutoModelForCausalLM.from_pretrained(modelId, {
         device: this.options.device ?? "webgpu",
         dtype: this.options.dtype ?? "auto",
         config: {
           ...config,
-           'transformers.js_config':{
+          'transformers.js_config': {
             ...config["transformers.js_config"],
-            kv_cache_dtype:{
+            kv_cache_dtype: {
               "q4f16": "float16" as const,
               "fp16": "float16" as const
             } as never
-           }
-        } ,
+          }
+        },
         progress_callback: (info: Record<string, unknown>) => {
           if (info.status === "progress") {
             const progress = parseInt(info.progress as string, 10);
@@ -131,9 +143,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
   private fromInputToParam(message: MessageInput): HuggingFaceMessage {
     const { content } = message;
-    let role = message.role;
-
-
     const textContent = content
       .filter((c): c is TextBlock => c.type === "text")
       .map((c) => c.text)
@@ -169,33 +178,24 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       })
       .join("\n");
 
-      
+
     if (toolUseContent) {
       return {
-        id: message.id,
         role: 'assistant',
         content: toolUseContent,
       };
-      
-    }
 
-    if (toolResultContent) role = 'tool';
+    }
 
     const finalContent = [textContent, toolUseContent, toolResultContent].filter(Boolean).join('\n\n');
     return {
-      role: role,
+      role: message.role,
       content: finalContent,
     };
   }
 
   private getTensorData() {
-    const currentInputs =  Array.from([
-      ...this.inputs
-    ])
-      .filter((m) => m.content.length >  0 && m.content[0].type !== 'tool_use' && m.role !== 'tool')
-      .map(this.fromInputToParam);
-
-      debugger;
+    const currentInputs = MessageArray.from(this.inputs).map(this.fromInputToParam);
     return this.tokenizer.apply_chat_template(currentInputs, {
       add_generation_prompt: true,
       return_dict: true,
@@ -311,7 +311,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   private chunk(chunk: string): Message | null {
-    this.log("KChunk"+  JSON.stringify(chunk, null, 2));
+    this.log("KChunk" + JSON.stringify(chunk, null, 2));
     this.processThinkingDelta(chunk);
 
     const state = this.thinkingState;
@@ -327,7 +327,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     if (toEmitType === 'thinking') {
       this.cache.textId = null;
       if (!this.cache.thinkingId) {
-          this.cache.thinkingId = v4();
+        this.cache.thinkingId = v4();
       }
       const thinkingText = this.takeThinkingChunk();
       return {
@@ -357,10 +357,10 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     }
 
     if (!this.state.capturingToolCall) {
-      const startIndex = this.state.buffer.indexOf('<|tool_call_start|>') !== -1?
+      const startIndex = this.state.buffer.indexOf('<|tool_call_start|>') !== -1 ?
         this.state.buffer.indexOf('<|tool_call_start|>') :
         this.state.buffer.indexOf('<tool_call>');
-      
+
       if (startIndex !== -1) {
         const textPart = this.state.buffer.substring(0, startIndex);
         if (this.state.buffer.indexOf('<|tool_call_start|>') !== -1) {
@@ -383,9 +383,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     }
 
     if (this.state.capturingToolCall) {
-      const endIndex = this.state.buffer.indexOf('<|tool_call_end|>') !== -1?
+      const endIndex = this.state.buffer.indexOf('<|tool_call_end|>') !== -1 ?
         this.state.buffer.indexOf('<|tool_call_end|>') :
-        this.state.buffer.indexOf( '</tool_call>');
+        this.state.buffer.indexOf('</tool_call>');
 
       if (endIndex !== -1) {
         const toolCallContent = this.state.buffer.substring(0, endIndex);
@@ -403,7 +403,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
           this.log(`Parsing tool call: "${call}"`);
           const parsed = parsePythonicCall(call);
           if (!parsed) return [];
-          
+
           const { name, positionalArgs, keywordArgs } = parsed;
           const toolSchema = this.options.tools?.find((t) => t.name === name);
           const paramNames = toolSchema ? Object.keys(toolSchema.input_schema.properties) : [];
@@ -434,7 +434,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
         }
       }
     }
-    
+
     // If no tool call markers are processed, treat the buffer as text
     if (!this.state.capturingToolCall) {
       const textToEmit = this.state.buffer;
@@ -450,21 +450,24 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       }
     }
 
+    debugger;
     return null;
   }
-  
+
   async createStream(input: TensorDataType): Promise<ReadableStreamWithAsyncIterable<string>> {
+    const stopping_criteria = new InterruptableStoppingCriteria();
+
     this.log("createStream called.");
     this.state.buffer = '';
     this.state.capturingToolCall = false;
-    
+
     const state = this.thinkingState;
     state.inThinking = false;
     state.openTag = '';
     state.bufferTag = '';
     state.carryThinking = '';
     state.carryVisible = '';
-    
+
     this.cache.thinkingId = null;
     this.cache.textId = null;
 
@@ -472,61 +475,65 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
     const stream = new ReadableStream<string>({
       start: async (controller) => {
-        this.log("ReadableStream started for model generation.");
 
+        
+        this.log("ReadableStream started for model generation.");
         try {
           const streamer = new TextStreamer(this.tokenizer, {
             skip_prompt: true,
             skip_special_tokens: false,
             callback_function: (value: string) => {
+              const isEnd = value.includes(IM_END_TAG);
               const chunk = value.replace(IM_END_TAG, "");
               if (chunk !== "\n") {
-                controller.enqueue(value.replace(IM_END_TAG, ""));
-
+                controller.enqueue(chunk);
               }
-              
+              if (isEnd) {
+                controller.close();
+              }
             },
           });
-      
-      
+
+          
           try {
             const { sequences, past_key_values } = await (this.model as GenerativeModel).generate({
               ...input,
-              past_key_values:__past_key_values,
-               do_sample: false,
-               generation_config:{
-                 output_attentions: true,
-                 max_new_tokens: this.options.maxTokens ?? 4096,
-               },
-               streamer,
-               return_dict_in_generate: true,
-             }) as GenerateOutput;
-   
-             if (sequences) {
-               const response = this.tokenizer
-               .batch_decode(sequences.slice(null, [input.input_ids.dims[1], 0]), {
-                 skip_special_tokens: false,
-               })[0]
-               .replace(IM_END_TAG, "");
-   
-                   this.inputs.push({
-                     id: v4(),
-                     role: 'assistant',
-                     type: 'message',
-                     content: [{ type: 'text', text: response }]
-                 })
-             }
-   
-           
-             this.cache.textId= null
-             __past_key_values = past_key_values;
-             controller.close();
+              past_key_values: __past_key_values,
+              do_sample: false,
+              generation_config: {
+                output_attentions: true,
+                max_new_tokens: this.options.maxTokens ?? 4096,
+              },
+              streamer,
+              return_dict_in_generate: true,
+              stopping_criteria
+            }) as GenerateOutput;
+
+            if (sequences) {
+              const response = this.tokenizer
+                .batch_decode(sequences.slice(null, [input.input_ids.dims[1], 0]), {
+                  skip_special_tokens: false,
+                })[0]
+                .replace(IM_END_TAG, "");
+
+              this.inputs.push({
+                id: v4(),
+                role: 'assistant',
+                type: 'message',
+                content: [{ type: 'text', text: response }]
+              })
+            }
+
+
+            this.cache.textId = null
+            __past_key_values = past_key_values;
+            controller.close();
           } catch { }
-          
+
         } catch (e) {
           this.log(`Model generation error: ${e}`);
           controller.error(e);
-        }
+        } 
       },
     });
 
@@ -547,7 +554,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       }
       this.inputs.push(systemPrompt as MessageInput);
     }
-    this.inputs =  MessageArray.from(
+    this.inputs = MessageArray.from(
       [
         ...this.inputs,
         { role: 'user', content: [{ type: 'text', text: `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}` }] }
@@ -556,13 +563,12 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    this.stoppingCriteria.reset();
     this.log("Starting performTaskStream");
     await this.load();
-    debugger;
     this.addDefaultItems(prompt, system, chainOfThought);
     const tensor = this.getTensorData();
     this.log(`Tensor created. Shape: ${tensor.input_ids.dims}`);
-    debugger;
     const rawStream = await this.createStream(tensor);
     const transformedStream = await this.transformStream<string, Message>(
       rawStream,
