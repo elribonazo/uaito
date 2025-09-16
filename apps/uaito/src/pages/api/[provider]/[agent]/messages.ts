@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AbortController } from 'abort-controller';
 import NextCors from 'nextjs-cors';
 import {SHA512} from '@stablelib/sha512';
 import { Agent, AnthropicModels, AnthropicOptions, ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, OpenAIModels, Tool } from '@uaito/sdk';

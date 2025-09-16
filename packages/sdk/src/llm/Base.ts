@@ -222,7 +222,6 @@ async runSafeCommand(
                   ...lastOutput.content[0],
                   name: (tChunk.content[0] as ToolUseBlock).name
                 } as ToolResultBlock;
-                debugger;
                 controller.enqueue({
                   id: v4(),
                   role:'user',
@@ -242,7 +241,6 @@ async runSafeCommand(
             } 
           } catch (err: unknown) {
             console.error('Error in transformAutoMode:', err);
-            debugger;
             const errorBlock: ErrorBlock = {
               type: "error",
               message: (err as Error).message

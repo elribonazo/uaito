@@ -266,13 +266,10 @@ export const streamMessage = createAsyncThunk(
       await __agent.load()
 
       const newInputs = inputs ?? [];
-      debugger;
       if (__agent.client.inputs.length === 0 && newInputs.length > 0) {
-        debugger;
         await __agent.addInputs(newInputs);
       }
 
-      debugger;
 			const { response } = await __agent.performTask(prompt);
 			const delimiter = "<-[*0M0*]->";
 
@@ -304,7 +301,6 @@ export const streamMessage = createAsyncThunk(
 			});
 
 			await processStream(uint8ArrayStream, options.session, dispatch);
-			debugger;
 			return fulfillWithValue(null);
 		} catch (error) {
 			const err =
