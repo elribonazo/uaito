@@ -1,27 +1,13 @@
-/** biome-ignore-all lint/suspicious/noAssignInExpressions: <explanation> */
-
+/** biome-ignore-all lint/suspicious/noAssignInExpressions: ok */
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import type { Session } from "next-auth";
-import {
-	Agent,
-	HuggingFaceONNXModels,
-	HuggingFaceONNXOptions,
-	LLMProvider,
-	LOG_ANSI_BLUE,
-	Message,
-	MessageArray,
-	MessageInput,
-	OnTool,
-	ToolResultBlock,
-} from "@uaito/sdk";
-import { v4 } from "uuid";
-
 import type { AppDispatch } from "@/redux/store";
+import type { Session } from "next-auth";
+import type { Agent, HuggingFaceONNXOptions, Message, MessageArray, MessageInput, ToolResultBlock } from "@uaito/sdk";
+
+import { HuggingFaceONNXModels, LLMProvider, LOG_ANSI_BLUE } from "@uaito/sdk";
+import { v4 } from "uuid";
 import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
-import {
-	EdgeRuntimeAgent,
-	EdgeRuntimeAgentImage,
-} from "@/ai/agents/EdgeRuntime";
+import { EdgeRuntimeAgent, EdgeRuntimeAgentImage } from "@/ai/agents/EdgeRuntime";
 
 interface StreamInput {
 	agent?: string;
@@ -168,7 +154,7 @@ export const streamMessage = createAsyncThunk(
 						{
 							name: "generateImage",
 							description:
-								"Generate an image based on a prompt. This tool should be used when you need to generate an image based on a prompt.",
+								"Generate an image based on a prompt. This tool should be used when you need to generate an image based on a prompt and returns the blob url of the generated image, to be used inside blob:http://localhost:3005/530ab42d-f7b8-467c-801b-54bc24655d08 tag, always append blob: together with the url.",
 							input_schema: {
 								type: "object",
 								properties: {
@@ -255,7 +241,6 @@ export const streamMessage = createAsyncThunk(
 					"EdgeAgent",
 				);
 
-
 				agents.set(`${provider}-${agent}`, newAgent);
 			}
 
@@ -263,12 +248,12 @@ export const streamMessage = createAsyncThunk(
 				`${provider}-${agent}`,
 			);
 
-      await __agent.load()
+			await __agent.load();
 
-      const newInputs = inputs ?? [];
-      if (__agent.client.inputs.length === 0 && newInputs.length > 0) {
-        await __agent.addInputs(newInputs);
-      }
+			const newInputs = inputs ?? [];
+			if (__agent.client.inputs.length === 0 && newInputs.length > 0) {
+				await __agent.addInputs(newInputs);
+			}
 
 			const { response } = await __agent.performTask(prompt);
 			const delimiter = "<-[*0M0*]->";

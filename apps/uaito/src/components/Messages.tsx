@@ -31,6 +31,14 @@ export const MessageItem:React.FC<{
 }> = ({id, isUser, content, searchText, messages}) => {
     const app = useMountedApp();
     if (content.type === "text") {
+        const text = content.text;
+        if (text.includes("<image>")) {
+            return <img
+                src={`${text.split("<image>")[1].split("</image>")[0]}`}
+                style={{ width: "250px", height: "auto" }}
+                alt="generated content"
+            />
+        }
         return <MessageContainer id={id} isUser={isUser}>
             <Markdown searchText={searchText}>
             {content.text}
@@ -38,7 +46,7 @@ export const MessageItem:React.FC<{
         </MessageContainer>
     } else if (content.type === "image") {
         return <img
-            src={`data:${content.source.media_type};${content.source.type},${content.source.data}`}
+            src={`${content.source.data}`}
             style={{ width: "250px", height: "auto" }}
             alt="generated content"
         />
@@ -95,10 +103,11 @@ export const Message: React.FC<{
 
 const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => void }) => {
     const prompts = [
-        "Generate a picture of space",
+        "Generate a picture of a pomksy dog dressing as a crypto bro",
         "Find me the best steak Restaurants in Madrid, best price, meat quality and space for year 2025",
         "What is the capital of France?",
-        "Write a short story about a robot who discovers music"
+        "Write a short story about a robot who discovers music",
+        "Create a story with 2 chapters about a Robot that visits earth called Uauto, for each chapter create a picture and also add some text"
     ];
 
     return (

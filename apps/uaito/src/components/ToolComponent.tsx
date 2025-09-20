@@ -38,12 +38,6 @@ const ToolOutputComponent: React.FC<ToolResultBlock  & {name: string, messageId:
   const status = props.isError === true ? 'error' : 'completed';
   
   // Analyze content structure
-  const contentArray = props.content && typeof props.content !== "string" ? props.content : [];
-  const imageBlocks = contentArray.filter(block => block.type === "image");
-  const textBlocks = contentArray.filter(block => block.type === "text");
-  const hasOnlyOneImage = imageBlocks.length === 1 && textBlocks.length === 0;
-  const hasImageWithText = imageBlocks.length === 1 && textBlocks.length > 0;
-  
   return <div className="w-full p-2 mt-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs">
      <div className="flex items-center justify-between">
        <span className="font-medium truncate text-gray-800 dark:text-gray-200" title={name}>
@@ -55,34 +49,7 @@ const ToolOutputComponent: React.FC<ToolResultBlock  & {name: string, messageId:
        </div>
      </div>
      
-     {/* Show image directly if there's only one image and no text */}
-     {hasOnlyOneImage && imageBlocks[0] && (
-       <div className="mt-2">
-         <img 
-           src={`data:${imageBlocks[0].source.media_type};base64,${imageBlocks[0].source.data}`} 
-           alt="Tool output"
-           className=" rounded border border-gray-300 dark:border-gray-600"
-           style={{width:"300px;height:auto;"}}
-         />
-       </div>
-     )}
      
-     {/* Show image directly and text in collapsible if there's one image + text */}
-     {hasImageWithText && imageBlocks[0] && (
-       <div className="mt-2">
-         <img 
-           src={`data:${imageBlocks[0].source.media_type};base64,${imageBlocks[0].source.data}`} 
-           alt="Tool output"
-           className=" rounded border border-gray-300 dark:border-gray-600"
-           style={{width:"300px;height:auto;"}}
-
-         />
-       </div>
-     )}
-     
-     {/* Show collapsible for text content when there's mixed content, or always when not single image */}
-     {(!hasOnlyOneImage) && (
-       <>
          <button 
             type="button"
             className="mt-1 w-full px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center"
@@ -113,8 +80,6 @@ const ToolOutputComponent: React.FC<ToolResultBlock  & {name: string, messageId:
               })}
             </pre>
           )}
-       </>
-     )}
  </div>
 }
   
