@@ -273,6 +273,7 @@ export type BaseLLMOptions = {
     signal?: AbortSignal,
     directory?: string,
     onProgress?: (progress: number) => void,
+    log?: (message: string) => void
 }
 
 export type ReadableStreamWithAsyncIterable<T> = ReadableStream<T> & AsyncIterable<T>;

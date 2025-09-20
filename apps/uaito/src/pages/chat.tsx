@@ -56,14 +56,14 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
     dispatch(setSelectedModel(model));
   };
 
-  return <div className={`bg-gray-100 dark:bg-gray-900 transition-colors duration-300`}>
+  return <div className={`bg-gray-900 transition-colors duration-300`}>
     <SpaceBackground />
    
       {
         loaded && <>
         <header className="shadow-sm flex h-[48px] sticky z-50 items-center justify-between">
         <h1 className="ml-5 text-2xl  font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
-          <AnimatedText />
+          <Link href="/"><AnimatedText /></Link>
         </h1>
         <div className="flex-grow"></div>
         <div className='flex items-center space-x-3 mr-4'>
@@ -91,7 +91,7 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
             <button
               onClick={() => signOut()}
               type="button"
-              className="bg-red-600 hover:bg-red-700 text-white  p-2 rounded transition duration-300 flex items-center justify-center"
+              className="bg-red-600 hover:bg-red-700 text-white  p-2 rounded-lg transition duration-300 flex items-center justify-center"
             >
               <ArrowRightEndOnRectangleIcon className="h-5 w-5" />
             </button>

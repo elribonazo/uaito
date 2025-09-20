@@ -39,7 +39,7 @@ export const AgentSelector: React.FC<{onSelected?: (value: string) => void | Pro
                     enabledAgents.map((agentName, i) => {
                         return <li
                         key={`agent-${i}`}
-                        className="px-4 py-2 bg-opacity-90 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold  transition duration-300 hover:bg-gray-400 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 bg-opacity-90 bg-gray-700 text-white font-bold  transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         onClick={() => {
                           setSelectedValue(agentName);
                           setIsOpen(false);

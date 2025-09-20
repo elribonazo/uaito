@@ -157,7 +157,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
         onChange={setSearchText} 
         inputRef={searchInputRef as any}
       />}
-      <div className="fixed bottom-0 left-0 right-0 dark:bg-gray-900 transition-colors duration-300">
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 transition-colors duration-300">
         <div className="flex flex-col h-full">
           <div className="h-[calc(100vh-theme(spacing.32))] overflow-auto p-4 relative">
             <Messages searchText={searchText} messages={messages} onPromptClick={(prompt) => {
@@ -165,14 +165,14 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
               sendMessage(prompt);
             }}/>
           </div>
-          <div className="p-4 border-t border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
+          <div className="p-4 border-t border-gray-700 bg-gray-800">
             <form className="flex space-x-2" onSubmit={handleSubmit}>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleTextareaKeyDown}
                 placeholder="Type your message..."
-                className="w-full px-4 py-2 border rounded-lg text-gray-900 bg-white dark:bg-gray-700 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400 resize-none overflow-hidden"
+                className="w-full px-4 py-2 border rounded-lg bg-gray-700 text-white border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 resize-none overflow-hidden"
                 style={{ height: '40px', minHeight: '40px', maxHeight: '120px' }}
                 rows={1}
                 disabled={isLoading && lastMessage !== undefined && lastMessage.role === "user" && currentChat.state !== "streaming"}

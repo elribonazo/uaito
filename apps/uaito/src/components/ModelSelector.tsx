@@ -103,7 +103,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
             setIsOpen(!isOpen);
           }
         }}
-        className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-opacity-90 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded transition duration-300 hover:bg-gray-400 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-opacity-90 bg-gray-700 text-white font-bold rounded transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <CpuChipIcon className="ml-2 h-5 w-5 text-green-500" />
         <span className="truncate">{selectedModelLabel}</span>
@@ -116,14 +116,14 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
       
       {isOpen && !isDisabled && (
         <div className="absolute mt-2 w-full z-20 max-h-60 overflow-y-auto">
-          <ul className="py-1 bg-white dark:bg-gray-800 rounded-md shadow-lg">
+          <ul className="py-1 bg-gray-800 rounded-md shadow-lg">
             {availableModels.map((model) => (
               <li
                 key={model.value}
-                className={`px-4 py-2 cursor-pointer transition duration-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                className={`px-4 py-2 cursor-pointer transition duration-300 hover:bg-gray-700 ${
                   selectedModel === model.value 
-                    ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
-                    : 'text-gray-900 dark:text-white'
+                    ? 'bg-blue-900 text-blue-300' 
+                    : 'text-white'
                 }`}
                 onClick={() => handleModelSelect(model.value)}
                 onKeyDown={(e) => {

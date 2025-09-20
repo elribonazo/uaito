@@ -23,7 +23,7 @@ export const TokenCounter: React.FC<{ input: number; output: number }> = ({ inpu
         onMouseLeave={() => setIsHovered(false)}
       >
         {showDetailedView ? (
-          <div className="bg-gray-200 bg-opacity-70 px-1 py-1 flex items-center justify-end space-x-2 rounded-md">
+          <div className="bg-gray-700 bg-opacity-70 px-1 py-1 flex items-center justify-end space-x-2 rounded-md">
             <div className={`px-2 py-1 rounded ${getColorForTokenCount(input)}`}>
               <span className="text-white">Input: {formatNumber(input)}</span>
             </div>
@@ -32,9 +32,9 @@ export const TokenCounter: React.FC<{ input: number; output: number }> = ({ inpu
             </div>
           </div>
         ) : (
-          <div className="bg-opacity-90 bg-gray-300 space-x-2 rounded-md px-1 py-1 flex items-center space-x-2 cursor-pointer">
-            <ChartBarIcon className=" h-5 w-5 text-gray-800" />
-            <span className='px-2 py-1 text-gray-900'>Usage</span>
+          <div className="bg-opacity-90 bg-gray-700 space-x-2 rounded-md px-1 py-1 flex items-center space-x-2 cursor-pointer">
+            <ChartBarIcon className=" h-5 w-5 text-gray-200" />
+            <span className='px-2 py-1 text-gray-200'>Usage</span>
           </div>
         )}
       </div>

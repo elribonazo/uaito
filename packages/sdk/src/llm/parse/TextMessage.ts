@@ -14,19 +14,19 @@ export class TextMessage extends BaseMessage {
   public replacements: string[] = [];
   public buffer: string = '';
 
-  constructor(initialText: string = '') {
+  constructor(initialText: string = '', private log: (...messages: any[]) => void = console.log) {
     super();
     this.buffer = this.cleanChunk(initialText);
   }
 
   appendText(text: string) {
-    log('Appending text', { textLength: text.length, currentBufferLength: this.buffer.length });
+   this.log('Appending text', { textLength: text.length, currentBufferLength: this.buffer.length });
     this.buffer = text;
-    log('Text appended', { newBufferLength: this.buffer.length });
+   this.log('Text appended', { newBufferLength: this.buffer.length });
   }
 
   async render(): Promise<Message> {
-    log('Rendering TextMessage', { id: this.id, bufferLength: this.buffer.length });
+   this.log('Rendering TextMessage', { id: this.id, bufferLength: this.buffer.length });
     
     const message = {
       id: this.id,
@@ -36,7 +36,7 @@ export class TextMessage extends BaseMessage {
       content: [{ type: 'text' as const, text: this.buffer }]
     };
     
-    log('TextMessage rendered successfully', { 
+   this.log('TextMessage rendered successfully', { 
       id: this.id, 
       contentLength: message.content[0].text.length,
       contentPreview: message.content[0].text.substring(0, 100)

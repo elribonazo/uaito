@@ -43,7 +43,11 @@ export abstract class BaseLLM<
   public abstract cache: BaseLLMCache
   public abstract inputs: MessageArray<MessageInput>
   public data: Record<string, unknown> = {}
-  public log: (message: string) => void = console.log;
+
+  log(message: string) {
+    const fn = this.options?.log ?? console.log;
+    return fn(message);
+  }
 
   async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
     let retries = 0;
@@ -252,7 +256,6 @@ async runSafeCommand(
         while (true) {
           const readerResult = await reader.read();
           if (readerResult.done) {
-            debugger;
             break;
           }
 

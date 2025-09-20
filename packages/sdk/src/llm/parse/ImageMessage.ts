@@ -3,11 +3,6 @@ import { v4 } from "uuid";
 import { BaseMessage, type Message } from "@/types";
 import { blobToDataURL } from "../utils";
 
-// Verbose logging utility
-const log = (message: string, data?: any) => {
-  console.log(`[ImageMessage] ${message}`, data ? JSON.stringify(data, null, 2) : '');
-};
-
 
 export class ImageMessage extends BaseMessage {
   public id: string = v4();
@@ -17,28 +12,28 @@ export class ImageMessage extends BaseMessage {
     '</image>',
   ];
 
-  constructor(initialText: string) {
+  constructor(initialText: string, private log: (...messages: any[]) => void = console.log) {
     super();
-    log('ImageMessage created', { id: this.id, initialTextLength: initialText.length });
+   this.log('ImageMessage created', { id: this.id, initialTextLength: initialText.length });
     this.buffer = this.cleanChunk(initialText);
   }
 
 
   appendText(text: string) {
-    log('Appending text to image buffer', { textLength: text.length, currentBufferLength: this.buffer.length });
+   this.log('Appending text to image buffer', { textLength: text.length, currentBufferLength: this.buffer.length });
     this.buffer += text;
-    log('Text appended to image buffer', { newBufferLength: this.buffer.length });
+   this.log('Text appended to image buffer', { newBufferLength: this.buffer.length });
   }
 
   async render(): Promise<Message> {
-    log('Rendering ImageMessage', { id: this.id, bufferLength: this.buffer.length });
+   this.log('Rendering ImageMessage', { id: this.id, bufferLength: this.buffer.length });
     
     const imageUrl = this.buffer;
-    log('Fetching image from URL', { imageUrl });
+   this.log('Fetching image from URL', { imageUrl });
     
     try {
       const response = await fetch(imageUrl);
-      log('Image fetch response', { 
+     this.log('Image fetch response', { 
         status: response.status, 
         statusText: response.statusText, 
         contentType: response.headers.get('content-type'),
@@ -50,10 +45,10 @@ export class ImageMessage extends BaseMessage {
       }
       
       const arrayBuffer = await response.arrayBuffer();
-      log('Image converted to array buffer', { bufferSize: arrayBuffer.byteLength });
+     this.log('Image converted to array buffer', { bufferSize: arrayBuffer.byteLength });
       
       const blob = new Blob([arrayBuffer], { type: 'image/png' });
-      log('Created blob from array buffer', { blobSize: blob.size });
+     this.log('Created blob from array buffer', { blobSize: blob.size });
       
       const dataurl = await blobToDataURL(blob);
       
@@ -76,7 +71,7 @@ export class ImageMessage extends BaseMessage {
       return message;
       
     } catch (error) {
-      log('Error rendering ImageMessage', { error, imageUrl });
+     this.log('Error rendering ImageMessage', { error, imageUrl });
       throw error;
     }
   }

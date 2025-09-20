@@ -198,34 +198,16 @@ await agent.performTask("What's the weather like in Boston?");
 
 ## Command-Line Interface (CLI)
 
-The SDK includes a CLI for quick tests. To use it, create a configuration file.
+The SDK includes a powerful and easy-to-use CLI for running agents directly from your terminal. It supports all the same providers and models as the SDK and provides a clean, streaming interface.
 
-**Example `uaito.openai.js`:**
+For detailed instructions and examples, please see the [SDK's README](./packages/sdk/README.md).
 
-```javascript
-const { LLMProvider } = require('@uaito/sdk');
-require('dotenv').config();
+### Quick Example
 
-/**
- * @type {import('@uaito/sdk').BinConfig<LLMProvider.OpenAI>}
- */
-const config = {
-  provider: LLMProvider.OpenAI,
-  options: {
-    apiKey: process.env.OPENAI_API_KEY,
-    model: 'gpt-4o',
-    // You can also define tools here
-  },
-  // And onTool handler
-};
-
-module.exports = config;
-```
-
-Then run the agent from your terminal:
+Once installed, you can quickly run a prompt like this:
 
 ```bash
-npx @uaito/sdk run "Your prompt here" --agent openai --stream
+uaito-sdk run "What is the capital of Canada?" --provider OpenAI --model gpt-5-nano
 ```
 
 ## Supported Providers & Models

@@ -338,7 +338,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
   async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.stoppingCriteria.reset();
-    this.messageCache = new MessageCache(this.options.tools ?? []);
+    this.messageCache = new MessageCache(this.options.tools ?? [], this.log);
 
     this.log("Starting performTaskStream");
     await this.load();

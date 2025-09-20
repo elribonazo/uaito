@@ -1,19 +1,82 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
-import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { LLMProvider, BinConfig, OnTool, Tool } from './types';
+import {
+    LLMProvider,
+    HuggingFaceONNXModels,
+    AnthropicModels,
+    OpenAIModels,
+} from './types';
+import type {
+    Tool,
+    AgentTypeToOptions,
+    Message,
+    TextBlock,
+} from './types';
 import { Agent } from './agents/index';
 import { MessageArray } from './utils';
 
+// Default tools available in the CLI
+const browseWebPageTool: Tool = {
+    name: "browseWebPage",
+    description: `Opens the desired url to either get the source html code or to directly extract the redable texts`,
+    input_schema: {
+        type: "object",
+        properties: {
+            url: {
+                type: "string",
+                description: "The url parameter must include http or https or file."
+            },
+            extractText: {
+                type: 'boolean',
+                description: "If true, will return the content texts only. When not specified, or when false, we will return the whole html code."
+            }
+        },
+        required: ['url']
+    }
+}
 
+const tavilySearch: Tool = {
+    name: "tavilySearch",
+    description: "Perform a web search using the Tavily API to get up-to-date information or additional context. This tool should be used when you need current information or feel a search could provide a better answer to the user's query. It will return a summary of the search results, including relevant snippets and source URLs.",
+    input_schema: {
+        type: "object",
+        properties: {
+            query: {
+                type: "string",
+                description: "The search query. Be as specific and detailed as possible to get the most relevant results."
+            }
+        },
+        required: ["query"]
+    }
+}
 
+const availableTools = [browseWebPageTool, tavilySearch];
 
-// Add a command named "run" (you can rename it). 
-// The command loads a configuration file specified via --config or defaults to uaito.config.json.
+// Custom Agent to override prompts
+class CLIAgent<T extends LLMProvider> extends Agent<T> {
+    constructor(
+        type: T,
+        options: AgentTypeToOptions[T],
+        private systemPromptTemplate: string,
+        private cot: string,
+    ) {
+        super(type, options);
+
+        
+    }
+
+    override get systemPrompt() {
+        return this.systemPromptTemplate;
+    }
+
+    override get chainOfThought() {
+        return this.cot;
+    }
+}
+
 yargs(hideBin(process.argv))
     .command(
         'run <message>',
@@ -24,103 +87,95 @@ yargs(hideBin(process.argv))
                     type: 'string',
                     describe: 'Message to send to the agent',
                 })
-                .option('config', {
-                    alias: 'c',
+                .option('provider', {
+                    alias: 'p',
                     type: 'string',
-                    default: 'uaito.config.js',
-                    describe: 'Path to a configuration file. Defaults to [cwd]/uaito.config.js',
+                    choices: [LLMProvider.Anthropic, LLMProvider.OpenAI, LLMProvider.Local],
+                    required: true,
+                    describe: 'LLM provider to use',
                 })
-                .option('agent', {
-                    alias: 'a',
+                .option('model', {
+                    alias: 'm',
                     type: 'string',
-                    describe: 'Agent name to load specific config (uaito.[agent].js)',
+                    required: true,
+                    describe: `Model to use. \nAnthropic: ${Object.keys(AnthropicModels).join(", ")} \nOpenAI: ${Object.keys(OpenAIModels).join(", ")} \nLocal: ${Object.keys(HuggingFaceONNXModels).join(", ")}`,
                 })
-                .option('verbose', {
-                    alias: 'v',
-                    type: 'boolean',
-                    default: false,
-                    describe: 'Show detailed log output',
+                .option('apiKey', {
+                    type: 'string',
+                    describe: 'API key for the provider. Can also be set via ENV (ANTHROPIC_API_KEY, OPENAI_API_KEY)',
                 })
-                .option('stream', {
-                    alias: 's',
-                    type: 'boolean',
-                    default: false,
-                    describe: 'Use streaming mode',
-                });
         },
         async (argv) => {
-            // Capture the message from the positional argument
-            if (!argv.message) {
+            const { message, provider: providerStr, model, apiKey } = argv;
+            const provider = providerStr as LLMProvider;
+
+            if (!message) {
                 console.error('You need to specify a message');
                 process.exit(1);
             }
-            const message = argv.message;
-            
-            // Determine config file path based on agent option
-            const configFileName = argv.agent 
-                ? `uaito.${argv.agent}.js`
-                : 'uaito.config.js';
-            
-            const configPath = path.resolve(process.cwd(), configFileName);
-            let fileContents: BinConfig<LLMProvider> = (await import(configPath)).default;
 
             try {
-                const onTool = fileContents?.onTool;
-                const tools = fileContents?.tools;
-                const createSystemPrompt = fileContents?.createSystemPrompt;
-                const chainOfThought = fileContents?.chainOfThought ??  `Answer the user's request using relevant tools only if the tool exists and is relevant. 
-                Before calling a tool, do some internal analysis. 
-                1. First, determine if you have access to the requested tool.
-                2. Second, think about which of the provided tools is the relevant tool to answer the user's request. 
-                3. Third, go through each of the required parameters of the relevant tool and determine if the user has directly provided or given enough information to infer a value. 
-                When deciding if the parameter can be inferred, carefully consider all the context to see if it supports a specific value.
-                If all of the required parawmeters are present or can be reasonably inferred, close the thinking tag and proceed with the tool call. 
-                BUT, if one of the values for a required parameter is missing, 
-                DO NOT invoke the function (not even with fillers for the missing params) and instead, ask the user to provide the missing parameters. 
-                DO NOT ask for more information on optional parameters if it is not provided.
-                DO NOT reflect on the quality of the returned search results in your response.`;
+                const tools = availableTools;
+                const systemPrompt = `You are a helpful AI assistant.`;
+                const chainOfThought = `Answer the user's request using relevant tools only if the tool exists and is relevant.`;
 
+                let agent: CLIAgent<LLMProvider>;
+                console.log = () => {}
 
-                // Check if config file exists
-                if (!fs.existsSync(configPath)) {
-                    console.error(`Configuration file not found at: ${configPath}`);
-                    console.error(argv.agent
-                        ? `Please create a config file named uaito.${argv.agent}.js`
-                        : 'Please create a config file or specify one using the --config option');
-                    process.exit(1);
-                }
-                if (argv.verbose) {
-                    console.log('Raw configuration file contents:\n', fileContents);
-                }
-
-
-                const agent = new Agent(
-                    fileContents.provider,
-                    fileContents.options,
-                    onTool,
-                    MessageArray.from([]),
-                    tools
-                );
-
-                const useStream = argv.stream ? true: undefined;
-                const {response} = await agent.performTask(
-                    message,
-                    chainOfThought,
-                    createSystemPrompt ? createSystemPrompt(tools ?? []) : '',
-                    useStream 
-                );
-
-                if (useStream) {
-                    for await (const chunk of response) {
-                        agent.log(`Stream response: ${chunk.type}: ${JSON.stringify(chunk, null, 2)}`);
+                if (provider === LLMProvider.Anthropic || provider === LLMProvider.OpenAI) {
+                    const options: AgentTypeToOptions[LLMProvider.Anthropic] | AgentTypeToOptions[LLMProvider.OpenAI] = {
+                        model,
+                        tools,
+                        apiKey: apiKey || (provider === LLMProvider.Anthropic ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY),
+                    };
+                    if (!options.apiKey) {
+                        throw new Error(`API key for ${provider} is required. Use --apiKey or set the corresponding environment variable.`);
                     }
+                    agent = new CLIAgent(
+                        provider,
+                        options,
+                        systemPrompt,
+                        chainOfThought
+                    );
+                } else if (provider === LLMProvider.Local) {
+                    const options: AgentTypeToOptions[LLMProvider.Local] = {
+                        model: model as HuggingFaceONNXModels,
+                        tools,
+                        device: 'auto',
+                        dtype: 'q4f16',
+                        log: (message: string) => { }
+                    };
+                    
+                    agent = new CLIAgent(
+                        provider,
+                        options,
+                        systemPrompt,
+                        chainOfThought
+                    );
                 } else {
-                    agent.log(`Final response: ${JSON.stringify(response, null, 2)}`);
+                    throw new Error(`Unsupported provider: ${provider}`);
                 }
-                
+
+
+                await agent.addInputs(new MessageArray([]));
+
+                const { response } = await agent.performTask(
+                    message
+                );
+
+              
+                for await (const chunk of response) {
+                    if (chunk.type === 'message') {
+                        for (const content of chunk.content) {
+                            if (content.type === 'text') {
+                                process.stdout.write(content.text);
+                            }
+                        }
+                    }
+                }
+
             } catch (error) {
                 console.error('Error:', error);
-                process.exit(1);
             }
         }
     )

@@ -30,7 +30,7 @@ export const Provider: React.FC<{
             setIsOpen(!isOpen);
           }
         }}
-        className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-opacity-90 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded transition duration-300 hover:bg-gray-400 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-opacity-90 bg-gray-700 text-white font-bold rounded transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <SparklesIcon className="ml-2 h-5 w-5 text-purple-500" />
         <span>{value}</span>
@@ -47,7 +47,7 @@ export const Provider: React.FC<{
               return (
                 <li
                   key={`provider-${i}`}
-                  className="px-4 py-2 bg-opacity-90 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold  transition duration-300 hover:bg-gray-400 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2 bg-opacity-90 bg-gray-700 text-white font-bold  transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onClick={() => {
                     onSelected(providerName as LLMProvider);
                     setIsOpen(false);

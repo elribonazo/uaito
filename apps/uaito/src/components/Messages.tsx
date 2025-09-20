@@ -143,7 +143,7 @@ export const MessageItem:React.FC<{
     } else if (content.type === "redacted_thinking") {
         return <ThinkingComponent thinking="[Thinking content redacted]" messages={messages} currentMessageId={id} />;
     } else if (content.type === "tool_use") {
-        return <ToolComponent messageId={`msg-${id}-block`} {...content} />
+        return <ToolComponent messageId={`msg-${id}-block`} {...content} messages={messages} currentMessageId={id} />
     }else if (content.type === "tool_result") {
         const toolIndex = app.user.messages.findIndex((m) =>  m.type === "tool_use" &&  m.id === content.tool_use_id);
 
@@ -152,7 +152,9 @@ export const MessageItem:React.FC<{
             
         return <ToolComponent messageId={`msg-${id}-block`} {...{
             ...content,
-            name: toolName
+            name: toolName,
+            messages,
+            currentMessageId: id,
         }} />
     } else if (content.type === "signature_delta") {
         // Handle signature delta - could render as a special text block or ignore
@@ -203,7 +205,7 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
         <div className="flex-grow flex flex-col items-center justify-center mt-20">
             <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">AI Chat</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-                {prompts.map((prompt, index) => (
+                {prompts.map((prompt) => (
                     <button
                         key={prompt}
                         type="button"

@@ -43,8 +43,8 @@ const ClientSpaceBackground: React.FC = () => {
 
     const drawGradient = () => {
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#000033');
-      gradient.addColorStop(1, '#000066');
+      gradient.addColorStop(0, '#1a1a1a');
+      gradient.addColorStop(1, '#000000');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
