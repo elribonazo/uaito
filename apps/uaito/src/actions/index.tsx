@@ -189,6 +189,7 @@ export const streamMessage = createAsyncThunk(
 				const newAgent = new EdgeRuntimeAgent(
 					hfOptions,
 					async function (this: Agent<LLMProvider.Local>, message: Message) {
+
 						const toolUse = message.content.find((m) => m.type === "tool_use");
 						const id = message.id;
 
@@ -207,7 +208,7 @@ export const streamMessage = createAsyncThunk(
 										content: [],
 									} as ToolResultBlock,
 								],
-								role: "user",
+								role: "assistant",
 							};
 							for await (const chunk of response) {
 								for (const content of chunk.content) {

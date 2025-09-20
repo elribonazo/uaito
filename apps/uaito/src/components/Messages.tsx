@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noAssignInExpressions: ok */
 import { useEffect, useRef } from 'react';
 import type { MessageState } from '../redux/userSlice';
 import { Markdown } from './Markdown';
@@ -21,6 +22,45 @@ export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: 
     );
 };
 
+// Helper function to parse text content and extract images
+type ContentPart = { type: 'text'; content: string } | { type: 'image'; content: string };
+
+const parseTextWithImages = (text: string): ContentPart[] => {
+    const parts: ContentPart[] = [];
+    let currentIndex = 0;
+    const imageRegex = /<image>(.*?)<\/image>/g;
+    let match: RegExpExecArray | null;
+
+    while ((match = imageRegex.exec(text)) !== null) {
+        // Add text before the image tag
+        if (match.index > currentIndex) {
+            const textPart = text.substring(currentIndex, match.index);
+            if (textPart.trim()) {
+                parts.push({ type: 'text', content: textPart });
+            }
+        }
+        
+        // Add the image
+        parts.push({ type: 'image', content: match[1] });
+        currentIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text after the last image
+    if (currentIndex < text.length) {
+        const remainingText = text.substring(currentIndex);
+        if (remainingText.trim()) {
+            parts.push({ type: 'text', content: remainingText });
+        }
+    }
+    
+    // If no images found, return the original text as a single part
+    if (parts.length === 0) {
+        parts.push({ type: 'text', content: text });
+    }
+    
+    return parts;
+};
+
 export const MessageItem:React.FC<{
     id: string, 
     isUser: boolean,
@@ -32,13 +72,36 @@ export const MessageItem:React.FC<{
     const app = useMountedApp();
     if (content.type === "text") {
         const text = content.text;
+        
+        // Check if the text contains images
         if (text.includes("<image>")) {
-            return <img
-                src={`${text.split("<image>")[1].split("</image>")[0]}`}
-                style={{ width: "250px", height: "auto" }}
-                alt="generated content"
-            />
+            const parts = parseTextWithImages(text);
+            
+            return (
+                <MessageContainer id={id} isUser={isUser}>
+                    {parts.map((part, index) => {
+                        if (part.type === 'text') {
+                            return (
+                                <Markdown key={`${id}-text-${index}-${part.content.slice(0, 20).replace(/\s/g, '')}`} searchText={searchText}>
+                                    {part.content}
+                                </Markdown>
+                            );
+                        } else if (part.type === 'image') {
+                            return (
+                                <img
+                                    key={`${id}-image-${index}-${part.content.slice(-20)}`}
+                                    src={part.content}
+                                    style={{ width: "250px", height: "auto", margin: "8px 0" }}
+                                    alt="generated content"
+                                />
+                            );
+                        }
+                        return null;
+                    })}
+                </MessageContainer>
+            );
         }
+        
         return <MessageContainer id={id} isUser={isUser}>
             <Markdown searchText={searchText}>
             {content.text}

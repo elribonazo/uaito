@@ -97,24 +97,21 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
 
  
   async performTaskStream(prompt: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
-    this.log("Starting performTaskStream");
-    ;
     await this.load();
-    ;
     const stream = new ReadableStream<Message>({
       start: async (controller) => {
-        this.log("ReadableStream started for model generation.");
         const conversation = [
           {
             role: "<|User|>",
             content: prompt
           },
         ];
-        ;
+        if (!prompt || prompt.trim() === "") {
+          controller.error(new Error("No prompt provided"));
+          return;
+        }
         const inputs = await this.processor(conversation, { chat_template: "text_to_image" });
-        ;
         const num_image_tokens = this.processor.num_image_tokens;
-        ;
         const outputs = await this.model.generate_images({
           ...inputs,
           min_new_tokens: num_image_tokens,
@@ -123,12 +120,7 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
         });
         ;
         const [image] = outputs;
-
-        const blobUrl = URL.createObjectURL(
-          await image.toBlob()
-        );
-
-
+        const blobUrl = URL.createObjectURL( await image.toBlob()   );
         const message: Message = {
             id: v4(),
             role: 'assistant',

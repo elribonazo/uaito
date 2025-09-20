@@ -112,6 +112,8 @@ const userSlice = createSlice({
     },
     pushChatMessage: (state, action: PayloadAction<PushChatMessage>) => {
       const { chatMessage: { message } } = action.payload;
+      console.log("SATH pushChatMessage", message);
+
       if (message.type === "error") {
         toast(
           <div>
@@ -141,6 +143,7 @@ const userSlice = createSlice({
       } else {
         const existingIndex = state.messages.findIndex((m) =>  message.id === m.id);
         if (existingIndex < 0) {
+          debugger;
           state.messages.push(message)
         } else if (existingIndex > 0) {
           if (state.messages[existingIndex]?.chunk ) {

@@ -141,6 +141,98 @@ async runSafeCommand(
   }
 
   /**
+   * Transforms the given stream from an AI provider into a Uaito Stream
+   * This also keeps track of the received messages
+   * @param input 
+   * @param transform 
+   * @returns 
+   */
+  async transformStream<AChunk, BChunk extends Message>(
+    input: ReadableStreamWithAsyncIterable<AChunk>,
+    transform: TransformStreamFn<unknown, BChunk>,
+  ): Promise<ReadableStreamWithAsyncIterable<BChunk>> {
+
+    const reader = input.getReader();
+    const stream = new ReadableStream({
+      start: async (controller) => {
+        while(true) {
+          const s = await reader.read();
+          if (s.done) {
+            controller.close();
+            reader.releaseLock()
+            break;
+          }
+          
+          if (!s.value) {
+            continue;
+          }
+
+          const messageInput =  s.value instanceof Uint8Array ? 
+            JSON.parse( Buffer.from( s.value  ).toString()): 
+            s.value;
+
+          const message = await transform(messageInput);
+
+          if (message !== null) {
+            //Message pre-processing, cache and tools
+            const isErrorMessage = message.type === "error";
+            const isDeltaMessage = message.type === "delta";
+            const isToolDeltaMessage = message.type === "tool_delta";
+            const isToolUseMessage = message.type === "tool_use";
+            const isChunkMessage = message.type === "message";
+            const isUsageMessage = message.type === "usage";
+            const isThinkingMessage = message.type === "thinking";
+            const isRedactedThinkingMessage = message.type === "redacted_thinking";
+            const isSignatureDeltaMessage = message.type === "signature_delta";
+            let usageBlock: UsageBlock | null = null;
+
+            if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage || isThinkingMessage || isRedactedThinkingMessage || isSignatureDeltaMessage) {
+      
+              for (const content of message.content) {
+                if (content.type === "usage") {
+                  const id =message.content.findIndex((c) => c.type === "usage");
+                  if (id !== -1) {
+                    usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
+                  }
+                }
+              }
+              if (message.content.length) {
+                 controller.enqueue(message);;
+              }
+            } else if (isDeltaMessage) {
+              for (const content of message.content) {
+                if (content.type === "usage") {
+                  const id = message.content.findIndex((c) => c.type === "usage");
+                  if (id !== -1) {
+                    usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
+                  }
+                }
+              }
+              if (message.content.length) {
+                controller.enqueue(message);
+              }
+            } 
+
+            if (usageBlock) {
+              const usageMessage = {
+                id: v4(),
+                role:'assistant',
+                type: 'usage',
+                content: [usageBlock]
+              } as BChunk;
+
+              controller.enqueue(usageMessage);
+            }
+          } 
+        }
+       
+      }
+    })
+    return stream as ReadableStream<BChunk> & AsyncIterable<BChunk>
+  }
+
+
+  /**
    * Transforms an input stream using the provided transform function.
    * @template T The type of the input chunk.
    * @template S The type of the output stream, extending ReadableStream.
@@ -160,7 +252,7 @@ async runSafeCommand(
         while (true) {
           const readerResult = await reader.read();
           if (readerResult.done) {
-            controller.close();
+            debugger;
             break;
           }
 
@@ -212,6 +304,7 @@ async runSafeCommand(
                 } else {
                   toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                 }
+
                 await onTool.bind(this)(tChunk, this.options.signal);
                 const lastOutput = this.inputs[this.inputs.length - 1];
                 if (lastOutput.content[0].type !== 'tool_result') {
@@ -222,9 +315,10 @@ async runSafeCommand(
                   ...lastOutput.content[0],
                   name: (tChunk.content[0] as ToolUseBlock).name
                 } as ToolResultBlock;
+                
                 controller.enqueue({
                   id: v4(),
-                  role:'user',
+                  role:'assistant',
                   content: lastOutput.content,
                   type: 'tool_result'
                 });
@@ -259,101 +353,4 @@ async runSafeCommand(
     return stream as ReadableStreamWithAsyncIterable<AChunk>
   }
 
-  /**
-   * Transforms the given stream from an AI provider into a Uaito Stream
-   * This also keeps track of the received messages
-   * @param input 
-   * @param transform 
-   * @returns 
-   */
-  async transformStream<AChunk, BChunk extends Message>(
-    input: ReadableStreamWithAsyncIterable<AChunk>,
-    transform: TransformStreamFn<unknown, BChunk>,
-  ): Promise<ReadableStreamWithAsyncIterable<BChunk>> {
-
-    const reader = input.getReader();
-
-    function emit(
-      controller: ReadableStreamDefaultController<BChunk>,
-      message: BChunk
-    ) {
-      controller.enqueue(message);
-    }
-
-    const stream = new ReadableStream({
-      start: async (controller) => {
-        while(true) {
-          const s = await reader.read();
-          if (s.done) {
-            controller.close();
-            break;
-          }
-          
-          if (!s.value) {
-            continue;
-          }
-
-          const messageInput =  s.value instanceof Uint8Array ? 
-          JSON.parse(
-            Buffer.from( s.value  ).toString()
-          ):s.value;
-
-          const message = await transform(messageInput);
-
-          if (message !== null) {
-            //Message pre-processing, cache and tools
-            const isErrorMessage = message.type === "error";
-            const isDeltaMessage = message.type === "delta";
-            const isToolDeltaMessage = message.type === "tool_delta";
-            const isToolUseMessage = message.type === "tool_use";
-            const isChunkMessage = message.type === "message";
-            const isUsageMessage = message.type === "usage";
-            const isThinkingMessage = message.type === "thinking";
-            const isRedactedThinkingMessage = message.type === "redacted_thinking";
-            const isSignatureDeltaMessage = message.type === "signature_delta";
-            let usageBlock: UsageBlock | null = null;
-
-            if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage || isThinkingMessage || isRedactedThinkingMessage || isSignatureDeltaMessage) {
-              for (const content of message.content) {
-                if (content.type === "usage") {
-                  const id =message.content.findIndex((c) => c.type === "usage");
-                  if (id !== -1) {
-                    usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
-                  }
-                }
-              }
-              if (message.content.length) {
-                emit(controller, message);
-              }
-            } else if (isDeltaMessage) {
-              for (const content of message.content) {
-                if (content.type === "usage") {
-                  const id = message.content.findIndex((c) => c.type === "usage");
-                  if (id !== -1) {
-                    usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
-                  }
-                }
-              }
-              if (message.content.length) {
-                emit(controller, message);
-              }
-            } 
-
-            if (usageBlock) {
-              const usageMessage = {
-                id: v4(),
-                role:'assistant',
-                type: 'usage',
-                content: [usageBlock]
-              } as BChunk
-              emit(controller, usageMessage);
-            }
-          } 
-        }
-        controller.close();
-        reader.releaseLock()
-      }
-    })
-    return stream as ReadableStream<BChunk> & AsyncIterable<BChunk>
-  }
 }

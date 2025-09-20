@@ -281,18 +281,28 @@ export const AgentTypeToModel = {
 export abstract class BaseMessage {
   abstract render(): Promise<Message>;
   abstract replacements: string[];
+  abstract buffer: string;
 
-  protected buffer: string;
   protected tools: Tool[];
   protected cleanChunk(chunk: string) {
-    this.replacements?.forEach(replacement => {
-      chunk = chunk.replace(replacement, '');
-    });
-    return chunk;
+    let replacedText = '';
+    if (this.replacements) {
+      const match = this.replacements.find(replacement => chunk.includes(replacement));
+      if (match) {
+        const replaced = chunk
+          .replace(`${match}\r\n`, '')
+          .replace(`${match}\r`, '')
+          .replace(`${match}\n`, '')
+          .replace(`${match}`, '');
+          
+          replacedText = replaced.trim();
+      } else {
+        replacedText = chunk;
+      }
+    } else {
+      replacedText = chunk
+    }
+    return replacedText;
   }
 
-  constructor(buffer: string = '', tools: Tool[] = []) {
-    this.buffer = this.cleanChunk(buffer);
-    this.tools = tools;
-  }
 }
