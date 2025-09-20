@@ -124,18 +124,19 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
         ;
         const [image] = outputs;
 
-        const blobImage = new Blob([await image.toBlob()], { type: 'image/png' });
-        const blobBuffer = await blobImage.arrayBuffer();
-        const imageBase64 = Buffer.from(blobBuffer).toString('base64');
-        ;
+        const blobUrl = URL.createObjectURL(
+          await image.toBlob()
+        );
+
 
         const message: Message = {
             id: v4(),
             role: 'assistant',
             type: 'message',
-            content: [{ type: 'image', source: { data: imageBase64, media_type: 'image/png', type: 'base64' } }]
-        }
-        ;
+            content: [
+              { type: 'text', text: `<image>${blobUrl}</image>` },
+            ]
+        };
 
         controller.enqueue(message);
         controller.close();
