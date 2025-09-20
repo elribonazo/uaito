@@ -25,7 +25,7 @@ import { MessageArray } from '../utils';
  */
 export type TransformStreamFn<T, M> = (
   chunk: T,
-) => M | null
+) => Promise<M | null>
 
 /**
  * Abstract base class for Language Model implementations.
@@ -292,13 +292,13 @@ async runSafeCommand(
           if (!s.value) {
             continue;
           }
-          const message = s.value instanceof Uint8Array ? transform(
-            JSON.parse(
-              Buffer.from( s.value  ).toString()
-            )
-          ) : transform(s.value);
 
-          this.log("KMessage"+ JSON.stringify(message, null, 2));
+          const messageInput =  s.value instanceof Uint8Array ? 
+          JSON.parse(
+            Buffer.from( s.value  ).toString()
+          ):s.value;
+
+          const message = await transform(messageInput);
 
           if (message !== null) {
             //Message pre-processing, cache and tools
@@ -324,7 +324,6 @@ async runSafeCommand(
               }
               if (message.content.length) {
                 emit(controller, message);
-
               }
             } else if (isDeltaMessage) {
               for (const content of message.content) {

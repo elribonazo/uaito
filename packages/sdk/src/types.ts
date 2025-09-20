@@ -277,3 +277,22 @@ export const AgentTypeToModel = {
   [LLMProvider.OpenAI]: OpenAIModels,
   [LLMProvider.Local]: HuggingFaceONNXModels,
 };
+
+export abstract class BaseMessage {
+  abstract render(): Promise<Message>;
+  abstract replacements: string[];
+
+  protected buffer: string;
+  protected tools: Tool[];
+  protected cleanChunk(chunk: string) {
+    this.replacements?.forEach(replacement => {
+      chunk = chunk.replace(replacement, '');
+    });
+    return chunk;
+  }
+
+  constructor(buffer: string = '', tools: Tool[] = []) {
+    this.buffer = this.cleanChunk(buffer);
+    this.tools = tools;
+  }
+}
