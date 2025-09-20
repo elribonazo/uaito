@@ -5,7 +5,7 @@ import { Markdown } from './Markdown';
 import { ToolComponent } from './ToolComponent';
 import { ThinkingComponent } from './ThinkingComponent';
 import { useMountedApp } from '../redux/store';
-import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock, SignatureDeltaBlock } from '@uaito/sdk';
+import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock, SignatureDeltaBlock, AudioBlock } from '@uaito/sdk';
 
 export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: boolean, children: React.ReactNode}) => {
     return (
@@ -23,16 +23,16 @@ export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: 
 };
 
 // Helper function to parse text content and extract images
-type ContentPart = { type: 'text'; content: string } | { type: 'image'; content: string };
+type ContentPart = { type: 'text'; content: string } | { type: 'image'; content: string } | { type: 'audio'; content: string };
 
 const parseTextWithImages = (text: string): ContentPart[] => {
     const parts: ContentPart[] = [];
+    const combinedRegex = /(<image>(.*?)<\/image>|<audio>(.*?)<\/audio>)/g;
     let currentIndex = 0;
-    const imageRegex = /<image>(.*?)<\/image>/g;
     let match: RegExpExecArray | null;
 
-    while ((match = imageRegex.exec(text)) !== null) {
-        // Add text before the image tag
+    while ((match = combinedRegex.exec(text)) !== null) {
+        // Add text before the tag
         if (match.index > currentIndex) {
             const textPart = text.substring(currentIndex, match.index);
             if (textPart.trim()) {
@@ -40,12 +40,17 @@ const parseTextWithImages = (text: string): ContentPart[] => {
             }
         }
         
-        // Add the image
-        parts.push({ type: 'image', content: match[1] });
+        // Check if it's an image or audio tag and add accordingly
+        if (match[0].startsWith('<image>')) {
+            parts.push({ type: 'image', content: match[2] });
+        } else if (match[0].startsWith('<audio>')) {
+            parts.push({ type: 'audio', content: match[3] });
+        }
+        
         currentIndex = match.index + match[0].length;
     }
     
-    // Add remaining text after the last image
+    // Add remaining text after the last tag
     if (currentIndex < text.length) {
         const remainingText = text.substring(currentIndex);
         if (remainingText.trim()) {
@@ -53,7 +58,7 @@ const parseTextWithImages = (text: string): ContentPart[] => {
         }
     }
     
-    // If no images found, return the original text as a single part
+    // If no tags found, return the original text as a single part
     if (parts.length === 0) {
         parts.push({ type: 'text', content: text });
     }
@@ -64,7 +69,7 @@ const parseTextWithImages = (text: string): ContentPart[] => {
 export const MessageItem:React.FC<{
     id: string, 
     isUser: boolean,
-    content: TextBlock | ToolBlock | ImageBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock,
+    content: TextBlock | ToolBlock | ImageBlock |AudioBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock,
     searchText: string,
     type: MessageState['type'],
     messages?: MessageState[]
@@ -74,9 +79,9 @@ export const MessageItem:React.FC<{
         const text = content.text;
         
         // Check if the text contains images
-        if (text.includes("<image>")) {
+        if (text.includes("<image>") || text.includes("<audio>")) {
             const parts = parseTextWithImages(text);
-            
+
             return (
                 <MessageContainer id={id} isUser={isUser}>
                     {parts.map((part, index) => {
@@ -93,6 +98,16 @@ export const MessageItem:React.FC<{
                                     src={part.content}
                                     style={{ width: "250px", height: "auto", margin: "8px 0" }}
                                     alt="generated content"
+                                />
+                            );
+                        } else if (part.type === 'audio') {
+                            return (
+                                // biome-ignore lint/a11y/useMediaCaption: Audio content is generated and doesn't need captions
+<audio
+                                    key={`${id}-audio-${index}-${part.content.slice(-20)}`}
+                                    src={part.content}
+                                    controls
+                                    style={{ display:'block' }}
                                 />
                             );
                         }
@@ -113,6 +128,16 @@ export const MessageItem:React.FC<{
             style={{ width: "250px", height: "auto" }}
             alt="generated content"
         />
+    } else if (content.type === "audio") {
+        return (
+            // biome-ignore lint/a11y/useMediaCaption: Audio content is generated and doesn't need captions
+<audio
+            src={`${content.source.data}`}
+            controls
+            style={{display: "block" }}
+        />
+        );
+    
     } else if (content.type === "thinking") {
         return <ThinkingComponent thinking={content.thinking} messages={messages} currentMessageId={id} />;
     } else if (content.type === "redacted_thinking") {
@@ -169,8 +194,9 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
         "Generate a picture of a pomksy dog dressing as a crypto bro",
         "Find me the best steak Restaurants in Madrid, best price, meat quality and space for year 2025",
         "What is the capital of France?",
-        "Write a short story about a robot who discovers music",
-        "Create a story with 2 chapters about a Robot that visits earth called Uauto, for each chapter create a picture and also add some text"
+        "A song with 80s pop track with bassy drums and synth",
+        'A song with Modern electronic music with a retro vibe, techno with a modern twist, bassy drums and synth, vocals',
+       `Generate a long 3 chapters story about a Robot that visits earth and interacts with humans, animals and plants. Each chapter is composed of a title, description and chapter image.`,
     ];
 
     return (

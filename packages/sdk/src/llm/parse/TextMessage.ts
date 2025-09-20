@@ -14,9 +14,9 @@ export class TextMessage extends BaseMessage {
   public replacements: string[] = [];
   public buffer: string = '';
 
-  constructor(initialText: string) {
+  constructor(initialText: string = '') {
     super();
-    log('TextMessage created', { id: this.id, initialTextLength: initialText.length });
+    this.buffer = this.cleanChunk(initialText);
   }
 
   appendText(text: string) {

@@ -5,40 +5,40 @@ import { blobToDataURL } from "../utils";
 
 // Verbose logging utility
 const log = (message: string, data?: any) => {
-  console.log(`[ImageMessage] ${message}`, data ? JSON.stringify(data, null, 2) : '');
+  console.log(`[AudioMessage] ${message}`, data ? JSON.stringify(data, null, 2) : '');
 };
 
 
-export class ImageMessage extends BaseMessage {
+export class AudioMessage extends BaseMessage {
   public id: string = v4();
   public buffer: string = '';
   public replacements: string[] = [
-    '<image>',
-    '</image>',
+    '<audio>',
+    '</audio>',
   ];
 
   constructor(initialText: string) {
     super();
-    log('ImageMessage created', { id: this.id, initialTextLength: initialText.length });
+    log('AudioMessage created', { id: this.id, initialTextLength: initialText.length });
     this.buffer = this.cleanChunk(initialText);
   }
 
 
   appendText(text: string) {
-    log('Appending text to image buffer', { textLength: text.length, currentBufferLength: this.buffer.length });
+    log('Appending text to audio buffer', { textLength: text.length, currentBufferLength: this.buffer.length });
     this.buffer += text;
-    log('Text appended to image buffer', { newBufferLength: this.buffer.length });
+    log('Text appended to audio buffer', { newBufferLength: this.buffer.length });
   }
 
   async render(): Promise<Message> {
-    log('Rendering ImageMessage', { id: this.id, bufferLength: this.buffer.length });
+    log('Rendering AudioMessage', { id: this.id, bufferLength: this.buffer.length });
     
-    const imageUrl = this.buffer;
-    log('Fetching image from URL', { imageUrl });
+    const audioUrl = this.buffer;
+    log('Fetching audio from URL', { audioUrl });
     
     try {
-      const response = await fetch(imageUrl);
-      log('Image fetch response', { 
+      const response = await fetch(audioUrl);
+      log('Audio fetch response', { 
         status: response.status, 
         statusText: response.statusText, 
         contentType: response.headers.get('content-type'),
@@ -52,7 +52,7 @@ export class ImageMessage extends BaseMessage {
       const arrayBuffer = await response.arrayBuffer();
       log('Image converted to array buffer', { bufferSize: arrayBuffer.byteLength });
       
-      const blob = new Blob([arrayBuffer], { type: 'image/png' });
+      const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
       log('Created blob from array buffer', { blobSize: blob.size });
       
       const dataurl = await blobToDataURL(blob);
@@ -63,10 +63,10 @@ export class ImageMessage extends BaseMessage {
         type: 'message' as const,
         content: [
           {
-            type: 'image' as const,
+            type: 'audio' as const,
             source: {
               type: 'base64' as const,
-              media_type: 'image/png' as const,
+              media_type: 'audio/wav' as const,
               data: dataurl
             }
           }
@@ -76,7 +76,7 @@ export class ImageMessage extends BaseMessage {
       return message;
       
     } catch (error) {
-      log('Error rendering ImageMessage', { error, imageUrl });
+      log('Error rendering AudioMessage', { error, audioUrl });
       throw error;
     }
   }

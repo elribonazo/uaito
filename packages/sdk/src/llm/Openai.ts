@@ -35,6 +35,7 @@ import type {
 import type { ToolInputDelta } from '../types';
 import type { Stream } from 'openai/streaming';
 import { MessageArray } from '..';
+import { blobToDataURL } from './utils';
 
 
 /**
@@ -347,9 +348,9 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
 
 
 
-  private chunk(
+  private async chunk(
     chunk: ResponseStreamEvent,
-  ): Message | null {
+  ): Promise<Message | null> {
     // Text streaming (with thinking tag extraction)
     if (chunk.type === 'response.output_text.delta') {
       const { delta } = chunk as ResponseTextDeltaEvent;
@@ -454,12 +455,15 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
     }
 
     if (chunk.type === 'response.image_generation_call.completed') {
+      const buffer = Buffer.from(this.cache.imageBase64!, 'base64');
+      const blob = new Blob([buffer]);
+      const dataurl = await blobToDataURL(blob);
       return {
         role: 'assistant',
         id: v4(),
-        type: 'message',
+        type: 'message',   
         content: [
-          { type: 'image', source: { data: this.cache.imageBase64!, media_type: 'image/png', type: 'base64' } }
+          { type: 'text', text: `<image>${dataurl}</image>` }
         ]
       }
     }

@@ -3,12 +3,20 @@ import { ThinkingMessage } from "./parse/ThinkMessage";
 import { ToolUseMessage } from "./parse/ToolUseMessage";
 import { ImageMessage } from "./parse/ImageMessage";
 import { TextMessage } from "./parse/TextMessage";
+import { AudioMessage } from "./parse/AudioMessage";
 
 // Verbose logging utility
 const log = (message: string, data?: any) => {
   console.log(`[MessageCache] ${message}`, data ? JSON.stringify(data, null, 2) : '');
 };
 
+
+export const blobToDataURL = async (blob: Blob): Promise<string> => {
+  const arrayBuffer = await blob.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const dataUrl = `data:${blob.type};base64,${buffer.toString("base64")}`;
+  return dataUrl;
+};
 
 
 export class MessageCache {
@@ -45,6 +53,16 @@ export class MessageCache {
         return null
       }
 
+      const audioOpenTagIndex = chunk.indexOf('<audio>');
+      if (audioOpenTagIndex !== -1) {
+        log('Detected audio message', { audioOpenTagIndex });
+        this.currentElement = new AudioMessage(chunk.replace('<audio>', ''));
+        const result = await this.currentElement.render();
+        log('AudioMessage rendered', { messageId: result.id });
+        this.currentElement = null;
+        return result;
+      }
+
       const imageOpenTagIndex = chunk.indexOf('<image>');
       if (imageOpenTagIndex !== -1) {
         log('Detected image message', { imageOpenTagIndex });
@@ -64,26 +82,7 @@ export class MessageCache {
 
     } else {
       log('Continuing with existing element', { elementType: this.currentElement.constructor.name });
-      
-      // if (this.currentElement instanceof ImageMessage) {
-      //   const endIndex = chunk.indexOf('</image>');
-      //   log('Processing ImageMessage chunk', { endIndex, chunkLength: chunk.length });
-        
-      //   if (endIndex !== -1) {
-      //     debugger;
-      //     log('Found image end tag, completing ImageMessage');
-      //     this.currentElement.appendText(chunk.slice(0, endIndex));
-      //     const rendered = await this.currentElement.render();
-      //     this.currentElement = null;
-      //     log('ImageMessage completed and reset');
-      //     return rendered;
-      //   }
-        
-      //   log('Appending to ImageMessage buffer');
-      //   this.currentElement.appendText(chunk);
-      //   return null
-      // }
-      
+ 
       if (this.currentElement instanceof ToolUseMessage) {
         const endIndex = chunk.indexOf('<|tool_call_end|>') !== -1 ?
           chunk.indexOf('<|tool_call_end|>') :

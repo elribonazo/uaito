@@ -88,6 +88,8 @@ export class Agent<T extends LLMProvider> {
             client = (await import("../llm/HuggingFaceONNX")).HuggingFaceONNX;
         } else if (this.type === LLMProvider.LocalImage) {
             client = (await import("../llm/HuggingFaceONNXImage")).HuggingFaceONNXTextToImage;
+        } else if (this.type === LLMProvider.LocalAudio) {
+            client = (await import("../llm/HuggingFaceONNXAudio")).HuggingFaceONNXTextToAudio;
         } else {
             throw new Error("not implemented")
         }

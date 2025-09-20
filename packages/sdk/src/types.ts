@@ -2,19 +2,20 @@ import type { Anthropic } from "./llm/Anthropic";
 import type { OpenAI } from "./llm/Openai";
 import type { Agent } from "./agents";
 import type { HuggingFaceONNX } from './llm/HuggingFaceONNX';
-import { HuggingFaceONNXTextToImage } from './llm/HuggingFaceONNXImage';
+import type { HuggingFaceONNXTextToImage } from './llm/HuggingFaceONNXImage';
+import type { HuggingFaceONNXTextToAudio } from './llm/HuggingFaceONNXAudio';
 
 export enum HuggingFaceONNXModels {
   JANO = "onnx-community/Jan-nano-ONNX",
-  QWEN3 = "onnx-community/Qwen3-0.6B-ONNX",
-  Llama32 = "onnx-community/Llama-3.2-1B-Instruct-q4f16",
-  LMF2 = "onnx-community/LFM2-1.2B-ONNX"
+  LUCY="onnx-community/Lucy-ONNX",
+  QWEN3 = "onnx-community/Qwen3-0.6B-ONNX"
 }
 export enum AnthropicModels {
   'claude-4-sonnet' = "claude-sonnet-4-20250514"
 }
 export enum OpenAIModels {
-  'gpt-5' = "gpt-5-mini-2025-08-07"
+  'gpt-5-nano' = "gpt-5-nano-2025-08-07",
+  'gpt-5-mini' = "gpt-5-mini-2025-08-07",
 }
 
 export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
@@ -57,7 +58,8 @@ export enum LLMProvider {
   OpenAI = 'OpenAI',
   Anthropic = 'Anthropic',
   Local = 'Local',
-  LocalImage = 'LocalImageGeneration'
+  LocalImage = 'LocalImageGeneration',
+  LocalAudio = 'LocalAudioGeneration'
 }
 
 export type OnTool<T extends LLMProvider = LLMProvider> = (
@@ -78,6 +80,7 @@ export type AgentTypeToOptions = {
     [LLMProvider.OpenAI]: OpenAIOptions;
     [LLMProvider.Local]: HuggingFaceONNXOptions;
     [LLMProvider.LocalImage]: {};
+    [LLMProvider.LocalAudio]: {};
   };
 
 export type AgentTypeToClass = {
@@ -85,6 +88,7 @@ export type AgentTypeToClass = {
   [LLMProvider.OpenAI]: OpenAI;
   [LLMProvider.Local]: HuggingFaceONNX;
   [LLMProvider.LocalImage]: HuggingFaceONNXTextToImage;
+  [LLMProvider.LocalAudio]: HuggingFaceONNXTextToAudio;
 };
 
 export type BinConfig<P extends LLMProvider> = {
@@ -123,6 +127,15 @@ export type ImageBlock = {
   type: 'image';
 }
 
+export type AudioBlock = {
+  source: {
+    data: string;
+    media_type: 'audio/wav';
+    type: 'base64';
+  };
+  type: 'audio';
+}
+
 export type TextBlock = {
   text: string;
   type: 'text';
@@ -154,7 +167,7 @@ export type ToolResultBlock = {
 export type ToolBlock = ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
 export type Role = 'assistant' | 'user' | 'system' | 'tool';
 
-export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock | ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock;
+export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock |AudioBlock| ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock;
 export type Message = {
   id: string,
   type: MessageType,

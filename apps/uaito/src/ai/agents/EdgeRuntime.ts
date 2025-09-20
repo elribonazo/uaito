@@ -2,11 +2,17 @@ import { Agent, HuggingFaceONNXOptions, LLMProvider, OnTool } from "@uaito/sdk";
 
 
 
-export class EdgeRuntimeAgentImage extends Agent<LLMProvider.LocalImage> {
-  constructor(options:any, onTool?: OnTool | undefined, color?: string, name?: string) {
-    super(LLMProvider.LocalImage, options, onTool, color, name);
+  export class EdgeRuntimeAgentImage extends Agent<LLMProvider.LocalImage> {
+    constructor(options:any, onTool?: OnTool | undefined, color?: string, name?: string) {
+      super(LLMProvider.LocalImage, options, onTool, color, name);
+    }
   }
-}
+
+  export class EdgeRuntimeAgentAudio extends Agent<LLMProvider.LocalAudio> {
+    constructor(options:any, onTool?: OnTool | undefined, color?: string, name?: string) {
+      super(LLMProvider.LocalAudio, options, onTool, color, name);
+    }
+  }
 
 export class EdgeRuntimeAgent extends Agent<LLMProvider.Local> {
   constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined, color?: string, name?: string) {
@@ -26,10 +32,10 @@ You are an advanced AI assistant equipped with specialized tools to enhance quer
 - **Error Handling**: If a tool returns an error, describe the issue clearly in your response, suggest alternatives (e.g., rephrasing the query or using a different tool), and do not fabricate results.
 - **Final Response**: After reasoning (and any tool calls), provide a direct, user-facing answer. If tools were used, incorporate their results seamlessly without mentioning the tools unless relevant to the explanation.
 
-### Image generation + Response format
-When generating images, use the generateImage tool to generate the image. 
-Use the following format as example response for the image: blob:http://localhost:3005/530ab42d-f7b8-467c-801b-54bc24655d08
-Whenever u want to include the image in your response, use the <image> tag, example <image>blob:http://localhost:3005/530ab42d-f7b8-467c-801b-54bc24655d08</image>
+### Image&Audio generation + Response format
+Use the following format as example response for the image & audio: blob:http://......
+Whenever u want to include the asset in your response, use the <image> or <audio> tag, and wrap the blob url inside the tag
+
 ### Tool Usage Format
 To use tools, output function calls in this exact XML format before your final response. Use <tool_call> and </tool_call> tags. 
 You can call multiple tools in sequence by listing them one after another, always including <tool_call> tags on each request. Example: <tool_call>{"id":"1","name":"generateImage","parameters":{"prompt":"Example1"}}</tool_call>
@@ -42,12 +48,7 @@ If no tools are required, skip tool calls and go straight to your response.
 - If using tools, output the tool call(s) immediately after thinking.
 - After tool results (in subsequent interactions), end with your final, user-facing response. Do not include thinking or tool calls in the final output to the user.
 
-Maintain neutrality, avoid verbosity, and focus on delivering value.
-
-
-<tools>
-${this.tools.map((tool) => JSON.stringify(tool)).join("\n")}
-</tools>`;
+Maintain neutrality, avoid verbosity, and focus on delivering value.`;
   }
 
   get chainOfThought() {

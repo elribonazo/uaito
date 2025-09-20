@@ -38,6 +38,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     const filteredContent = model.content
       .filter((contentModel) =>
         contentModel.type !== "tool_delta" &&
+        contentModel.type !== "audio" &&
         contentModel.type !== 'usage' &&
         contentModel.type !== "delta" &&
         contentModel.type !== "error"

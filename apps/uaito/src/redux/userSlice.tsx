@@ -143,7 +143,6 @@ const userSlice = createSlice({
       } else {
         const existingIndex = state.messages.findIndex((m) =>  message.id === m.id);
         if (existingIndex < 0) {
-          debugger;
           state.messages.push(message)
         } else if (existingIndex > 0) {
           if (state.messages[existingIndex]?.chunk ) {
