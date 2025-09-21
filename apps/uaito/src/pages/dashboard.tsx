@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, FC } from 'react';
-import { FaApple, FaWindows } from 'react-icons/fa';
 import { ComputerDesktopIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import type { GetServerSidePropsContext, InferGetServerSidePropsType } from "next"
 import { getServerSession } from "next-auth/next"

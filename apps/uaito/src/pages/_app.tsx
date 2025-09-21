@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 
 import '../app/globals.css'
 import { wrapper } from "@/redux/store";
+import { GetServerSideProps } from "next";
 
 function App({
   Component,
@@ -10,13 +11,14 @@ function App({
 }:any) {
   const { store, props } = wrapper.useWrappedStore(rest);
   return (
+    <SessionProvider session={props.pageProps.session}>
     <Provider store={store}>
-      <SessionProvider session={props.pageProps.session}>
         <Component {...props.pageProps} />
-      </SessionProvider>
     </Provider>
+    </SessionProvider>
   )
 }
+
 
 
 export default App
