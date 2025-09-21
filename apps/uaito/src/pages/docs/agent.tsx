@@ -1,5 +1,7 @@
 import { DocsLayout } from '@/components/DocsLayout';
-import { Code } from '@/components/Code';
+import dynamic from 'next/dynamic';
+
+const Code = dynamic(() => import('@/components/Code').then((e) => e.Code), { ssr: false });
 
 function AgentPage() {
   return (
