@@ -265,13 +265,13 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
   useEffect(() => {
     if (status === 'loading') return;
     setLoading(false);
-    if (props.pageProps?.error) {
-      setError(props.pageProps.error);
+    if (props?.error) {
+      setError(props.error);
     }
     if (props.userTimezone) {
       moment.tz.setDefault(props.userTimezone);
     }
-  }, [status, props.pageProps, props.userTimezone]);
+  }, [status, props, props.userTimezone]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-background text-primary-text">
@@ -320,10 +320,10 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
                 <div className="bg-surface p-6 rounded-xl shadow-lg border border-muted">
                   <h3 className="text-2xl font-bold mb-4 text-primary-text">Your Usage</h3>
                 
-                  {hasMultipleDaysData(props.pageProps.usage) && (
+                  {hasMultipleDaysData(props.usage) && (
                     <>
                       <h4 className="text-xl font-semibold mb-2 text-primary-text">Past 30 Days</h4>
-                      <UsageGraph usage={props.pageProps.usage} type="30d" />
+                      <UsageGraph usage={props.usage} type="30d" />
                       <div className="mt-2">
                         <p className="text-sm text-secondary-text">Graph shows input and output usage grouped by day for the past 30 days.</p>
                       </div>
