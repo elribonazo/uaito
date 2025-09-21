@@ -13,8 +13,8 @@ export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: 
             key={`msg-${id}`}
             className={`inline-block mt-4 p-3 rounded-lg w-full ${
                 isUser
-                    ? 'bg-blue-500 text-white shadow-md mr-auto'
-                    : 'bg-white text-gray-900 shadow-md mr-auto'
+                    ? 'bg-primary text-primary-text shadow-md mr-auto'
+                    : 'bg-surface text-primary-text shadow-md mr-auto'
             }`}
         >
             {children}
@@ -96,7 +96,7 @@ export const MessageItem:React.FC<{
                                 <img
                                     key={`${id}-image-${index}-${part.content.slice(-20)}`}
                                     src={part.content}
-                                    style={{ width: "250px", height: "auto", margin: "8px 0" }}
+                                    className="w-64 h-auto my-2"
                                     alt="generated content"
                                 />
                             );
@@ -107,7 +107,7 @@ export const MessageItem:React.FC<{
                                     key={`${id}-audio-${index}-${part.content.slice(-20)}`}
                                     src={part.content}
                                     controls
-                                    style={{ display:'block' }}
+                                    className="block"
                                 />
                             );
                         }
@@ -125,7 +125,7 @@ export const MessageItem:React.FC<{
     } else if (content.type === "image") {
         return <img
             src={`${content.source.data}`}
-            style={{ width: "250px", height: "auto" }}
+            className="w-64 h-auto"
             alt="generated content"
         />
     } else if (content.type === "audio") {
@@ -134,7 +134,7 @@ export const MessageItem:React.FC<{
 <audio
             src={`${content.source.data}`}
             controls
-            style={{display: "block" }}
+            className="block"
         />
         );
     
@@ -203,16 +203,16 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
 
     return (
         <div className="flex-grow flex flex-col items-center justify-center mt-20">
-            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">AI Chat</h2>
+            <h2 className="text-2xl font-bold text-secondary-text mb-4">AI Chat</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
                 {prompts.map((prompt) => (
                     <button
                         key={prompt}
                         type="button"
                         onClick={() => onPromptClick(prompt)}
-                        className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 text-left"
+                        className="p-4 bg-surface rounded-lg shadow-md hover:bg-slate-700 transition-colors duration-200 text-left border border-muted"
                     >
-                        <p className="text-gray-900 dark:text-white font-semibold">{prompt}</p>
+                        <p className="text-primary-text font-semibold">{prompt}</p>
                     </button>
                 ))}
             </div>

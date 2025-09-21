@@ -2,21 +2,21 @@ import Link from 'next/link';
 import Script from 'next/script';
 
 const Footer: React.FC<{}> = props => (
-  <footer className="bg-gray-900 text-white py-6 z-10 relative border-t border-gray-800">
+  <footer className="bg-background text-primary-text py-6 z-10 relative border-t border-muted">
     <div className="max-w-7xl mx-auto px-4">
-      <div className="flex justify-center space-x-4 mb-4">
-        <Link href="/terms-and-conditions" className="text-sm text-gray-300 hover:text-white transition duration-150 ease-in-out">
+      <div className="flex justify-center space-x-6 mb-4">
+        <Link href="/terms-and-conditions" className="text-sm text-secondary-text hover:text-primary-text transition-colors">
           Terms and Conditions
         </Link>
-        <Link href="/privacy-policy" className="text-sm text-gray-300 hover:text-white transition duration-150 ease-in-out">
+        <Link href="/privacy-policy" className="text-sm text-secondary-text hover:text-primary-text transition-colors">
           Privacy Policy
         </Link>
-        <Link href="mailto:elribonazo@uaito.io" className="text-sm text-gray-300 hover:text-white transition duration-150 ease-in-out">
+        <Link href="mailto:elribonazo@uaito.io" className="text-sm text-secondary-text hover:text-primary-text transition-colors">
           Contact
         </Link>
       </div>
-      <p className="text-center text-sm text-purple-400 mb-2">Empowering engineers with AI-driven solutions</p>
-      <p className="text-center text-xs">&copy; 2023 UAITO.io. All rights reserved.</p>
+      <p className="text-center text-sm text-accent mb-2">Empowering engineers with AI-driven solutions</p>
+      <p className="text-center text-xs text-secondary-text">&copy; 2024 UAITO.io. All rights reserved.</p>
     </div>
   <Script id="visitor-script" strategy="afterInteractive">
     {`

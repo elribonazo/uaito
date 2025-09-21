@@ -23,33 +23,38 @@ export const Header: FC = () => {
 
     return (
         <>
-            <nav className="fixed z-40 top-4 flex h-20 w-full">
-                <div className="relative flex items-center justify-between m-auto rounded-full p-2 transition bg-gray-900 w-full mx-10">
+            <nav className="fixed z-40 flex w-full items-center">
+                <div className="relative flex w-full items-center justify-between bg-surface p-2 px-6">
                     <Link href="/" className="pl-4">
-                        <div className="flex gap-3 items-center">
+                        <div className="flex items-center gap-3">
                             <Image
                                 src="/UAITO.png"
                                 alt="UAITO Logo"
                                 width={25}
-                                height={0}
-                                style={{ height: 'auto', width: '25px' }}
+                                height={25}
                                 className="animate-subtle-bounce"
                                 priority
                             />
-                            {isDesktop && <span className="uppercase font-bold text-white tracking-wider text-[20px] -mb-[4px]">
-                                <AnimatedText />
-                            </span>}
+                            {isDesktop && (
+                                <span className="uppercase font-bold text-primary-text tracking-wider text-xl">
+                                    <AnimatedText />
+                                </span>
+                            )}
                         </div>
                     </Link>
                     {isDesktop ? (
                         <div className="hidden grow basis-0 justify-end lg:flex items-center gap-8">
-                            <Link href="/docs" className="text-neutral-200 hover:underline hover:text-neutral-600">Docs</Link>
-                            <Link href={"/dashboard"} className={`bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-green-500/50 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={(e) => !acceptedTerms && e.preventDefault()}>
+                            <Link href="/docs" className="text-secondary-text hover:text-primary-text transition-colors">Docs</Link>
+                            <Link 
+                                href={"/dashboard"} 
+                                className={`bg-primary hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                onClick={(e) => !acceptedTerms && e.preventDefault()}
+                            >
                                 Beta access
                             </Link>
                         </div>
                     ) : (
-                        <button type="button" onClick={() => setMobileMenuOpen(true)} className="lg:hidden text-neutral-200 hover:text-neutral-600">
+                        <button type="button" onClick={() => setMobileMenuOpen(true)} className="lg:hidden text-secondary-text hover:text-primary-text">
                             <Bars3Icon className="h-6 w-6" />
                         </button>
                     )}

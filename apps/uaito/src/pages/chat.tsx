@@ -37,15 +37,10 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
   const { user: { provider, downloadProgress, usage }} = useMountedApp()
   const webGPU = provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
   const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     dispatch(initializeProvider());
   }, [dispatch]);
-
-  useEffect(() => {
-    setLoaded(true);
-  }, []);
 
   const handleProviderSelect = (selectedProvider: LLMProvider) => {
     dispatch(setProvider(selectedProvider));
@@ -56,46 +51,41 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
     dispatch(setSelectedModel(model));
   };
 
-  return <div className={`bg-gray-900 transition-colors duration-300`}>
+  return <div className="bg-background">
     <SpaceBackground />
    
-      {
-        loaded && <>
-        <header className="shadow-sm flex h-[48px] sticky z-50 items-center justify-between">
-        <h1 className="ml-5 text-2xl  font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
+
+        <header className="shadow-sm flex h-16 sticky top-0 z-50 items-center justify-between bg-background/80 backdrop-blur-sm border-b border-muted">
+        <h1 className="ml-5 text-2xl font-bold">
           <Link href="/"><AnimatedText /></Link>
         </h1>
         <div className="flex-grow"></div>
         <div className='flex items-center space-x-3 mr-4'>
         {isDownloading && (
             <div className="flex items-center space-x-2">
-              <span className="text-white text-sm">Downloading Model:</span>
-              <div className="w-32 bg-gray-700 rounded-full h-2.5">
-                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${downloadProgress}%` }}></div>
+              <span className="text-primary-text text-sm">Downloading Model:</span>
+              <div className="w-32 bg-surface rounded-full h-2.5">
+                <div className="bg-primary h-2.5 rounded-full" style={{ width: `${downloadProgress}%` }}></div>
               </div>
-              <span className="text-white text-sm">{downloadProgress}%</span>
+              <span className="text-primary-text text-sm">{downloadProgress}%</span>
             </div>
           )}
           <TokenCounter input={usage.input} output={usage.output} />
           {provider && <Provider value={provider} onSelected={handleProviderSelect} />}
           <ModelSelector onSelected={handleModelSelect} />
-          <div className="pt-3 ">
             <Link
               href={"/dashboard"}
-              className="bg-opacity-90 bg-gray-300 hover:bg-gray-700 text-white font-bold p-2 rounded transition duration-300 flex items-center justify-center"
+              className="bg-surface hover:bg-slate-700 text-primary-text font-bold p-2 rounded-lg transition duration-300 flex items-center justify-center border border-muted"
             >
-              <UserIcon className="text-gray-900 h-5 w-5" />
+              <UserIcon className="h-5 w-5" />
             </Link>
-          </div>
-          <div className="pt-3 ">
             <button
               onClick={() => signOut()}
               type="button"
-              className="bg-red-600 hover:bg-red-700 text-white  p-2 rounded-lg transition duration-300 flex items-center justify-center"
+              className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition duration-300 flex items-center justify-center"
             >
               <ArrowRightEndOnRectangleIcon className="h-5 w-5" />
             </button>
-          </div>
         </div>
       </header>
   
@@ -113,8 +103,7 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
           theme={typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
         />
       </main>
-        </>
-      }
+      
     
       
   

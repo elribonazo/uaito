@@ -16,19 +16,19 @@ export function DocsLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   return (
-    <div className="bg-gray-900 min-h-screen">
+    <div className="bg-background min-h-screen text-primary-text">
         <Header />
-        <div className="flex pt-24">
+        <div className="flex pt-24 max-w-7xl mx-auto">
             <aside className="w-64 flex-shrink-0 p-4">
                 <nav className="space-y-2 sticky top-24">
                 {navigation.map((item) => (
                     <Link
                     key={item.name}
                     href={item.href}
-                    className={`block px-4 py-2 rounded-md ${
+                    className={`block px-4 py-2 rounded-lg ${
                         router.pathname === item.href
-                        ? 'bg-gray-700 text-white'
-                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                        ? 'bg-primary text-white'
+                        : 'text-secondary-text hover:bg-surface hover:text-primary-text'
                     }`}
                     >
                     {item.name}
@@ -36,7 +36,7 @@ export function DocsLayout({ children }: { children: React.ReactNode }) {
                 ))}
                 </nav>
             </aside>
-            <main className="flex-1 p-8 text-white">
+            <main className="flex-1 p-8">
                 <div className="prose prose-invert max-w-none">{children}</div>
             </main>
         </div>

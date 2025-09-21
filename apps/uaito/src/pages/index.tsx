@@ -14,15 +14,6 @@ import { Header } from '@/components/Header';
 const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({pageProps:{ features, chats }}) => {
     return (
         <ParallaxProvider>
-            <style jsx>{`
-                .testimonial-card {
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-                }
-                .testimonial-card:hover {
-                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.6);
-                }
-            `}</style>
             <Header />
             <ParallaxBanner />
 
@@ -39,9 +30,9 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
             </FadeInSection>
 
             <FadeInSection>
-                <section className="py-24 px-4 z-10 transform translate3d(0, 0, 0) fade-in">
+                <section className="py-24 px-4 z-10">
                     <div className="max-w-7xl mx-auto">
-                        <h2 className="text-5xl font-bold text-center text-white mb-16 font-orbitron">Some preview</h2>
+                        <h2 className="text-4xl font-bold text-center text-primary-text mb-16">Some preview</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                             <Card
                                 variant="project"
@@ -68,31 +59,31 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
 
 
             <FadeInSection>
-                <section id="faqs" className="py-24 px-4 z-10 transform translate3d(0, 0, 0) fade-in">
+                <section id="faqs" className="py-24 px-4 z-10">
                     <div className="max-w-7xl mx-auto">
-                        <h2 className="text-5xl font-bold text-center text-white mb-16 font-orbitron">Frequently Asked Questions</h2>
+                        <h2 className="text-4xl font-bold text-center text-primary-text mb-16">Frequently Asked Questions</h2>
                         <div className="space-y-8">
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">What is UAITO and how it works?</h3>
-                                <p className="text-gray-300">UAITO combines AI and machine learning to offer you a feature complete AI Orquestrator.</p>
+                                <h3 className="text-2xl font-semibold text-primary-text mb-2">What is UAITO and how it works?</h3>
+                                <p className="text-secondary-text">UAITO combines AI and machine learning to offer you a feature complete AI Orquestrator.</p>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">What is an AI Orquestrator?</h3>
-                                <p className="text-gray-300">
+                                <h3 className="text-2xl font-semibold text-primary-text mb-2">What is an AI Orquestrator?</h3>
+                                <p className="text-secondary-text">
                                     An AI Orchestrator is a system or framework responsible for coordinating, managing, and integrating various AI tools, models, and components within an organization or a complex AI ecosystem. It acts as a central control mechanism that ensures different AI elements work together effectively and efficiently.
                                 </p>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">What can I build with UAITO?</h3>
-                                <p className="text-gray-300">UAITO is designed to seamlessly integrate with your existing workflows. We provide plugins and APIs to ensure UAITO fits smoothly into your existing processes bringing AI and automated decision making into the pipe.</p>
+                                <h3 className="text-2xl font-semibold text-primary-text mb-2">What can I build with UAITO?</h3>
+                                <p className="text-secondary-text">UAITO is designed to seamlessly integrate with your existing workflows. We provide plugins and APIs to ensure UAITO fits smoothly into your existing processes bringing AI and automated decision making into the pipe.</p>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">How do I download the desktop app?</h3>
-                                <p className="text-gray-300">We offer a fully capable desktop application which u can download once you login into your account, u will find more details in /dashboard page.</p>
+                                <h3 className="text-2xl font-semibold text-primary-text mb-2">How do I download the desktop app?</h3>
+                                <p className="text-secondary-text">We offer a fully capable desktop application which u can download once you login into your account, u will find more details in /dashboard page.</p>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-semibold text-white mb-2">Where Do I get my own UAITO API Key?</h3>
-                                <p className="text-gray-300">Once you are logged into your account, u can click in the eye icon to disclose the APIKey. Then you can use that key inside your custom project or inside the Desktop application.</p>
+                                <h3 className="text-2xl font-semibold text-primary-text mb-2">Where Do I get my own UAITO API Key?</h3>
+                                <p className="text-secondary-text">Once you are logged into your account, u can click in the eye icon to disclose the APIKey. Then you can use that key inside your custom project or inside the Desktop application.</p>
                             </div>
                         </div>
                     </div>
@@ -100,9 +91,8 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
             </FadeInSection>
 
             <FadeInSection>
-
-                <div className="flex items-center justify-center h-screen bg-gray-900">
-                    <h1 className="font-sans font-thin text-[6vw] text-white text-center px-4">
+                <div className="flex items-center justify-center h-screen bg-surface">
+                    <h1 className="font-sans font-thin text-5xl text-primary-text text-center px-4">
                         Unlimited posibilities, contact us to build you a custom solution for your needs!
                     </h1>
                 </div>

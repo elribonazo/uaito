@@ -30,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`bg-gray-100 dark:bg-gray-900 dark:text-white`}>  
+      <body className={`font-sans`}>  
         {children} 
         <script src="https://unpkg.com/onnxruntime-web@1.14.0/dist/ort.webgpu.min.js"></script>
       </body>

@@ -6,14 +6,14 @@ import { AnimatedText } from '@/components/AnimatedText';
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <main className="min-h-screen relative bg-gray-900 text-white font-roboto">
+    <main className="min-h-screen relative bg-background text-secondary-text font-sans">
       <SpaceBackground />
       
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-16">
-        <Link href={"/"} className="block text-center p-10 text-white font-bold py-4 px-10 text-lg">
+        <Link href={"/"} className="block text-center p-10 text-primary-text font-bold py-4 px-10 text-lg hover:text-accent">
           go back to <AnimatedText />
         </Link>
-        <h1 className="text-4xl font-bold mb-8 text-center">Privacy Policy</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center text-primary-text">Privacy Policy</h1>
         
         <div className="space-y-6 text-lg">
           <p>Last updated: August 15, 2024</p>
@@ -31,7 +31,7 @@ const PrivacyPolicy: React.FC = () => {
           </PolicySection>
           
           <PolicySection title="3. Google API Services User Data Policy">
-            <p>3.1. Our use and transfer of information received from Google APIs to any other app will adhere to <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-blue-400 hover:underline">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+            <p>3.1. Our use and transfer of information received from Google APIs to any other app will adhere to <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-accent hover:underline">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
             <p>3.2. We do not sell Google or any other third party user data or use it for advertising purposes.</p>
             <p>3.3. We do not allow humans to read Google user data unless:</p>
             <ul className="list-disc list-inside pl-5">
@@ -77,7 +77,7 @@ const PrivacyPolicy: React.FC = () => {
 
 const PolicySection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <section>
-    <h2 className="text-2xl font-semibold mt-8 mb-4">{title}</h2>
+    <h2 className="text-2xl font-semibold mt-8 mb-4 text-primary-text">{title}</h2>
     <div className="space-y-2">
       {children}
     </div>

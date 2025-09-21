@@ -4,11 +4,11 @@ export const Card = ({ variant, title, description, imageUrl, name, role, compan
     switch (variant) {
       case 'project':
         return (
-          <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+          <div className="bg-surface rounded-xl overflow-hidden border border-muted transition-all duration-300 hover:shadow-lg hover:border-accent">
             <Image src={imageUrl} alt={title} width={400} height={225} className="w-full h-48 object-cover" />
             <div className="p-6">
-              <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-              <p className="text-gray-300">{description}</p>
+              <h3 className="text-xl font-semibold text-primary-text mb-2">{title}</h3>
+              <p className="text-secondary-text">{description}</p>
             </div>
           </div>
         );
@@ -16,17 +16,17 @@ export const Card = ({ variant, title, description, imageUrl, name, role, compan
         return (
           <div className="text-center">
             <Image src={imageUrl} alt={name} width={150} height={150} className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" />
-            <h3 className="text-lg font-semibold text-white">{name}</h3>
-            <p className="text-purple-300">{role}</p>
-            <p className="text-xs text-purple-300">{quote}</p>
+            <h3 className="text-lg font-semibold text-primary-text">{name}</h3>
+            <p className="text-accent">{role}</p>
+            <p className="text-xs text-secondary-text">{quote}</p>
           </div>
         );
       case 'testimonial':
         return (
-          <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-            <p className="text-gray-300 mb-4">"{quote}"</p>
-            <p className="text-white font-semibold">{name}</p>
-            <p className="text-purple-300">{company}</p>
+          <div className="bg-surface rounded-xl p-6 border border-muted">
+            <p className="text-secondary-text mb-4">"{quote}"</p>
+            <p className="text-primary-text font-semibold">{name}</p>
+            <p className="text-accent">{company}</p>
           </div>
         );
       default:

@@ -9,11 +9,6 @@ export const ParallaxBanner: React.FC<{children?: any}>= (props) => {
         scale: [1.05, 1, "easeOutCubic"],
         shouldAlwaysCompleteAnimation: true,
         expanded: false,
-        children: (
-            <div className="absolute inset-0">
-                <div className="w-full h-full bg-gradient-to-b from-[rgba(0,0,0,0.3)] via-[rgba(0,0,0,0.5)] to-black" />
-            </div>
-        )
     };
 
     const content: BannerLayer = {
@@ -23,10 +18,10 @@ export const ParallaxBanner: React.FC<{children?: any}>= (props) => {
         expanded: false,
         children: props.children ?? (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <h1 className="font-sans font-bold text-[8vw] text-white text-center mb-5">
+                <h1 className="text-5xl md:text-7xl font-bold text-primary-text text-center mb-5">
                     Welcome to <AnimatedText />
                 </h1>
-                <p className="font-sans text-[3vw] text-white opacity-80">
+                <p className="text-lg md:text-2xl text-secondary-text opacity-80">
                     Revolutionizing daily tasks with AI powered technology
                 </p>
             </div>

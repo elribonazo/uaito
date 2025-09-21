@@ -14,21 +14,16 @@ module.exports = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
-        primary: {
-          light: '#4da6ff',
-          DEFAULT: '#0066cc',
-          dark: '#004080',
-        },
-        secondary: {
-          light: '#ff6b6b',
-          DEFAULT: '#ee5253',
-          dark: '#c23a3a',
-        },
+        background: '#0f172a',
+        surface: '#1e293b',
+        primary: '#2563eb',
+        accent: '#14b8a6',
+        'primary-text': '#f1f5f9',
+        'secondary-text': '#94a3b8',
+        muted: '#334155',
       },
       fontFamily: {
-        inter: ['Inter', 'sans-serif'],
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif'],
-        serif: ['Merriweather', 'ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
+        sans: ['Inter', 'sans-serif'],
         mono: ['Fira Code', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
       },
       fontSize: {
