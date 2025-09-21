@@ -266,7 +266,7 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
   useEffect(() => {
     if (status === 'loading') return;
     setLoading(false);
-    if (props.pageProps.error) {
+    if (props.pageProps?.error) {
       setError(props.pageProps.error);
     }
     if (props.userTimezone) {
