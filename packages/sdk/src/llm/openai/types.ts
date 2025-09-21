@@ -20,8 +20,3 @@ export enum OpenAIModels {
    * @type
    */
   export type OpenAIOptions = { apiKey?: string } & BaseLLMOptions;
-/**
- * Type alias for Anthropic options, extending BaseLLMOptions with an optional apiKey.
- * @type
- */
-export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;

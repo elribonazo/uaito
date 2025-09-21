@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+export const UAITO_DOCS_ORIGIN = 'https://raw.githubusercontent.com/elribonazo/uaito/refs/heads/main'
+
 export const safeCommands = process.env.SAFE_COMMANDS?.split(",") ?? [
     'mkdir', 'cd', 'git', 'npm', 'rm', 'for',
     'npx', 'grep', 'find', 'cp', 'ls',

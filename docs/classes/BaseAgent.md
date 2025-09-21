@@ -2,11 +2,11 @@
 
 ***
 
-[@uaito/sdk](../packages.md) / BaseAgent
+[@uaito/sdk](../README.md) / BaseAgent
 
 # Abstract Class: BaseAgent
 
-Defined in: [domain/types.ts:342](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L342)
+Defined in: [domain/types.ts:342](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L342)
 
 An abstract class for a base agent.
 
@@ -30,7 +30,7 @@ BaseAgent
 
 > `abstract` **chainOfThought**: `string`
 
-Defined in: [domain/types.ts:372](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L372)
+Defined in: [domain/types.ts:372](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L372)
 
 The chain of thought for the agent.
 
@@ -40,7 +40,7 @@ The chain of thought for the agent.
 
 > `abstract` **name**: `string`
 
-Defined in: [domain/types.ts:360](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L360)
+Defined in: [domain/types.ts:360](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L360)
 
 The name of the agent.
 
@@ -50,7 +50,7 @@ The name of the agent.
 
 > `abstract` `optional` **onTool**: [`OnTool`](../type-aliases/OnTool.md)
 
-Defined in: [domain/types.ts:354](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L354)
+Defined in: [domain/types.ts:354](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L354)
 
 Optional callback for tool usage.
 
@@ -60,7 +60,7 @@ Optional callback for tool usage.
 
 > `abstract` **options**: [`BaseLLMOptions`](../type-aliases/BaseLLMOptions.md)
 
-Defined in: [domain/types.ts:348](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L348)
+Defined in: [domain/types.ts:348](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L348)
 
 The options for the base LLM.
 
@@ -70,7 +70,7 @@ The options for the base LLM.
 
 > `abstract` **systemPrompt**: `string`
 
-Defined in: [domain/types.ts:366](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L366)
+Defined in: [domain/types.ts:366](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L366)
 
 The system prompt for the agent.
 
@@ -80,7 +80,7 @@ The system prompt for the agent.
 
 > `abstract` **addInputs**(`inputs`): `Promise`\<`void`\>
 
-Defined in: [domain/types.ts:380](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L380)
+Defined in: [domain/types.ts:380](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L380)
 
 Adds inputs to the agent.
 
@@ -102,7 +102,7 @@ The inputs to add.
 
 > `abstract` **load**(): `Promise`\<`void`\>
 
-Defined in: [domain/types.ts:386](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L386)
+Defined in: [domain/types.ts:386](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L386)
 
 Loads the agent.
 
@@ -116,7 +116,7 @@ Loads the agent.
 
 > `abstract` **performTask**(`prompt`): `Promise`\<\{ `response`: [`ReadableStreamWithAsyncIterable`](../type-aliases/ReadableStreamWithAsyncIterable.md)\<[`Message`](../type-aliases/Message.md)\>; `usage`: \{ `input`: `number`; `output`: `number`; \}; \}\>
 
-Defined in: [domain/types.ts:393](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L393)
+Defined in: [domain/types.ts:393](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L393)
 
 Performs a task using the agent.
 

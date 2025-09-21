@@ -8,10 +8,13 @@ import { KeyFeatures } from '@/components/KeyFeatures';
 import { TestimonialSection } from '@/components/Testimonial';
 import { ParallaxBanner } from '@/components/ParallaxBanner';
 import { Header } from '@/components/Header';
+import { createDocumentationServerSideProps } from '@/utils/documentationHelpers';
+import { UAITO_DOCS_ORIGIN } from '@/config';
+import SectionRenderer from '@/components/docs/SectionRenderer';
 
 
 
-const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({pageProps:{ features, chats }}) => {
+const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ features, chats, sections }) => {
     return (
         <ParallaxProvider>
             <Header />
@@ -56,6 +59,10 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                     </div>
                 </section>
             </FadeInSection>
+
+            {sections.map((section, index) => (
+              <SectionRenderer key={index} section={section} />
+            ))}
 
 
             <FadeInSection>
@@ -103,7 +110,7 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
     );
 };
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const features = [
     { title: "AI-powered Chat", description: "Engage in intelligent conversations with our advanced AI interface", icon: "💬" },
     { title: "Automated Tasks", description: "Streamline complex engineering processes with AI assistance", icon: "🤖" },
@@ -229,10 +236,17 @@ export const getServerSideProps: GetServerSideProps = async () => {
     }
   ];
 
+  const docsProps = await createDocumentationServerSideProps({
+    origin: UAITO_DOCS_ORIGIN,
+    defaultFile: 'README.md',
+    pathPrefix: 'docs',
+  })(context) as { props: { sections: any[], structuredMenu: any[] } };
+
   return {
     props: {
       features,
       chats,
+      sections: docsProps.props.sections,
     },
   };
 };

@@ -1,10 +1,21 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import DocumentationPage from '@/components/docs/DocumentationPage';
+import { createDocumentationServerSideProps } from '@/utils/documentationHelpers';
+import { UAITO_DOCS_ORIGIN } from '@/config';
+import { RIDBProps } from '@/types';
 
-export default function DocsIndex() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace('/docs/getting-started');
-  }, [router]);
-  return null;
+function Docs(props: RIDBProps) {
+  return (
+    <DocumentationPage 
+      {...props}
+      showSections={true}
+    />
+  );
 }
+
+export const getServerSideProps = createDocumentationServerSideProps({
+  origin: UAITO_DOCS_ORIGIN,
+  defaultFile: 'README.md',
+  pathPrefix: 'docs',
+});
+
+export default Docs;

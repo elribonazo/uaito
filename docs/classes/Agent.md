@@ -2,11 +2,11 @@
 
 ***
 
-[@uaito/sdk](../packages.md) / Agent
+[@uaito/sdk](../README.md) / Agent
 
 # Class: Agent\<T\>
 
-Defined in: [agents/index.ts:13](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L13)
+Defined in: [agents/index.ts:13](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L13)
 
 base class for AI agents.
 
@@ -14,7 +14,7 @@ base class for AI agents.
 
 ### T
 
-`T` *extends* `LLMProvider`
+`T` *extends* [`LLMProvider`](../enumerations/LLMProvider.md)
 
 The type of LLM provider.
 
@@ -24,7 +24,7 @@ The type of LLM provider.
 
 > **new Agent**\<`T`\>(`type`, `options`, `onTool?`, `name?`): `Agent`\<`T`\>
 
-Defined in: [agents/index.ts:81](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L81)
+Defined in: [agents/index.ts:90](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L90)
 
 Create a new Agent instance.
 
@@ -32,13 +32,13 @@ Create a new Agent instance.
 
 ##### type
 
-`LLMProvider`
+[`LLMProvider`](../enumerations/LLMProvider.md)
 
 The type of LLM provider.
 
 ##### options
 
-`AgentTypeToOptions`\[`T`\]
+[`AgentTypeToOptions`](../type-aliases/AgentTypeToOptions.md)\[`T`\]
 
 Configuration options for the LLM.
 
@@ -64,7 +64,7 @@ Optional name for the agent.
 
 > `protected` **name**: `string`
 
-Defined in: [agents/index.ts:33](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L33)
+Defined in: [agents/index.ts:33](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L33)
 
 The name of the agent.
 
@@ -74,7 +74,7 @@ The name of the agent.
 
 > `protected` `optional` **onTool**: [`OnTool`](../type-aliases/OnTool.md)
 
-Defined in: [agents/index.ts:84](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L84)
+Defined in: [agents/index.ts:93](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L93)
 
 Optional callback for tool usage.
 
@@ -82,9 +82,9 @@ Optional callback for tool usage.
 
 ### options
 
-> `protected` **options**: `AgentTypeToOptions`\[`T`\]
+> `protected` **options**: [`AgentTypeToOptions`](../type-aliases/AgentTypeToOptions.md)\[`T`\]
 
-Defined in: [agents/index.ts:83](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L83)
+Defined in: [agents/index.ts:92](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L92)
 
 Configuration options for the LLM.
 
@@ -92,9 +92,9 @@ Configuration options for the LLM.
 
 ### type
 
-> **type**: `LLMProvider`
+> **type**: [`LLMProvider`](../enumerations/LLMProvider.md)
 
-Defined in: [agents/index.ts:82](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L82)
+Defined in: [agents/index.ts:91](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L91)
 
 The type of LLM provider.
 
@@ -106,7 +106,7 @@ The type of LLM provider.
 
 > **get** **chainOfThought**(): `string`
 
-Defined in: [agents/index.ts:59](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L59)
+Defined in: [agents/index.ts:59](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L59)
 
 Gets the chain of thought for the agent.
 
@@ -118,13 +118,31 @@ The chain of thought.
 
 ***
 
+### inputs
+
+#### Get Signature
+
+> **get** **inputs**(): [`MessageArray`](MessageArray.md)\<[`MessageInput`](../type-aliases/MessageInput.md)\>
+
+Defined in: [agents/index.ts:67](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L67)
+
+Gets the inputs for the agent.
+
+##### Returns
+
+[`MessageArray`](MessageArray.md)\<[`MessageInput`](../type-aliases/MessageInput.md)\>
+
+The inputs.
+
+***
+
 ### systemPrompt
 
 #### Get Signature
 
 > **get** **systemPrompt**(): `string`
 
-Defined in: [agents/index.ts:51](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L51)
+Defined in: [agents/index.ts:51](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L51)
 
 Gets the system prompt for the agent.
 
@@ -142,7 +160,7 @@ The system prompt.
 
 > **get** **tools**(): [`Tool`](../type-aliases/Tool.md)[]
 
-Defined in: [agents/index.ts:67](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L67)
+Defined in: [agents/index.ts:76](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L76)
 
 Gets the tools available to the agent.
 
@@ -158,7 +176,7 @@ The tools.
 
 > **addInputs**(`inputs`): `Promise`\<`void`\>
 
-Defined in: [agents/index.ts:95](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L95)
+Defined in: [agents/index.ts:104](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L104)
 
 Adds inputs to the agent's client.
 
@@ -180,7 +198,7 @@ The inputs to add.
 
 > **load**(): `Promise`\<`void`\>
 
-Defined in: [agents/index.ts:104](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L104)
+Defined in: [agents/index.ts:113](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L113)
 
 Loads the agent's client.
 
@@ -194,7 +212,7 @@ Loads the agent's client.
 
 > **performTask**(`prompt`): `Promise`\<\{ `response`: [`ReadableStreamWithAsyncIterable`](../type-aliases/ReadableStreamWithAsyncIterable.md)\<[`Message`](../type-aliases/Message.md)\>; `usage`: \{ `input`: `number`; `output`: `number`; \}; \}\>
 
-Defined in: [agents/index.ts:174](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L174)
+Defined in: [agents/index.ts:183](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L183)
 
 Perform a task using the LLM.
 
@@ -218,7 +236,7 @@ A Promise resolving to the usage and response stream.
 
 > **retryApiCall**\<`T`\>(`apiCall`): `Promise`\<`T`\>
 
-Defined in: [agents/index.ts:151](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L151)
+Defined in: [agents/index.ts:160](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L160)
 
 Retries an API call with a delay.
 
@@ -248,7 +266,7 @@ The result of the API call.
 
 > **runSafeCommand**(`toolUse`, `run`): `Promise`\<`void`\>
 
-Defined in: [agents/index.ts:193](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/agents/index.ts#L193)
+Defined in: [agents/index.ts:202](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/agents/index.ts#L202)
 
 Run a command safely, catching and handling any errors.
 

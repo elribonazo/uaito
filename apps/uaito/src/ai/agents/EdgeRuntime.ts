@@ -3,20 +3,20 @@ import { Agent, HuggingFaceONNXOptions, LLMProvider, OnTool } from "@uaito/sdk";
 
 
   export class EdgeRuntimeAgentImage extends Agent<LLMProvider.LocalImage> {
-    constructor(options:any, onTool?: OnTool | undefined, color?: string, name?: string) {
-      super(LLMProvider.LocalImage, options, onTool, color, name);
+    constructor(options:any, onTool?: OnTool | undefined, name?: string) {
+      super(LLMProvider.LocalImage, options, onTool, name);
     }
   }
 
   export class EdgeRuntimeAgentAudio extends Agent<LLMProvider.LocalAudio> {
-    constructor(options:any, onTool?: OnTool | undefined, color?: string, name?: string) {
-      super(LLMProvider.LocalAudio, options, onTool, color, name);
+    constructor(options:any, onTool?: OnTool | undefined, name?: string) {
+      super(LLMProvider.LocalAudio, options, onTool, name);
     }
   }
 
 export class EdgeRuntimeAgent extends Agent<LLMProvider.Local> {
-  constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined, color?: string, name?: string) {
-    super(LLMProvider.Local, options, onTool, color, name);
+  constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined, name?: string) {
+    super(LLMProvider.Local, options, onTool, name);
   }
 
   get systemPrompt() {  

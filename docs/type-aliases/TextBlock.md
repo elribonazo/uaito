@@ -2,13 +2,13 @@
 
 ***
 
-[@uaito/sdk](../packages.md) / TextBlock
+[@uaito/sdk](../README.md) / TextBlock
 
 # Type Alias: TextBlock
 
 > **TextBlock** = `object`
 
-Defined in: [domain/types.ts:557](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L557)
+Defined in: [domain/types.ts:557](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L557)
 
 Represents a text block.
 
@@ -18,7 +18,7 @@ Represents a text block.
 
 > **text**: `string`
 
-Defined in: [domain/types.ts:562](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L562)
+Defined in: [domain/types.ts:562](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L562)
 
 The text content.
 
@@ -28,6 +28,6 @@ The text content.
 
 > **type**: `"text"`
 
-Defined in: [domain/types.ts:567](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L567)
+Defined in: [domain/types.ts:567](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L567)
 
 The type of the block.

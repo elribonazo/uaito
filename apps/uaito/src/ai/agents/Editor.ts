@@ -1,12 +1,8 @@
-
-import { Agent, Tool,  MessageInput, SearchReplaceBlock, ANSI_YELLOW, MessageArray, LLMProvider } from "@uaito/sdk";
+import { Agent,   SearchReplaceBlock, LLMProvider } from "@uaito/sdk";
 
 export class Editor extends Agent<LLMProvider.Anthropic> {
-    protected color = ANSI_YELLOW;
     protected name = "Editor";
-    public inputs: MessageArray<MessageInput> = MessageArray.from([]);
-
-    private fileContent!: string;
+        private fileContent!: string;
     private instructions!: string;
     private projectContext!: string;
     private memoryContext!: string;

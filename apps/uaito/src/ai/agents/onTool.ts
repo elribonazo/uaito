@@ -1,4 +1,4 @@
-import { Agent, ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray, AgentTypeToOptions, TextBlock  } from "@uaito/sdk";
+import { Agent, ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray, AgentTypeToOptions  } from "@uaito/sdk";
 import type { AutomatedEngineer } from "./AutomatedEngineer";
 import { ToolModel } from '@/db/models/Tool';
 import type { AbortSignal } from 'abort-controller';
@@ -35,7 +35,6 @@ export async function onTool<T extends LLMProvider>(
     userId: string,
     threadId: string,
     message: Message,
-    inputs: MessageArray<MessageInput>,
     abortController: AbortController
 ) {
     const { content } = message;
@@ -78,7 +77,7 @@ export async function onTool<T extends LLMProvider>(
                         throw new Error(`The method ${method} does not exist in AutomatedEngineer, must be implemented first.`)
                     }
                     const result = await method.bind(this)(codeInput.url, codeInput.extractText ?? false);
-                    (this.client.inputs as MessageArray<MessageInput>).push({
+                    (this.inputs as MessageArray<MessageInput>).push({
                         role:'user',
                         content:[{
                             name: tool.name,
@@ -105,7 +104,7 @@ export async function onTool<T extends LLMProvider>(
                         throw new Error(`The method ${method} does not exist in AutomatedEngineer, must be implemented first.`)
                     }
                     const list = await method.bind(this)(codeInput.query)
-                    instance.client.inputs.push({
+                    instance.inputs.push({
                         role:'user',
                         content: [
                             {
@@ -153,7 +152,7 @@ export async function onTool<T extends LLMProvider>(
                     //     ]
                     // })
                 }  else {
-                    this.client.inputs.push({
+                    this.inputs.push({
                         role:'user',
                         content: [
                             {

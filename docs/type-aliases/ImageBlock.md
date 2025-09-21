@@ -2,13 +2,13 @@
 
 ***
 
-[@uaito/sdk](../packages.md) / ImageBlock
+[@uaito/sdk](../README.md) / ImageBlock
 
 # Type Alias: ImageBlock
 
 > **ImageBlock** = `object`
 
-Defined in: [domain/types.ts:515](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L515)
+Defined in: [domain/types.ts:515](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L515)
 
 Represents an image block.
 
@@ -18,7 +18,7 @@ Represents an image block.
 
 > **source**: `object`
 
-Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L520)
+Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L520)
 
 The source of the image.
 
@@ -40,6 +40,6 @@ The source of the image.
 
 > **type**: `"image"`
 
-Defined in: [domain/types.ts:529](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L529)
+Defined in: [domain/types.ts:529](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L529)
 
 The type of the block.

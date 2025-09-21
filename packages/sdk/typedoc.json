@@ -4,6 +4,7 @@
         "./src/index.ts",
     ],
     "basePath": "./src",
+    "readme": "none",
     "out": "docs",
     "plugin": [
         "typedoc-plugin-markdown",

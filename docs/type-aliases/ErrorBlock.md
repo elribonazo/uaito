@@ -2,13 +2,13 @@
 
 ***
 
-[@uaito/sdk](../packages.md) / ErrorBlock
+[@uaito/sdk](../README.md) / ErrorBlock
 
 # Type Alias: ErrorBlock
 
 > **ErrorBlock** = `object`
 
-Defined in: [domain/types.ts:437](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L437)
+Defined in: [domain/types.ts:437](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L437)
 
 Represents an error block.
 
@@ -18,7 +18,7 @@ Represents an error block.
 
 > **message**: `string`
 
-Defined in: [domain/types.ts:447](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L447)
+Defined in: [domain/types.ts:447](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L447)
 
 The error message.
 
@@ -28,6 +28,6 @@ The error message.
 
 > **type**: `"error"`
 
-Defined in: [domain/types.ts:442](https://github.com/elribonazo/uaito/blob/9ab1ff2aae36a9b426eb3035857a3fddbfc0ec37/packages/sdk/src/domain/types.ts#L442)
+Defined in: [domain/types.ts:442](https://github.com/elribonazo/uaito/blob/a99e7bcbdb0358b1999f9ce76755884ba2c23b7e/packages/sdk/src/domain/types.ts#L442)
 
 The type of the block.

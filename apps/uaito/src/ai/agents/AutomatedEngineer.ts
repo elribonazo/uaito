@@ -1,7 +1,6 @@
 
 import fs from 'fs-extra';
-import  { Agent, LLMProvider, AgentTypeToOptions, MessageInput, OnTool, MessageArray } from "@uaito/sdk";
-import { ANSI_BLUE, type Tool } from "@uaito/sdk";
+import  { Agent, LLMProvider, MessageInput, OnTool, MessageArray, AgentTypeToOptions } from "@uaito/sdk";
 import { chromium, type Browser } from "playwright";
 import { runTavilySearch } from '../tools/tavily';
 import { extractAllText } from '../tools/extractWebContent';
@@ -10,7 +9,6 @@ import { createSystemPrompt } from '../prompts/AutomatedEngineer';
 
 
 export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
-    protected color = ANSI_BLUE;
     protected name = "Engineer"
     
     get tools() {
@@ -18,7 +16,7 @@ export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
     }
 
     override get systemPrompt() {
-      return createSystemPrompt(this.options.tools);
+      return createSystemPrompt(this.options.tools ?? []);
     }
 
     override get chainOfThought() {

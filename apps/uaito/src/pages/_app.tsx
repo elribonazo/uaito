@@ -11,8 +11,8 @@ function App({
   const { store, props } = wrapper.useWrappedStore(rest);
   return (
     <Provider store={store}>
-      <SessionProvider session={props.session}>
-        <Component {...props} />
+      <SessionProvider session={props.pageProps.session}>
+        <Component {...props.pageProps} />
       </SessionProvider>
     </Provider>
   )

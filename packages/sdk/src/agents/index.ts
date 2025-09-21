@@ -61,6 +61,15 @@ export class Agent<T extends LLMProvider> {
     }
 
     /**
+     * Gets the inputs for the agent.
+     * @returns {MessageArray<MessageInput>} The inputs.
+     */
+    public get inputs() {
+        return this.#client.inputs;
+    }
+
+
+    /**
      * Gets the tools available to the agent.
      * @returns {any[]} The tools.
      */

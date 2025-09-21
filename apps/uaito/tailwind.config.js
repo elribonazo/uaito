@@ -9,6 +9,7 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
+        'fadeIn': 'fadeIn 0.5s ease-in forwards',
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",

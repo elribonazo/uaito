@@ -1,7 +1,6 @@
-import { Agent, type MessageInput, ANSI_YELLOW, type Tool, MessageArray, LLMProvider, AgentTypeToOptions, OnTool } from "@uaito/sdk";
+import { Agent, type MessageInput,  MessageArray, LLMProvider, AgentTypeToOptions, OnTool } from "@uaito/sdk";
 
 export class Execution<T extends LLMProvider> extends Agent<T> {
-    protected override color = ANSI_YELLOW;
     protected override name = "Executor"
     private code!: string;
     private execution_result!: string;
