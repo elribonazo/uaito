@@ -201,10 +201,10 @@ export const streamMessage = createAsyncThunk(
 				dispatch(setDownloadProgress(0));
 
 				const imageAgent = new EdgeRuntimeAgentImage({
-					
+					signal: signal,
 				});
 				const audioAgent = new EdgeRuntimeAgentAudio({
-					
+					signal: signal,
 				});
 
 				const newAgent = new EdgeRuntimeAgent(

@@ -151,7 +151,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
   }
 
   return (
-    <div className="flex flex-col h-full rounded-lg w-full max-w-full transition-colors duration-300">
+    <div className="bg-gray-900 flex flex-col h-full rounded-lg w-full max-w-full transition-colors duration-300">
       {isSearchEnabled && searchInputRef && <SearchBar 
         defaultValue={searchText} 
         onChange={setSearchText} 

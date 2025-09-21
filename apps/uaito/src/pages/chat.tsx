@@ -89,7 +89,7 @@ const Chat: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
         </div>
       </header>
   
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-gray-900">
         {provider && <InputComponent agent={agent} provider={provider} model={selectedModel} />}
         <ToastContainer
           autoClose={5000}

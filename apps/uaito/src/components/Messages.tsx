@@ -193,7 +193,7 @@ export const Message: React.FC<{
 
 const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => void }) => {
     const prompts = [
-        "Generate a picture of a pomksy dog dressing as a crypto bro",
+        "Generate 5 random pictures of a pomsky dog dressing as a crypto bro and doing different activities",
         "Find me the best steak Restaurants in Madrid, best price, meat quality and space for year 2025",
         "What is the capital of France?",
         "A song with 80s pop track with bassy drums and synth",
