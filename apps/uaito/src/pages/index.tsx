@@ -1,34 +1,17 @@
-import React, { useEffect, useState, useCallback } from 'react';
 import { ParallaxProvider } from 'react-scroll-parallax';
-import { Bars3Icon } from '@heroicons/react/24/outline';
-import Image from 'next/image';
-import Link from 'next/link';
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { AnimatedText } from '@/components/AnimatedText';
 import { FeatureSection } from '@/components/FeaturedSection';
 import { FadeInSection } from '@/components/ClientSideComponents';
 import { Card } from '@/components/Card';
 import Footer from '@/components/Footer';
 import { KeyFeatures } from '@/components/KeyFeatures';
-import { MobileMenu } from '@/components/MobileMenu';
 import { TestimonialSection } from '@/components/Testimonial';
 import { ParallaxBanner } from '@/components/ParallaxBanner';
-import { useThrottle } from '@/hooks/useThrottle';
+import { Header } from '@/components/Header';
 
 
 
 const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({pageProps:{ features, chats }}) => {
-    const [isDesktop, setIsDesktop] = useState(true);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const acceptedTerms = true;
-    const handleResize = useThrottle(() => {
-        setIsDesktop(window.innerWidth >= 1024);
-    }, 200);
-    useEffect(() => {
-        window.addEventListener('resize', handleResize);
-        handleResize();
-        return () => window.removeEventListener('resize', handleResize);
-    }, [handleResize]);
     return (
         <ParallaxProvider>
             <style jsx>{`
@@ -40,47 +23,7 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.6);
                 }
             `}</style>
-            <nav className="fixed z-40 top-4 flex h-20 w-full">
-                <div className="relative flex items-center justify-between m-auto rounded-full p-2 transition bg-gray-900 w-11/12 lg:w-auto">
-                    <Link href="/" className="pl-4">
-                        <div className="flex gap-3 items-center">
-                            <Image
-                                src="/UAITO.png"
-                                alt="UAITO Logo"
-                                width={25}
-                                height={0}
-                                style={{ height: 'auto', width: '25px' }}
-                                className="animate-subtle-bounce"
-                                priority
-                            />
-                            {isDesktop && <span className="uppercase font-bold text-black tracking-wider text-[20px] -mb-[4px]">
-                                <AnimatedText />
-                            </span>}
-                        </div>
-                    </Link>
-                    {isDesktop ? (
-                        <>
-                            <div className="hidden lg:flex px-12 gap-12">
-                                <Link href="#features" className="text-neutral-200 hover:underline hover:text-neutral-600">Features</Link>
-                                <Link href="#testimonials" className="text-neutral-200 hover:underline hover:text-neutral-600">Testimonials</Link>
-                                <Link href="#ourteam" className="text-neutral-200 hover:underline hover:text-neutral-600">Our team</Link>
-                                <Link href="#faqs" className="text-neutral-200 hover:underline hover:text-neutral-600">Faqs</Link>
-
-                            </div>
-                            <div className="hidden grow basis-0 justify-end lg:flex">
-                                <Link href={"/dashboard"} className={`ml-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-green-500/50 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={(e) => !acceptedTerms && e.preventDefault()}>
-                                    Beta access
-                                </Link>
-                            </div>
-                        </>
-                    ) : (
-                        <button type="button" onClick={() => setMobileMenuOpen(true)} className="lg:hidden text-neutral-200 hover:text-neutral-600">
-                            <Bars3Icon className="h-6 w-6" />
-                        </button>
-                    )}
-                </div>
-            </nav>
-            <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} acceptedTerms={acceptedTerms} />
+            <Header />
             <ParallaxBanner />
 
             <div id="features">
@@ -118,36 +61,6 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                                 description="Track your usage and stay within your limits."
                                 imageUrl="/input.png"
                             />
-                        </div>
-                    </div>
-                </section>
-            </FadeInSection>
-
-            <FadeInSection>
-                <section id="ourteam" className="py-24 px-4 bg-gray-800/80 z-10 transform translate3d(0, 0, 0) fade-in">
-                    <div className="max-w-7xl mx-auto">
-                        <h2 className="text-5xl font-bold text-center text-white mb-16 font-orbitron">Our Team</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 justify-center">
-                            <Card
-                                variant="team"
-                                name="JR"
-                                role="Founder"
-                                imageUrl="https://picsum.photos/seed/team1/150/150"
-                            />
-
-                            <Card
-                                variant="team"
-                                name="RM"
-                                role="Founder"
-                                imageUrl="https://picsum.photos/seed/team2/150/150"
-                            />
-
-                            <div className="flex flex-col items-center justify-center bg-gray-900/80 rounded-lg p-6 text-center transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 transform hover:scale-105 border border-purple-500/30">
-                                <span className="text-6xl mb-4">?</span>
-                                <button type="button" className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110">
-                                    Join Us
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </section>
