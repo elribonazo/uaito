@@ -359,6 +359,12 @@ import { MessageArray } from "@/utils";
      */
     abstract name: string;
     /**
+     * An array of message inputs.
+     * @abstract
+     * @type {MessageArray<MessageInput>}
+     */
+    abstract inputs: MessageArray<MessageInput>;
+    /**
      * The system prompt for the agent.
      * @abstract
      * @type {string}

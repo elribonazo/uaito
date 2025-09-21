@@ -21,7 +21,7 @@ export function reactNodeToString(node: ReactNode): string {
 
   if (React.isValidElement(node)) {
     // If the node is a valid React element, recursively convert its children.
-    return reactNodeToString(node.props.children);
+    return reactNodeToString((node as any).props.children);
   }
 
   // If the node is an object (e.g., a React fragment), try to access its children.

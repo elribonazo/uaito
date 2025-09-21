@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import NextCors from 'nextjs-cors';
 import {SHA512} from '@stablelib/sha512';
-import { Agent, AnthropicModels, AnthropicOptions, ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, OpenAIModels, Tool } from '@uaito/sdk';
+import { Agent, AnthropicModels, AnthropicOptions, ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, OpenAIModels, Tool, BaseAgent } from '@uaito/sdk';
 import { browseWebPageTool, createFileTool, createFolderTool, editAndApplyTool, executeCommandTool, readFileTool, tavilySearch } from '@/ai/tools';
 import { findUserByEmail, IUser } from "@/db/models/User"
 import { createUsage } from '@/db/models/Usage';
@@ -96,7 +96,7 @@ async function AutomatedEngineerTask(
     directory,
     inputs,
     function onTool(
-      this: Agent<LLMProvider.Anthropic>,
+      this: BaseAgent,
       message: Message,
     )  {
         return SystemOnTool.bind(this)(

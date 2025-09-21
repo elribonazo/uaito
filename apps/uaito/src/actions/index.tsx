@@ -2,7 +2,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { AppDispatch } from "@/redux/store";
 import type { Session } from "next-auth";
-import { Agent, LLMProvider, HuggingFaceONNXModels,  HuggingFaceONNXOptions,  Message, MessageArray, MessageInput, ToolResultBlock } from "@uaito/sdk";
+import { Agent, LLMProvider, HuggingFaceONNXModels,  HuggingFaceONNXOptions,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent } from "@uaito/sdk";
 
 import { v4 } from "uuid";
 import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
@@ -208,7 +208,7 @@ export const streamMessage = createAsyncThunk(
 
 				const newAgent = new EdgeRuntimeAgent(
 					hfOptions,
-					async function (this: Agent<LLMProvider.Local>, message: Message) {
+					async function (this: BaseAgent, message: Message) {
 
 						const toolUse = message.content.find((m) => m.type === "tool_use");
 						const id = message.id;
@@ -235,7 +235,7 @@ export const streamMessage = createAsyncThunk(
 									(toolResult as any).content[0].content.push(content);
 								}
 							}
-							this.client.inputs.push(toolResult);
+							this.inputs.push(toolResult);
 						} else if (toolUse?.name === "generateImage") {
 							const input = toolUse?.input as { prompt: string };
 							const { response } = await imageAgent.performTask(input.prompt);
@@ -258,9 +258,9 @@ export const streamMessage = createAsyncThunk(
 									(toolResult as any).content[0].content.push(content);
 								}
 							}
-							this.client.inputs.push(toolResult);
+							this.inputs.push(toolResult);
 						} else {
-							this.client.inputs.push({
+							this.inputs.push({
 								...message,
 								id,
 								type: "tool_result",
@@ -281,7 +281,6 @@ export const streamMessage = createAsyncThunk(
 							});
 						}
 					},
-					LOG_ANSI_BLUE,
 					"EdgeAgent",
 				);
 
@@ -295,7 +294,7 @@ export const streamMessage = createAsyncThunk(
 			await __agent.load();
 
 			const newInputs = inputs ?? [];
-			if (__agent.client.inputs.length === 0 && newInputs.length > 0) {
+			if (__agent.inputs.length === 0 && newInputs.length > 0) {
 				await __agent.addInputs(newInputs);
 			}
 
