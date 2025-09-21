@@ -20,13 +20,10 @@ export class TextMessage extends BaseMessage {
   }
 
   appendText(text: string) {
-   this.log('Appending text', { textLength: text.length, currentBufferLength: this.buffer.length });
     this.buffer = text;
-   this.log('Text appended', { newBufferLength: this.buffer.length });
   }
 
   async render(): Promise<Message> {
-   this.log('Rendering TextMessage', { id: this.id, bufferLength: this.buffer.length });
     
     const message = {
       id: this.id,
@@ -35,12 +32,6 @@ export class TextMessage extends BaseMessage {
       chunk: true,
       content: [{ type: 'text' as const, text: this.buffer }]
     };
-    
-   this.log('TextMessage rendered successfully', { 
-      id: this.id, 
-      contentLength: message.content[0].text.length,
-      contentPreview: message.content[0].text.substring(0, 100)
-    });
     
     return message;
   }

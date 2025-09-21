@@ -5,12 +5,6 @@ import { ImageMessage } from "./parse/ImageMessage";
 import { TextMessage } from "./parse/TextMessage";
 import { AudioMessage } from "./parse/AudioMessage";
 
-// Verbose logging utility
-const log = (message: string, data?: any) => {
-  console.log(`[MessageCache] ${message}`, data ? JSON.stringify(data, null, 2) : '');
-};
-
-
 export const blobToDataURL = async (blob: Blob): Promise<string> => {
   const arrayBuffer = await blob.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
@@ -25,10 +19,8 @@ export class MessageCache {
   constructor(public tools: Tool[], private log: (...messages: any[]) => void = console.log) { }
 
   async processChunk(chunk: string) {
-  this.log('Processing chunk', { chunkLength: chunk.length, chunkPreview: chunk.substring(0, 100) });
     
     if (!this.currentElement) {
-    this.log('No current element, determining message type');
       //We need to know which type of element it is we are processing
       //thinking, tool_use, etc
 
@@ -36,10 +28,8 @@ export class MessageCache {
       const idxThink = chunk.indexOf('<think>');
       const hasThinkingOpenTags = idxThinking !== -1 || idxThink !== -1;
       if (hasThinkingOpenTags) {
-      this.log('Detected thinking message', { idxThinking, idxThink });
         this.currentElement = new ThinkingMessage(chunk, this.log);
         const result = await this.currentElement.render();
-      this.log('ThinkingMessage rendered', { messageId: result.id });
         return result;
       }
 
@@ -48,58 +38,45 @@ export class MessageCache {
         chunk.indexOf('<tool_call>');
 
       if (toolUseOpenTagIndex !== -1) {
-      this.log('Detected tool use message', { toolUseOpenTagIndex, availableTools: this.tools.length });
         this.currentElement = new ToolUseMessage(chunk, this.tools, this.log);
         return null
       }
 
       const audioOpenTagIndex = chunk.indexOf('<audio>');
       if (audioOpenTagIndex !== -1) {
-      this.log('Detected audio message', { audioOpenTagIndex });
         this.currentElement = new AudioMessage(chunk.replace('<audio>', ''), this.log);
         const result = await this.currentElement.render();
-      this.log('AudioMessage rendered', { messageId: result.id });
         this.currentElement = null;
         return result;
       }
 
       const imageOpenTagIndex = chunk.indexOf('<image>');
       if (imageOpenTagIndex !== -1) {
-      this.log('Detected image message', { imageOpenTagIndex });
         this.currentElement = new ImageMessage(chunk.replace('<image>', ''), this.log);
         const result = await this.currentElement.render();
-      this.log('ThinkingMessage rendered', { messageId: result.id });
         this.currentElement = null;
         return result;
       }
 
-    this.log('Defaulting to text message');
       this.currentElement = new TextMessage(chunk, this.log);
       const result = await this.currentElement.render();
-    this.log('TextMessage rendered', { messageId: result.id });
       return result;
 
 
     } else {
-    this.log('Continuing with existing element', { elementType: this.currentElement.constructor.name });
  
       if (this.currentElement instanceof ToolUseMessage) {
         const endIndex = chunk.indexOf('<|tool_call_end|>') !== -1 ?
           chunk.indexOf('<|tool_call_end|>') :
           chunk.indexOf('</tool_call>');
         
-      this.log('Processing ToolUseMessage chunk', { endIndex, chunkLength: chunk.length });
-
         if (endIndex !== -1) {
-        this.log('Found tool use end tag, completing ToolUseMessage');
           this.currentElement.appendText(chunk.slice(0, endIndex));
           const rendered = await this.currentElement.render();
           this.currentElement = null;
-        this.log('ToolUseMessage completed and reset', { messageId: rendered.id, toolCount: rendered.content.length });
           return rendered;
         }
 
-      this.log('Appending to ToolUseMessage buffer');
         this.currentElement.appendText(chunk);
         return null
       }
@@ -107,10 +84,8 @@ export class MessageCache {
       if (this.currentElement instanceof ThinkingMessage) {
         const idxThinking = chunk.indexOf('</thinking>');
         const idxThink = chunk.indexOf('</think>');
-      this.log('Processing ThinkingMessage chunk', { idxThinking, idxThink });
         
         if (idxThinking !== -1 || idxThink !== -1) {
-        this.log('Found thinking end tag, completing ThinkingMessage');
           if (idxThinking !== -1) {
             this.currentElement.appendText(chunk.slice(0, idxThinking));
           } else if (idxThink !== -1) {
@@ -118,22 +93,17 @@ export class MessageCache {
           }
           const rendered = await this.currentElement.render();
           this.currentElement = null;
-        this.log('ThinkingMessage completed and reset', { messageId: rendered.id });
           return rendered;
         } else {
-        this.log('Appending to ThinkingMessage buffer');
           this.currentElement.appendText(chunk);
           const rendered = await this.currentElement.render();
-        this.log('ThinkingMessage updated and rendered');
           return rendered
         }
       }
 
       if (this.currentElement instanceof TextMessage) {
-      this.log('Appending to TextMessage');
         this.currentElement.appendText(chunk);
         const rendered = await this.currentElement.render();
-      this.log('TextMessage updated and rendered');
         return rendered;
       }
     }

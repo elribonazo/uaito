@@ -113,6 +113,10 @@ yargs(hideBin(process.argv))
                 console.error('You need to specify a message');
                 process.exit(1);
             }
+            const originalLog = console.log;
+            const originalError = console.error;
+            console.log = () => { };
+            console.error = () => { };
 
             try {
                 const tools = availableTools;
@@ -141,7 +145,7 @@ yargs(hideBin(process.argv))
                         tools,
                         device: 'auto',
                         dtype: 'q4f16',
-                        log: (message: string) => { }
+                        log: () => { }
                     };
                     
                     agent = new CLIAgent(
@@ -161,18 +165,40 @@ yargs(hideBin(process.argv))
                     message
                 );
 
-              
+                console.log = originalLog;
+                console.error = originalError;
+
+                let thinking: boolean = false;
                 for await (const chunk of response) {
+          
                     if (chunk.type === 'message') {
+                        if (thinking) {
+                            process.stdout.write('\n</thinking>\n');
+                            thinking = false;
+                        }
                         for (const content of chunk.content) {
                             if (content.type === 'text') {
-                                console.log(content.text);
+                                process.stdout.write(content.text);
+                            }
+                        }
+                    }
+                    if (chunk.type === 'thinking') {
+                        if (!thinking) {
+                            process.stdout.write('\n<thinking>\n');
+                            thinking = true;
+                        }
+                        for (const content of chunk.content) {
+                            if (content.type === 'thinking') {
+                                process.stdout.write(content.thinking);
                             }
                         }
                     }
                 }
+                process.stdout.write('\n');
 
             } catch (error) {
+                console.log = originalLog;
+                console.error = originalError;
                 console.error('Error:', error);
             }
         }
