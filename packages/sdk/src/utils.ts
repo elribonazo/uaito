@@ -1,10 +1,20 @@
 import { v4 } from "uuid";
-import { Message, MessageInput, Role } from "./types";
+import { MessageInput, Role } from "./domain/types";
 
+/**
+ * Checks if a given role is a valid Role.
+ * @param {any} role - The role to validate.
+ * @returns {role is Role} True if the role is valid, false otherwise.
+ */
 function isValidRole(role: any): role is Role {
   return role === 'assistant' || role === 'user' || role === 'system' || role === 'ipython';
 }
 
+/**
+ * Checks if a given content object is valid message content.
+ * @param {any} content - The content to validate.
+ * @returns {boolean} True if the content is valid, false otherwise.
+ */
 function isValidMessageContent(content: any): boolean {
   if (typeof content !== 'object' || content === null) {
     return false;
@@ -45,6 +55,11 @@ function isValidMessageContent(content: any): boolean {
   }
 }
 
+/**
+ * Validates a MessageInput object.
+ * @param {any} item - The item to validate.
+ * @returns {item is MessageInput} True if the item is a valid MessageInput, false otherwise.
+ */
 function validateMessageInput(item: any): item is MessageInput {
   const contentValid = item.content.every(isValidMessageContent);
   if (!item.id) {
@@ -56,12 +71,27 @@ function validateMessageInput(item: any): item is MessageInput {
     contentValid;
 }
 
+/**
+ * A specialized array class for managing messages, with validation and merging capabilities.
+ * @class MessageArray
+ * @extends {Array<T>}
+ * @template T
+ */
 export class MessageArray<T extends MessageInput> extends Array<T> {
 
+  /**
+   * Creates a MessageArray from an array of MessageInput items.
+   * @param {MessageInput[]} items - The items to create the MessageArray from.
+   * @returns {MessageArray<MessageInput>} A new MessageArray instance.
+   */
   static from(items: MessageInput[]): MessageArray<MessageInput> {
     return new MessageArray(items);
   }
 
+  /**
+   * Creates an instance of MessageArray.
+   * @param {T[]} [items=[]] - The initial items for the array.
+   */
   constructor(items: T[] = []) {
     super(...(Array.isArray(items) ? items : [items]));
     // biome-ignore lint/correctness/noConstructorReturn: okey
@@ -112,6 +142,13 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
     });
   }
 
+  /**
+   * Checks if two messages have the same role and should be merged.
+   * @protected
+   * @param {T} lastOne - The last message in the array.
+   * @param {T} item - The new message to be added.
+   * @returns {boolean} True if the roles are the same and the messages should be merged, false otherwise.
+   */
   protected isSameRole(lastOne: T, item: T): boolean {
     const isTool = item.content.some((c) => c.type === 'tool_result');
     return lastOne?.role === item.role && item.role === "user" && !isTool;

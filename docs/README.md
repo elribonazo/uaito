@@ -1,7 +1,11 @@
+**@uaito/sdk**
+
+***
+
 # UAITO SDK
 
 <p align="center">
-  <img src="UAITO.png" alt="UAITO Logo" width="200"/>
+  <img src="_media/UAITO.png" alt="UAITO Logo" width="200"/>
 </p>
 
 <p align="center">
@@ -36,9 +40,6 @@ or with yarn:
 ```bash_
 yarn add @uaito/sdk
 ```
-
-## Docs
-All SDK related docs and types are available [here](./docs/README.md)
 
 ## Quick Start
 
@@ -203,7 +204,7 @@ await agent.performTask("What's the weather like in Boston?");
 
 The SDK includes a powerful and easy-to-use CLI for running agents directly from your terminal. It supports all the same providers and models as the SDK and provides a clean, streaming interface.
 
-For detailed instructions and examples, please see the [SDK's README](./packages/sdk/README.md).
+For detailed instructions and examples, please see the [SDK's README](packages.md).
 
 ### Quick Example
 
@@ -227,14 +228,6 @@ npx @uaito/sdk run "What is the capital of Canada?" --provider OpenAI --model gp
 - `onnx-community/Llama-3.2-1B-Instruct-q4f16`
 - `onnx-community/LFM2-1.2B-ONNX`
 
-
 ## License
 
-This project is licensed under the ISC License. See the [LICENSE](LICENSE) file for details.
-
-
-
-
-
-
-
+This project is licensed under the ISC License. See the [LICENSE](_media/LICENSE) file for details.

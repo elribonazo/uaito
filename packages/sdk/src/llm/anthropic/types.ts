@@ -1,0 +1,19 @@
+import { BaseLLMOptions } from "@/domain/types";
+
+/**
+ * Enumeration of the available Anthropic models.
+ * @export
+ * @enum {string}
+ */
+export enum AnthropicModels {
+    /**
+     * The Claude 4 Sonnet model.
+     */
+    'claude-4-sonnet' = "claude-sonnet-4-20250514"
+  }
+
+  /**
+   * Type alias for Anthropic options, extending BaseLLMOptions with an optional apiKey.
+   * @type
+   */
+  export type AnthropicOptions = { apiKey?: string } & BaseLLMOptions;

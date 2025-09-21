@@ -2,23 +2,18 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
-import {
-    LLMProvider,
-    HuggingFaceONNXModels,
-    AnthropicModels,
-    OpenAIModels,
-} from './types';
-import type {
-    Tool,
-    AgentTypeToOptions,
-    Message,
-    TextBlock,
-} from './types';
 import { Agent } from './agents/index';
 import { MessageArray } from './utils';
+import { Tool } from './domain/types';
+import { AnthropicModels } from './llm/anthropic/types';
+import { HuggingFaceONNXModels } from './llm/huggingface/types';
+import { OpenAIModels } from './llm/openai/types';
+import { LLMProvider, AgentTypeToOptions } from './types';
 
-// Default tools available in the CLI
+/**
+ * Default tools available in the CLI.
+ * @type {Tool}
+ */
 const browseWebPageTool: Tool = {
     name: "browseWebPage",
     description: `Opens the desired url to either get the source html code or to directly extract the redable texts`,
@@ -38,6 +33,10 @@ const browseWebPageTool: Tool = {
     }
 }
 
+/**
+ * The Tavily search tool.
+ * @type {Tool}
+ */
 const tavilySearch: Tool = {
     name: "tavilySearch",
     description: "Perform a web search using the Tavily API to get up-to-date information or additional context. This tool should be used when you need current information or feel a search could provide a better answer to the user's query. It will return a summary of the search results, including relevant snippets and source URLs.",
@@ -53,10 +52,26 @@ const tavilySearch: Tool = {
     }
 }
 
+/**
+ * An array of available tools.
+ * @type {Tool[]}
+ */
 const availableTools = [browseWebPageTool, tavilySearch];
 
-// Custom Agent to override prompts
+/**
+ * Custom Agent to override prompts.
+ * @class CLIAgent
+ * @extends {Agent<T>}
+ * @template T
+ */
 class CLIAgent<T extends LLMProvider> extends Agent<T> {
+    /**
+     * Creates an instance of CLIAgent.
+     * @param {T} type - The type of LLM provider.
+     * @param {AgentTypeToOptions[T]} options - The options for the agent.
+     * @param {string} systemPromptTemplate - The template for the system prompt.
+     * @param {string} cot - The chain of thought for the agent.
+     */
     constructor(
         type: T,
         options: AgentTypeToOptions[T],
@@ -68,10 +83,18 @@ class CLIAgent<T extends LLMProvider> extends Agent<T> {
         
     }
 
+    /**
+     * Gets the system prompt for the agent.
+     * @returns {string} The system prompt.
+     */
     override get systemPrompt() {
         return this.systemPromptTemplate;
     }
 
+    /**
+     * Gets the chain of thought for the agent.
+     * @returns {string} The chain of thought.
+     */
     override get chainOfThought() {
         return this.cot;
     }
