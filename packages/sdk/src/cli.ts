@@ -120,8 +120,6 @@ yargs(hideBin(process.argv))
                 const chainOfThought = `Answer the user's request using relevant tools only if the tool exists and is relevant.`;
 
                 let agent: CLIAgent<LLMProvider>;
-                console.log = () => {}
-
                 if (provider === LLMProvider.Anthropic || provider === LLMProvider.OpenAI) {
                     const options: AgentTypeToOptions[LLMProvider.Anthropic] | AgentTypeToOptions[LLMProvider.OpenAI] = {
                         model,
