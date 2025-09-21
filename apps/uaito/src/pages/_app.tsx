@@ -13,7 +13,7 @@ function App({
   return (
     <SessionProvider session={props.pageProps.session}>
     <Provider store={store}>
-        <Component {...props.pageProps} />
+        <Component {...props} />
     </Provider>
     </SessionProvider>
   )
