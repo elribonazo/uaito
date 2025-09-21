@@ -168,7 +168,7 @@ yargs(hideBin(process.argv))
                     if (chunk.type === 'message') {
                         for (const content of chunk.content) {
                             if (content.type === 'text') {
-                                process.stdout.write(content.text);
+                                console.log(content.text);
                             }
                         }
                     }

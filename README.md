@@ -207,7 +207,7 @@ For detailed instructions and examples, please see the [SDK's README](./packages
 Once installed, you can quickly run a prompt like this:
 
 ```bash
-uaito-sdk run "What is the capital of Canada?" --provider OpenAI --model gpt-5-nano
+npx @uaito/sdk run "What is the capital of Canada?" --provider OpenAI --model gpt-5-nano
 ```
 
 ## Supported Providers & Models

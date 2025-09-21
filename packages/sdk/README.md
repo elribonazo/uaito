@@ -11,7 +11,7 @@ The CLI is designed to be straightforward and easy to use, with a focus on provi
 The primary command is `run`, which allows you to send a message to the specified model and receive a response.
 
 ```bash
-uaito-sdk run <message> [options]
+npx @uaito/sdk run "What is the capital of France?" --provider OpenAI --model gpt-5-nano --apiKey openAIKey
 ```
 
 ### Arguments
@@ -35,7 +35,7 @@ uaito-sdk run <message> [options]
 To get a response from OpenAI's `gpt-5-nano` model, you would run:
 
 ```bash
-uaito-sdk run "What is the capital of France?" --provider OpenAI --model gpt-5-nano --apiKey YOUR_OPENAI_API_KEY
+npx @uaito/sdk run "What is the capital of France?" --provider OpenAI --model gpt-5-nano --apiKey YOUR_OPENAI_API_KEY
 ```
 
 #### Using a Local Model
@@ -43,7 +43,7 @@ uaito-sdk run "What is the capital of France?" --provider OpenAI --model gpt-5-n
 If you have a local ONNX model, you can run it without needing an API key:
 
 ```bash
-uaito-sdk run "Translate 'hello' to Spanish" --provider Local --model JANO
+npx @uaito/sdk run "Translate 'hello' to Spanish" --provider Local --model JANO
 ```
 
 The CLI will stream the response directly to your console, providing a clean and readable output.
