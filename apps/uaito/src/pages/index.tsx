@@ -59,12 +59,6 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                     </div>
                 </section>
             </FadeInSection>
-
-            {sections.map((section, index) => (
-              <SectionRenderer key={index} section={section} />
-            ))}
-
-
             <FadeInSection>
                 <section id="faqs" className="py-24 px-4 z-10">
                     <div className="max-w-7xl mx-auto">
