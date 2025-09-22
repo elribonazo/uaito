@@ -1,7 +1,7 @@
 {
   "name": "@uaito/sdk",
   "version": "0.8.2",
-  "description": "UAITO Typescript SDK.",
+  "description": "UAITO Typescript SDK",
   "main": "build/index.js",
   "module": "build/index.mjs",
   "types": "build/index.d.ts",
