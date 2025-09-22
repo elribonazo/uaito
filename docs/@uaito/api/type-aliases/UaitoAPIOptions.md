@@ -8,7 +8,7 @@
 
 > **UaitoAPIOptions** = `object` & `BaseLLMOptions`
 
-Defined in: [types.ts:5](https://github.com/elribonazo/uaito/blob/6936f8ff79845312a8065c6fe5b6c9a6c7758a46/packages/api/src/types.ts#L5)
+Defined in: [types.ts:5](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/types.ts#L5)
 
 ## Type Declaration
 
