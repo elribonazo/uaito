@@ -7,14 +7,14 @@
   },
   "release": {
     "releaseTagPattern": "{projectName}@{version}",
+    "projectsRelationship": "independent",
     "git": {
       "commit": true,
       "commitMessage": "chore(release): {version} [skip ci]"
     },
-    "projectsRelationship": "independent",
     "version": {
-      "preVersionCommand": "sh release.sh",
       "conventionalCommits": true,
+      "preVersionCommand": "sh release.sh",
       "fallbackCurrentVersionResolver": "disk"
     },
     "changelog": {
@@ -40,6 +40,12 @@
         "{projectRoot}/dist/**"
       ],
       "cache": true
+    },
+    "nx-release-publish": {
+      "executor": "@nx/js:release-publish",
+      "options": {
+        "registry": "https://registry.npmjs.org/"
+      }
     },
     "docs": {
       "dependsOn": [
