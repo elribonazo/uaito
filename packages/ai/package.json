@@ -1,6 +1,6 @@
 {
   "name": "@uaito/ai",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "UAITO AI package",
   "main": "./build/index.js",
   "module": "./build/index.mjs",
@@ -16,14 +16,14 @@
     "clean": "rm -rf build"
   },
   "peerDependencies": {
-    "@uaito/anthropic": "^0.0.0",
-    "@uaito/api": "^0.0.0",
+    "@uaito/anthropic": "^0.0.1",
+    "@uaito/api": "^0.0.1",
     "@uaito/huggingFace": "^0.0.0",
-    "@uaito/openai": "^0.0.0"
+    "@uaito/openai": "^0.0.1"
   },
   "devDependencies": {
-    "@uaito/build": "^0.0.0",
-    "@uaito/sdk": "^0.8.0",
+    "@uaito/build": "^0.0.1",
+    "@uaito/sdk": "^0.8.1",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
