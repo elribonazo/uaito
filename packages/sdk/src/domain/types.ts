@@ -794,6 +794,8 @@ export type BaseLLMOptions = {
      * @type {(((message: string) => void) | undefined)}
      */
     log?: (message: string) => void
+
+    onTool?: OnTool
 }
 
 /**

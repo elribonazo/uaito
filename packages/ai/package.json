@@ -16,13 +16,14 @@
     "clean": "rm -rf build"
   },
   "peerDependencies": {
-    "@uaito/anthropic": "workspace:*",
-    "@uaito/api": "workspace:*",
-    "@uaito/huggingFace": "workspace:*",
-    "@uaito/openai": "workspace:*"
+    "@uaito/anthropic": "^0.0.0",
+    "@uaito/api": "^0.0.0",
+    "@uaito/huggingFace": "^0.0.0",
+    "@uaito/openai": "^0.0.0"
   },
   "devDependencies": {
-    "@uaito/sdk": "workspace:*",
+    "@uaito/build": "^0.0.0",
+    "@uaito/sdk": "^0.8.0",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
