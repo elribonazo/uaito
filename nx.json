@@ -14,7 +14,6 @@
     "projectsRelationship": "independent",
     "version": {
       "preVersionCommand": "sh release.sh",
-      "conventionalCommits": true,
       "fallbackCurrentVersionResolver": "disk",
       "currentVersionResolver": "disk"
     },
