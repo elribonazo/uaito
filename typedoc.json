@@ -2,7 +2,13 @@
     "$schema": "https://typedoc-plugin-markdown.org/schema.json",
     "entryPointStrategy": "packages",
     "entryPoints": [
-        "packages/sdk"
+        "packages/api",
+        "packages/anthropic",
+        "packages/huggingFace",
+        "packages/openai",
+        "packages/sdk",
+        "packages/ai"
+
     ],
     "readme": "none",
     "basePath":   "./src",

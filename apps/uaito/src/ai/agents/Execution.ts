@@ -1,7 +1,8 @@
-import { Agent, type MessageInput,  MessageArray, LLMProvider, AgentTypeToOptions, OnTool } from "@uaito/sdk";
+import { Agent } from "@uaito/ai";
+import {  type MessageInput,  BaseLLM,  BaseLLMOptions,  LLMProvider,  MessageArray, OnTool } from "@uaito/sdk";
+import { AutomatedEngineer } from "./AutomatedEngineer";
 
-export class Execution<T extends LLMProvider> extends Agent<T> {
-    protected override name = "Executor"
+export class Execution extends Agent {
     private code!: string;
     private execution_result!: string;
 
@@ -35,12 +36,43 @@ export class Execution<T extends LLMProvider> extends Agent<T> {
         return ``;
     }
 
-     constructor(
-        public type: T,
-        protected llmOptions:AgentTypeToOptions[typeof type],
-        protected onTool?: OnTool,
+    private constructor(
+        llm: BaseLLM<LLMProvider, unknown>,
+        protected directory: string
       ) {
-        super(type, llmOptions, onTool)
+        super(llm);
+      }
+  
+      private static async getClient(type: LLMProvider, options: any): Promise<BaseLLM<LLMProvider, unknown>> {
+        let Client: new ({ options }: {options:any}, onTool?: OnTool) => BaseLLM<any, unknown>
+        if (type === LLMProvider.Anthropic) {
+           Client = (await import("@uaito/anthropic")).Anthropic;
+        } else if (type === LLMProvider.OpenAI) {
+           Client = (await import("@uaito/openai")).OpenAI;
+        } else if (type === LLMProvider.Local) {
+           Client = (await import("@uaito/huggingFace")).HuggingFaceONNX;
+        } else if (type === LLMProvider.LocalImage) {
+           Client = (await import("@uaito/huggingFace")).HuggingFaceONNXTextToImage;
+        } else if (type === LLMProvider.LocalAudio) {
+           Client = (await import("@uaito/huggingFace")).HuggingFaceONNXTextToAudio;
+        } else if (type === LLMProvider.API) { 
+           Client = (await import("@uaito/api")).UaitoAPI;
+        } else {
+            throw new Error("not implemented")
+        }
+        const client = new Client({options}, options.onTool) as BaseLLM<LLMProvider, unknown>
+        return client
+    }
+  
+      static async create<T extends LLMProvider>(
+         type: T,
+         llmOptions:BaseLLMOptions,
+         directory: string,
+      ) {
+  
+        const llm = await Execution.getClient(type, llmOptions);
+        const instance = new Execution(llm, directory);
+        return instance;
       }
 
     createInitialMessageInput(

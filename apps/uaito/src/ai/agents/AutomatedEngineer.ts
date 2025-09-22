@@ -1,22 +1,21 @@
 
 import fs from 'fs-extra';
-import  { Agent, LLMProvider, MessageInput, OnTool, MessageArray, AgentTypeToOptions } from "@uaito/sdk";
+import  {  LLMProvider, MessageInput, OnTool, MessageArray, BaseLLM, BaseLLMOptions } from "@uaito/sdk";
 import { chromium, type Browser } from "playwright";
 import { runTavilySearch } from '../tools/tavily';
 import { extractAllText } from '../tools/extractWebContent';
 import {  safeCommands } from '../../config';
 import { createSystemPrompt } from '../prompts/AutomatedEngineer';
+import { Agent } from '@uaito/ai';
 
 
-export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
+export class AutomatedEngineer extends Agent {
     protected name = "Engineer"
     
-    get tools() {
-        return this.options.tools ?? [];
-    }
+
 
     override get systemPrompt() {
-      return createSystemPrompt(this.options.tools ?? []);
+      return createSystemPrompt(this.tools ?? []);
     }
 
     override get chainOfThought() {
@@ -34,22 +33,42 @@ export class AutomatedEngineer<T extends LLMProvider> extends Agent<T> {
     }
   
     private constructor(
-      public type: T,
-      protected llmOptions:AgentTypeToOptions[typeof type],
-      protected onTool: OnTool,
+      llm: BaseLLM<LLMProvider, unknown>,
       protected directory: string
     ) {
-      super(type, llmOptions, onTool);
+      super(llm);
     }
+
+    private static async getClient(type: LLMProvider, options: any): Promise<BaseLLM<LLMProvider, unknown>> {
+      let Client: new ({ options }: {options:any}, onTool?: OnTool) => BaseLLM<any, unknown>
+      if (type === LLMProvider.Anthropic) {
+         Client = (await import("@uaito/anthropic")).Anthropic;
+      } else if (type === LLMProvider.OpenAI) {
+         Client = (await import("@uaito/openai")).OpenAI;
+      } else if (type === LLMProvider.Local) {
+         Client = (await import("@uaito/huggingFace")).HuggingFaceONNX;
+      } else if (type === LLMProvider.LocalImage) {
+         Client = (await import("@uaito/huggingFace")).HuggingFaceONNXTextToImage;
+      } else if (type === LLMProvider.LocalAudio) {
+         Client = (await import("@uaito/huggingFace")).HuggingFaceONNXTextToAudio;
+      } else if (type === LLMProvider.API) { 
+         Client = (await import("@uaito/api")).UaitoAPI;
+      } else {
+          throw new Error("not implemented")
+      }
+      const client = new Client({options}, options.onTool) as BaseLLM<LLMProvider, unknown>
+      return client
+  }
 
     static async create<T extends LLMProvider>(
        type: T,
-       llmOptions:AgentTypeToOptions[typeof type],
+       llmOptions:BaseLLMOptions,
        directory: string,
        inputs: MessageArray<MessageInput>,
-       onTool: OnTool,
     ) {
-      const instance = new AutomatedEngineer(type, llmOptions, onTool, directory);
+
+      const llm = await AutomatedEngineer.getClient(type, llmOptions);
+      const instance = new AutomatedEngineer(llm,  directory);
       await instance.addInputs(inputs);
       return instance;
     }

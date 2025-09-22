@@ -1,0 +1,35 @@
+{
+  "name": "@uaito/ai",
+  "version": "0.0.0",
+  "description": "UAITO AI package",
+  "main": "./build/index.js",
+  "module": "./build/index.mjs",
+  "types": "./build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf build && sh build.sh",
+    "clean": "rm -rf build"
+  },
+  "peerDependencies": {
+    "@uaito/anthropic": "workspace:*",
+    "@uaito/api": "workspace:*",
+    "@uaito/huggingFace": "workspace:*",
+    "@uaito/openai": "workspace:*"
+  },
+  "devDependencies": {
+    "@uaito/sdk": "workspace:*",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  },
+  "author": "Uaito",
+  "bin": {
+    "uaito-cli": "build/cli.js"
+  },
+  "license": "MIT",
+  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
+}

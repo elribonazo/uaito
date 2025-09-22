@@ -1,10 +1,13 @@
-import { Agent, ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray, AgentTypeToOptions  } from "@uaito/sdk";
+import {  ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray  } from "@uaito/sdk";
 import type { AutomatedEngineer } from "./AutomatedEngineer";
 import { ToolModel } from '@/db/models/Tool';
 import type { AbortSignal } from 'abort-controller';
 import { AbortController } from 'abort-controller';
 import { Execution } from "./Execution";
-import { AnthropicModels } from "@uaito/sdk";
+import { Agent } from "@uaito/ai";
+import { AnthropicModels } from "@uaito/anthropic";
+
+
 async function toolCompletion(id: string, signal: AbortSignal) {
     const maxRetries = 400;
     for (let retries = 0; retries < maxRetries; retries++) {
@@ -31,7 +34,7 @@ async function toolCompletion(id: string, signal: AbortSignal) {
 }
 
 export async function onTool<T extends LLMProvider>(
-    this: Agent<T>,
+    this: Agent,
     userId: string,
     threadId: string,
     message: Message,
@@ -59,17 +62,15 @@ export async function onTool<T extends LLMProvider>(
     const localTools = ['tavilySearch', 'browseWebPage'];
     const toolName = tool.name as 'tavilySearch' | 'browseWebPage' | 'executeCommand' | 'editAndApply' | 'createFile' | 'createFolder' | 'readFile' | 'listFiles';
 
-    const agentOptions = this.options as AgentTypeToOptions[T];
-    const execution = new Execution(this.type, {
-        ...agentOptions,
-        model: AnthropicModels['claude-3-5-sonnet'],
-        maxTokens: 4096
-    })
+    const agentOptions = this.options
+
+    
+
     if (localTools.includes(tool.name)) {
         if (tool.name === "browseWebPage") {
             await this.runSafeCommand(
                 tool,
-                async (instance: AutomatedEngineer<T>) => {
+                async (instance:Agent) => {
                     const codeInput = tool.input as { url: string, extractText?: boolean };
                     const key = tool.name;
                     const method = instance[key];
@@ -95,7 +96,7 @@ export async function onTool<T extends LLMProvider>(
         } else if (tool.name === "tavilySearch") {
             await this.runSafeCommand(
                 tool,
-                async (instance: AutomatedEngineer<T>) => {
+                async (instance: Agent) => {
                     
                     const codeInput = tool.input as { query: string };
                     const key = tool.name;
@@ -127,6 +128,11 @@ export async function onTool<T extends LLMProvider>(
             state: 'pending'
         })
         try {
+            const execution = Execution.create(this.type, {
+                ...agentOptions,
+                model: AnthropicModels["claude-4-sonnet"],
+                maxTokens: 4096
+            }, process.cwd());
             const completed = await toolCompletion(dbTool._id as string, abortController.signal);
             const input = JSON.parse(completed.input ?? '{}');
             if (completed) {

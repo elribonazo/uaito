@@ -1,13 +1,13 @@
 
 import { v4 } from 'uuid';
 import { MessageArray } from '../utils';
-import { BaseLLMCache, BaseLLMOptions, ErrorBlock, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable, ToolInputDelta, ToolResultBlock, ToolUseBlock, TransformStreamFn, UsageBlock } from './types';
+import type { BaseLLMCache, ErrorBlock, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable, ToolInputDelta, ToolResultBlock, ToolUseBlock, TransformStreamFn, UsageBlock } from './types';
+import type {  LLMProvider } from '@/types';
 
 
 
 /**
  * An abstract class for a runner that performs a task stream.
- * @export
  * @abstract
  * @class Runner
  */
@@ -29,7 +29,7 @@ export abstract class Runner {
  * @template OPTIONS The type of options for the language model, extending BaseLLMOptions.
  * @extends {Runner}
  */
-export abstract class BaseLLM<TYPE, OPTIONS extends BaseLLMOptions> extends Runner {
+export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner {
     /**
      * The maximum number of retries for an API call.
      * @private
@@ -69,7 +69,7 @@ export abstract class BaseLLM<TYPE, OPTIONS extends BaseLLMOptions> extends Runn
      * @returns {void}
      */
     log(message: string) {
-        const fn = this.options?.log ?? console.log;
+        const fn = (this.options as any)?.log ?? console.log;
         return fn(message);
     }
 
@@ -139,7 +139,7 @@ export abstract class BaseLLM<TYPE, OPTIONS extends BaseLLMOptions> extends Runn
      * @param {TYPE} type - The type of the language model.
      * @param {OPTIONS} options - The options for the language model.
      */
-    constructor(public readonly type: TYPE, protected options: OPTIONS) {
+    constructor(public readonly type: TYPE, public readonly options: OPTIONS) {
         super()
     }
 
@@ -347,7 +347,7 @@ export abstract class BaseLLM<TYPE, OPTIONS extends BaseLLMOptions> extends Runn
                                     toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                                 }
 
-                                await onTool.bind(this)(tChunk, this.options.signal);
+                                await onTool.bind(this)(tChunk, (this.options as any).signal);
                                 const lastOutput = this.inputs[this.inputs.length - 1];
                                 if (lastOutput.content[0].type !== 'tool_result') {
                                     throw new Error("Tool call finished but expected to have a user reply with the tool response");

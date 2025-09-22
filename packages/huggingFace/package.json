@@ -1,0 +1,60 @@
+{
+  "name": "@uaito/huggingface",
+  "version": "0.0.0",
+  "description": "UAITO Hugging Face Provider",
+  "main": "build/index.js",
+  "module": "build/index.mjs",
+  "types": "build/index.d.ts",
+  "files": [
+    "build/**/*"
+  ],
+  "scripts": {
+    "build": "rm -rf build && sh build.sh",
+    "types:default": "npx tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "elribonazo <elribonazo@uaito.io>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uaito/sdk.git"
+  },
+  "keywords": [
+    "uaito",
+    "sdk",
+    "typescript"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@uaito/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/node-resolve": "^0.2.2",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^14.18.63",
+    "@types/yargs": "^17.0.33",
+    "@uaito/build": "workspace:*",
+    "@uaito/sdk": "workspace:*",
+    "dotenv": "^16.4.7",
+    "esbuild-node-externals": "^1.16.0",
+    "esbuild-plugin-glob": "^2.2.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "3.7.1",
+    "abort-controller": "^3.0.0",
+    "idb": "^8.0.3",
+    "lodash": "^4.17.21",
+    "openai": "^5.20.0",
+    "uuid": "^10.0.0",
+    "yargs": "^18.0.0"
+  },
+  "bin": {
+    "uaito": "build/cli.js"
+  },
+  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
+}

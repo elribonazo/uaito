@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import NextCors from 'nextjs-cors';
 import {SHA512} from '@stablelib/sha512';
-import { Agent, AnthropicModels, AnthropicOptions, ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, OpenAIModels, Tool, BaseAgent } from '@uaito/sdk';
+import {  ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, Tool, BaseAgent } from '@uaito/sdk';
 import { browseWebPageTool, createFileTool, createFolderTool, editAndApplyTool, executeCommandTool, readFileTool, tavilySearch } from '@/ai/tools';
 import { findUserByEmail, IUser } from "@/db/models/User"
 import { createUsage } from '@/db/models/Usage';
@@ -10,6 +10,8 @@ import db from '@/db';
 import { AutomatedEngineer } from '@/ai/agents/AutomatedEngineer';
 import { onTool as SystemOnTool } from '../../../../ai/agents/onTool';
 import { ensureUserExists } from '../../auth/[...nextauth]';
+import { AnthropicModels, AnthropicOptions } from '@uaito/anthropic';
+import { OpenAIModels } from '@uaito/openai';
 
 const SEPARATOR = "<-[*0M0*]->"
 
@@ -92,21 +94,22 @@ async function AutomatedEngineerTask(
 
   const agent =  await AutomatedEngineer.create(
     type,
-    options,
+    {
+      ...options,
+      onTool:function onTool(
+        this: BaseAgent,
+        message: Message,
+      )  {
+          return SystemOnTool.bind(this)(
+            currentUser.id,
+            threadId,
+            message,
+            abortController
+          )
+        }
+    },
     directory,
     inputs,
-    function onTool(
-      this: BaseAgent,
-      message: Message,
-    )  {
-        return SystemOnTool.bind(this)(
-          currentUser.id,
-          threadId,
-          message,
-          abortController
-        )
-      },
-    
   );
   const { response } = await agent.performTask(prompt);
   return {

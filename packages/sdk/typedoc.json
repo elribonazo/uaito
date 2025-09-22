@@ -2,6 +2,7 @@
     "$schema": "https://typedoc-plugin-markdown.org/schema.json",
     "entryPoints": [
         "./src/index.ts",
+        "./src/cli.ts"
     ],
     "basePath": "./src",
     "readme": "none",

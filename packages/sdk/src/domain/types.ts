@@ -1,6 +1,6 @@
 import { MessageArray } from "@/utils";
 
-  
+  export * from './BaseLLM'
   /**
    * Represents a function that transforms a chunk of data in a stream.
    * @template T The type of the input chunk.
@@ -335,7 +335,6 @@ import { MessageArray } from "@/utils";
 
 /**
  * An abstract class for a base agent.
- * @export
  * @abstract
  * @class BaseAgent
  */

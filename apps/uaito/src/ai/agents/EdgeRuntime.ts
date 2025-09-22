@@ -1,25 +1,28 @@
-import { Agent, HuggingFaceONNXOptions, LLMProvider, OnTool } from "@uaito/sdk";
+import { Agent } from "@uaito/ai";
+import { HuggingFaceONNX, HuggingFaceONNXOptions, HuggingFaceONNXTextToAudio, HuggingFaceONNXTextToImage } from "@uaito/huggingFace";
+import { OnTool } from "@uaito/sdk";
 
+export class EdgeRuntimeAgentImage extends Agent {
+  constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined) {
+    const llm = new HuggingFaceONNXTextToImage({ options: { ...options, onTool } });
+    super(llm, onTool);
+  }
+}
 
+export class EdgeRuntimeAgentAudio extends Agent {
+  constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined) {
+    const llm = new HuggingFaceONNXTextToAudio({ options: { ...options, onTool } });
+    super(llm, onTool);
+  }
+}
 
-  export class EdgeRuntimeAgentImage extends Agent<LLMProvider.LocalImage> {
-    constructor(options:any, onTool?: OnTool | undefined, name?: string) {
-      super(LLMProvider.LocalImage, options, onTool, name);
-    }
+export class EdgeRuntimeAgent extends Agent {
+  constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined) {
+    const llm = new HuggingFaceONNX({ options: { ...options, onTool } });
+    super(llm, onTool);
   }
 
-  export class EdgeRuntimeAgentAudio extends Agent<LLMProvider.LocalAudio> {
-    constructor(options:any, onTool?: OnTool | undefined, name?: string) {
-      super(LLMProvider.LocalAudio, options, onTool, name);
-    }
-  }
-
-export class EdgeRuntimeAgent extends Agent<LLMProvider.Local> {
-  constructor(options: HuggingFaceONNXOptions, onTool?: OnTool | undefined, name?: string) {
-    super(LLMProvider.Local, options, onTool, name);
-  }
-
-  get systemPrompt() {  
+  get systemPrompt() {
     return `Your name is Uaito.
 You are an advanced AI assistant equipped with specialized tools to enhance query resolution. Your responses should be concise, helpful, and factually accurate.
 

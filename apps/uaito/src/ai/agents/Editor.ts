@@ -1,8 +1,9 @@
-import { Agent,   SearchReplaceBlock, LLMProvider } from "@uaito/sdk";
+import { Agent } from "@uaito/ai";
+import {  SearchReplaceBlock } from "@uaito/sdk";
 
-export class Editor extends Agent<LLMProvider.Anthropic> {
+export class Editor extends Agent {
     protected name = "Editor";
-        private fileContent!: string;
+    private fileContent!: string;
     private instructions!: string;
     private projectContext!: string;
     private memoryContext!: string;

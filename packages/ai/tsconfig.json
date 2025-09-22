@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": false,
+    "outDir": "build",
+    "declaration":true,
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "emitDeclarationOnly":true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": false,
+    "sourceMap": false,
+    "downlevelIteration": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "strictNullChecks": true
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+  ],
+  "exclude": [
+    "node_modules",
+  ]
+}

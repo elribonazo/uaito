@@ -39,6 +39,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               throw new Error(`Failed to fetch asset: ${response.statusText}`);
             }
 
+            if (!response.body) { 
+              throw new Error('Response body is empty.');
+            }
+
             res.setHeader('Content-Type', 'application/octet-stream');
             res.setHeader('Content-Disposition', `attachment; filename=${asset.name}`);
             res.setHeader('Content-Length', asset.size);

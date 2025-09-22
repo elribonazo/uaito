@@ -1,13 +1,24 @@
 import { CpuChipIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect, useMemo } from "react";
-import { LLMProvider, AgentTypeToModel } from "@uaito/sdk";
+import { LLMProvider } from "@uaito/sdk";
 import { useAppSelector } from "@/redux/store";
+import { AnthropicModels } from "@uaito/anthropic";
+import { HuggingFaceONNXModels } from "@uaito/huggingFace";
+import { OpenAIModels } from "@uaito/openai";
 
 // Type to represent a model option
 type ModelOption = {
   value: string;
   label: string;
   provider: LLMProvider;
+};
+
+const AgentTypeToModel = {
+  [LLMProvider.Anthropic]: AnthropicModels,
+  [LLMProvider.OpenAI]: OpenAIModels,
+  [LLMProvider.Local]: HuggingFaceONNXModels,
+  [LLMProvider.LocalImage]: HuggingFaceONNXModels,
+  [LLMProvider.LocalAudio]: HuggingFaceONNXModels,
 };
 
 // Get available models for each provider

@@ -2,11 +2,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { AppDispatch } from "@/redux/store";
 import type { Session } from "next-auth";
-import { Agent, LLMProvider, HuggingFaceONNXModels,  HuggingFaceONNXOptions,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent } from "@uaito/sdk";
+import { LLMProvider,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent } from "@uaito/sdk";
 
 import { v4 } from "uuid";
 import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
 import { EdgeRuntimeAgent, EdgeRuntimeAgentAudio, EdgeRuntimeAgentImage } from "@/ai/agents/EdgeRuntime";
+import { HuggingFaceONNXModels, HuggingFaceONNXOptions } from "@uaito/huggingface";
+import { Agent } from "@uaito/ai";
 
 interface StreamInput {
 	agent?: string;
@@ -195,16 +197,13 @@ export const streamMessage = createAsyncThunk(
 							lastProgressDispatch = now;
 						}
 					},
+
 				};
 
 				dispatch(setDownloadProgress(0));
 
-				const imageAgent = new EdgeRuntimeAgentImage({
-					signal: signal,
-				});
-				const audioAgent = new EdgeRuntimeAgentAudio({
-					signal: signal,
-				});
+				const imageAgent = new EdgeRuntimeAgentImage(hfOptions);
+				const audioAgent = new EdgeRuntimeAgentAudio(hfOptions);
 
 				const newAgent = new EdgeRuntimeAgent(
 					hfOptions,
@@ -280,14 +279,13 @@ export const streamMessage = createAsyncThunk(
 								role: "user",
 							});
 						}
-					},
-					"EdgeAgent",
+					}
 				);
 
 				agents.set(`${provider}-${agent}`, newAgent);
 			}
 
-			const __agent: Agent<LLMProvider.Local> = agents.get(
+			const __agent: Agent = agents.get(
 				`${provider}-${agent}`,
 			);
 

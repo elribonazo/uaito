@@ -36,8 +36,7 @@ class RedisCore {
       const response = await this.client.xRead(
         { key: channel, id: lastId },
         { COUNT: 1, BLOCK: 0 }
-      );
-      
+      ) as any
       if (response && response.length > 0) {
         const [{ messages }] = response;
         if (messages.length > 0) {
