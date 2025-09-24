@@ -1,3 +1,22 @@
+## 0.0.5 (2025-09-24)
+
+### 🩹 Fixes
+
+- changes Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([bf1806a](https://github.com/elribonazo/uaito/commit/bf1806a))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.5
+- Updated @uaito/anthropic to 0.0.5
+- Updated @uaito/openai to 0.0.5
+- Updated @uaito/build to 0.0.4
+- Updated @uaito/api to 0.0.5
+- Updated @uaito/sdk to 0.8.5
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.4 (2025-09-24)
 
 ### 🧱 Updated Dependencies

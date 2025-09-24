@@ -8,7 +8,7 @@
 
 > **Tool** = `object`
 
-Defined in: [domain/types.ts:42](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L42)
+Defined in: [domain/types.ts:42](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L42)
 
 Represents a tool that can be used by an LLM.
 
@@ -18,7 +18,7 @@ Represents a tool that can be used by an LLM.
 
 > `optional` **code**: `string`
 
-Defined in: [domain/types.ts:75](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L75)
+Defined in: [domain/types.ts:75](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L75)
 
 The code for the tool.
 
@@ -28,7 +28,7 @@ The code for the tool.
 
 > **description**: `string`
 
-Defined in: [domain/types.ts:57](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L57)
+Defined in: [domain/types.ts:57](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L57)
 
 The description of the tool.
 
@@ -38,7 +38,7 @@ The description of the tool.
 
 > `optional` **enabled**: `boolean`
 
-Defined in: [domain/types.ts:80](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L80)
+Defined in: [domain/types.ts:80](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L80)
 
 Whether the tool is enabled.
 
@@ -48,7 +48,7 @@ Whether the tool is enabled.
 
 > `optional` **id**: `number`
 
-Defined in: [domain/types.ts:47](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L47)
+Defined in: [domain/types.ts:47](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L47)
 
 The unique ID of the tool.
 
@@ -58,7 +58,7 @@ The unique ID of the tool.
 
 > **input\_schema**: `object`
 
-Defined in: [domain/types.ts:62](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L62)
+Defined in: [domain/types.ts:62](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L62)
 
 The input schema for the tool.
 
@@ -80,7 +80,7 @@ The input schema for the tool.
 
 > `optional` **isCollapsed**: `boolean`
 
-Defined in: [domain/types.ts:85](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L85)
+Defined in: [domain/types.ts:85](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L85)
 
 Whether the tool is collapsed.
 
@@ -90,6 +90,6 @@ Whether the tool is collapsed.
 
 > **name**: `string`
 
-Defined in: [domain/types.ts:52](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L52)
+Defined in: [domain/types.ts:52](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L52)
 
 The name of the tool.
