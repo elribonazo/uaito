@@ -22,7 +22,7 @@
         "createRelease": "github"
       },
       "github": {
-        "repo": "trust0/ridb"
+        "repo": "elribonazo/uaito"
       }
     },
     "projects": [
