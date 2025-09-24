@@ -6,7 +6,7 @@
 
 # Enumeration: HuggingFaceONNXModels
 
-Defined in: [types.ts:29](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/huggingFace/src/types.ts#L29)
+Defined in: [types.ts:29](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/huggingFace/src/types.ts#L29)
 
 Enumeration of the available Hugging Face ONNX models.
 
@@ -16,7 +16,7 @@ Enumeration of the available Hugging Face ONNX models.
 
 > **JANO**: `"onnx-community/Jan-nano-ONNX"`
 
-Defined in: [types.ts:33](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/huggingFace/src/types.ts#L33)
+Defined in: [types.ts:33](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/huggingFace/src/types.ts#L33)
 
 The JANO model.
 
@@ -26,7 +26,7 @@ The JANO model.
 
 > **LUCY**: `"onnx-community/Lucy-ONNX"`
 
-Defined in: [types.ts:37](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/huggingFace/src/types.ts#L37)
+Defined in: [types.ts:37](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/huggingFace/src/types.ts#L37)
 
 The LUCY model.
 
@@ -36,6 +36,6 @@ The LUCY model.
 
 > **QWEN3**: `"onnx-community/Qwen3-0.6B-ONNX"`
 
-Defined in: [types.ts:41](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/huggingFace/src/types.ts#L41)
+Defined in: [types.ts:41](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/huggingFace/src/types.ts#L41)
 
 The QWEN3 model.

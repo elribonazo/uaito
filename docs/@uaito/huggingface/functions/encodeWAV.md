@@ -8,7 +8,7 @@
 
 > **encodeWAV**(`samples`, `sampleRate?`): `ArrayBuffer`
 
-Defined in: [HuggingFaceONNXAudio.ts:72](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L72)
+Defined in: [HuggingFaceONNXAudio.ts:72](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L72)
 
 Encodes audio samples into a WAV format buffer.
 

@@ -8,7 +8,7 @@
 
 > **TextBlock** = `object`
 
-Defined in: [domain/types.ts:562](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L562)
+Defined in: [domain/types.ts:562](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/domain/types.ts#L562)
 
 Represents a text block.
 
@@ -18,7 +18,7 @@ Represents a text block.
 
 > **text**: `string`
 
-Defined in: [domain/types.ts:567](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L567)
+Defined in: [domain/types.ts:567](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/domain/types.ts#L567)
 
 The text content.
 
@@ -28,6 +28,6 @@ The text content.
 
 > **type**: `"text"`
 
-Defined in: [domain/types.ts:572](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L572)
+Defined in: [domain/types.ts:572](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/domain/types.ts#L572)
 
 The type of the block.

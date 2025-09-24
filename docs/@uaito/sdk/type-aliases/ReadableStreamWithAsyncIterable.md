@@ -8,7 +8,7 @@
 
 > **ReadableStreamWithAsyncIterable**\<`T`\> = `ReadableStream`\<`T`\> & `AsyncIterable`\<`T`\>
 
-Defined in: [domain/types.ts:805](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/domain/types.ts#L805)
+Defined in: [domain/types.ts:805](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/domain/types.ts#L805)
 
 Represents a readable stream with an async iterable.
 

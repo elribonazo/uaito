@@ -6,7 +6,7 @@
 
 # Class: MessageArray\<T\>
 
-Defined in: [utils.ts:80](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/utils.ts#L80)
+Defined in: [utils.ts:80](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/utils.ts#L80)
 
 A specialized array class for managing messages, with validation and merging capabilities.
  MessageArray
@@ -31,7 +31,7 @@ A specialized array class for managing messages, with validation and merging cap
 
 > **new MessageArray**\<`T`\>(`items?`): `MessageArray`\<`T`\>
 
-Defined in: [utils.ts:95](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/utils.ts#L95)
+Defined in: [utils.ts:95](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/utils.ts#L95)
 
 Creates an instance of MessageArray.
 
@@ -1005,7 +1005,7 @@ The array index at which to begin the search. If fromIndex is omitted, the searc
 
 > `protected` **isSameRole**(`lastOne`, `item`): `boolean`
 
-Defined in: [utils.ts:152](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/utils.ts#L152)
+Defined in: [utils.ts:152](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/utils.ts#L152)
 
 Checks if two messages have the same role and should be merged.
 
@@ -1855,7 +1855,7 @@ The copied array with the updated value.
 
 > `static` **from**(`items`): `MessageArray`\<[`MessageInput`](../type-aliases/MessageInput.md)\>
 
-Defined in: [utils.ts:87](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/utils.ts#L87)
+Defined in: [utils.ts:87](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/utils.ts#L87)
 
 Creates a MessageArray from an array of MessageInput items.
 

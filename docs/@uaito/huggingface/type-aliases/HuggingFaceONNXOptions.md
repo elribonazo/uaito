@@ -8,7 +8,7 @@
 
 > **HuggingFaceONNXOptions** = `BaseLLMOptions` & `object`
 
-Defined in: [types.ts:47](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/huggingFace/src/types.ts#L47)
+Defined in: [types.ts:47](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/huggingFace/src/types.ts#L47)
 
 Type alias for Hugging Face ONNX options, extending BaseLLMOptions with model, dtype, and device.
 

@@ -6,7 +6,7 @@
 
 # Enumeration: LLMProvider
 
-Defined in: [types.ts:6](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/types.ts#L6)
+Defined in: [types.ts:6](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/types.ts#L6)
 
 Enumeration of the available LLM providers.
 
@@ -16,7 +16,7 @@ Enumeration of the available LLM providers.
 
 > **Anthropic**: `"Anthropic"`
 
-Defined in: [types.ts:14](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/types.ts#L14)
+Defined in: [types.ts:14](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/types.ts#L14)
 
 Anthropic provider.
 
@@ -26,7 +26,7 @@ Anthropic provider.
 
 > **API**: `"API"`
 
-Defined in: [types.ts:30](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/types.ts#L30)
+Defined in: [types.ts:30](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/types.ts#L30)
 
 Uaito Api provider.
 
@@ -36,7 +36,7 @@ Uaito Api provider.
 
 > **Local**: `"Local"`
 
-Defined in: [types.ts:18](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/types.ts#L18)
+Defined in: [types.ts:18](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/types.ts#L18)
 
 Local provider.
 
@@ -46,7 +46,7 @@ Local provider.
 
 > **LocalAudio**: `"LocalAudioGeneration"`
 
-Defined in: [types.ts:26](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/types.ts#L26)
+Defined in: [types.ts:26](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/types.ts#L26)
 
 Local audio generation provider.
 
@@ -56,7 +56,7 @@ Local audio generation provider.
 
 > **LocalImage**: `"LocalImageGeneration"`
 
-Defined in: [types.ts:22](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/types.ts#L22)
+Defined in: [types.ts:22](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/types.ts#L22)
 
 Local image generation provider.
 
@@ -66,6 +66,6 @@ Local image generation provider.
 
 > **OpenAI**: `"OpenAI"`
 
-Defined in: [types.ts:10](https://github.com/elribonazo/uaito/blob/329283f19d75a4623970a839744308f19ace5c16/packages/sdk/src/types.ts#L10)
+Defined in: [types.ts:10](https://github.com/elribonazo/uaito/blob/0785510d8ad92c6f9514ad770b3e81162500e4a0/packages/sdk/src/types.ts#L10)
 
 OpenAI provider.
