@@ -37,11 +37,14 @@ RUN corepack prepare yarn@4.9.1 --activate
 COPY package.json yarn.lock .yarnrc.yml ./
 
 # Copy all workspace package.json files for proper dependency resolution
+COPY packages/ai/package.json ./packages/ai/
+COPY packages/anthropic/package.json ./packages/anthropic/
+COPY packages/api/package.json ./packages/api/
 COPY packages/build/package.json ./packages/build/
+COPY packages/huggingFace/package.json ./packages/huggingFace/
+COPY packages/openai/package.json ./packages/openai/
 COPY packages/sdk/package.json ./packages/sdk/
 COPY apps/uaito/package.json ./apps/uaito/
-COPY apps/electron/package.json ./apps/electron/
-COPY packages/client/package.json ./packages/client/
 
 
 # Install all workspace dependencies
@@ -51,9 +54,7 @@ RUN yarn install --immutable
 COPY . .
 
 # Build the SDK package first (required by the site)
-RUN yarn workspace @uaito/build build
-RUN yarn workspace @uaito/sdk build
-RUN yarn workspace @uaito/site build
+RUN yarn build
 
 WORKDIR /app/apps/uaito
 
