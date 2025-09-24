@@ -18,7 +18,7 @@
   "peerDependencies": {
     "@uaito/anthropic": "^0.0.4",
     "@uaito/api": "^0.0.4",
-    "@uaito/huggingFace": "^0.0.0",
+    "@uaito/huggingface": "^0.0.0",
     "@uaito/openai": "^0.0.4"
   },
   "devDependencies": {

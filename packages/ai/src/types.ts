@@ -1,6 +1,6 @@
 import type { Anthropic, AnthropicOptions } from "@uaito/anthropic";
 import type { UaitoAPI, UaitoAPIOptions } from "@uaito/api";
-import type { HuggingFaceONNX, HuggingFaceONNXTextToImage, HuggingFaceONNXTextToAudio, HuggingFaceONNXOptions } from "@uaito/huggingFace";
+import type { HuggingFaceONNX, HuggingFaceONNXTextToImage, HuggingFaceONNXTextToAudio, HuggingFaceONNXOptions } from "@uaito/huggingface";
 import type { OpenAI, OpenAIOptions } from "@uaito/openai";
 import type { LLMProvider } from "@uaito/sdk";
 

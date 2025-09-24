@@ -165,7 +165,7 @@ yargs(hideBin(process.argv))
                         },
                     });
                 } else if (provider === LLMProvider.Local) {
-                    const Local = (await import("@uaito/huggingFace")).HuggingFaceONNX;
+                    const Local = (await import("@uaito/huggingface")).HuggingFaceONNX;
                     llm = new Local({
                         options: {
                             model: model as any,
