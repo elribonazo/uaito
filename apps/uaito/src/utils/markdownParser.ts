@@ -57,8 +57,8 @@ export const parseMarkdown = async (
   // Regex to replace relative links (e.g., [text](file.md))
   if (!content.includes("cdn.jsdelivr.net")) { 
     content = content.replace(
-      /\((?!https?:\/\/)github\.com\/elribonazo\/uaito([^)]+)\.md\)/g,
-      `(/docs/${locations.join("/")}/$1.md)`
+      /\(@uaito\/([^)]+)\.md\)/g,
+      `(/docs/@uaito/$1.md)`
     );
   }
 

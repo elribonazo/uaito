@@ -15,6 +15,7 @@ function Docs(props: RIDBProps) {
 export const getServerSideProps = createDocumentationServerSideProps({
   origin: UAITO_DOCS_ORIGIN,
   defaultFile: 'README.md',
+  docsPath: "/docs",
   pathPrefix: 'docs',
 });
 
