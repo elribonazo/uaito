@@ -6,7 +6,7 @@
 
 # Class: UaitoAPI
 
-Defined in: [index.ts:15](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L15)
+Defined in: [index.ts:15](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L15)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [index.ts:15](https://github.com/elribonazo/uaito/blob/31c0fa3f3740e
 
 > **new UaitoAPI**(`__namedParameters`, `onTool?`): `UaitoAPI`
 
-Defined in: [index.ts:29](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L29)
+Defined in: [index.ts:29](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L29)
 
 #### Parameters
 
@@ -46,7 +46,7 @@ Defined in: [index.ts:29](https://github.com/elribonazo/uaito/blob/31c0fa3f3740e
 
 > **baseUrl**: `string`
 
-Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L26)
+Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L26)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/31c0fa3f3740e
 
 > `abstract` **cache**: `BaseLLMCache`
 
-Defined in: [index.ts:17](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L17)
+Defined in: [index.ts:17](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L17)
 
 The cache for the LLM.
 
@@ -82,7 +82,7 @@ A record of data for the LLM.
 
 > `abstract` **inputs**: `MessageArray`\<`MessageInput`\>
 
-Defined in: [index.ts:25](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L25)
+Defined in: [index.ts:25](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L25)
 
 An array of message inputs.
 
@@ -96,7 +96,7 @@ An array of message inputs.
 
 > `optional` **onTool**: `OnTool`
 
-Defined in: [index.ts:27](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L27)
+Defined in: [index.ts:27](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L27)
 
 ***
 
@@ -194,7 +194,7 @@ The message to log.
 
 > `abstract` **performTaskStream**(`userPrompt`, `chainOfThought`, `system`): `Promise`\<`ReadableStreamWithAsyncIterable`\<`Message`\>\>
 
-Defined in: [index.ts:105](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L105)
+Defined in: [index.ts:105](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L105)
 
 Performs a task stream.
 
@@ -234,7 +234,7 @@ A promise that resolves to a readable stream of messages.
 
 > **request**(`prompt`): `Promise`\<`ReadableStreamWithAsyncIterable`\<`Message`\>\>
 
-Defined in: [index.ts:36](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/api/src/index.ts#L36)
+Defined in: [index.ts:36](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/api/src/index.ts#L36)
 
 #### Parameters
 

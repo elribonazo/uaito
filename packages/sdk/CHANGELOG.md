@@ -1,3 +1,17 @@
+## 0.8.3 (2025-09-24)
+
+### 🩹 Fixes
+
+- release Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([27b04e5](https://github.com/elribonazo/uaito/commit/27b04e5))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.3
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.2 (2025-09-22)
 
 ### 🩹 Fixes

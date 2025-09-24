@@ -8,7 +8,7 @@
 
 > **AudioBlock** = `object`
 
-Defined in: [domain/types.ts:541](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/sdk/src/domain/types.ts#L541)
+Defined in: [domain/types.ts:541](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/sdk/src/domain/types.ts#L541)
 
 Represents an audio block.
 
@@ -18,7 +18,7 @@ Represents an audio block.
 
 > **source**: `object`
 
-Defined in: [domain/types.ts:546](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/sdk/src/domain/types.ts#L546)
+Defined in: [domain/types.ts:546](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/sdk/src/domain/types.ts#L546)
 
 The source of the audio.
 
@@ -40,6 +40,6 @@ The source of the audio.
 
 > **type**: `"audio"`
 
-Defined in: [domain/types.ts:555](https://github.com/elribonazo/uaito/blob/31c0fa3f3740ebed4d8141441f73c3b47e4aa6f9/packages/sdk/src/domain/types.ts#L555)
+Defined in: [domain/types.ts:555](https://github.com/elribonazo/uaito/blob/2bed7d2eb6bfa6c768bdfa8c5f599b6d51e03cd7/packages/sdk/src/domain/types.ts#L555)
 
 The type of the block.
