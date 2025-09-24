@@ -50,11 +50,11 @@ export class Execution extends Agent {
         } else if (type === LLMProvider.OpenAI) {
            Client = (await import("@uaito/openai")).OpenAI;
         } else if (type === LLMProvider.Local) {
-           Client = (await import("@uaito/huggingFace")).HuggingFaceONNX;
+           Client = (await import("@uaito/huggingface")).HuggingFaceONNX;
         } else if (type === LLMProvider.LocalImage) {
-           Client = (await import("@uaito/huggingFace")).HuggingFaceONNXTextToImage;
+           Client = (await import("@uaito/huggingface")).HuggingFaceONNXTextToImage;
         } else if (type === LLMProvider.LocalAudio) {
-           Client = (await import("@uaito/huggingFace")).HuggingFaceONNXTextToAudio;
+           Client = (await import("@uaito/huggingface")).HuggingFaceONNXTextToAudio;
         } else if (type === LLMProvider.API) { 
            Client = (await import("@uaito/api")).UaitoAPI;
         } else {

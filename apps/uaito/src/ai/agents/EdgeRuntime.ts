@@ -1,5 +1,5 @@
 import { Agent } from "@uaito/ai";
-import { HuggingFaceONNX, HuggingFaceONNXOptions, HuggingFaceONNXTextToAudio, HuggingFaceONNXTextToImage } from "@uaito/huggingFace";
+import { HuggingFaceONNX, HuggingFaceONNXOptions, HuggingFaceONNXTextToAudio, HuggingFaceONNXTextToImage } from "@uaito/huggingface";
 import { OnTool } from "@uaito/sdk";
 
 export class EdgeRuntimeAgentImage extends Agent {

@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { LLMProvider } from "@uaito/sdk";
 import { useAppSelector } from "@/redux/store";
 import { AnthropicModels } from "@uaito/anthropic";
-import { HuggingFaceONNXModels } from "@uaito/huggingFace";
+import { HuggingFaceONNXModels } from "@uaito/huggingface";
 import { OpenAIModels } from "@uaito/openai";
 
 // Type to represent a model option
