@@ -8,7 +8,7 @@
 
 > **OnTool** = (`this`, `message`, `signal?`) => `Promise`\<`void`\>
 
-Defined in: [domain/types.ts:409](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L409)
+Defined in: [domain/types.ts:409](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L409)
 
 Represents a callback for tool usage.
 

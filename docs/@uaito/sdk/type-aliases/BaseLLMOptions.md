@@ -8,7 +8,7 @@
 
 > **BaseLLMOptions** = `object`
 
-Defined in: [domain/types.ts:761](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L761)
+Defined in: [domain/types.ts:761](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L761)
 
 Represents the options for a base LLM.
 
@@ -18,7 +18,7 @@ Represents the options for a base LLM.
 
 > `optional` **directory**: `string`
 
-Defined in: [domain/types.ts:786](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L786)
+Defined in: [domain/types.ts:786](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L786)
 
 The directory for the model.
 
@@ -28,7 +28,7 @@ The directory for the model.
 
 > `optional` **log**: (`message`) => `void`
 
-Defined in: [domain/types.ts:796](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L796)
+Defined in: [domain/types.ts:796](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L796)
 
 An optional logging function.
 
@@ -48,7 +48,7 @@ An optional logging function.
 
 > `optional` **maxTokens**: `number`
 
-Defined in: [domain/types.ts:776](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L776)
+Defined in: [domain/types.ts:776](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L776)
 
 The maximum number of tokens to generate.
 
@@ -58,7 +58,7 @@ The maximum number of tokens to generate.
 
 > **model**: `string`
 
-Defined in: [domain/types.ts:766](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L766)
+Defined in: [domain/types.ts:766](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L766)
 
 The model to use.
 
@@ -68,7 +68,7 @@ The model to use.
 
 > `optional` **onProgress**: (`progress`) => `void`
 
-Defined in: [domain/types.ts:791](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L791)
+Defined in: [domain/types.ts:791](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L791)
 
 An optional progress callback.
 
@@ -88,7 +88,7 @@ An optional progress callback.
 
 > `optional` **onTool**: [`OnTool`](OnTool.md)
 
-Defined in: [domain/types.ts:798](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L798)
+Defined in: [domain/types.ts:798](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L798)
 
 ***
 
@@ -96,7 +96,7 @@ Defined in: [domain/types.ts:798](https://github.com/elribonazo/uaito/blob/105cc
 
 > `optional` **signal**: `AbortSignal`
 
-Defined in: [domain/types.ts:781](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L781)
+Defined in: [domain/types.ts:781](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L781)
 
 An optional abort signal.
 
@@ -106,6 +106,6 @@ An optional abort signal.
 
 > `optional` **tools**: [`Tool`](Tool.md)[]
 
-Defined in: [domain/types.ts:771](https://github.com/elribonazo/uaito/blob/105ccfc9cbfb60788b2df8f5af6264d141e7347a/packages/sdk/src/domain/types.ts#L771)
+Defined in: [domain/types.ts:771](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L771)
 
 An array of available tools.
