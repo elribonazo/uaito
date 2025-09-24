@@ -8,7 +8,7 @@
 
 > **MessageInput** = `object`
 
-Defined in: [domain/types.ts:646](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L646)
+Defined in: [domain/types.ts:646](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L646)
 
 Represents a message input.
 
@@ -18,7 +18,7 @@ Represents a message input.
 
 > **content**: [`MessageContent`](MessageContent.md)[]
 
-Defined in: [domain/types.ts:666](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L666)
+Defined in: [domain/types.ts:666](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L666)
 
 The content of the message.
 
@@ -28,7 +28,7 @@ The content of the message.
 
 > `optional` **id**: `string`
 
-Defined in: [domain/types.ts:651](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L651)
+Defined in: [domain/types.ts:651](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L651)
 
 The unique ID of the message.
 
@@ -38,7 +38,7 @@ The unique ID of the message.
 
 > **role**: [`Role`](Role.md)
 
-Defined in: [domain/types.ts:661](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L661)
+Defined in: [domain/types.ts:661](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L661)
 
 The role of the message.
 
@@ -48,6 +48,6 @@ The role of the message.
 
 > `optional` **type**: [`MessageType`](MessageType.md)
 
-Defined in: [domain/types.ts:656](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L656)
+Defined in: [domain/types.ts:656](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L656)
 
 The type of the message.

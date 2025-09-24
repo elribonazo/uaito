@@ -1,3 +1,13 @@
+## 0.8.4 (2025-09-24)
+
+### 🩹 Fixes
+
+- sdk Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([59519c0](https://github.com/elribonazo/uaito/commit/59519c0))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.3 (2025-09-24)
 
 ### 🩹 Fixes

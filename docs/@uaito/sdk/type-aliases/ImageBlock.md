@@ -8,7 +8,7 @@
 
 > **ImageBlock** = `object`
 
-Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L520)
+Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L520)
 
 Represents an image block.
 
@@ -18,7 +18,7 @@ Represents an image block.
 
 > **source**: `object`
 
-Defined in: [domain/types.ts:525](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L525)
+Defined in: [domain/types.ts:525](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L525)
 
 The source of the image.
 
@@ -40,6 +40,6 @@ The source of the image.
 
 > **type**: `"image"`
 
-Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/c5e0764fa2080732da4f0526013c776c67e45bf1/packages/sdk/src/domain/types.ts#L534)
+Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/59519c0d40f515dbd89fd61e340cabe541998f9e/packages/sdk/src/domain/types.ts#L534)
 
 The type of the block.

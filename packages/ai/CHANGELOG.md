@@ -1,3 +1,12 @@
+## 0.0.4 (2025-09-24)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/anthropic to 0.0.4
+- Updated @uaito/openai to 0.0.4
+- Updated @uaito/api to 0.0.4
+- Updated @uaito/sdk to 0.8.4
+
 ## 0.0.3 (2025-09-24)
 
 ### 🧱 Updated Dependencies
