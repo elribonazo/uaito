@@ -23,7 +23,7 @@ type BaseLLMCache = {
 };
 ```
 
-Defined in: [domain/types.ts:18](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L18)
+Defined in: [domain/types.ts:18](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/sdk/src/domain/types.ts#L18)
 
 Represents the cache for a base LLM.
 
@@ -35,7 +35,7 @@ Represents the cache for a base LLM.
 chunks: string | null;
 ```
 
-Defined in: [domain/types.ts:28](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L28)
+Defined in: [domain/types.ts:28](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/sdk/src/domain/types.ts#L28)
 
 The chunks of the response.
 
@@ -50,7 +50,7 @@ tokens: {
 };
 ```
 
-Defined in: [domain/types.ts:33](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L33)
+Defined in: [domain/types.ts:33](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/sdk/src/domain/types.ts#L33)
 
 The number of input and output tokens.
 
@@ -74,6 +74,6 @@ output: number;
 toolInput: BlockType | null;
 ```
 
-Defined in: [domain/types.ts:23](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L23)
+Defined in: [domain/types.ts:23](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/sdk/src/domain/types.ts#L23)
 
 The input for a tool.

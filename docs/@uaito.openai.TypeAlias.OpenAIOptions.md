@@ -18,7 +18,7 @@ type OpenAIOptions = {
 } & BaseLLMOptions;
 ```
 
-Defined in: [types.ts:22](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/openai/src/types.ts#L22)
+Defined in: [types.ts:22](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/openai/src/types.ts#L22)
 
 Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey.
 
@@ -26,4 +26,4 @@ Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey.
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `apiKey?` | `string` | [types.ts:22](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/openai/src/types.ts#L22) |
+| `apiKey?` | `string` | [types.ts:22](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/openai/src/types.ts#L22) |
