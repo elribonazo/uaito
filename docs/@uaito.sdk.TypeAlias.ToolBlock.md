@@ -1,6 +1,11 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/sdk](@uaito.sdk.md) / ToolBlock
@@ -14,6 +19,6 @@ type ToolBlock =
   | ToolResultBlock;
 ```
 
-Defined in: [domain/types.ts:92](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L92)
+Defined in: [domain/types.ts:92](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L92)
 
 Represents a block of a tool.

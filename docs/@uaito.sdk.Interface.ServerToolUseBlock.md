@@ -1,13 +1,18 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/sdk](@uaito.sdk.md) / ServerToolUseBlock
 
 # Interface: ServerToolUseBlock
 
-Defined in: [domain/types.ts:193](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L193)
+Defined in: [domain/types.ts:193](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L193)
 
 Represents a server tool use block.
  ServerToolUseBlock
@@ -20,7 +25,7 @@ Represents a server tool use block.
 id: string;
 ```
 
-Defined in: [domain/types.ts:198](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L198)
+Defined in: [domain/types.ts:198](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L198)
 
 The unique ID of the tool use.
 
@@ -32,7 +37,7 @@ The unique ID of the tool use.
 input: unknown;
 ```
 
-Defined in: [domain/types.ts:204](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L204)
+Defined in: [domain/types.ts:204](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L204)
 
 The input for the tool.
 
@@ -44,7 +49,7 @@ The input for the tool.
 name: "web_search";
 ```
 
-Defined in: [domain/types.ts:210](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L210)
+Defined in: [domain/types.ts:210](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L210)
 
 The name of the tool.
 
@@ -56,6 +61,6 @@ The name of the tool.
 type: "server_tool_use";
 ```
 
-Defined in: [domain/types.ts:216](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L216)
+Defined in: [domain/types.ts:216](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L216)
 
 The type of the block.

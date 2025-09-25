@@ -1,13 +1,18 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/openai](@uaito.openai.md) / OpenAIModels
 
 # Enumeration: OpenAIModels
 
-Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/types.ts#L7)
+Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/types.ts#L7)
 
 Enumeration of the available OpenAI models.
 
@@ -15,5 +20,5 @@ Enumeration of the available OpenAI models.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gpt-5-mini"></a> `gpt-5-mini` | `"gpt-5-mini-2025-08-07"` | The GPT-5 Mini model. | [types.ts:15](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/types.ts#L15) |
-| <a id="gpt-5-nano"></a> `gpt-5-nano` | `"gpt-5-nano-2025-08-07"` | The GPT-5 Nano model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/types.ts#L11) |
+| <a id="gpt-5-mini"></a> `gpt-5-mini` | `"gpt-5-mini-2025-08-07"` | The GPT-5 Mini model. | [types.ts:15](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/types.ts#L15) |
+| <a id="gpt-5-nano"></a> `gpt-5-nano` | `"gpt-5-nano-2025-08-07"` | The GPT-5 Nano model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/types.ts#L11) |

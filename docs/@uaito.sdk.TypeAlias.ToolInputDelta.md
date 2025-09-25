@@ -1,6 +1,11 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/sdk](@uaito.sdk.md) / ToolInputDelta
@@ -16,7 +21,7 @@ type ToolInputDelta = {
 };
 ```
 
-Defined in: [domain/types.ts:607](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L607)
+Defined in: [domain/types.ts:607](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L607)
 
 Represents a tool input delta.
 
@@ -28,7 +33,7 @@ Represents a tool input delta.
 optional id: string;
 ```
 
-Defined in: [domain/types.ts:612](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L612)
+Defined in: [domain/types.ts:612](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L612)
 
 The unique ID of the tool input.
 
@@ -40,7 +45,7 @@ The unique ID of the tool input.
 optional name: string;
 ```
 
-Defined in: [domain/types.ts:617](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L617)
+Defined in: [domain/types.ts:617](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L617)
 
 The name of the tool.
 
@@ -52,7 +57,7 @@ The name of the tool.
 partial: string;
 ```
 
-Defined in: [domain/types.ts:622](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L622)
+Defined in: [domain/types.ts:622](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L622)
 
 The partial input for the tool.
 
@@ -64,6 +69,6 @@ The partial input for the tool.
 type: "tool_delta";
 ```
 
-Defined in: [domain/types.ts:627](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L627)
+Defined in: [domain/types.ts:627](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L627)
 
 The type of the block.

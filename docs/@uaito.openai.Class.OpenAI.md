@@ -1,13 +1,18 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/openai](@uaito.openai.md) / OpenAI
 
 # Class: OpenAI
 
-Defined in: [index.ts:44](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L44)
+Defined in: [index.ts:44](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L44)
 
 A more complete implementation of the OpenAI-based LLM,
 mirroring the structure and patterns found in the Anthropic class.
@@ -24,7 +29,7 @@ mirroring the structure and patterns found in the Anthropic class.
 new OpenAI({, onTool?): OpenAI;
 ```
 
-Defined in: [index.ts:100](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L100)
+Defined in: [index.ts:100](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L100)
 
 Creates an instance of the OpenAI LLM.
 
@@ -59,7 +64,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [index.ts:68](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L68)
+Defined in: [index.ts:68](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L68)
 
 The cache for the LLM.
 
@@ -121,7 +126,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:61](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L61)
+Defined in: [index.ts:61](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L61)
 
 An array of message inputs.
 
@@ -139,7 +144,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:49](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L49)
+Defined in: [index.ts:49](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L49)
 
 Optional callback for tool usage.
 
@@ -185,7 +190,7 @@ BaseLLM.type
 get llmInputs(): ResponseInputItem[];
 ```
 
-Defined in: [index.ts:216](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L216)
+Defined in: [index.ts:216](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L216)
 
 Gets the inputs for the LLM.
 
@@ -205,7 +210,7 @@ The LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:118](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L118)
+Defined in: [index.ts:118](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L118)
 
 Return max tokens or a default (e.g. 4096).
 
@@ -225,7 +230,7 @@ The maximum number of tokens.
 get tools(): undefined | Tool[];
 ```
 
-Defined in: [index.ts:191](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L191)
+Defined in: [index.ts:191](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L191)
 
 Gets the tools available to the LLM.
 
@@ -309,7 +314,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:353](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/index.ts#L353)
+Defined in: [index.ts:353](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/openai/src/index.ts#L353)
 
 Performs a task stream using the LLM.
 

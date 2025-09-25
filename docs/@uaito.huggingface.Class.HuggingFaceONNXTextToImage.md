@@ -1,13 +1,18 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/huggingface](@uaito.huggingface.md) / HuggingFaceONNXTextToImage
 
 # Class: HuggingFaceONNXTextToImage
 
-Defined in: [HuggingFaceONNXImage.ts:32](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L32)
+Defined in: [HuggingFaceONNXImage.ts:32](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L32)
 
 A class for handling text-to-image generation using a Hugging Face ONNX model.
  HuggingFaceONNXTextToImage
@@ -24,7 +29,7 @@ A class for handling text-to-image generation using a Hugging Face ONNX model.
 new HuggingFaceONNXTextToImage({, onTool?): HuggingFaceONNXTextToImage;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:77](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L77)
+Defined in: [HuggingFaceONNXImage.ts:77](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L77)
 
 Creates an instance of HuggingFaceONNXTextToImage.
 
@@ -54,7 +59,7 @@ BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>.constructor
 cache: BaseLLMCache;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:39](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L39)
+Defined in: [HuggingFaceONNXImage.ts:39](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L39)
 
 The cache for the LLM.
 
@@ -90,7 +95,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:51](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L51)
+Defined in: [HuggingFaceONNXImage.ts:51](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L51)
 
 An array of message inputs.
 
@@ -108,7 +113,7 @@ BaseLLM.inputs
 loadProgress: number = 0;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:45](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L45)
+Defined in: [HuggingFaceONNXImage.ts:45](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L45)
 
 The progress of loading the model.
 
@@ -120,7 +125,7 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:71](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L71)
+Defined in: [HuggingFaceONNXImage.ts:71](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L71)
 
 ***
 
@@ -197,7 +202,7 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:88](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L88)
+Defined in: [HuggingFaceONNXImage.ts:88](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L88)
 
 Loads the model and tokenizer.
 
@@ -241,7 +246,7 @@ BaseLLM.log
 performTaskStream(prompt): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:149](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/huggingFace/src/HuggingFaceONNXImage.ts#L149)
+Defined in: [HuggingFaceONNXImage.ts:149](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/HuggingFaceONNXImage.ts#L149)
 
 Performs a text-to-image task stream.
 

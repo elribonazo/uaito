@@ -1,13 +1,18 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/anthropic](@uaito.anthropic.md) / Anthropic
 
 # Class: Anthropic
 
-Defined in: [index.ts:16](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L16)
+Defined in: [index.ts:16](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L16)
 
 A class for interacting with the Anthropic API.
  Anthropic
@@ -24,7 +29,7 @@ A class for interacting with the Anthropic API.
 new Anthropic({, onTool?): Anthropic;
 ```
 
-Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L47)
+Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L47)
 
 Creates an instance of the Anthropic LLM.
 
@@ -55,7 +60,7 @@ BaseLLM<LLMProvider.Anthropic, AnthropicOptions>.constructor
 protected api: Anthropic;
 ```
 
-Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L34)
+Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L34)
 
 The Anthropic API client.
 
@@ -67,7 +72,7 @@ The Anthropic API client.
 cache: BaseLLMCache;
 ```
 
-Defined in: [index.ts:22](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L22)
+Defined in: [index.ts:22](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L22)
 
 The cache for the LLM.
 
@@ -103,7 +108,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:40](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L40)
+Defined in: [index.ts:40](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L40)
 
 An array of message inputs.
 
@@ -121,7 +126,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:28](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L28)
+Defined in: [index.ts:28](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L28)
 
 Optional callback for tool usage.
 
@@ -167,7 +172,7 @@ BaseLLM.type
 get llmInputs(): MessageParam[];
 ```
 
-Defined in: [index.ts:377](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L377)
+Defined in: [index.ts:377](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L377)
 
 Gets the inputs for the LLM.
 
@@ -187,7 +192,7 @@ The LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:63](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L63)
+Defined in: [index.ts:63](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L63)
 
 Gets the maximum number of tokens for the model.
 
@@ -271,7 +276,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:397](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/anthropic/src/index.ts#L397)
+Defined in: [index.ts:397](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/index.ts#L397)
 
 Performs a task stream using the LLM.
 

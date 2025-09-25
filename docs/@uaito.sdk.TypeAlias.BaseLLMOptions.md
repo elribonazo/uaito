@@ -1,6 +1,11 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/sdk](@uaito.sdk.md) / BaseLLMOptions
@@ -20,7 +25,7 @@ type BaseLLMOptions = {
 };
 ```
 
-Defined in: [domain/types.ts:761](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L761)
+Defined in: [domain/types.ts:761](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L761)
 
 Represents the options for a base LLM.
 
@@ -32,7 +37,7 @@ Represents the options for a base LLM.
 optional directory: string;
 ```
 
-Defined in: [domain/types.ts:786](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L786)
+Defined in: [domain/types.ts:786](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L786)
 
 The directory for the model.
 
@@ -44,7 +49,7 @@ The directory for the model.
 optional log: (message) => void;
 ```
 
-Defined in: [domain/types.ts:796](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L796)
+Defined in: [domain/types.ts:796](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L796)
 
 An optional logging function.
 
@@ -66,7 +71,7 @@ An optional logging function.
 optional maxTokens: number;
 ```
 
-Defined in: [domain/types.ts:776](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L776)
+Defined in: [domain/types.ts:776](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L776)
 
 The maximum number of tokens to generate.
 
@@ -78,7 +83,7 @@ The maximum number of tokens to generate.
 model: string;
 ```
 
-Defined in: [domain/types.ts:766](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L766)
+Defined in: [domain/types.ts:766](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L766)
 
 The model to use.
 
@@ -90,7 +95,7 @@ The model to use.
 optional onProgress: (progress) => void;
 ```
 
-Defined in: [domain/types.ts:791](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L791)
+Defined in: [domain/types.ts:791](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L791)
 
 An optional progress callback.
 
@@ -112,7 +117,7 @@ An optional progress callback.
 optional onTool: OnTool;
 ```
 
-Defined in: [domain/types.ts:798](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L798)
+Defined in: [domain/types.ts:798](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L798)
 
 ***
 
@@ -122,7 +127,7 @@ Defined in: [domain/types.ts:798](https://github.com/elribonazo/uaito/blob/fab0c
 optional signal: AbortSignal;
 ```
 
-Defined in: [domain/types.ts:781](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L781)
+Defined in: [domain/types.ts:781](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L781)
 
 An optional abort signal.
 
@@ -134,6 +139,6 @@ An optional abort signal.
 optional tools: Tool[];
 ```
 
-Defined in: [domain/types.ts:771](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L771)
+Defined in: [domain/types.ts:771](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L771)
 
 An array of available tools.

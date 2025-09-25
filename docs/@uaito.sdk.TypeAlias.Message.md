@@ -1,6 +1,11 @@
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
-  <em>DOCS</em>
+<p align="center">
+  <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>A unified TypeScript SDK for seamless interaction with various Large Language Models.</strong>
+</p>
 </div>
 
 [Documentation](README.md) / [@uaito/sdk](@uaito.sdk.md) / Message
@@ -17,7 +22,7 @@ type Message = {
 };
 ```
 
-Defined in: [domain/types.ts:729](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L729)
+Defined in: [domain/types.ts:729](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L729)
 
 Represents a message.
 
@@ -29,7 +34,7 @@ Represents a message.
 optional chunk: boolean;
 ```
 
-Defined in: [domain/types.ts:749](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L749)
+Defined in: [domain/types.ts:749](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L749)
 
 Whether the message is a chunk.
 
@@ -41,7 +46,7 @@ Whether the message is a chunk.
 content: BlockType[];
 ```
 
-Defined in: [domain/types.ts:744](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L744)
+Defined in: [domain/types.ts:744](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L744)
 
 The content of the message.
 
@@ -53,7 +58,7 @@ The content of the message.
 id: string;
 ```
 
-Defined in: [domain/types.ts:734](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L734)
+Defined in: [domain/types.ts:734](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L734)
 
 The unique ID of the message.
 
@@ -65,7 +70,7 @@ The unique ID of the message.
 role: Role;
 ```
 
-Defined in: [domain/types.ts:754](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L754)
+Defined in: [domain/types.ts:754](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L754)
 
 The role of the message.
 
@@ -77,6 +82,6 @@ The role of the message.
 type: MessageType;
 ```
 
-Defined in: [domain/types.ts:739](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L739)
+Defined in: [domain/types.ts:739](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L739)
 
 The type of the message.
