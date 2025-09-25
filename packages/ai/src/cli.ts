@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * @packageDocumentation 
- * 
+ * UAITO CLI 
  */
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';

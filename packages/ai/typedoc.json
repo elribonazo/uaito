@@ -1,0 +1,33 @@
+{
+    "$schema": "https://typedoc-plugin-markdown.org/schema.json",
+    "entryPoints": [
+        "./src/index.ts",
+        "./src/cli/index.ts"
+    ],
+    "basePath": "./src",
+    "readme": "none",
+    "out": "docs",
+    "plugin": [
+        "typedoc-plugin-markdown",
+        "typedoc-plugin-rename-defaults",
+        "typedoc-plugin-coverage"
+    ],
+    "navigationLinks": {
+        "Docs": "https://github.com/elribonazo/uaito.git",
+        "GitHub": "https://github.com/elribonazo/uaito.git"
+    },
+    "validation": {
+        "invalidLink": false,
+        "notDocumented": false
+    },
+    "useTsLinkResolution": true,
+    "hideGenerator": true,
+    "entryPointStrategy": "resolve",
+    "excludeReferences": false,
+    "excludeProtected": false,
+    "excludeInternal": false,
+    "excludeNotDocumented": false,
+    "theme": "markdown",
+    "excludeExternals": false,
+    "excludePrivate": true
+}
