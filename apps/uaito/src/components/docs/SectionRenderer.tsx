@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -8,20 +8,28 @@ interface SectionRendererProps {
   section: {
     title: string;
     content: string;
+    level: number;
   };
 }
 
-const SectionRenderer: React.FC<SectionRendererProps> = ({ section }) => {
+const SectionRenderer: FC<SectionRendererProps> = ({ section }) => {
+  const isPreamble = section.level === 0;
+
+  // Conditionally set the className to avoid applying prose styles to raw HTML
+  const sectionClassName = isPreamble 
+    ? "mb-4"
+    : "mb-4 scroll-mt-6 prose prose-invert max-w-none fade-in overflow-x-hidden my-5";
+  
   return (
     <section
       id={section.title.toLowerCase().replace(/\s+/g, '-')}
-      className="mb-4 scroll-mt-6 prose prose-invert max-w-none fade-in overflow-x-hidden  my-5"
+      className={sectionClassName}
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
-          code: ({ node, className, children, ...props }) => {
+          code: ({ node: _node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
             if (match && match[1] !== 'text') {
               return (

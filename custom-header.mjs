@@ -8,10 +8,15 @@ import { MarkdownTheme, MarkdownThemeContext } from "typedoc-plugin-markdown";
 export function load(app) {
   app.renderer.defineTheme("custom-markdown-theme", MyMarkdownTheme);
 
-//   app.renderer.markdownHooks.on(
-//     "content.begin",
-//     () => `> "content.begin" hook`
-//   );
+  app.renderer.markdownHooks.on(
+    "index.page.begin",
+    () => `
+<div style="display:flex; align-items:center;">
+  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
+  <em>Welcome to UAITO Documentation</em>
+</div>
+`
+  );
 
 //   app.renderer.markdownHooks.on(
 //     "index.page.end",
@@ -34,12 +39,12 @@ class MyMarkdownThemeContext extends MarkdownThemeContext {
   partials = {
     ...this.partials,
     header: () => {
-      return `
+      return !this.page.filename.endsWith("docs/README.md") ? `
 <div style="display:flex; align-items:center;">
-  <img alt="My logo" src="./UAITO.png" style="margin-right: .5em;" />
-  <em>Welcome to ${this.page.project.name} Documentation</em>
+  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
+  <em>DOCS</em>
 </div>
-`;
+` : '';
     },
   };
 }

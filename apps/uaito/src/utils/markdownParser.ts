@@ -76,28 +76,65 @@ export const parseMarkdown = async (
   content = content.replace(/_media(.*)/, "$1")
   content = content.replace("docs/docs/", "docs/");
   
-  // Use regex to match headings
-  const headingRegex = /^(\#{1,6})\s+(.+)$/gm;
+  // Use regex to match headings, including HTML h1-h6 tags
+  const headingRegex = /^(#{1,6})\s+(.+)$|<(h([1-6]))[^>]*>(.*?)<\/h\4>/gim;
 
   const headings: { level: number; title: string; index: number }[] = [];
   let match: RegExpExecArray | null;
   while ((match = headingRegex.exec(content)) !== null) {
-    const level = match[1].length;
-    const title = match[2].trim();
+    let level: number;
+    let title: string;
+    
+    if (match[1]) {
+      // Markdown heading
+      level = match[1].length;
+      title = match[2].trim();
+    } else {
+      // HTML heading
+      level = parseInt(match[4], 10);
+      // Strip any inner HTML tags from the title for the menu
+      title = match[5].replace(/<[^>]*>/g, '').trim();
+    }
+    
     const index = match.index;
     headings.push({ level, title, index });
   }
 
   const sections: { level: number; title: string; content: string }[] = [];
-  for (let i = 0; i < headings.length; i++) {
-    const start = headings[i].index;
-    const end = i + 1 < headings.length ? headings[i + 1].index : content.length;
-    const sectionContent = content.substring(start, end).trim();
-    sections.push({
-      level: headings[i].level,
-      title: headings[i].title,
-      content: sectionContent
-    });
+
+  if (headings.length === 0) {
+    if (content.trim()) {
+      // If no headings, treat the whole file as a single section
+      sections.push({
+        level: 1, // Using level 1 as it's a main content block
+        title: 'Content', // Generic title, won't be displayed if not in markdown
+        content: content,
+      });
+    }
+  } else {
+    // Handle content before the first heading
+    if (headings[0].index > 0) {
+      const preContent = content.substring(0, headings[0].index).trim();
+      if (preContent) {
+        sections.push({
+          level: 0, // Special level for content without a heading
+          title: 'introduction', // Unique ID for the section
+          content: preContent,
+        });
+      }
+    }
+
+    // Process sections based on headings
+    for (let i = 0; i < headings.length; i++) {
+      const start = headings[i].index;
+      const end = i + 1 < headings.length ? headings[i + 1].index : content.length;
+      const sectionContent = content.substring(start, end).trim();
+      sections.push({
+        level: headings[i].level,
+        title: headings[i].title,
+        content: sectionContent,
+      });
+    }
   }
 
   // Build menu structure
@@ -144,7 +181,8 @@ export const parseMarkdown = async (
     return cleanMenu(menu);
   };
 
-  const structuredMenu = buildMenuStructure(sections);
+  const menuSections = sections.filter(s => s.level > 0);
+  const structuredMenu = buildMenuStructure(menuSections);
 
   return {
     sections,

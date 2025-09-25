@@ -18,7 +18,7 @@
     "indexFormat": "table",
     "useCodeBlocks": true,
     "expandObjects": true,
-    "hidePageHeader":true,
+    "hidePageHeader":false,
     "gitRevision": "main",
     "flattenOutputFiles": true,
     "basePath":   "./src",
