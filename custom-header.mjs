@@ -11,7 +11,7 @@ export function load(app) {
   app.renderer.markdownHooks.on(
     "index.page.begin",
     () => `
-<div style="display:flex; align-items:center;">
+<div style="display:flex; flex-direction:column; align-items:center;">
 <p align="center">
   <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
 </p>
@@ -37,7 +37,7 @@ class MyMarkdownThemeContext extends MarkdownThemeContext {
     ...this.partials,
     header: () => {
       return !this.page.filename.endsWith("docs/README.md") ? `
-<div style="display:flex; align-items:center;">
+<div style="display:flex; flex-direction:column; align-items:center;">
 <p align="center">
   <img src="../UAITO.png" alt="UAITO Logo" width="200"/>
 </p>
