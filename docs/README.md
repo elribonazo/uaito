@@ -1,3 +1,8 @@
+<div style="display:flex; align-items:center;">
+  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
+  <em>Welcome to UAITO Documentation</em>
+</div>
+
 # Documentation
 
 ## Packages

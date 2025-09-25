@@ -1,8 +1,13 @@
+<div style="display:flex; align-items:center;">
+  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
+  <em>DOCS</em>
+</div>
+
 [Documentation](README.md) / [@uaito/ai](@uaito.ai.md) / Agent
 
 # Class: Agent
 
-Defined in: [index.ts:9](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L9)
+Defined in: [index.ts:9](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L9)
 
 base class for AI agents.
 
@@ -21,7 +26,7 @@ new Agent(
    name?): Agent;
 ```
 
-Defined in: [index.ts:90](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L90)
+Defined in: [index.ts:90](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L90)
 
 Create a new Agent instance.
 
@@ -45,7 +50,7 @@ Create a new Agent instance.
 protected name: string;
 ```
 
-Defined in: [index.ts:25](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L25)
+Defined in: [index.ts:25](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L25)
 
 The name of the agent.
 
@@ -57,7 +62,7 @@ The name of the agent.
 protected optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:92](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L92)
+Defined in: [index.ts:92](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L92)
 
 Optional callback for tool usage.
 
@@ -71,7 +76,7 @@ Optional callback for tool usage.
 get chainOfThought(): string;
 ```
 
-Defined in: [index.ts:50](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L50)
+Defined in: [index.ts:50](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L50)
 
 Gets the chain of thought for the agent.
 
@@ -91,7 +96,7 @@ The chain of thought.
 get inputs(): MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:58](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L58)
+Defined in: [index.ts:58](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L58)
 
 Gets the inputs for the agent.
 
@@ -111,7 +116,7 @@ The inputs.
 get model(): any;
 ```
 
-Defined in: [index.ts:108](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L108)
+Defined in: [index.ts:108](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L108)
 
 ##### Returns
 
@@ -127,7 +132,7 @@ Defined in: [index.ts:108](https://github.com/elribonazo/uaito/blob/6221ee7c386b
 get options(): any;
 ```
 
-Defined in: [index.ts:73](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L73)
+Defined in: [index.ts:73](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L73)
 
 ##### Returns
 
@@ -143,7 +148,7 @@ Defined in: [index.ts:73](https://github.com/elribonazo/uaito/blob/6221ee7c386b2
 get systemPrompt(): string;
 ```
 
-Defined in: [index.ts:42](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L42)
+Defined in: [index.ts:42](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L42)
 
 Gets the system prompt for the agent.
 
@@ -163,7 +168,7 @@ The system prompt.
 get tools(): any;
 ```
 
-Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L66)
+Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L66)
 
 Gets the tools available to the agent.
 
@@ -183,7 +188,7 @@ The tools.
 get type(): LLMProvider;
 ```
 
-Defined in: [index.ts:77](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L77)
+Defined in: [index.ts:77](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L77)
 
 ##### Returns
 
@@ -197,7 +202,7 @@ Defined in: [index.ts:77](https://github.com/elribonazo/uaito/blob/6221ee7c386b2
 addInputs(inputs): Promise<void>;
 ```
 
-Defined in: [index.ts:104](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L104)
+Defined in: [index.ts:104](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L104)
 
 Adds inputs to the agent's client.
 
@@ -219,7 +224,7 @@ Adds inputs to the agent's client.
 load(): Promise<void>;
 ```
 
-Defined in: [index.ts:116](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L116)
+Defined in: [index.ts:116](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L116)
 
 Loads the agent's client.
 
@@ -241,7 +246,7 @@ performTask(prompt): Promise<{
 }>;
 ```
 
-Defined in: [index.ts:151](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L151)
+Defined in: [index.ts:151](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L151)
 
 Perform a task using the LLM.
 
@@ -271,7 +276,7 @@ A Promise resolving to the usage and response stream.
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: [index.ts:128](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L128)
+Defined in: [index.ts:128](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L128)
 
 Retries an API call with a delay.
 
@@ -301,7 +306,7 @@ The result of the API call.
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: [index.ts:169](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/ai/src/index.ts#L169)
+Defined in: [index.ts:169](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/ai/src/index.ts#L169)
 
 Run a command safely, catching and handling any errors.
 

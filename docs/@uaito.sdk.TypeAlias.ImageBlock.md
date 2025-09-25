@@ -1,3 +1,8 @@
+<div style="display:flex; align-items:center;">
+  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
+  <em>DOCS</em>
+</div>
+
 [Documentation](README.md) / [@uaito/sdk](@uaito.sdk.md) / ImageBlock
 
 # Type Alias: ImageBlock
@@ -13,7 +18,7 @@ type ImageBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/sdk/src/domain/types.ts#L520)
+Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L520)
 
 Represents an image block.
 
@@ -29,7 +34,7 @@ source: {
 };
 ```
 
-Defined in: [domain/types.ts:525](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/sdk/src/domain/types.ts#L525)
+Defined in: [domain/types.ts:525](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L525)
 
 The source of the image.
 
@@ -59,6 +64,6 @@ type: "base64";
 type: "image";
 ```
 
-Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/sdk/src/domain/types.ts#L534)
+Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/sdk/src/domain/types.ts#L534)
 
 The type of the block.

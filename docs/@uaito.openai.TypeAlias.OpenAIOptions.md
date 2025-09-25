@@ -1,3 +1,8 @@
+<div style="display:flex; align-items:center;">
+  <img alt="My logo" src="../UAITO.png" style="margin-right: .5em;" />
+  <em>DOCS</em>
+</div>
+
 [Documentation](README.md) / [@uaito/openai](@uaito.openai.md) / OpenAIOptions
 
 # Type Alias: OpenAIOptions
@@ -8,7 +13,7 @@ type OpenAIOptions = {
 } & BaseLLMOptions;
 ```
 
-Defined in: [types.ts:22](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/openai/src/types.ts#L22)
+Defined in: [types.ts:22](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/types.ts#L22)
 
 Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey.
 
@@ -16,4 +21,4 @@ Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey.
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `apiKey?` | `string` | [types.ts:22](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/openai/src/types.ts#L22) |
+| `apiKey?` | `string` | [types.ts:22](https://github.com/elribonazo/uaito/blob/fab0c6d8b23bcab892e93249daa38602f313cf4c/packages/openai/src/types.ts#L22) |
