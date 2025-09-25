@@ -18,7 +18,7 @@ type AnthropicOptions = {
 } & BaseLLMOptions;
 ```
 
-Defined in: [types.ts:18](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/types.ts#L18)
+Defined in: [types.ts:18](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/anthropic/src/types.ts#L18)
 
 Type alias for Anthropic options, extending BaseLLMOptions with an optional apiKey.
 
@@ -26,4 +26,4 @@ Type alias for Anthropic options, extending BaseLLMOptions with an optional apiK
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `apiKey?` | `string` | [types.ts:18](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/anthropic/src/types.ts#L18) |
+| `apiKey?` | `string` | [types.ts:18](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/anthropic/src/types.ts#L18) |

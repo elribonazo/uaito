@@ -32,7 +32,7 @@ type HuggingFaceONNXOptions = BaseLLMOptions & {
 };
 ```
 
-Defined in: [types.ts:47](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/types.ts#L47)
+Defined in: [types.ts:47](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/huggingFace/src/types.ts#L47)
 
 Type alias for Hugging Face ONNX options, extending BaseLLMOptions with model, dtype, and device.
 
@@ -40,6 +40,6 @@ Type alias for Hugging Face ONNX options, extending BaseLLMOptions with model, d
 
 | Name | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| `device` | \| `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"dml"` \| `"webnn"` \| `"webnn-npu"` \| `"webnn-gpu"` \| `"webnn-cpu"` \| `Record`\<`string`, `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"webnn-cpu"`\> \| `undefined` | The device to run the model on. | [types.ts:62](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/types.ts#L62) |
-| `dtype` | [`DType`](@uaito.huggingface.TypeAlias.DType.md) | The data type for the model. | [types.ts:57](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/types.ts#L57) |
-| `model` | [`HuggingFaceONNXModels`](@uaito.huggingface.Enumeration.HuggingFaceONNXModels.md) | The Hugging Face ONNX model to use. | [types.ts:52](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/huggingFace/src/types.ts#L52) |
+| `device` | \| `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"dml"` \| `"webnn"` \| `"webnn-npu"` \| `"webnn-gpu"` \| `"webnn-cpu"` \| `Record`\<`string`, `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"webnn-cpu"`\> \| `undefined` | The device to run the model on. | [types.ts:62](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/huggingFace/src/types.ts#L62) |
+| `dtype` | [`DType`](@uaito.huggingface.TypeAlias.DType.md) | The data type for the model. | [types.ts:57](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/huggingFace/src/types.ts#L57) |
+| `model` | [`HuggingFaceONNXModels`](@uaito.huggingface.Enumeration.HuggingFaceONNXModels.md) | The Hugging Face ONNX model to use. | [types.ts:52](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/huggingFace/src/types.ts#L52) |

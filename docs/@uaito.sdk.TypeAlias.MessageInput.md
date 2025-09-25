@@ -21,7 +21,7 @@ type MessageInput = {
 };
 ```
 
-Defined in: [domain/types.ts:646](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L646)
+Defined in: [domain/types.ts:646](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L646)
 
 Represents a message input.
 
@@ -33,7 +33,7 @@ Represents a message input.
 content: MessageContent[];
 ```
 
-Defined in: [domain/types.ts:666](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L666)
+Defined in: [domain/types.ts:666](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L666)
 
 The content of the message.
 
@@ -45,7 +45,7 @@ The content of the message.
 optional id: string;
 ```
 
-Defined in: [domain/types.ts:651](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L651)
+Defined in: [domain/types.ts:651](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L651)
 
 The unique ID of the message.
 
@@ -57,7 +57,7 @@ The unique ID of the message.
 role: Role;
 ```
 
-Defined in: [domain/types.ts:661](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L661)
+Defined in: [domain/types.ts:661](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L661)
 
 The role of the message.
 
@@ -69,6 +69,6 @@ The role of the message.
 optional type: MessageType;
 ```
 
-Defined in: [domain/types.ts:656](https://github.com/elribonazo/uaito/blob/c19018bfe74c91c77b7bc1d63c1e0fc37da6651a/packages/sdk/src/domain/types.ts#L656)
+Defined in: [domain/types.ts:656](https://github.com/elribonazo/uaito/blob/d8262c821d12f33c37a2c9be05a267c0d95eb7a1/packages/sdk/src/domain/types.ts#L656)
 
 The type of the message.
