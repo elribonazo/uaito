@@ -12,7 +12,7 @@
 
 # Interface: RedactedThinkingBlock
 
-Defined in: [domain/types.ts:458](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/sdk/src/domain/types.ts#L458)
+Defined in: [domain/types.ts:458](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/domain/types.ts#L458)
 
 Represents a redacted thinking block.
  RedactedThinkingBlock
@@ -25,7 +25,7 @@ Represents a redacted thinking block.
 data: string;
 ```
 
-Defined in: [domain/types.ts:463](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/sdk/src/domain/types.ts#L463)
+Defined in: [domain/types.ts:463](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/domain/types.ts#L463)
 
 The redacted data.
 
@@ -37,6 +37,6 @@ The redacted data.
 type: "redacted_thinking";
 ```
 
-Defined in: [domain/types.ts:469](https://github.com/elribonazo/uaito/blob/91c83b1555092b9f034f87c6de2e2d4cee9b809c/packages/sdk/src/domain/types.ts#L469)
+Defined in: [domain/types.ts:469](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/domain/types.ts#L469)
 
 The type of the block.
