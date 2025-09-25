@@ -31,47 +31,66 @@ const SectionRenderer: React.FC<SectionRendererProps> = ({ section }) => {
                 />
               );
             }
-            return <code {...props}>{children}</code>;
+            return <code className="text-pink-400 bg-gray-800 px-1 py-0.5 rounded">{children}</code>;
           },
           h1: ({ children }) => (
-            <h1 className="text-2xl font-bold text-gray-100 mt-18 border-b border-gray-700 pb-2">{children}</h1>
+            <h1 className="text-3xl font-bold text-white mt-12 mb-6 border-b border-gray-700 pb-3">{children}</h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-xl font-semibold text-gray-200  mt-18 border-b border-gray-800 pb-1">{children}</h2>
+            <h2 className="text-2xl font-semibold text-gray-100 mt-10 mb-5 border-b border-gray-800 pb-2">{children}</h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-lg font-semibold text-gray-300  mt-18">{children}</h3>
+            <h3 className="text-xl font-semibold text-gray-200 mt-8 mb-4">{children}</h3>
           ),
           h4: ({ children }) => (
-            <h4 className="text-base font-medium text-gray-400  mt-18">{children}</h4>
+            <h4 className="text-lg font-medium text-gray-300 mt-6 mb-3">{children}</h4>
           ),
           h5: ({ children }) => (
-            <h5 className="text-sm font-medium text-gray-400  mt-18">{children}</h5>
+            <h5 className="text-base font-medium text-gray-400 mt-4 mb-2">{children}</h5>
           ),
           h6: ({ children }) => (
-            <h6 className="text-sm font-medium text-gray-500  mt-18">{children}</h6>
+            <h6 className="text-sm font-medium text-gray-500 mt-2 mb-1">{children}</h6>
           ),
-          p: ({ children }) => <p className="text-gray-300 leading-relaxed">{children}</p>,
+          p: ({ children }) => <p className="text-gray-300 leading-relaxed my-4">{children}</p>,
           blockquote: ({ children }) => (
-            <CodeBlock language={'typescript'} code={reactNodeToString(children)} />
+            <blockquote className="border-l-4 border-gray-600 pl-4 my-4">
+              <CodeBlock language={'typescript'} code={reactNodeToString(children)} />
+            </blockquote>
           ),
           a: ({ children, href, ...props }) => (
             <a 
               href={href} 
-              className="text-gray-300 hover:text-white underline decoration-gray-500 hover:decoration-gray-300 transition-colors duration-200" 
+              className="text-blue-400 hover:text-blue-300 underline transition-colors duration-200"
               {...props}
             >
               {children}
             </a>
           ),
           ul: ({ children }) => (
-            <ul className="list-disc list-inside text-gray-300 space-y-1 ml-4">{children}</ul>
+            <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4 my-4">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside text-gray-300 space-y-1 ml-4">{children}</ol>
+            <ol className="list-decimal list-inside text-gray-300 space-y-2 ml-4 my-4">{children}</ol>
           ),
           li: ({ children }) => (
-            <li className="text-gray-300">{children}</li>
+            <li className="text-gray-300 py-1">{children}</li>
+          ),
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-4 border border-gray-700 rounded-lg">
+              <table className="w-full text-sm text-left text-gray-400">{children}</table>
+            </div>
+          ),
+          thead: ({ children }) => (
+            <thead className="text-xs uppercase bg-gray-700 text-gray-400">{children}</thead>
+          ),
+          tr: ({ children }) => (
+            <tr className="border-b bg-gray-800 border-gray-700 hover:bg-gray-600">{children}</tr>
+          ),
+          td: ({ children }) => <td className="px-6 py-4">{children}</td>,
+          th: ({ children }) => (
+            <th scope="col" className="px-6 py-3 text-left">
+              {children}
+            </th>
           ),
         }}
       >
