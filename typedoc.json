@@ -11,12 +11,23 @@
 
     ],
     "readme": "none",
+    "mergeReadme": true,
+    "enumMembersFormat": "table",
+    "parametersFormat": "table",
+    "typeDeclarationFormat": "table",
+    "indexFormat": "table",
+    "useCodeBlocks": true,
+    "expandObjects": true,
+    "hidePageHeader":true,
+    "gitRevision": "main",
+    "flattenOutputFiles": true,
     "basePath":   "./src",
     "out": "docs",
     "plugin": [
         "typedoc-plugin-markdown",
         "typedoc-plugin-rename-defaults",
-        "typedoc-plugin-merge-modules"
+        "typedoc-plugin-merge-modules",
+        "./custom-header.mjs"
     ],
     "navigationLinks": {
         "Docs": "https://github.com/elribonazo/uaito.git",
@@ -32,7 +43,7 @@
     "excludeProtected": false,
     "excludeInternal": false,
     "excludeNotDocumented": false,
-    "theme": "markdown",
+    "theme":"custom-markdown-theme",
     "excludeExternals": false,
     "excludePrivate": false,
     "mergeModulesRenameDefaults": true,
