@@ -10,7 +10,7 @@ type UsageBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:420](https://github.com/elribonazo/uaito/blob/63be92eff75b0d6fe00fb8f304e5bed8a21e4135/packages/sdk/src/domain/types.ts#L420)
+Defined in: [domain/types.ts:420](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/sdk/src/domain/types.ts#L420)
 
 Represents a usage block.
 
@@ -22,7 +22,7 @@ Represents a usage block.
 optional input: number;
 ```
 
-Defined in: [domain/types.ts:430](https://github.com/elribonazo/uaito/blob/63be92eff75b0d6fe00fb8f304e5bed8a21e4135/packages/sdk/src/domain/types.ts#L430)
+Defined in: [domain/types.ts:430](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/sdk/src/domain/types.ts#L430)
 
 The number of input tokens.
 
@@ -34,7 +34,7 @@ The number of input tokens.
 optional output: number;
 ```
 
-Defined in: [domain/types.ts:435](https://github.com/elribonazo/uaito/blob/63be92eff75b0d6fe00fb8f304e5bed8a21e4135/packages/sdk/src/domain/types.ts#L435)
+Defined in: [domain/types.ts:435](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/sdk/src/domain/types.ts#L435)
 
 The number of output tokens.
 
@@ -46,6 +46,6 @@ The number of output tokens.
 type: "usage";
 ```
 
-Defined in: [domain/types.ts:425](https://github.com/elribonazo/uaito/blob/63be92eff75b0d6fe00fb8f304e5bed8a21e4135/packages/sdk/src/domain/types.ts#L425)
+Defined in: [domain/types.ts:425](https://github.com/elribonazo/uaito/blob/6221ee7c386b2b81ffabf3afeba7096c8ae881a2/packages/sdk/src/domain/types.ts#L425)
 
 The type of the block.
