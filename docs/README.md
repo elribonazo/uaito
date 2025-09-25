@@ -1,14 +1,12 @@
-**Documentation**
-
-***
-
 # Documentation
 
 ## Packages
 
-- [@uaito/ai](@uaito/ai/README.md)
-- [@uaito/anthropic](@uaito/anthropic/README.md)
-- [@uaito/api](@uaito/api/README.md)
-- [@uaito/huggingface](@uaito/huggingface/README.md)
-- [@uaito/openai](@uaito/openai/README.md)
-- [@uaito/sdk](@uaito/sdk/README.md)
+| Package | Description |
+| ------ | ------ |
+| [@uaito/ai](@uaito.ai.md) | UAITO AI package |
+| [@uaito/anthropic](@uaito.anthropic.md) | UAITO Anthropic Provider |
+| [@uaito/api](@uaito.api.md) | UAITO OpenAI Provider |
+| [@uaito/huggingface](@uaito.huggingface.md) | UAITO Hugging Face Provider |
+| [@uaito/openai](@uaito.openai.md) | UAITO OpenAI Provider |
+| [@uaito/sdk](@uaito.sdk.md) | UAITO Typescript SDK. |
