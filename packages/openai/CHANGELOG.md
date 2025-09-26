@@ -1,3 +1,18 @@
+## 0.0.9 (2025-09-26)
+
+### 🩹 Fixes
+
+- improve openAI [skip ci] Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([2c68cbd](https://github.com/elribonazo/uaito/commit/2c68cbd))
+- adding GROK Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([7195974](https://github.com/elribonazo/uaito/commit/7195974))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/sdk to 0.8.9
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.8 (2025-09-25)
 
 ### 🧱 Updated Dependencies

@@ -10,26 +10,32 @@
 
 [Documentation](README.md) / [@uaito/openai](@uaito.openai.md) / OpenAI
 
-# Class: OpenAI
+# Class: OpenAI\<T\>
 
-Defined in: [index.ts:44](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L44)
+Defined in: [index.ts:52](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L52)
 
 A more complete implementation of the OpenAI-based LLM,
 mirroring the structure and patterns found in the Anthropic class.
 
 ## Extends
 
-- `BaseLLM`\<`LLMProvider.OpenAI`, [`OpenAIOptions`](@uaito.openai.TypeAlias.OpenAIOptions.md)\>
+- `BaseLLM`\<`T`, `llmTypeToOptions`\[`T`\]\>
+
+## Type Parameters
+
+| Type Parameter |
+| ------ |
+| `T` *extends* `OpenAIProviderType` |
 
 ## Constructors
 
 ### Constructor
 
 ```ts
-new OpenAI({, onTool?): OpenAI;
+new OpenAI<T>({, onTool?): OpenAI<T>;
 ```
 
-Defined in: [index.ts:100](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L100)
+Defined in: [index.ts:108](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L108)
 
 Creates an instance of the OpenAI LLM.
 
@@ -37,18 +43,18 @@ Creates an instance of the OpenAI LLM.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `{` | \{ `options`: [`OpenAIOptions`](@uaito.openai.TypeAlias.OpenAIOptions.md); \} | options } - The options for the LLM. |
-| `{.options` | [`OpenAIOptions`](@uaito.openai.TypeAlias.OpenAIOptions.md) | - |
+| `{` | \{ `options`: `llmTypeToOptions`\[`T`\]; \} | options } - The options for the LLM. |
+| `{.options` | `llmTypeToOptions`\[`T`\] | - |
 | `onTool?` | `OnTool` | Optional callback for tool usage. |
 
 #### Returns
 
-`OpenAI`
+`OpenAI`\<`T`\>
 
 #### Overrides
 
 ```ts
-BaseLLM<LLMProvider.OpenAI, OpenAIOptions>.constructor
+BaseLLM<T, llmTypeToOptions[T]>.constructor
 ```
 
 ## Properties
@@ -64,7 +70,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [index.ts:68](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L68)
+Defined in: [index.ts:76](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L76)
 
 The cache for the LLM.
 
@@ -108,7 +114,7 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:88
+Defined in: ../../sdk/build/index.d.ts:89
 
 A record of data for the LLM.
 
@@ -126,7 +132,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:61](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L61)
+Defined in: [index.ts:69](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L69)
 
 An array of message inputs.
 
@@ -144,7 +150,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:49](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L49)
+Defined in: [index.ts:57](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L57)
 
 Optional callback for tool usage.
 
@@ -153,10 +159,10 @@ Optional callback for tool usage.
 ### options
 
 ```ts
-readonly options: OpenAIOptions;
+readonly options: llmTypeToOptions[T];
 ```
 
-Defined in: ../../sdk/build/index.d.ts:56
+Defined in: ../../sdk/build/index.d.ts:57
 
 #### Inherited from
 
@@ -169,10 +175,10 @@ BaseLLM.options
 ### type
 
 ```ts
-readonly type: OpenAI;
+readonly type: T;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:55
+Defined in: ../../sdk/build/index.d.ts:56
 
 #### Inherited from
 
@@ -190,7 +196,7 @@ BaseLLM.type
 get llmInputs(): ResponseInputItem[];
 ```
 
-Defined in: [index.ts:216](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L216)
+Defined in: [index.ts:227](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L227)
 
 Gets the inputs for the LLM.
 
@@ -210,7 +216,7 @@ The LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:118](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L118)
+Defined in: [index.ts:129](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L129)
 
 Return max tokens or a default (e.g. 4096).
 
@@ -230,7 +236,7 @@ The maximum number of tokens.
 get tools(): undefined | Tool[];
 ```
 
-Defined in: [index.ts:191](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L191)
+Defined in: [index.ts:202](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L202)
 
 Gets the tools available to the LLM.
 
@@ -251,7 +257,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:122
+Defined in: ../../sdk/build/index.d.ts:123
 
 Includes the last prompt in the input.
 
@@ -283,7 +289,7 @@ BaseLLM.includeLastPrompt
 log(message): any;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:94
+Defined in: ../../sdk/build/index.d.ts:95
 
 Logs a message.
 
@@ -314,7 +320,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:353](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/openai/src/index.ts#L353)
+Defined in: [index.ts:364](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/openai/src/index.ts#L364)
 
 Performs a task stream using the LLM.
 
@@ -346,7 +352,7 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:101
+Defined in: ../../sdk/build/index.d.ts:102
 
 Retries an API call with a delay.
 
@@ -382,7 +388,7 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:108
+Defined in: ../../sdk/build/index.d.ts:109
 
 Run a command safely, catching and handling any errors.
 
@@ -414,7 +420,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:141
+Defined in: ../../sdk/build/index.d.ts:142
 
 Transforms an input stream using the provided transform function.
 
@@ -452,7 +458,7 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:132
+Defined in: ../../sdk/build/index.d.ts:133
 
 Transforms the given stream from an AI provider into a Uaito Stream
 This also keeps track of the received messages

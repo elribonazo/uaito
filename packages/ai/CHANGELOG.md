@@ -1,3 +1,23 @@
+## 0.0.9 (2025-09-26)
+
+### 🩹 Fixes
+
+- type error Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([f0334f5](https://github.com/elribonazo/uaito/commit/f0334f5))
+- types Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([5f76841](https://github.com/elribonazo/uaito/commit/5f76841))
+- adding GROK Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([7195974](https://github.com/elribonazo/uaito/commit/7195974))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.9
+- Updated @uaito/anthropic to 0.0.9
+- Updated @uaito/openai to 0.0.9
+- Updated @uaito/api to 0.0.9
+- Updated @uaito/sdk to 0.8.9
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.8 (2025-09-25)
 
 ### 🧱 Updated Dependencies

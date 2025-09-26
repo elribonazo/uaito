@@ -16,6 +16,7 @@
 
 | Enumeration | Description |
 | ------ | ------ |
+| [GrokModels](@uaito.openai.Enumeration.GrokModels.md) | - |
 | [OpenAIModels](@uaito.openai.Enumeration.OpenAIModels.md) | Enumeration of the available OpenAI models. |
 
 ## Classes

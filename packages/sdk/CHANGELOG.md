@@ -1,3 +1,13 @@
+## 0.8.9 (2025-09-26)
+
+### 🩹 Fixes
+
+- adding GROK Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([7195974](https://github.com/elribonazo/uaito/commit/7195974))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.8 (2025-09-25)
 
 ### 🩹 Fixes

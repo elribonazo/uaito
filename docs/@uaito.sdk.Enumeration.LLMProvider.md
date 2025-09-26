@@ -12,7 +12,7 @@
 
 # Enumeration: LLMProvider
 
-Defined in: [types.ts:6](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/types.ts#L6)
+Defined in: [types.ts:6](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L6)
 
 Enumeration of the available LLM providers.
 
@@ -20,9 +20,10 @@ Enumeration of the available LLM providers.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="anthropic"></a> `Anthropic` | `"Anthropic"` | Anthropic provider. | [types.ts:14](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/types.ts#L14) |
-| <a id="api"></a> `API` | `"API"` | Uaito Api provider. | [types.ts:30](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/types.ts#L30) |
-| <a id="local"></a> `Local` | `"Local"` | Local provider. | [types.ts:18](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/types.ts#L18) |
-| <a id="localaudio"></a> `LocalAudio` | `"LocalAudioGeneration"` | Local audio generation provider. | [types.ts:26](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/types.ts#L26) |
-| <a id="localimage"></a> `LocalImage` | `"LocalImageGeneration"` | Local image generation provider. | [types.ts:22](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/types.ts#L22) |
-| <a id="openai"></a> `OpenAI` | `"OpenAI"` | OpenAI provider. | [types.ts:10](https://github.com/elribonazo/uaito/blob/78cae9f03e0aec76ce6e00b582b394fe6a2c5c60/packages/sdk/src/types.ts#L10) |
+| <a id="anthropic"></a> `Anthropic` | `"Anthropic"` | Anthropic provider. | [types.ts:15](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L15) |
+| <a id="api"></a> `API` | `"API"` | Uaito Api provider. | [types.ts:31](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L31) |
+| <a id="grok"></a> `Grok` | `"Grok"` | - | [types.ts:7](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L7) |
+| <a id="local"></a> `Local` | `"Local"` | Local provider. | [types.ts:19](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L19) |
+| <a id="localaudio"></a> `LocalAudio` | `"LocalAudioGeneration"` | Local audio generation provider. | [types.ts:27](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L27) |
+| <a id="localimage"></a> `LocalImage` | `"LocalImageGeneration"` | Local image generation provider. | [types.ts:23](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L23) |
+| <a id="openai"></a> `OpenAI` | `"OpenAI"` | OpenAI provider. | [types.ts:11](https://github.com/elribonazo/uaito/blob/f0334f5f0daa310e5728d8d40126c1de139e02a9/packages/sdk/src/types.ts#L11) |
