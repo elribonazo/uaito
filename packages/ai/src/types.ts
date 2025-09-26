@@ -17,7 +17,11 @@ export type AgentTypeToOptions = {
     /**
      * Options for the OpenAI provider.
      */
-    [LLMProvider.OpenAI]: OpenAIOptions;
+    [LLMProvider.OpenAI]: OpenAIOptions<LLMProvider.OpenAI>;
+    /**
+     * Options for the Grok provider.
+     */
+    [LLMProvider.Grok]: OpenAIOptions<LLMProvider.Grok>;
     /**
      * Options for the Local provider.
      */
