@@ -370,15 +370,12 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
 
    
    if (this.options.type === LLMProvider.OpenAI) {
-    const imageModel = this.options.type === LLMProvider.OpenAI ? 'gpt-image-1' : 'grok-2-image';
-
     this.options.tools?.push({
       'type': 'image_generation',
       'size': '1024x1024',
       'output_format': 'png',
-      'model':imageModel,
+      'model':'gpt-image-1',
     } as any)
-
     this.options.tools?.push({
       type: "web_search_preview",
       search_context_size: "low",
