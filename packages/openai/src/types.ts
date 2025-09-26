@@ -1,4 +1,4 @@
-import { BaseLLMOptions } from "@uaito/sdk";
+import { BaseLLMOptions, LLMProvider } from "@uaito/sdk";
 
 /**
  * Enumeration of the available OpenAI models.
@@ -14,9 +14,19 @@ export enum OpenAIModels {
      */
     'gpt-5-mini' = "gpt-5-mini-2025-08-07",
   }
+
+  export enum GrokModels {
+    'grok-4' = "grok-4",
+  }
   
+  type OpenAIProviderType = LLMProvider.OpenAI | LLMProvider.Grok;
+
+  type LLMProviderToOpenAIModel = {
+    [LLMProvider.OpenAI]: OpenAIModels;
+    [LLMProvider.Grok]: GrokModels;
+  }
   /**
    * Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey.
    * @type
    */
-  export type OpenAIOptions = { apiKey?: string } & BaseLLMOptions;
+  export type OpenAIOptions<T extends OpenAIProviderType> = BaseLLMOptions & { type: T, apiKey?: string, baseURL?: string, model: LLMProviderToOpenAIModel[T] };

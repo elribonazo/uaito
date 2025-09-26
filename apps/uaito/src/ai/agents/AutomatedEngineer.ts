@@ -42,21 +42,29 @@ export class AutomatedEngineer extends Agent {
     private static async getClient(type: LLMProvider, options: any): Promise<BaseLLM<LLMProvider, unknown>> {
       let Client: new ({ options }: {options:any}, onTool?: OnTool) => BaseLLM<any, unknown>
       if (type === LLMProvider.Anthropic) {
-         Client = (await import("@uaito/anthropic")).Anthropic;
+        const {default: {Anthropic}} = (await import("@uaito/anthropic"));
+         Client = Anthropic;
       } else if (type === LLMProvider.OpenAI) {
-         Client = (await import("@uaito/openai")).OpenAI;
+        const {default: {OpenAI}} =  (await import("@uaito/openai"));
+         Client = OpenAI;
+      } else if (type === LLMProvider.Grok) {
+        const {default: {OpenAI: Grok}} =  (await import("@uaito/openai"));
+         Client = Grok;
       } else if (type === LLMProvider.Local) {
-         Client = (await import("@uaito/huggingface")).HuggingFaceONNX;
+        const {default: {HuggingFaceONNX: Local}} = await import("@uaito/huggingface");
+         Client = Local;
       } else if (type === LLMProvider.LocalImage) {
-         Client = (await import("@uaito/huggingface")).HuggingFaceONNXTextToImage;
+        const {default: {HuggingFaceONNXTextToImage: LocalImage}} = await import("@uaito/huggingface");
+         Client = LocalImage;
       } else if (type === LLMProvider.LocalAudio) {
-         Client = (await import("@uaito/huggingface")).HuggingFaceONNXTextToAudio;
+        const {default: {HuggingFaceONNXTextToAudio: LocalAudio}} = await import("@uaito/huggingface");
+         Client =LocalAudio;
       } else if (type === LLMProvider.API) { 
          Client = (await import("@uaito/api")).UaitoAPI;
       } else {
           throw new Error("not implemented")
       }
-      const client = new Client({options}, options.onTool) as BaseLLM<LLMProvider, unknown>
+      const client = new Client({options: {type, ...options}}, options.onTool) as BaseLLM<LLMProvider, unknown>
       return client
   }
 

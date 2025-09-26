@@ -33,15 +33,23 @@ import type {
   ResponseErrorEvent,
 } from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
-import { OpenAIOptions } from './types';
+import type { OpenAIOptions } from './types';
+
+export * from './types';
 
 
-export * from './types'
+type llmTypeToOptions = {
+  [LLMProvider.OpenAI]: OpenAIOptions<LLMProvider.OpenAI>,
+  [LLMProvider.Grok]: OpenAIOptions<LLMProvider.Grok>,
+}
+
+type OpenAIProviderType = LLMProvider.OpenAI | LLMProvider.Grok;
+
 /**
  * A more complete implementation of the OpenAI-based LLM,
  * mirroring the structure and patterns found in the Anthropic class.
  */
-export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
+export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOptions[T]> {
   /**
    * Optional callback for tool usage.
    * @type {(OnTool | undefined)}
@@ -98,15 +106,18 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
    * @param {OnTool} [onTool] - Optional callback for tool usage.
    */
   constructor(
-    { options }: { options: OpenAIOptions },
+    { options }: { options: llmTypeToOptions[T] },
     onTool?: OnTool
   ) {
-    super(LLMProvider.OpenAI, options);
+    super(options.type as T, options);
 
+    const defaultBaseUrl = options.baseURL ?? options.type === LLMProvider.OpenAI ? undefined : "https://api.x.ai/v1";
     // Initialize the OpenAI client
     this.openai = new OpenAIAPI({
       apiKey: options.apiKey,
+      baseURL: defaultBaseUrl,
     });
+
 
     this.onTool = onTool ?? options.onTool;
   }
@@ -357,17 +368,22 @@ export class OpenAI extends BaseLLM<LLMProvider.OpenAI, OpenAIOptions> {
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
 
+   
+   if (this.options.type === LLMProvider.OpenAI) {
+    const imageModel = this.options.type === LLMProvider.OpenAI ? 'gpt-image-1' : 'grok-2-image';
+
     this.options.tools?.push({
       'type': 'image_generation',
       'size': '1024x1024',
       'output_format': 'png',
-      'model': 'gpt-image-1',
+      'model':imageModel,
     } as any)
 
     this.options.tools?.push({
       type: "web_search_preview",
       search_context_size: "low",
     } as any)
+   }
 
     const tools = (this.tools && this.tools.length > 0 ? this.tools : [])
     const request: ResponseCreateParamsStreaming = {

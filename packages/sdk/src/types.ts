@@ -4,6 +4,7 @@
  * @enum {string}
  */
 export enum LLMProvider {
+  Grok = 'Grok',
   /**
    * OpenAI provider.
    */

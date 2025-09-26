@@ -9,6 +9,8 @@ import { Agent } from '.';
 import { MessageArray } from '@uaito/sdk';
 import type { BaseLLM, Tool } from '@uaito/sdk';
 import { LLMProvider } from '@uaito/sdk';
+import { GrokModels, OpenAIModels } from '@uaito/openai';
+import { HuggingFaceONNXModels } from '@uaito/huggingface';
 /**
  * Default tools available in the CLI.
  * @type {Tool}
@@ -111,7 +113,7 @@ yargs(hideBin(process.argv))
                 .option('provider', {
                     alias: 'p',
                     type: 'string',
-                    choices: [LLMProvider.Anthropic, LLMProvider.OpenAI, LLMProvider.Local],
+                    choices: [LLMProvider.Anthropic, LLMProvider.OpenAI, LLMProvider.Local, LLMProvider.Grok, LLMProvider.API],
                     required: true,
                     describe: 'LLM provider to use',
                 })
@@ -147,32 +149,60 @@ yargs(hideBin(process.argv))
                 let llm: BaseLLM<LLMProvider, any>;
 
                 if (provider === LLMProvider.Anthropic) {
-                    const Anthropic = (await import("@uaito/anthropic")).Anthropic;
+                    const { default: { Anthropic } } = (await import("@uaito/anthropic"));
                     llm = new Anthropic({
                         options: {
                             model,
                             tools,
                             apiKey: apiKey || process.env.ANTHROPIC_API_KEY,
-                        },
+                            log: () => {}
+                        }
                     });
                 } else if (provider === LLMProvider.OpenAI) {
-                    const OpenAI = (await import("@uaito/openai")).OpenAI;
+                    const { default: { OpenAI } } = (await import("@uaito/openai"));
                     llm = new OpenAI({
                         options: {
-                            model,
+                            type: LLMProvider.OpenAI,
+                            model: model as OpenAIModels,
                             tools,
-                            apiKey: apiKey || process.env.ANTHROPIC_API_KEY,
-                        },
+                            apiKey: apiKey || process.env.OPENAI_API_KEY,
+                            log: () => {}
+                        }
                     });
                 } else if (provider === LLMProvider.Local) {
-                    const Local = (await import("@uaito/huggingface")).HuggingFaceONNX;
+                    const { default: { HuggingFaceONNX: Local } } = await import("@uaito/huggingface");
+                    if (model !== HuggingFaceONNXModels.LUCY) {
+                        throw new Error(`Model ${model} is not supported for local models, only ${HuggingFaceONNXModels.LUCY} is supported`);
+                    }
                     llm = new Local({
                         options: {
-                            model: model as any,
+                            model: model as HuggingFaceONNXModels,
                             tools,
-                            device: 'auto',
-                            dtype: 'q4f16',
-                            log: () => { }
+                            device: "auto",
+                            dtype: "q4f16",
+                            log: () => {}
+                        }
+                    });
+                } else if (provider === LLMProvider.Grok) {
+                    const { default: { OpenAI: Grok } } = (await import("@uaito/openai"));
+                    llm = new Grok({
+                        options: {
+                            type: LLMProvider.Grok,
+                            model: model as GrokModels,
+                            tools,
+                            apiKey: apiKey || process.env.GROK_API_KEY,
+                            log: () => {}
+                        }
+                    });
+                } else if (provider === LLMProvider.API) {
+                    const { default: { UaitoAPI } } = (await import("@uaito/api"));
+                    llm = new UaitoAPI({
+                        options: {
+                            provider: LLMProvider.Anthropic,
+                            model: model as string,
+                            tools,
+                            apiKey: (apiKey || process.env.GROK_API_KEY)!,
+                            log: () => {}
                         }
                     });
                 } else {
@@ -186,9 +216,7 @@ yargs(hideBin(process.argv))
                 );
                 await agent.addInputs(new MessageArray([]));
 
-                const { response } = await agent.performTask(
-                    message
-                );
+                const { response } = await agent.performTask(message);
 
                 console.log = originalLog;
                 console.error = originalError;

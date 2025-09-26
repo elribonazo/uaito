@@ -60,7 +60,7 @@ export class Execution extends Agent {
         } else {
             throw new Error("not implemented")
         }
-        const client = new Client({options}, options.onTool) as BaseLLM<LLMProvider, unknown>
+        const client = new Client({options: {type, ...options}}, options.onTool) as BaseLLM<LLMProvider, unknown>
         return client
     }
   
