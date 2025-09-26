@@ -53,7 +53,11 @@ export type AgentTypeToClass = {
   /**
    * Class for the OpenAI provider.
    */
-  [LLMProvider.OpenAI]: OpenAI;
+  [LLMProvider.OpenAI]: OpenAI<LLMProvider.OpenAI>;
+  /**
+   * Class for the Grok provider.
+   */
+  [LLMProvider.Grok]: OpenAI<LLMProvider.Grok>;
   /**
    * Class for the Local provider.
    */
