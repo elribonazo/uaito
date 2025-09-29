@@ -11,7 +11,7 @@ import { AutomatedEngineer } from '@/ai/agents/AutomatedEngineer';
 import { onTool as SystemOnTool } from '../../../../ai/agents/onTool';
 import { ensureUserExists } from '../../auth/[...nextauth]';
 import { AnthropicModels, AnthropicOptions } from '@uaito/anthropic';
-import { OpenAIModels } from '@uaito/openai';
+import { GrokModels, OpenAIModels } from '@uaito/openai';
 
 const SEPARATOR = "<-[*0M0*]->"
 
@@ -22,6 +22,8 @@ function toProvider(p: string | string[] | undefined): LLMProvider {
       return LLMProvider.OpenAI;
     case 'Anthropic':
       return LLMProvider.Anthropic;
+    case 'Grok':
+      return LLMProvider.Grok;
     default:
       return LLMProvider.Anthropic;
   }
@@ -56,14 +58,14 @@ async function AutomatedEngineerTask(
     const {name, description, input_schema} = tool;
     return {name, description, input_schema}
   })
-  const apiKey = type === LLMProvider.Anthropic ? process.env.ANTHROPIC_API_KEY :  process.env.OPENAI_API_KEY;
+  const apiKey = type === LLMProvider.Anthropic ? process.env.ANTHROPIC_API_KEY :  type === LLMProvider.Grok ? process.env.GROK_API_KEY : process.env.OPENAI_API_KEY;
   
   // Use selected model or fall back to defaults
   let model: string;
   if (selectedModel) {
     model = selectedModel;
   } else {
-    model = type === LLMProvider.Anthropic ? AnthropicModels['claude-4-sonnet'] : OpenAIModels["gpt-4o"];
+    model = type === LLMProvider.Anthropic ? AnthropicModels['claude-4-sonnet'] : type === LLMProvider.Grok ? GrokModels['grok-4'] : OpenAIModels["gpt-4o"];
   }
   const options: AnthropicOptions = {
     apiKey: apiKey,

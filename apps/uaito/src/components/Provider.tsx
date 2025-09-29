@@ -5,6 +5,7 @@ import { useAppSelector } from "@/redux/store";
 
 const enabledProviders = [
     LLMProvider.Anthropic,
+    LLMProvider.Grok,
     LLMProvider.OpenAI,
     LLMProvider.Local
 ]

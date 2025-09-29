@@ -16,7 +16,7 @@ export enum OpenAIModels {
   }
 
   export enum GrokModels {
-    'grok-4' = "grok-4",
+    'grok-4' = "grok-4-fast-reasoning",
   }
   
   type OpenAIProviderType = LLMProvider.OpenAI | LLMProvider.Grok;

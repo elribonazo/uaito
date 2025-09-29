@@ -4,7 +4,7 @@ import { LLMProvider } from "@uaito/sdk";
 import { useAppSelector } from "@/redux/store";
 import { AnthropicModels } from "@uaito/anthropic";
 import { HuggingFaceONNXModels } from "@uaito/huggingface";
-import { OpenAIModels } from "@uaito/openai";
+import { GrokModels, OpenAIModels } from "@uaito/openai";
 
 // Type to represent a model option
 type ModelOption = {
@@ -16,6 +16,7 @@ type ModelOption = {
 const AgentTypeToModel = {
   [LLMProvider.Anthropic]: AnthropicModels,
   [LLMProvider.OpenAI]: OpenAIModels,
+  [LLMProvider.Grok]: GrokModels,
   [LLMProvider.Local]: HuggingFaceONNXModels,
   [LLMProvider.LocalImage]: HuggingFaceONNXModels,
   [LLMProvider.LocalAudio]: HuggingFaceONNXModels,
