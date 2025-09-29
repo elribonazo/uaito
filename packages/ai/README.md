@@ -1,262 +1,133 @@
-# @uaito/client
+# @uaito/ai
 
-This package provides a lightweight API client for interacting with the Uaito platform.
+This package provides a powerful `Agent` class that can be used to orchestrate tasks with various Large Language Models. It also includes a command-line interface (CLI) for interacting with the agent directly from your terminal.
 
 ## Installation
 
 ```bash
-npm install @uaito/client
+npm install @uaito/ai
 ```
 
 or
 
 ```bash
-yarn add @uaito/client
+yarn add @uaito/ai
 ```
 
-## Usage
+## Library Usage
 
-First, you need to instantiate the `UaitoClient` with your API key.
-
-```typescript
-import { UaitoClient, LLMProvider } from '@uaito/client';
-
-const client = new UaitoClient({
-  apiKey: 'your-uaito-api-key',
-  baseUrl: 'https://your-uaito-instance.com' // optional, defaults to https://uaito.io
-});
-```
-
-Then, you can use the `performTask` method to start a conversation with an agent. The `performTask` method returns an async generator that yields `Message` objects as they are streamed from the server.
+The main export of this package is the `Agent` class. You can use it to wrap any LLM provider that conforms to the `@uaito/sdk`'s `BaseLLM` interface.
 
 ```typescript
+import { Agent } from '@uaito/ai';
+import { OpenAI } from '@uaito/openai';
 import { MessageArray } from '@uaito/sdk';
 
 async function main() {
-  const prompt = "Hello, who are you?";
-  const history = new MessageArray([]); // or provide existing message history
-
-  try {
-    const stream = client.performTask(prompt, {
-      provider: LLMProvider.Anthropic, // or another provider
-      agent: 'orquestrator',
-      inputs: history,
-    });
-
-    for await (const message of stream) {
-      console.log('Received message:', JSON.stringify(message, null, 2));
+  const llm = new OpenAI({
+    options: {
+        // ... your OpenAI options
     }
-  } catch (error) {
-    console.error('An error occurred:', error);
+  });
+  
+  const agent = new Agent(llm);
+  
+  const history = new MessageArray([]); // or provide existing message history
+  await agent.addInputs(history);
+  
+  const { response } = await agent.performTask("Hello, who are you?");
+  
+  for await (const chunk of response) {
+    if (chunk.type === 'message') {
+        for (const content of chunk.content) {
+            if (content.type === 'text') {
+                process.stdout.write(content.text);
+            }
+        }
+    }
   }
 }
 
 main();
 ```
 
-## API
+## CLI Usage
 
-### `new UaitoClient(options)`
+This package also provides the `uaito-cli` command, which allows you to run the agent from your command line.
 
-Creates a new Uaito API client.
+### Command
 
-- `options` (`UaitoClientOptions`):
-  - `apiKey` (`string`, **required**): Your Uaito API key.
-  - `baseUrl` (`string`, optional): The base URL of your Uaito instance. Defaults to `http://localhost:3000`.
-
-### `client.performTask(prompt, options)`
-
-Starts a task stream with an agent.
-
-- `prompt` (`string`): The user's prompt.
-- `options` (`PerformTaskOptions`):
-  - `provider` (`LLMProvider`, **required**): The LLM provider to use.
-  - `agent` (`string`, **required**): The agent to interact with.
-  - `model` (`string`, optional): The specific model to use.
-  - `inputs` (`MessageArray<MessageInput>`, optional): The conversation history.
-  - `signal` (`AbortSignal`, optional): An `AbortSignal` to cancel the request.
-
-Returns an `AsyncGenerator<Message>` that yields `Message` objects from `@uaito/sdk`.
-
-## Types
-
-The client uses several types from the `@uaito/sdk` package. Here are the most relevant ones:
-
-### `LLMProvider`
-
-An enum representing the supported Large Language Model providers.
-
-```typescript
-export enum LLMProvider {
-  OpenAI = 'OpenAI',
-  Anthropic = 'Anthropic',
-  HuggingFaceONNX = 'HuggingFaceONNX'
-}
+```
+uaito-cli run <message> [options]
 ```
 
-### `Message`
+Runs the application with a given configuration.
 
-Represents a message in the chat stream. Each message has an `id`, a `type`, a `role`, and `content`.
+### Arguments
 
-- `id` (`string`): A unique identifier for the message.
-- `type` (`MessageType`): The type of the message, which determines the structure of its content. Can be `message`, `tool_use`, `tool_result`, `delta`, etc.
-- `content` (`BlockType[]`): An array of content blocks that make up the message.
-- `chunk` (`boolean`, optional): Indicates if this is a streaming chunk of a larger message.
-- `role` (`Role`): The role of the message's author, e.g., `user`, `assistant`, `system`.
+-   `message`: (Required) The message to send to the agent.
 
-```typescript
-export type Message = {
-  id: string,
-  type: MessageType,
-  content: BlockType[],
-  chunk?: boolean,
-  role: Role
-}
+### Options
+
+-   `--provider`, `-p`: (Required) The LLM provider to use.
+    -   Choices: `OpenAI`, `Anthropic`, `Grok`, `Local`, `API`
+-   `--model`, `-m`: (Required) The model to use. The available models depend on the selected provider. See provider-specific details below.
+-   `--apiKey`: The API key for the provider. If not provided, the CLI will look for an environment variable.
+
+### Provider-specific Details and Examples
+
+#### OpenAI
+
+-   **Provider value**: `OpenAI`
+-   **Models**: `gpt-5-nano`, `gpt-5-mini`.
+-   **API Key**: Use the `--apiKey` option or set the `OPENAI_API_KEY` environment variable.
+
+**Example:**
+```bash
+npx uaito-cli run "Translate 'Hello, world!' to French." -p OpenAI -m gpt-5-nano
 ```
 
-### `MessageInput`
+#### Anthropic
 
-Represents a message that can be sent to the API.
+-   **Provider value**: `Anthropic`
+-   **Models**: Any model string supported by the Anthropic API. E.g., `claude-4-sonnet` (which corresponds to `"claude-sonnet-4-2025-05-14"`).
+-   **API Key**: Use the `--apiKey` option or set the `ANTHROPIC_API_KEY` environment variable.
 
-```typescript
-export type MessageInput = {
-  id?: string,
-  type?: MessageType,
-  role: Role,
-  content: MessageContent[]
-}
+**Example:**
+```bash
+npx uaito-cli run "What is the capital of France?" -p Anthropic -m claude-4-sonnet
 ```
 
-### `BlockType`
+#### Grok
 
-A message's `content` is an array of `BlockType` objects. Below are the specifications for each block type.
+-   **Provider value**: `Grok`
+-   **Models**: `grok-4`.
+-   **API Key**: Use the `--apiKey` option or set the `GROK_API_KEY` environment variable.
 
-```typescript
-export type BlockType = 
-  | ErrorBlock 
-  | TextBlock 
-  | ToolBlock 
-  | ImageBlock 
-  | DeltaBlock 
-  | UsageBlock 
-  | ThinkingBlock 
-  | RedactedThinkingBlock 
-  | ServerToolUseBlock 
-  | WebSearchToolResultBlock 
-  | SignatureDeltaBlock;
+**Example:**
+```bash
+npx uaito-cli run "Explain quantum computing in simple terms." -p Grok -m grok-4
 ```
 
-#### `TextBlock`
-A block of text content.
-```typescript
-export type TextBlock = {
-  text: string;
-  type: 'text';
-}
+#### Local
+
+-   **Provider value**: `Local`
+-   **Models**: Only `onnx-community/Lucy-ONNX` is currently supported.
+-   **API Key**: Not required.
+
+**Example:**
+```bash
+npx uaito-cli run "Write a short poem about coding." -p Local -m onnx-community/Lucy-ONNX
 ```
 
-#### `ImageBlock`
-An image, typically represented as a base64-encoded string.
-```typescript
-export type ImageBlock = {
-  source: {
-    data: string;
-    media_type: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
-    type: 'base64';
-  };
-  type: 'image';
-}
-```
+#### API
 
-#### `ToolUseBlock`
-Represents a request from the model to use a tool.
-```typescript
-export type ToolUseBlock = {
-  id: string;
-  input: unknown;
-  name: string;
-  type: 'tool_use';
-}
-```
+-   **Provider value**: `API`
+-   **Description**: This provider uses the UAITO API endpoint. It currently uses the Anthropic provider under the hood.
+-   **Models**: Any model string supported by the backend.
+-   **API Key**: Use the `--apiKey` option or set the `GROK_API_KEY` environment variable.
 
-#### `ToolResultBlock`
-The result of a tool's execution.
-```typescript
-export type ToolResultBlock = {
-  tool_use_id: string;
-  name: string,
-  type: 'tool_result';
-  content?: MessageContent[];
-  isError?: boolean;
-}
+**Example:**
+```bash
+npx uaito-cli run "Summarize the provided text." -p API -m some-anthropic-model
 ```
-
-#### `ToolInputDelta`
-A streaming chunk of a tool's input.
-```typescript
-export type ToolInputDelta = {
-  id?:string,
-  name?:string,
-  partial:string,
-  type: 'tool_delta';
-}
-```
-
-#### `DeltaBlock`
-Indicates the end of a streaming turn.
-```typescript
-export type DeltaBlock =   {
-  type:'delta',
-  stop_reason: 'end_turn' | 'max_tokens' | 'stop_sequence' | 'tool_use' | null;
-  stop_sequence: string | null;
-}
-```
-
-#### `UsageBlock`
-Contains token usage information for a request.
-```typescript
-export type UsageBlock = {
-  type: 'usage',
-  input?: number,
-  output?: number
-}
-```
-
-#### `ErrorBlock`
-An error message.
-```typescript
-export type ErrorBlock = {
-  type:'error',
-  message: string
-}
-```
-
-#### `ThinkingBlock`
-Represents the model's internal "thought process" when generating a response.
-```typescript
-export interface ThinkingBlock {
-  signature: string;
-  thinking: string;
-  type: 'thinking';
-}
-```
-
-#### `RedactedThinkingBlock`
-A "thinking" block with its content redacted.
-```typescript
-export interface RedactedThinkingBlock {
-  data: string;
-  type: 'redacted_thinking';
-}
-```
-
-#### `SignatureDeltaBlock`
-A streaming chunk of a "thinking" block's signature.
-```typescript
-export interface SignatureDeltaBlock {
-  signature: string;
-  type: 'signature_delta';
-}
-```
-
-For more detailed information about all the available types, please refer to the `@uaito/sdk` package.

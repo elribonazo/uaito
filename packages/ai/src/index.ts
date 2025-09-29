@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation 
+ * UAITO AI 
+ */
 import type { OnTool, MessageInput, BaseLLM, ReadableStreamWithAsyncIterable, Message, ToolUseBlock } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import type { MessageArray } from "@uaito/sdk";

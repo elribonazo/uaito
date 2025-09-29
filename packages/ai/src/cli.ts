@@ -11,10 +11,7 @@ import type { BaseLLM, Tool } from '@uaito/sdk';
 import { LLMProvider } from '@uaito/sdk';
 import { GrokModels, OpenAIModels } from '@uaito/openai';
 import { HuggingFaceONNXModels } from '@uaito/huggingface';
-/**
- * Default tools available in the CLI.
- * @type {Tool}
- */
+
 const browseWebPageTool: Tool = {
     name: "browseWebPage",
     description: `Opens the desired url to either get the source html code or to directly extract the redable texts`,
@@ -34,10 +31,7 @@ const browseWebPageTool: Tool = {
     }
 }
 
-/**
- * The Tavily search tool.
- * @type {Tool}
- */
+
 const tavilySearch: Tool = {
     name: "tavilySearch",
     description: "Perform a web search using the Tavily API to get up-to-date information or additional context. This tool should be used when you need current information or feel a search could provide a better answer to the user's query. It will return a summary of the search results, including relevant snippets and source URLs.",
@@ -53,26 +47,11 @@ const tavilySearch: Tool = {
     }
 }
 
-/**
- * An array of available tools.
- * @type {Tool[]}
- */
+
 const availableTools = [browseWebPageTool, tavilySearch];
 
-/**
- * Custom Agent to override prompts.
- * @class CLIAgent
- * @extends {Agent<T>}
- * @template T
- */
+
 class CLIAgent extends Agent {
-    /**
-     * Creates an instance of CLIAgent.
-     * @param {T} type - The type of LLM provider.
-     * @param {AgentTypeToOptions[T]} options - The options for the agent.
-     * @param {string} systemPromptTemplate - The template for the system prompt.
-     * @param {string} chainOfThought - The chain of thought for the agent.
-     */
     constructor(
         agent: BaseLLM<LLMProvider, any>,
         private systemPromptTemplate: string,
@@ -80,19 +59,9 @@ class CLIAgent extends Agent {
     ) {
         super(agent);
     }
-
-    /**
-     * Gets the system prompt for the agent.
-     * @returns {string} The system prompt.
-     */
     override get systemPrompt() {
         return this.systemPromptTemplate;
     }
-
-    /**
-     * Gets the chain of thought for the agent.
-     * @returns {string} The chain of thought.
-     */
     override get chainOfThought() {
         return this.chainOfThoughtTemplate;
     }

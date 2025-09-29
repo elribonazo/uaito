@@ -1,11 +1,10 @@
 {
     "$schema": "https://typedoc-plugin-markdown.org/schema.json",
     "entryPoints": [
-        "./src/index.ts",
-        "./src/cli/index.ts"
+        "./src/index.ts"
     ],
     "basePath": "./src",
-    "readme": "none",
+    "readme": "./README.md",
     "out": "docs",
     "plugin": [
         "typedoc-plugin-markdown",
@@ -29,5 +28,5 @@
     "excludeNotDocumented": false,
     "theme": "markdown",
     "excludeExternals": false,
-    "excludePrivate": true
+    "excludePrivate": false
 }

@@ -102,13 +102,7 @@ export class UaitoAPI extends BaseLLM<LLMProvider.API, UaitoAPIOptions> {
         }) as ReadableStreamWithAsyncIterable<Message>;
     }
 
-    performTaskStream(userPrompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
-        if (chainOfThought) {
-            throw new Error("Chain of thought is not supported for API provider");
-        }
-        if (system) {
-            throw new Error("System prompt is not supported for API provider");
-        }
+    performTaskStream(userPrompt: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
         return this.request(userPrompt);
     }
 
