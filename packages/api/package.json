@@ -1,6 +1,6 @@
 {
   "name": "@uaito/api",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "UAITO OpenAI Provider",
   "main": "build/index.js",
   "module": "build/index.mjs",

@@ -6082,7 +6082,7 @@ __metadata:
     typescript: "npm:^5.3.3"
   peerDependencies:
     "@uaito/anthropic": ^0.0.9
-    "@uaito/api": ^0.0.9
+    "@uaito/api": ^0.0.10
     "@uaito/huggingface": ^0.0.9
     "@uaito/openai": ^0.0.9
   bin:
