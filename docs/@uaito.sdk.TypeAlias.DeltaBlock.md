@@ -20,7 +20,7 @@ type DeltaBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:223](https://github.com/elribonazo/uaito/blob/77ba71ff7452f786e3eb8e2873fb9ad3985a274e/packages/sdk/src/domain/types.ts#L223)
+Defined in: [domain/types.ts:223](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/sdk/src/domain/types.ts#L223)
 
 Represents a delta block.
 
@@ -32,7 +32,7 @@ Represents a delta block.
 stop_reason: "end_turn" | "max_tokens" | "stop_sequence" | "tool_use" | null;
 ```
 
-Defined in: [domain/types.ts:233](https://github.com/elribonazo/uaito/blob/77ba71ff7452f786e3eb8e2873fb9ad3985a274e/packages/sdk/src/domain/types.ts#L233)
+Defined in: [domain/types.ts:233](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/sdk/src/domain/types.ts#L233)
 
 The reason the stream stopped.
 
@@ -44,7 +44,7 @@ The reason the stream stopped.
 stop_sequence: string | null;
 ```
 
-Defined in: [domain/types.ts:239](https://github.com/elribonazo/uaito/blob/77ba71ff7452f786e3eb8e2873fb9ad3985a274e/packages/sdk/src/domain/types.ts#L239)
+Defined in: [domain/types.ts:239](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/sdk/src/domain/types.ts#L239)
 
 The stop sequence.
 
@@ -56,6 +56,6 @@ The stop sequence.
 type: "delta";
 ```
 
-Defined in: [domain/types.ts:228](https://github.com/elribonazo/uaito/blob/77ba71ff7452f786e3eb8e2873fb9ad3985a274e/packages/sdk/src/domain/types.ts#L228)
+Defined in: [domain/types.ts:228](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/sdk/src/domain/types.ts#L228)
 
 The type of the block.

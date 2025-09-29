@@ -23,7 +23,7 @@ type AudioBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:541](https://github.com/elribonazo/uaito/blob/77ba71ff7452f786e3eb8e2873fb9ad3985a274e/packages/sdk/src/domain/types.ts#L541)
+Defined in: [domain/types.ts:541](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/sdk/src/domain/types.ts#L541)
 
 Represents an audio block.
 
@@ -39,7 +39,7 @@ source: {
 };
 ```
 
-Defined in: [domain/types.ts:546](https://github.com/elribonazo/uaito/blob/77ba71ff7452f786e3eb8e2873fb9ad3985a274e/packages/sdk/src/domain/types.ts#L546)
+Defined in: [domain/types.ts:546](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/sdk/src/domain/types.ts#L546)
 
 The source of the audio.
 
@@ -69,6 +69,6 @@ type: "base64";
 type: "audio";
 ```
 
-Defined in: [domain/types.ts:555](https://github.com/elribonazo/uaito/blob/77ba71ff7452f786e3eb8e2873fb9ad3985a274e/packages/sdk/src/domain/types.ts#L555)
+Defined in: [domain/types.ts:555](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/sdk/src/domain/types.ts#L555)
 
 The type of the block.
