@@ -12,7 +12,7 @@
 
 # Enumeration: AnthropicModels
 
-Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/anthropic/src/types.ts#L7)
+Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/types.ts#L7)
 
 Enumeration of the available Anthropic models.
 
@@ -20,4 +20,4 @@ Enumeration of the available Anthropic models.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="claude-4-sonnet"></a> `claude-4-sonnet` | `"claude-sonnet-4-20250514"` | The Claude 4 Sonnet model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/72573bbc3726a270f775ca1678ea7e537c70665d/packages/anthropic/src/types.ts#L11) |
+| <a id="claude-4-sonnet"></a> `claude-4-sonnet` | `"claude-sonnet-4-20250514"` | The Claude 4 Sonnet model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/types.ts#L11) |

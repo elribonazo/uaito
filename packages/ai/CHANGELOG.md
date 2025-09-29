@@ -1,3 +1,9 @@
+## 0.0.12 (2025-09-29)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/openai to 0.0.10
+
 ## 0.0.11 (2025-09-29)
 
 ### 🩹 Fixes

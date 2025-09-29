@@ -1,3 +1,13 @@
+## 0.0.10 (2025-09-29)
+
+### 🩹 Fixes
+
+- add grok to website Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([7357f34](https://github.com/elribonazo/uaito/commit/7357f34))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.9 (2025-09-26)
 
 ### 🩹 Fixes
