@@ -216,6 +216,10 @@ yargs(hideBin(process.argv))
                         }
                     }
                 }
+
+                if (thinking) {
+                    process.stdout.write('\n</thinking>\n');
+                }
                 process.stdout.write('\n');
 
             } catch (error) {

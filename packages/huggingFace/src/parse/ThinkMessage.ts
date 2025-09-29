@@ -43,15 +43,6 @@ export class ThinkingMessage extends BaseMessage {
     super();
 
     this.buffer = this.cleanChunk(initialText);
-    
-    // Clean initial text by removing opening tags
-    let cleanedText = initialText;
-    for (const replacement of this.replacements) {
-      if (replacement.startsWith('<') && !replacement.startsWith('</')) {
-        cleanedText = cleanedText.replace(replacement, '');
-      }
-    }
-    this.buffer = cleanedText;
   }
 
   /**
