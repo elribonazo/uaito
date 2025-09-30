@@ -28,6 +28,10 @@ export enum LLMProvider {
   /**
    * Uaito Api provider.
    */
-  API='API'
+  API = 'API',
+  /**
+   * Google provider.
+   */
+  Google = 'Google'
 }
 

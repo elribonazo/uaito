@@ -14,12 +14,13 @@
     "packages/huggingFace",
     "packages/anthropic",
     "packages/openai",
-    "packages/api"
+    "packages/api",
+    "packages/google"
   ],
   "scripts": {
     "clean": "npx nx run-many --target=clean --verbose && rm -rf node_modules",
     "docs": "rm -rf docs && npx typedoc",
-    "build": "npx nx run-many --verbose -p @uaito/build @uaito/huggingface @uaito/anthropic @uaito/openai @uaito/sdk @uaito/ai @uaito/site   --target=build",
+    "build": "npx nx run-many --verbose -p @uaito/build @uaito/huggingface @uaito/anthropic @uaito/openai @uaito/google @uaito/sdk @uaito/ai @uaito/site   --target=build",
     "test": "npx nx run-many --target=test --verbose",
     "lint": "yarn biome lint",
     "lint:ci": "yarn biome ci",

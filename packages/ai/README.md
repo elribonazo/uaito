@@ -70,7 +70,7 @@ Runs the application with a given configuration.
 ### Options
 
 -   `--provider`, `-p`: (Required) The LLM provider to use.
-    -   Choices: `OpenAI`, `Anthropic`, `Grok`, `Local`, `API`
+    -   Choices: `OpenAI`, `Anthropic`, `Grok`, `Google`, `Local`, `API`
 -   `--model`, `-m`: (Required) The model to use. The available models depend on the selected provider. See provider-specific details below.
 -   `--apiKey`: The API key for the provider. If not provided, the CLI will look for an environment variable.
 
@@ -107,6 +107,17 @@ npx uaito-cli run "What is the capital of France?" -p Anthropic -m claude-4-sonn
 **Example:**
 ```bash
 npx uaito-cli run "Explain quantum computing in simple terms." -p Grok -m grok-4
+```
+
+#### Google
+
+-   **Provider value**: `Google`
+-   **Models**: `gemini-2.5-pro`.
+-   **API Key**: Use the `--apiKey` option or set the `GOOGLE_API_KEY` environment variable.
+
+**Example:**
+```bash
+npx uaito-cli run "What is the capital of Spain?" -p Google -m gemini-2.5-pro
 ```
 
 #### Local

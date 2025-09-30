@@ -82,7 +82,7 @@ yargs(hideBin(process.argv))
                 .option('provider', {
                     alias: 'p',
                     type: 'string',
-                    choices: [LLMProvider.Anthropic, LLMProvider.OpenAI, LLMProvider.Local, LLMProvider.Grok, LLMProvider.API],
+                    choices: [LLMProvider.Anthropic, LLMProvider.OpenAI, LLMProvider.Local, LLMProvider.Grok, LLMProvider.API, LLMProvider.Google],
                     required: true,
                     describe: 'LLM provider to use',
                 })
@@ -172,6 +172,17 @@ yargs(hideBin(process.argv))
                             tools,
                             apiKey: (apiKey || process.env.GROK_API_KEY)!,
                             log: () => {}
+                        }
+                    });
+                } else if (provider === LLMProvider.Google) {
+                    const { Google } = (await import("@uaito/google"));
+                    llm = new Google({
+                        options: {
+                            model: model as any,
+                            tools:[],
+                            apiKey: (apiKey || process.env.GOOGLE_API_KEY)!,
+                            log: () => {},
+                            verbose: true
                         }
                     });
                 } else {
