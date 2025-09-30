@@ -18,6 +18,6 @@ type WebSearchToolResultBlockContent =
   | WebSearchResultBlock[];
 ```
 
-Defined in: [domain/types.ts:140](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/sdk/src/domain/types.ts#L140)
+Defined in: [domain/types.ts:140](https://github.com/elribonazo/uaito/blob/e8a99a51ecef50ca2ab658a9a05f1b268e4bdc19/packages/sdk/src/domain/types.ts#L140)
 
 Represents the content of a web search tool result block.

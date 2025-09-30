@@ -1,3 +1,13 @@
+## 0.8.11 (2025-09-30)
+
+### 🩹 Fixes
+
+- correct package json github entry [skip ci] Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([9f8f036](https://github.com/elribonazo/uaito/commit/9f8f036))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.10 (2025-09-30)
 
 ### 🩹 Fixes
