@@ -7,7 +7,8 @@ const enabledProviders = [
     LLMProvider.Anthropic,
     LLMProvider.Grok,
     LLMProvider.OpenAI,
-    LLMProvider.Local
+    LLMProvider.Google,
+    LLMProvider.Local,
 ]
 
 export const Provider: React.FC<{ 

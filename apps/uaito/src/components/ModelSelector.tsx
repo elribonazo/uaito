@@ -5,6 +5,7 @@ import { useAppSelector } from "@/redux/store";
 import { AnthropicModels } from "@uaito/anthropic";
 import { HuggingFaceONNXModels } from "@uaito/huggingface";
 import { GrokModels, OpenAIModels } from "@uaito/openai";
+import { GoogleModels } from "@uaito/google";
 
 // Type to represent a model option
 type ModelOption = {
@@ -20,6 +21,7 @@ const AgentTypeToModel = {
   [LLMProvider.Local]: HuggingFaceONNXModels,
   [LLMProvider.LocalImage]: HuggingFaceONNXModels,
   [LLMProvider.LocalAudio]: HuggingFaceONNXModels,
+  [LLMProvider.Google]: GoogleModels,
 };
 
 // Get available models for each provider

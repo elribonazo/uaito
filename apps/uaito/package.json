@@ -20,6 +20,7 @@
     "@uaito/ai": "workspace:*",
     "@uaito/anthropic": "workspace:*",
     "@uaito/api": "workspace:*",
+    "@uaito/google": "workspace:*",
     "@uaito/huggingface": "workspace:*",
     "@uaito/openai": "workspace:*",
     "@uaito/sdk": "workspace:*",

@@ -6170,7 +6170,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@uaito/google@workspace:packages/google":
+"@uaito/google@workspace:*, @uaito/google@workspace:packages/google":
   version: 0.0.0-use.local
   resolution: "@uaito/google@workspace:packages/google"
   dependencies:
@@ -6302,6 +6302,7 @@ __metadata:
     "@uaito/ai": "workspace:*"
     "@uaito/anthropic": "workspace:*"
     "@uaito/api": "workspace:*"
+    "@uaito/google": "workspace:*"
     "@uaito/huggingface": "workspace:*"
     "@uaito/openai": "workspace:*"
     "@uaito/sdk": "workspace:*"
