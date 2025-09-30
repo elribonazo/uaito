@@ -6174,7 +6174,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@uaito/google@workspace:packages/google"
   dependencies:
-    "@anthropic-ai/sdk": "npm:^0.62.0"
     "@esbuild-plugins/node-resolve": "npm:^0.2.2"
     "@google/genai": "npm:^1.21.0"
     "@types/lodash": "npm:^4.17.20"
@@ -6188,7 +6187,6 @@ __metadata:
     esbuild-plugin-glob: "npm:^2.2.3"
     idb: "npm:^8.0.3"
     lodash: "npm:^4.17.21"
-    openai: "npm:^5.20.0"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.4"
     uuid: "npm:^10.0.0"
@@ -7490,13 +7488,13 @@ __metadata:
   linkType: hard
 
 "axios@npm:^1.11.0, axios@npm:^1.7.4, axios@npm:^1.8.3":
-  version: 1.11.0
-  resolution: "axios@npm:1.11.0"
+  version: 1.12.2
+  resolution: "axios@npm:1.12.2"
   dependencies:
     follow-redirects: "npm:^1.15.6"
     form-data: "npm:^4.0.4"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/5de273d33d43058610e4d252f0963cc4f10714da0bfe872e8ef2cbc23c2c999acc300fd357b6bce0fc84a2ca9bd45740fa6bb28199ce2c1266c8b1a393f2b36e
+  checksum: 10c0/80b063e318cf05cd33a4d991cea0162f3573481946f9129efb7766f38fde4c061c34f41a93a9f9521f02b7c9565ccbc197c099b0186543ac84a24580017adfed
   languageName: node
   linkType: hard
 
@@ -20749,8 +20747,8 @@ __metadata:
   linkType: hard
 
 "tar-fs@npm:^3.0.6, tar-fs@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "tar-fs@npm:3.1.0"
+  version: 3.1.1
+  resolution: "tar-fs@npm:3.1.1"
   dependencies:
     bare-fs: "npm:^4.0.1"
     bare-path: "npm:^3.0.0"
@@ -20761,7 +20759,7 @@ __metadata:
       optional: true
     bare-path:
       optional: true
-  checksum: 10c0/760309677543c03fbc253b5ef1ab4bb2ceafb554471b6cbe4930d1633f35662ec26a1414c66fa6754f5aa7e8c65003f73849242f624c322d3dcba7a8888a6915
+  checksum: 10c0/0c677d711c4aa41f94e1a712aa647022ba1910ff84430739e5d9e95a615e3ea1b7112dc93164fc8ce30dc715befcf9cfdc64da27d4e7958d73c59bda06aa0d8e
   languageName: node
   linkType: hard
 
