@@ -1,3 +1,17 @@
+## 0.8.10 (2025-09-30)
+
+### 🩹 Fixes
+
+- add google LLM beta Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([613f5d1](https://github.com/elribonazo/uaito/commit/613f5d1))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.8
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.9 (2025-09-26)
 
 ### 🩹 Fixes

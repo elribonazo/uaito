@@ -12,7 +12,7 @@
 
 # Class: Anthropic
 
-Defined in: [index.ts:16](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L16)
+Defined in: [index.ts:16](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L16)
 
 A class for interacting with the Anthropic API.
  Anthropic
@@ -29,7 +29,7 @@ A class for interacting with the Anthropic API.
 new Anthropic({, onTool?): Anthropic;
 ```
 
-Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L47)
+Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L47)
 
 Creates an instance of the Anthropic LLM.
 
@@ -60,7 +60,7 @@ BaseLLM<LLMProvider.Anthropic, AnthropicOptions>.constructor
 protected api: Anthropic;
 ```
 
-Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L34)
+Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L34)
 
 The Anthropic API client.
 
@@ -72,7 +72,7 @@ The Anthropic API client.
 cache: BaseLLMCache;
 ```
 
-Defined in: [index.ts:22](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L22)
+Defined in: [index.ts:22](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L22)
 
 The cache for the LLM.
 
@@ -90,7 +90,7 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:89
+Defined in: ../../sdk/build/index.d.ts:93
 
 A record of data for the LLM.
 
@@ -108,7 +108,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:40](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L40)
+Defined in: [index.ts:40](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L40)
 
 An array of message inputs.
 
@@ -126,7 +126,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:28](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L28)
+Defined in: [index.ts:28](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L28)
 
 Optional callback for tool usage.
 
@@ -138,7 +138,7 @@ Optional callback for tool usage.
 readonly options: AnthropicOptions;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:57
+Defined in: ../../sdk/build/index.d.ts:61
 
 #### Inherited from
 
@@ -154,7 +154,7 @@ BaseLLM.options
 readonly type: Anthropic;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:56
+Defined in: ../../sdk/build/index.d.ts:60
 
 #### Inherited from
 
@@ -172,7 +172,7 @@ BaseLLM.type
 get llmInputs(): MessageParam[];
 ```
 
-Defined in: [index.ts:377](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L377)
+Defined in: [index.ts:377](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L377)
 
 Gets the inputs for the LLM.
 
@@ -192,7 +192,7 @@ The LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:63](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L63)
+Defined in: [index.ts:63](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L63)
 
 Gets the maximum number of tokens for the model.
 
@@ -213,7 +213,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:123
+Defined in: ../../sdk/build/index.d.ts:127
 
 Includes the last prompt in the input.
 
@@ -245,7 +245,7 @@ BaseLLM.includeLastPrompt
 log(message): any;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:95
+Defined in: ../../sdk/build/index.d.ts:99
 
 Logs a message.
 
@@ -276,7 +276,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:397](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/anthropic/src/index.ts#L397)
+Defined in: [index.ts:397](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/anthropic/src/index.ts#L397)
 
 Performs a task stream using the LLM.
 
@@ -308,7 +308,7 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:102
+Defined in: ../../sdk/build/index.d.ts:106
 
 Retries an API call with a delay.
 
@@ -344,7 +344,7 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:109
+Defined in: ../../sdk/build/index.d.ts:113
 
 Run a command safely, catching and handling any errors.
 
@@ -376,7 +376,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:142
+Defined in: ../../sdk/build/index.d.ts:146
 
 Transforms an input stream using the provided transform function.
 
@@ -414,7 +414,7 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:133
+Defined in: ../../sdk/build/index.d.ts:137
 
 Transforms the given stream from an AI provider into a Uaito Stream
 This also keeps track of the received messages

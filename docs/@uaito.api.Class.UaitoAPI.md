@@ -12,7 +12,7 @@
 
 # Class: UaitoAPI
 
-Defined in: [index.ts:15](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L15)
+Defined in: [index.ts:15](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L15)
 
 ## Extends
 
@@ -26,7 +26,7 @@ Defined in: [index.ts:15](https://github.com/elribonazo/uaito/blob/7357f3422fc7b
 new UaitoAPI(__namedParameters, onTool?): UaitoAPI;
 ```
 
-Defined in: [index.ts:29](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L29)
+Defined in: [index.ts:29](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L29)
 
 #### Parameters
 
@@ -54,7 +54,7 @@ BaseLLM<LLMProvider.API, UaitoAPIOptions>.constructor
 baseUrl: string;
 ```
 
-Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L26)
+Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L26)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/7357f3422fc7b
 abstract cache: BaseLLMCache;
 ```
 
-Defined in: [index.ts:17](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L17)
+Defined in: [index.ts:17](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L17)
 
 The cache for the LLM.
 
@@ -82,7 +82,7 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:89
+Defined in: ../../sdk/build/index.d.ts:93
 
 A record of data for the LLM.
 
@@ -100,7 +100,7 @@ BaseLLM.data
 abstract inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:25](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L25)
+Defined in: [index.ts:25](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L25)
 
 An array of message inputs.
 
@@ -118,7 +118,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:27](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L27)
+Defined in: [index.ts:27](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L27)
 
 ***
 
@@ -128,7 +128,7 @@ Defined in: [index.ts:27](https://github.com/elribonazo/uaito/blob/7357f3422fc7b
 readonly options: UaitoAPIOptions;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:57
+Defined in: ../../sdk/build/index.d.ts:61
 
 #### Inherited from
 
@@ -144,7 +144,7 @@ BaseLLM.options
 readonly type: API;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:56
+Defined in: ../../sdk/build/index.d.ts:60
 
 #### Inherited from
 
@@ -163,7 +163,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:123
+Defined in: ../../sdk/build/index.d.ts:127
 
 Includes the last prompt in the input.
 
@@ -195,7 +195,7 @@ BaseLLM.includeLastPrompt
 log(message): any;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:95
+Defined in: ../../sdk/build/index.d.ts:99
 
 Logs a message.
 
@@ -223,7 +223,7 @@ BaseLLM.log
 abstract performTaskStream(userPrompt): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:105](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L105)
+Defined in: [index.ts:105](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L105)
 
 Performs a task stream.
 
@@ -253,7 +253,7 @@ BaseLLM.performTaskStream
 request(prompt): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:36](https://github.com/elribonazo/uaito/blob/7357f3422fc7be2b499254d1667539487f678a85/packages/api/src/index.ts#L36)
+Defined in: [index.ts:36](https://github.com/elribonazo/uaito/blob/3b85b1ba4c186b820d14bf055553422e84019aef/packages/api/src/index.ts#L36)
 
 #### Parameters
 
@@ -273,7 +273,7 @@ Defined in: [index.ts:36](https://github.com/elribonazo/uaito/blob/7357f3422fc7b
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:102
+Defined in: ../../sdk/build/index.d.ts:106
 
 Retries an API call with a delay.
 
@@ -309,7 +309,7 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:109
+Defined in: ../../sdk/build/index.d.ts:113
 
 Run a command safely, catching and handling any errors.
 
@@ -341,7 +341,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:142
+Defined in: ../../sdk/build/index.d.ts:146
 
 Transforms an input stream using the provided transform function.
 
@@ -379,7 +379,7 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:133
+Defined in: ../../sdk/build/index.d.ts:137
 
 Transforms the given stream from an AI provider into a Uaito Stream
 This also keeps track of the received messages

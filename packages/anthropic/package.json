@@ -1,6 +1,6 @@
 {
   "name": "@uaito/anthropic",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "UAITO Anthropic Provider",
   "main": "build/index.js",
   "module": "build/index.mjs",
@@ -29,15 +29,15 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@uaito/sdk": "^0.8.9"
+    "@uaito/sdk": "^0.8.10"
   },
   "devDependencies": {
     "@esbuild-plugins/node-resolve": "^0.2.2",
     "@types/lodash": "^4.17.20",
     "@types/node": "^14.18.63",
     "@types/yargs": "^17.0.33",
-    "@uaito/build": "^0.0.7",
-    "@uaito/sdk": "^0.8.9",
+    "@uaito/build": "^0.0.8",
+    "@uaito/sdk": "^0.8.10",
     "dotenv": "^16.4.7",
     "esbuild-node-externals": "^1.16.0",
     "esbuild-plugin-glob": "^2.2.3",

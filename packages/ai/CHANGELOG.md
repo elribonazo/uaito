@@ -1,3 +1,23 @@
+## 0.0.13 (2025-09-30)
+
+### 🩹 Fixes
+
+- add google LLM beta Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([613f5d1](https://github.com/elribonazo/uaito/commit/613f5d1))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.11
+- Updated @uaito/anthropic to 0.0.10
+- Updated @uaito/google to 0.0.1
+- Updated @uaito/openai to 0.0.11
+- Updated @uaito/build to 0.0.8
+- Updated @uaito/api to 0.0.11
+- Updated @uaito/sdk to 0.8.10
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.12 (2025-09-29)
 
 ### 🧱 Updated Dependencies
