@@ -1,7 +1,7 @@
 {
   "name": "@uaito/google",
   "version": "0.0.1",
-  "description": "UAITO Google Provider",
+  "description": "UAITO Google Provider.",
   "main": "build/index.js",
   "module": "build/index.mjs",
   "types": "build/index.d.ts",
