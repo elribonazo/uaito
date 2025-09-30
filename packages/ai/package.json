@@ -8,6 +8,10 @@
   "files": [
     "build"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elribonazo/uaito.git"
+  },
   "publishConfig": {
     "access": "public"
   },
