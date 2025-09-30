@@ -6174,7 +6174,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@uaito/google@workspace:packages/google"
   dependencies:
-    "@anthropic-ai/sdk": "npm:^0.62.0"
     "@esbuild-plugins/node-resolve": "npm:^0.2.2"
     "@google/genai": "npm:^1.21.0"
     "@types/lodash": "npm:^4.17.20"
@@ -6188,7 +6187,6 @@ __metadata:
     esbuild-plugin-glob: "npm:^2.2.3"
     idb: "npm:^8.0.3"
     lodash: "npm:^4.17.21"
-    openai: "npm:^5.20.0"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.4"
     uuid: "npm:^10.0.0"
