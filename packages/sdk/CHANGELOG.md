@@ -1,3 +1,13 @@
+## 0.8.13 (2025-10-03)
+
+### 🩹 Fixes
+
+- improve website tool dissappear effect Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([f50af9c](https://github.com/elribonazo/uaito/commit/f50af9c))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.12 (2025-10-03)
 
 ### 🩹 Fixes

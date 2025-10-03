@@ -6092,14 +6092,14 @@ __metadata:
   resolution: "@uaito/ai@workspace:packages/ai"
   dependencies:
     "@uaito/build": "npm:^0.0.8"
-    "@uaito/sdk": "npm:^0.8.12"
+    "@uaito/sdk": "npm:^0.8.13"
     tsup: "npm:^8.0.2"
     typescript: "npm:^5.3.3"
   peerDependencies:
-    "@uaito/anthropic": ^0.0.13
-    "@uaito/api": ^0.0.13
-    "@uaito/huggingface": ^0.0.13
-    "@uaito/openai": ^0.0.13
+    "@uaito/anthropic": ^0.0.14
+    "@uaito/api": ^0.0.14
+    "@uaito/huggingface": ^0.0.14
+    "@uaito/openai": ^0.0.14
   bin:
     uaito-cli: build/cli.js
   languageName: unknown
@@ -6115,7 +6115,7 @@ __metadata:
     "@types/node": "npm:^14.18.63"
     "@types/yargs": "npm:^17.0.33"
     "@uaito/build": "npm:^0.0.8"
-    "@uaito/sdk": "npm:^0.8.12"
+    "@uaito/sdk": "npm:^0.8.13"
     abort-controller: "npm:^3.0.0"
     dotenv: "npm:^16.4.7"
     esbuild-node-externals: "npm:^1.16.0"
@@ -6128,7 +6128,7 @@ __metadata:
     uuid: "npm:^10.0.0"
     yargs: "npm:^18.0.0"
   peerDependencies:
-    "@uaito/sdk": ^0.8.12
+    "@uaito/sdk": ^0.8.13
   bin:
     uaito: build/cli.js
   languageName: unknown
@@ -6143,7 +6143,7 @@ __metadata:
     "@types/node": "npm:^14.18.63"
     "@types/yargs": "npm:^17.0.33"
     "@uaito/build": "npm:^0.0.8"
-    "@uaito/sdk": "npm:^0.8.12"
+    "@uaito/sdk": "npm:^0.8.13"
     abort-controller: "npm:^3.0.0"
     dotenv: "npm:^16.4.7"
     esbuild-node-externals: "npm:^1.16.0"
@@ -6155,7 +6155,7 @@ __metadata:
     uuid: "npm:^10.0.0"
     yargs: "npm:^18.0.0"
   peerDependencies:
-    "@uaito/sdk": ^0.8.12
+    "@uaito/sdk": ^0.8.13
   bin:
     uaito: build/cli.js
   languageName: unknown
@@ -6180,7 +6180,7 @@ __metadata:
     "@types/node": "npm:^14.18.63"
     "@types/yargs": "npm:^17.0.33"
     "@uaito/build": "npm:^0.0.8"
-    "@uaito/sdk": "npm:^0.8.12"
+    "@uaito/sdk": "npm:^0.8.13"
     abort-controller: "npm:^3.0.0"
     dotenv: "npm:^16.4.7"
     esbuild-node-externals: "npm:^1.16.0"
@@ -6192,7 +6192,7 @@ __metadata:
     uuid: "npm:^10.0.0"
     yargs: "npm:^18.0.0"
   peerDependencies:
-    "@uaito/sdk": ^0.8.12
+    "@uaito/sdk": ^0.8.13
   bin:
     uaito: build/cli.js
   languageName: unknown
@@ -6208,7 +6208,7 @@ __metadata:
     "@types/node": "npm:^14.18.63"
     "@types/yargs": "npm:^17.0.33"
     "@uaito/build": "npm:^0.0.8"
-    "@uaito/sdk": "npm:^0.8.12"
+    "@uaito/sdk": "npm:^0.8.13"
     abort-controller: "npm:^3.0.0"
     dotenv: "npm:^16.4.7"
     esbuild-node-externals: "npm:^1.16.0"
@@ -6220,7 +6220,7 @@ __metadata:
     uuid: "npm:^10.0.0"
     yargs: "npm:^18.0.0"
   peerDependencies:
-    "@uaito/sdk": ^0.8.12
+    "@uaito/sdk": ^0.8.13
   bin:
     uaito: build/cli.js
   languageName: unknown
@@ -6235,7 +6235,7 @@ __metadata:
     "@types/node": "npm:^14.18.63"
     "@types/yargs": "npm:^17.0.33"
     "@uaito/build": "npm:^0.0.8"
-    "@uaito/sdk": "npm:^0.8.12"
+    "@uaito/sdk": "npm:^0.8.13"
     abort-controller: "npm:^3.0.0"
     dotenv: "npm:^16.4.7"
     esbuild-node-externals: "npm:^1.16.0"
@@ -6248,13 +6248,13 @@ __metadata:
     uuid: "npm:^10.0.0"
     yargs: "npm:^18.0.0"
   peerDependencies:
-    "@uaito/sdk": ^0.8.12
+    "@uaito/sdk": ^0.8.13
   bin:
     uaito: build/cli.js
   languageName: unknown
   linkType: soft
 
-"@uaito/sdk@npm:^0.8.12, @uaito/sdk@workspace:*, @uaito/sdk@workspace:packages/sdk":
+"@uaito/sdk@npm:^0.8.13, @uaito/sdk@workspace:*, @uaito/sdk@workspace:packages/sdk":
   version: 0.0.0-use.local
   resolution: "@uaito/sdk@workspace:packages/sdk"
   dependencies:
