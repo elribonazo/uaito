@@ -1,3 +1,9 @@
+## 0.0.19 (2025-10-03)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/anthropic to 0.0.15
+
 ## 0.0.18 (2025-10-03)
 
 ### 🧱 Updated Dependencies

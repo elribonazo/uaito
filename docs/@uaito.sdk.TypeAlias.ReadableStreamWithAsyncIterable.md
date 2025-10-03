@@ -16,7 +16,7 @@
 type ReadableStreamWithAsyncIterable<T> = ReadableStream<T> & AsyncIterable<T>;
 ```
 
-Defined in: [domain/types.ts:805](https://github.com/elribonazo/uaito/blob/f50af9c23a209ce85686520f5eabe299746170ce/packages/sdk/src/domain/types.ts#L805)
+Defined in: [domain/types.ts:805](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L805)
 
 Represents a readable stream with an async iterable.
 

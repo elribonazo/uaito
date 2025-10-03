@@ -1,6 +1,6 @@
 {
   "name": "@uaito/ai",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "UAITO AI package",
   "main": "./build/index.js",
   "module": "./build/index.mjs",
@@ -20,7 +20,7 @@
     "clean": "rm -rf build"
   },
   "peerDependencies": {
-    "@uaito/anthropic": "^0.0.14",
+    "@uaito/anthropic": "^0.0.15",
     "@uaito/api": "^0.0.14",
     "@uaito/huggingface": "^0.0.14",
     "@uaito/openai": "^0.0.14"

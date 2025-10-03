@@ -1,3 +1,13 @@
+## 0.0.15 (2025-10-03)
+
+### 🩹 Fixes
+
+- anthropic role for tool_response Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([320acaa](https://github.com/elribonazo/uaito/commit/320acaa))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.14 (2025-10-03)
 
 ### 🧱 Updated Dependencies

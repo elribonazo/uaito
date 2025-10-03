@@ -21,7 +21,7 @@ type ToolInputDelta = {
 };
 ```
 
-Defined in: [domain/types.ts:607](https://github.com/elribonazo/uaito/blob/f50af9c23a209ce85686520f5eabe299746170ce/packages/sdk/src/domain/types.ts#L607)
+Defined in: [domain/types.ts:607](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L607)
 
 Represents a tool input delta.
 
@@ -33,7 +33,7 @@ Represents a tool input delta.
 optional id: string;
 ```
 
-Defined in: [domain/types.ts:612](https://github.com/elribonazo/uaito/blob/f50af9c23a209ce85686520f5eabe299746170ce/packages/sdk/src/domain/types.ts#L612)
+Defined in: [domain/types.ts:612](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L612)
 
 The unique ID of the tool input.
 
@@ -45,7 +45,7 @@ The unique ID of the tool input.
 optional name: string;
 ```
 
-Defined in: [domain/types.ts:617](https://github.com/elribonazo/uaito/blob/f50af9c23a209ce85686520f5eabe299746170ce/packages/sdk/src/domain/types.ts#L617)
+Defined in: [domain/types.ts:617](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L617)
 
 The name of the tool.
 
@@ -57,7 +57,7 @@ The name of the tool.
 partial: string;
 ```
 
-Defined in: [domain/types.ts:622](https://github.com/elribonazo/uaito/blob/f50af9c23a209ce85686520f5eabe299746170ce/packages/sdk/src/domain/types.ts#L622)
+Defined in: [domain/types.ts:622](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L622)
 
 The partial input for the tool.
 
@@ -69,6 +69,6 @@ The partial input for the tool.
 type: "tool_delta";
 ```
 
-Defined in: [domain/types.ts:627](https://github.com/elribonazo/uaito/blob/f50af9c23a209ce85686520f5eabe299746170ce/packages/sdk/src/domain/types.ts#L627)
+Defined in: [domain/types.ts:627](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L627)
 
 The type of the block.

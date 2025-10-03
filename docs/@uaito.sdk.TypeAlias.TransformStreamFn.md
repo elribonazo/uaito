@@ -16,7 +16,7 @@
 type TransformStreamFn<T, M> = (chunk) => Promise<M | null>;
 ```
 
-Defined in: [domain/types.ts:11](https://github.com/elribonazo/uaito/blob/f50af9c23a209ce85686520f5eabe299746170ce/packages/sdk/src/domain/types.ts#L11)
+Defined in: [domain/types.ts:11](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L11)
 
 Represents a function that transforms a chunk of data in a stream.
 
