@@ -12,7 +12,7 @@
 
 # Abstract Class: Runner
 
-Defined in: [domain/BaseLLM.ts:14](https://github.com/elribonazo/uaito/blob/3722008e5e5d50d8c487d1875818e7f7f77283ee/packages/sdk/src/domain/BaseLLM.ts#L14)
+Defined in: [domain/BaseLLM.ts:14](https://github.com/elribonazo/uaito/blob/86493a842e0d07c9f10872ff549129f89a4683d7/packages/sdk/src/domain/BaseLLM.ts#L14)
 
 An abstract class for a runner that performs a task stream.
 
@@ -45,7 +45,7 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/3722008e5e5d50d8c487d1875818e7f7f77283ee/packages/sdk/src/domain/BaseLLM.ts#L23)
+Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/86493a842e0d07c9f10872ff549129f89a4683d7/packages/sdk/src/domain/BaseLLM.ts#L23)
 
 Performs a task stream.
 

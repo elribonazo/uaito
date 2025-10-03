@@ -16,7 +16,7 @@
 type OnTool = (this, message, signal?) => Promise<void>;
 ```
 
-Defined in: [domain/types.ts:409](https://github.com/elribonazo/uaito/blob/3722008e5e5d50d8c487d1875818e7f7f77283ee/packages/sdk/src/domain/types.ts#L409)
+Defined in: [domain/types.ts:409](https://github.com/elribonazo/uaito/blob/86493a842e0d07c9f10872ff549129f89a4683d7/packages/sdk/src/domain/types.ts#L409)
 
 Represents a callback for tool usage.
 

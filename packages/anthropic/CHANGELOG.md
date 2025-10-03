@@ -1,3 +1,13 @@
+## 0.0.13 (2025-10-03)
+
+### 🩹 Fixes
+
+- add sonet 4.5 Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([f2045d7](https://github.com/elribonazo/uaito/commit/f2045d7))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.12 (2025-10-03)
 
 ### 🩹 Fixes

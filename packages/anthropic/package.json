@@ -1,6 +1,6 @@
 {
   "name": "@uaito/anthropic",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "UAITO Anthropic Provider",
   "main": "build/index.js",
   "module": "build/index.mjs",
