@@ -1,3 +1,17 @@
+## 0.0.15 (2025-10-03)
+
+### 🩹 Fixes
+
+- implementing geminy across cli uaito website Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([c7b2ced](https://github.com/elribonazo/uaito/commit/c7b2ced))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/google to 0.0.3
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.14 (2025-09-30)
 
 ### 🩹 Fixes

@@ -12,7 +12,7 @@
 
 # Interface: ServerToolUseBlock
 
-Defined in: [domain/types.ts:193](https://github.com/elribonazo/uaito/blob/e8a99a51ecef50ca2ab658a9a05f1b268e4bdc19/packages/sdk/src/domain/types.ts#L193)
+Defined in: [domain/types.ts:193](https://github.com/elribonazo/uaito/blob/c7b2ced04f8aaf4fc185f81a7ea7b043c4f14fd3/packages/sdk/src/domain/types.ts#L193)
 
 Represents a server tool use block.
  ServerToolUseBlock
@@ -25,7 +25,7 @@ Represents a server tool use block.
 id: string;
 ```
 
-Defined in: [domain/types.ts:198](https://github.com/elribonazo/uaito/blob/e8a99a51ecef50ca2ab658a9a05f1b268e4bdc19/packages/sdk/src/domain/types.ts#L198)
+Defined in: [domain/types.ts:198](https://github.com/elribonazo/uaito/blob/c7b2ced04f8aaf4fc185f81a7ea7b043c4f14fd3/packages/sdk/src/domain/types.ts#L198)
 
 The unique ID of the tool use.
 
@@ -37,7 +37,7 @@ The unique ID of the tool use.
 input: unknown;
 ```
 
-Defined in: [domain/types.ts:204](https://github.com/elribonazo/uaito/blob/e8a99a51ecef50ca2ab658a9a05f1b268e4bdc19/packages/sdk/src/domain/types.ts#L204)
+Defined in: [domain/types.ts:204](https://github.com/elribonazo/uaito/blob/c7b2ced04f8aaf4fc185f81a7ea7b043c4f14fd3/packages/sdk/src/domain/types.ts#L204)
 
 The input for the tool.
 
@@ -49,7 +49,7 @@ The input for the tool.
 name: "web_search";
 ```
 
-Defined in: [domain/types.ts:210](https://github.com/elribonazo/uaito/blob/e8a99a51ecef50ca2ab658a9a05f1b268e4bdc19/packages/sdk/src/domain/types.ts#L210)
+Defined in: [domain/types.ts:210](https://github.com/elribonazo/uaito/blob/c7b2ced04f8aaf4fc185f81a7ea7b043c4f14fd3/packages/sdk/src/domain/types.ts#L210)
 
 The name of the tool.
 
@@ -61,6 +61,6 @@ The name of the tool.
 type: "server_tool_use";
 ```
 
-Defined in: [domain/types.ts:216](https://github.com/elribonazo/uaito/blob/e8a99a51ecef50ca2ab658a9a05f1b268e4bdc19/packages/sdk/src/domain/types.ts#L216)
+Defined in: [domain/types.ts:216](https://github.com/elribonazo/uaito/blob/c7b2ced04f8aaf4fc185f81a7ea7b043c4f14fd3/packages/sdk/src/domain/types.ts#L216)
 
 The type of the block.
