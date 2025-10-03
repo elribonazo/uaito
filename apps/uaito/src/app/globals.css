@@ -8,6 +8,32 @@
   }
 }
 
+/* Prevent scrolling on pages with .no-scroll class */
+body.no-scroll {
+  overflow: hidden;
+  height: 100dvh;
+  width: 100%;
+  position: fixed;
+  overscroll-behavior: none;
+}
+
+@supports not (height: 100dvh) {
+  body.no-scroll {
+    height: 100vh;
+  }
+}
+
+html:has(body.no-scroll) {
+  overflow: hidden;
+  height: 100dvh;
+}
+
+@supports not (height: 100dvh) {
+  html:has(body.no-scroll) {
+    height: 100vh;
+  }
+}
+
 .fade-in {
   opacity: 0;
   transform: translateY(20px);

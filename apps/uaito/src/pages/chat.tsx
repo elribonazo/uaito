@@ -55,6 +55,16 @@ const Chat: React.FC<
 		dispatch(initializeProvider());
 	}, [dispatch]);
 
+	useEffect(() => {
+		// Add no-scroll class to body to prevent scrolling on mobile
+		document.body.classList.add('no-scroll');
+		
+		return () => {
+			// Clean up when component unmounts
+			document.body.classList.remove('no-scroll');
+		};
+	}, []);
+
 	const handleProviderSelect = (selectedProvider: LLMProvider) => {
 		dispatch(setProvider(selectedProvider));
 	};
@@ -65,7 +75,7 @@ const Chat: React.FC<
 	};
 
 	return (
-		<div className="bg-background w-full h-screen flex flex-col">
+		<div className="bg-background w-full h-[100dvh] flex flex-col overflow-hidden">
 			<SpaceBackground />
 
 			<header className="w-full shadow-sm h-14 sm:h-16 sticky top-0 right-0 left-0 z-50 bg-background/80 backdrop-blur-sm border-b border-muted">
@@ -98,6 +108,7 @@ const Chat: React.FC<
 						<Provider value={provider} onSelected={handleProviderSelect} />
 					)}
 					<ModelSelector onSelected={handleModelSelect} />
+
 					<Link
 						href={"/dashboard"}
 						className="bg-surface hover:bg-slate-700 text-primary-text font-bold p-1.5 sm:p-2 rounded-lg transition duration-300 flex items-center justify-center border border-muted flex-shrink-0"
@@ -115,16 +126,16 @@ const Chat: React.FC<
 
         </div>
 
-			</header>
+		</header>
 
-			<main className="flex-1 w-full relative bg-gray-900">
-				{provider && (
-					<InputComponent
-						agent={agent}
-						provider={provider}
-						model={selectedModel}
-					/>
-				)}
+		<main className="flex-1 w-full relative bg-gray-900 min-h-0 overflow-hidden">
+			{provider && (
+				<InputComponent
+					agent={agent}
+					provider={provider}
+					model={selectedModel}
+				/>
+			)}
 				<ToastContainer
 					autoClose={5000}
 					hideProgressBar={true}
