@@ -4,6 +4,8 @@ import {
   type GenerateContentResponse,
   FinishReason,
   type Part,
+  FunctionDeclaration,
+  FunctionCallingConfigMode,
 } from '@google/genai';
 import { v4 } from 'uuid';
 import type { GoogleOptions } from './types';
@@ -30,6 +32,7 @@ export * from './types';
  * @extends {BaseLLM<LLMProvider.Google>}
  */
 export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
+  private isThinking = false;
   /**
    * The cache for the LLM.
    * @public
@@ -59,6 +62,11 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
    */
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
+
+  get tools() {
+    return this.options.tools ?? [];
+  }
+
   /**
    * Creates an instance of the Google LLM.
    * @param {{ options: GoogleOptions, onTool?: OnTool }} { options, onTool: onToolParam } - The options for the LLM.
@@ -70,6 +78,7 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
       throw new Error('Missing API key for Google provider');
     }
     this.api = new GoogleGenAI({ apiKey: options.apiKey });
+
     this.onTool = onTool ?? options.onTool;
     
     if (options.verbose) {
@@ -186,8 +195,8 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
       return null;
     }
 
-    const firstContent = candidate.content?.parts?.[0];
-
+    const contents = candidate.content?.parts;
+    const firstContent = contents?.[0];
     // Check for content first before handling finish reasons
     if (!firstContent) {
       // Only handle finish reasons if there's no content
@@ -237,7 +246,29 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
       if (!this.cache.chunks) {
         this.cache.chunks = v4();
       }
+
+      if (firstContent.thought) {
+        this.isThinking = true;
+        return {
+          id: this.cache.chunks,
+          role: 'assistant',
+          type: 'thinking',
+          chunk: true,
+          content: [
+            {
+              type: 'thinking',
+              thinking: firstContent.text,
+              signature: firstContent.thoughtSignature ?? '',
+            },
+          ],
+        };
+      }
       
+      if (this.isThinking) {
+        this.isThinking = false;
+        this.cache.chunks = v4();
+      }
+
       return {
         id: this.cache.chunks,
         role: 'assistant',
@@ -270,16 +301,17 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
       }
       (this.cache.toolInput as ToolUseBlock).input = functionCall.args;
 
-      const toolInputBlock: ToolInputDelta = {
-        type: 'tool_delta',
+      const toolUseBlock: ToolUseBlock = {
+        id: v4(),
+        type: 'tool_use',
         name: functionCall.name ?? '',
-        partial: JSON.stringify(functionCall.args),
+        input: functionCall.args,
       };
       return {
-        id: v4(),
+        id: toolUseBlock.id,
         role: 'assistant',
-        type: 'tool_delta',
-        content: [toolInputBlock],
+        type: 'tool_use',
+        content: [toolUseBlock],
       };
     }
 
@@ -326,6 +358,16 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
       .filter((c): c is Content => c !== null);
   }
 
+  private getTools(): FunctionDeclaration[] {
+    const tools = this.options.tools ?? []
+    return tools.map((tool) => {
+      return {
+        name: tool.name,
+        parametersJsonSchema: tool.input_schema,
+      }
+    })
+  }
+
   async performTaskStream(
     prompt: string,
     chainOfThought: string,
@@ -355,7 +397,20 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
           contents: this.llmInputs,
           model: this.options.model,
           config: {
-            tools: this.options.tools,
+            thinkingConfig: {
+              includeThoughts: true,
+            },
+            abortSignal: this.options.signal,
+            toolConfig: {
+              functionCallingConfig: {
+                mode: FunctionCallingConfigMode.AUTO,
+              }
+            },
+            tools:[
+              {
+                functionDeclarations: this.getTools(),
+              }
+            ],
             systemInstruction: system,
             maxOutputTokens: this.maxTokens,
             temperature: this.options.temperature,

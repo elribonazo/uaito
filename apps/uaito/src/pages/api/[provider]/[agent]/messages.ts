@@ -12,6 +12,7 @@ import { onTool as SystemOnTool } from '../../../../ai/agents/onTool';
 import { ensureUserExists } from '../../auth/[...nextauth]';
 import { AnthropicModels, AnthropicOptions } from '@uaito/anthropic';
 import { GrokModels, OpenAIModels } from '@uaito/openai';
+import { GoogleModels } from '@uaito/google';
 
 const SEPARATOR = "<-[*0M0*]->"
 
@@ -24,6 +25,8 @@ function toProvider(p: string | string[] | undefined): LLMProvider {
       return LLMProvider.Anthropic;
     case 'Grok':
       return LLMProvider.Grok;
+    case 'Google':
+      return LLMProvider.Google;
     default:
       return LLMProvider.Anthropic;
   }
@@ -58,17 +61,42 @@ async function AutomatedEngineerTask(
     const {name, description, input_schema} = tool;
     return {name, description, input_schema}
   })
-  const apiKey = type === LLMProvider.Anthropic ? process.env.ANTHROPIC_API_KEY :  type === LLMProvider.Grok ? process.env.GROK_API_KEY : process.env.OPENAI_API_KEY;
+
+  let apiKey!:string;
+  if (type === LLMProvider.Anthropic) {
+   apiKey = process.env.ANTHROPIC_API_KEY!;
+  } else if (type === LLMProvider.Grok) {
+   apiKey = process.env.GROK_API_KEY!;
+  } else if (type === LLMProvider.OpenAI) {
+   apiKey = process.env.OPENAI_API_KEY!;
+  } else if (type === LLMProvider.Google) {
+   apiKey = process.env.GOOGLE_API_KEY!;
+  }
   
+  if (!apiKey) {
+    throw new Error(`API key not found for provider ${type}`);
+  }
+
   // Use selected model or fall back to defaults
-  let model: string;
+  let model!: string;
   if (selectedModel) {
     model = selectedModel;
-  } else {
-    model = type === LLMProvider.Anthropic ? AnthropicModels['claude-4-sonnet'] : type === LLMProvider.Grok ? GrokModels['grok-4'] : OpenAIModels["gpt-4o"];
+  } else if (type === LLMProvider.Anthropic) {
+    model = AnthropicModels['claude-4-sonnet'];
+  } else if (type === LLMProvider.Grok) {
+    model = GrokModels['grok-4'];
+  } else if (type === LLMProvider.OpenAI) {
+    model = OpenAIModels["gpt-4o"];
+  } else if (type === LLMProvider.Google) {
+    model = GoogleModels['gemini-2.5'];
   }
-  const options: AnthropicOptions = {
-    apiKey: apiKey,
+
+  if (!model) {
+    throw new Error(`Model ${selectedModel} is not supported for provider ${type}`);
+  }
+
+  const options: any = {
+    apiKey,
     model,
     signal: abortController.signal,
     maxTokens: process.env.MAX_TOKENS && !isGod ?parseInt(process.env.MAX_TOKENS): 64000,
@@ -102,7 +130,7 @@ async function AutomatedEngineerTask(
         this: BaseAgent,
         message: Message,
       )  {
-          return SystemOnTool.bind(this)(
+          return SystemOnTool.bind(agent)(
             currentUser.id,
             threadId,
             message,

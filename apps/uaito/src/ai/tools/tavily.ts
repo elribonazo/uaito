@@ -29,8 +29,11 @@ async function runTavilySearch(
   searchDepth: 'basic' | 'advanced' = 'advanced'
 ): Promise<TavilyApiResponse> {
   try {
+    if (!process.env.TAVILY_API_KEY) {
+      throw new Error('TAVILY_API_KEY is not set');
+    }
     const response = await axios.post<TavilyApiResponse>('https://api.tavily.com/search',{
-      api_key: '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',
+      api_key: process.env.TAVILY_API_KEY,
       query: query,
       include_answer: true,
       search_depth: searchDepth,
@@ -38,10 +41,10 @@ async function runTavilySearch(
     });
     return response.data
   } catch (error) {
-    console.error('Error running Tavily search:', error);
+    console.error('Error running Tavily search:', JSON.stringify(error));
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
-      console.error('Axios error details:', axiosError.response?.data);
+      console.error('Axios error details:', JSON.stringify(axiosError.response?.data));
     }
     throw error;
   }

@@ -61,10 +61,13 @@ export class AutomatedEngineer extends Agent {
          Client =LocalAudio;
       } else if (type === LLMProvider.API) { 
          Client = (await import("@uaito/api")).UaitoAPI;
+      } else if (type === LLMProvider.Google) {
+        const {Google} = (await import("@uaito/google"));
+         Client = Google;
       } else {
           throw new Error("not implemented")
       }
-      const client = new Client({options: {type, ...options}}, options.onTool) as BaseLLM<LLMProvider, unknown>
+      const client = new Client({options: {type, ...options}}, options.onTool.bind(this)) as BaseLLM<LLMProvider, unknown>
       return client
   }
 

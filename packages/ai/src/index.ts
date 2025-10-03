@@ -82,6 +82,8 @@ export class Agent {
         return this.#agent.type;
     }
 
+    protected onTool?: OnTool
+
     #agent: BaseLLM<LLMProvider, any>
 
     /**
@@ -93,11 +95,12 @@ export class Agent {
      */
     constructor(
         agent: BaseLLM<LLMProvider, any>,
-        protected onTool?: OnTool,
+         onTool?: OnTool,
         name?: string
     ) {
         this.#agent = agent;
         this.name = name ?? this.#agent.type.toString();
+        this.onTool = onTool?.bind(this)
      }
 
      /**

@@ -107,8 +107,6 @@ yargs(hideBin(process.argv))
             }
             const originalLog = console.log;
             const originalError = console.error;
-            console.log = () => { };
-            console.error = () => { };
 
             try {
                 const tools = availableTools;

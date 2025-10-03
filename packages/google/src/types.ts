@@ -1,5 +1,4 @@
-import type { Tool } from "@google/genai";
-import type { BaseLLMOptions, Message } from '@uaito/sdk';
+import type { BaseLLMOptions, Message, Tool } from '@uaito/sdk';
 
 /**
  * Enumeration of the available Google models.
