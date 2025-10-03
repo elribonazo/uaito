@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ClockIcon, CheckCircleIcon, ExclamationCircleIcon, ChevronUpIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import type { ToolInputDelta, ToolResultBlock, ToolUseBlock } from '@uaito/sdk';
 import type { MessageState } from '../redux/userSlice';
@@ -17,10 +17,55 @@ const statusIcon = {
   error: <ExclamationCircleIcon className="w-3 h-3 text-red-600 dark:text-red-400" />
 };
 
-const ToolUseComponent: FC<ToolUseBlock>  = (props) => {
-   const name = props.name;
+interface ToolUseComponentProps extends ToolUseBlock {
+  messages?: MessageState[];
+  currentMessageId?: string;
+}
+
+const ToolUseComponent: FC<ToolUseComponentProps>  = (props) => {
+   const { messages = [], currentMessageId, name } = props;
    const status = 'started';
-   return <div className="w-full mt-4 p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs">
+   const [isComplete, setIsComplete] = useState(false);
+   const [shouldFadeOut, setShouldFadeOut] = useState(false);
+
+   useEffect(() => {
+     if (!messages.length || !currentMessageId) return;
+
+     const currentIndex = messages.findIndex(msg => msg.id === currentMessageId);
+     if (currentIndex === -1) return;
+
+     // Check if there is a non-tool/thinking message after this one.
+     const hasNonToolAfter = messages.slice(currentIndex + 1).some(msg =>
+       msg.type !== 'thinking' && msg.type !== 'redacted_thinking' && msg.type !== 'tool_use'
+     );
+
+     if (hasNonToolAfter && !shouldFadeOut) {
+       const delayTimer = setTimeout(() => {
+         setShouldFadeOut(true);
+         const fadeTimer = setTimeout(() => {
+           setIsComplete(true);
+         }, 500);
+         return () => clearTimeout(fadeTimer);
+       }, 10);
+       return () => clearTimeout(delayTimer);
+     }
+   }, [messages, currentMessageId, shouldFadeOut]);
+
+   if (isComplete) {
+     return null;
+   }
+
+   return <div 
+     className="w-full mt-4 p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs transition-all duration-300 ease-out"
+     style={{
+       opacity: shouldFadeOut ? 0 : 1,
+       marginTop: shouldFadeOut ? 0 : '1rem',
+       transform: shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
+       height: shouldFadeOut ? 0 : 'auto',
+       padding: shouldFadeOut ? 0 : undefined,
+       overflow: shouldFadeOut ? 'hidden' : 'visible',
+     }}
+   >
       <div className="flex items-center justify-between">
         <span className="font-medium truncate text-gray-800 dark:text-gray-200" title={`Running task ${name}`}>
           Running task {name} - {props.id}
@@ -147,7 +192,7 @@ export type ToolComponentProps = (ToolInputDelta | ToolUseBlock | ToolResultBloc
 
 export const ToolComponent: FC<ToolComponentProps>  = (props) => {
   if (props.type === "tool_use") {
-    return <ToolUseComponent {...props} />
+    return <ToolUseComponent {...props} messages={props.messages} currentMessageId={props.currentMessageId} />
   }
   if (props.type === "tool_result" && props.name) {
     return <ToolOutputComponent {...props} name={props.name} />

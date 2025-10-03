@@ -78,7 +78,7 @@ export const ThinkingComponent: React.FC<{
         }, 500); // Duration of fade-out animation
         
         return () => clearTimeout(fadeTimer);
-      }, 1500); // 1.5 second delay before starting fade-out
+      }, 10); // 1.5 second delay before starting fade-out
       
       return () => clearTimeout(delayTimer);
     }

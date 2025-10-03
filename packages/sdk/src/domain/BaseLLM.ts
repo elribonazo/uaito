@@ -244,7 +244,6 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                     }
 
                     if (usageBlock) {
-                        debugger;
                         controller.enqueue({
                             id: v4(),
                             role: 'assistant',
