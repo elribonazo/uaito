@@ -16,20 +16,20 @@ import moment from 'moment-timezone';
 import { type TooltipProps } from 'recharts';
 
 const Header: FC = () => (
-  <header className="w-full text-center mb-8">
-    <h1 className="text-5xl md:text-6xl font-bold">
+  <header className="w-full text-center mb-6">
+    <h1 className="text-3xl md:text-4xl font-bold">
       <AnimatedText />
     </h1>
   </header>
 );
 
 const WelcomeSection: FC<{ email: string }> = ({ email }) => (
-  <div className="flex justify-between items-center mb-6">
-    <h2 className="text-3xl font-bold text-primary-text">Welcome back, {email}!</h2>
+  <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
+    <h2 className="text-xl font-semibold text-primary-text">Welcome back, {email}!</h2>
     <button
       type="button"
       onClick={() => signOut()}
-      className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-300"
+      className="bg-surface hover:bg-red-500/10 text-secondary-text hover:text-red-400 border border-border hover:border-red-500/30 px-3 py-1.5 rounded-lg text-xs transition-all duration-200"
     >
       Sign Out
     </button>
@@ -220,18 +220,18 @@ const RevealableApiKey: FC = () => {
       <div className="flex w-full">
         <input
           type="text"
-          placeholder='Click the eye icon to disclose your api key'
+          placeholder='Click the eye icon to reveal your API key'
           readOnly
           disabled
           value={isRevealed ? apiKey : maskedApiKey}
-          className="flex-grow bg-muted text-primary-text px-3 py-2 rounded-l-md"
+          className="flex-grow bg-background border border-border text-primary-text px-3 py-2 rounded-l-lg text-sm"
         />
         <div className="flex">
           {isRevealed && (
             <button
               type="button"
               onClick={copyToClipboard}
-              className="bg-surface hover:bg-slate-700 text-secondary-text px-3 py-2 text-xs transition duration-300"
+              className="bg-surface hover:bg-surface-hover text-secondary-text hover:text-primary-text px-3 py-2 text-xs border-t border-b border-border transition-all duration-200"
             >
               Copy
             </button>
@@ -239,18 +239,18 @@ const RevealableApiKey: FC = () => {
           <button
             type="button"
             onClick={toggleReveal}
-            className={`flex items-center px-3 py-2 text-secondary-text hover:text-primary-text bg-surface hover:bg-slate-700 transition duration-300 ${!isRevealed ? 'rounded-r-md' : ''}`}
+            className={`flex items-center px-3 py-2 text-secondary-text hover:text-primary-text bg-surface hover:bg-surface-hover border border-border transition-all duration-200 ${!isRevealed ? 'rounded-r-lg' : ''}`}
           >
             {isRevealed ? (
-              <EyeSlashIcon className="h-5 w-5" />
+              <EyeSlashIcon className="h-4 w-4" />
             ) : (
-              <EyeIcon className="h-5 w-5" />
+              <EyeIcon className="h-4 w-4" />
             )}
           </button>
         </div>
       </div>
       {showNotification && (
-        <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-accent text-white text-sm rounded-md shadow-lg transition-opacity duration-300 ease-in-out opacity-100">
+        <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-accent text-white text-xs rounded-lg shadow-lg transition-opacity duration-300 ease-in-out opacity-100">
           API key copied to clipboard!
         </div>
       )}
@@ -293,39 +293,39 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
   return (
     <div className="min-h-screen flex flex-col relative bg-background text-primary-text">
       <SpaceBackground />
-      <main className="flex-grow z-10 px-4 py-8">
+      <main className="flex-grow z-10 px-4 py-6">
         <Header />
         {session ? (
-          <section className="max-w-6xl mx-auto">
+          <section className="max-w-5xl mx-auto">
             <WelcomeSection email={session.user?.email || ''} />
-            <div className="space-y-6">
+            <div className="space-y-4">
                <>
-                <div className="bg-surface p-6 rounded-xl shadow-lg border border-muted">
-                    <div className="bg-background p-6 rounded-lg shadow-inner">
-                      <h4 className="text-xl font-bold mb-3 text-primary-text">Start Chatting</h4>
-                      <p className="text-secondary-text mb-4">
-                        Begin an AI-powered conversation right in your browser. Perfect for quick queries and on-the-go access.
+                <div className="bg-surface p-5 rounded-xl border border-border">
+                    <div className="bg-background p-5 rounded-lg border border-border/50">
+                      <h4 className="text-lg font-semibold mb-2 text-primary-text">Start Chatting</h4>
+                      <p className="text-secondary-text text-sm mb-4">
+                        Begin an AI-powered conversation right in your browser.
                       </p>
-                      <Link href="/chat" className="block w-full text-center bg-primary hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition duration-300">
-                        <ComputerDesktopIcon className="inline-block w-6 h-6 mr-2" />
+                      <Link href="/chat" className="block w-full text-center bg-primary hover:bg-primary-hover text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-all duration-200">
+                        <ComputerDesktopIcon className="inline-block w-4 h-4 mr-2" />
                         Launch Web Chat
                       </Link>
                     </div>
                 </div>
-                <div className="bg-surface p-6 rounded-xl shadow-lg border border-muted">
-                  <h3 className="text-2xl font-bold mb-4 text-primary-text">Your API Key</h3>
-                  <p className="text-secondary-text mb-4">Use this to integrate the UAITO API into your own projects.</p>
+                <div className="bg-surface p-5 rounded-xl border border-border">
+                  <h3 className="text-lg font-semibold mb-3 text-primary-text">Your API Key</h3>
+                  <p className="text-secondary-text text-sm mb-3">Use this to integrate UAITO API into your projects.</p>
                   <RevealableApiKey />
                 </div>
-                <div className="bg-surface p-6 rounded-xl shadow-lg border border-muted">
-                  <h3 className="text-2xl font-bold mb-4 text-primary-text">Your Usage</h3>
+                <div className="bg-surface p-5 rounded-xl border border-border">
+                  <h3 className="text-lg font-semibold mb-3 text-primary-text">Your Usage</h3>
                 
                   {hasMultipleDaysData(props.usage) && (
                     <>
-                      <h4 className="text-xl font-semibold mb-2 text-primary-text">Past 30 Days</h4>
+                      <h4 className="text-base font-medium mb-2 text-secondary-text">Past 30 Days</h4>
                       <UsageGraph usage={props.usage} type="30d" />
                       <div className="mt-2">
-                        <p className="text-sm text-secondary-text">Graph shows input and output usage grouped by day for the past 30 days.</p>
+                        <p className="text-xs text-tertiary-text">Graph shows input and output usage grouped by day for the past 30 days.</p>
                       </div>
                     </>
                   )}

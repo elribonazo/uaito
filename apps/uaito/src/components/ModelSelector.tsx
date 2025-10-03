@@ -108,7 +108,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
   }
   
   return (
-    <div className="relative mt-3 py-1 w-48">
+    <div className="relative">
       <button
         type="button"
         disabled={isDisabled || isDownloading}
@@ -117,27 +117,27 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
             setIsOpen(!isOpen);
           }
         }}
-        className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-opacity-90 bg-gray-700 text-white font-bold rounded transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 bg-surface hover:bg-surface-hover border border-border rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <CpuChipIcon className="ml-2 h-5 w-5 text-green-500" />
-        <span className="truncate">{selectedModelLabel}</span>
+        <CpuChipIcon className="h-3.5 w-3.5 text-accent flex-shrink-0" />
+        <span className="truncate text-xs text-secondary-text hidden sm:inline max-w-[100px] lg:max-w-[140px]">{selectedModelLabel}</span>
         {!isDisabled && (
           <ChevronDownIcon 
-            className={`flex flex-end h-5 w-5 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} 
+            className={`h-3 w-3 text-tertiary-text transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} 
           />
         )}
       </button>
       
       {isOpen && !isDisabled && (
-        <div className="absolute mt-2 w-full z-20 max-h-60 overflow-y-auto">
-          <ul className="py-1 bg-gray-800 rounded-md shadow-lg">
+        <div className="absolute mt-1 right-0 w-64 z-20 max-h-72 overflow-y-auto bg-surface border border-border rounded-lg shadow-lg">
+          <ul className="py-1">
             {availableModels.map((model) => (
               <li
                 key={model.value}
-                className={`px-4 py-2 cursor-pointer transition duration-300 hover:bg-gray-700 ${
+                className={`px-3 py-2 cursor-pointer transition-colors duration-150 ${
                   selectedModel === model.value 
-                    ? 'bg-blue-900 text-blue-300' 
-                    : 'text-white'
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-secondary-text hover:bg-surface-hover hover:text-primary-text'
                 }`}
                 onClick={() => handleModelSelect(model.value)}
                 onKeyDown={(e) => {
@@ -147,9 +147,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
                   }
                 }}
               >
-                <div className="flex flex-col">
-                  <span className="font-medium">{model.label}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm font-medium">{model.label}</span>
+                  <span className="text-xs text-tertiary-text truncate">
                     {model.value}
                   </span>
                 </div>

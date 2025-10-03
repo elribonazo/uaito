@@ -24,42 +24,44 @@ export const Provider: React.FC<{
   const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
 
   return (
-    <div className="relative mt-3 py-1 w-48">
+    <div className="relative">
       <button
+        type="button"
         disabled={!enabled || isDownloading}
         onClick={() => {
           if (enabled && !isDownloading) {
             setIsOpen(!isOpen);
           }
         }}
-        className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-opacity-90 bg-gray-700 text-white font-bold rounded transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 bg-surface hover:bg-surface-hover border border-border rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <SparklesIcon className="ml-2 h-5 w-5 text-purple-500" />
-        <span>{value}</span>
+        <SparklesIcon className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+        <span className="text-xs text-secondary-text truncate hidden sm:inline">{value}</span>
         {enabled && (
           <ChevronDownIcon
-            className={`flex flex-end h-5 w-5 transition-transform duration-300 ${isOpen ? "transform rotate-180" : ""}`}
+            className={`h-3 w-3 text-tertiary-text transition-transform duration-200 flex-shrink-0 ${isOpen ? "rotate-180" : ""}`}
           />
         )}
       </button>
       {isOpen && (
-        <div className="absolute mt-2 w-full  z-10">
-          <ul className="py-1">
-            {enabledProviders.map((providerName, i) => {
+        <div className="absolute mt-1 right-0 min-w-[160px] z-20 bg-surface border border-border rounded-lg shadow-lg overflow-hidden">
+          <div className="py-1">
+            {enabledProviders.map((providerName) => {
               return (
-                <li
-                  key={`provider-${i}`}
-                  className="px-4 py-2 bg-opacity-90 bg-gray-700 text-white font-bold  transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <button
+                  key={providerName}
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-xs text-secondary-text hover:bg-surface-hover hover:text-primary-text cursor-pointer transition-colors duration-150"
                   onClick={() => {
                     onSelected(providerName as LLMProvider);
                     setIsOpen(false);
                   }}
                 >
                   {providerName}
-                </li>
+                </button>
               );
             })}
-          </ul>
+          </div>
         </div>
       )}
     </div>

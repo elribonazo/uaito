@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { type RefObject, useEffect, useState } from 'react'
 
 interface SearchBarProps {
   onChange: (search: string) => void,
   defaultValue: string,
-  inputRef: React.RefObject<HTMLInputElement>
+  inputRef: RefObject<HTMLInputElement | null>
 }
 
-const SearchBar: React.FC<SearchBarProps> = (props) => {
+const SearchBar = (props: SearchBarProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

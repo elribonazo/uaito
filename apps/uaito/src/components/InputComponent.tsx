@@ -1,4 +1,4 @@
-import React, {
+import {
   useState,
   useRef,
   useEffect,
@@ -19,7 +19,6 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState('');
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
-  const [currentResultIndex, setCurrentResultIndex] = useState(-1);
   const currentChat = app.user;
   const isLoading = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
@@ -32,17 +31,6 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
     '');
 
   useEffect(() => {
-    const handleScrollToNextResult = () => {
-      const results = document.querySelectorAll('mark');
-      if (results.length > 0) {
-        setCurrentResultIndex((prevIndex) => {
-          const nextIndex = (prevIndex + 1) % results.length;
-          results[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return nextIndex;
-        });
-      }
-    };
-
     const fn = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setSearchText('');
@@ -51,9 +39,6 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
         event.preventDefault();
         setIsSearchEnabled(true);
         setTimeout(() => searchInputRef.current?.focus(), 0);
-      } else if (event.key === 'Enter' && isSearchEnabled) {
-        event.preventDefault();
-        handleScrollToNextResult();
       }
     }
     window.addEventListener('keydown', fn);
@@ -150,59 +135,113 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
     return <>Chat not found</>;
   }
 
+  const hasMessages = messages.length > 0;
+
   return (
-    <div className="bg-gray-900 flex flex-col h-full rounded-lg w-full max-w-full transition-colors duration-300">
-      {isSearchEnabled && searchInputRef && <SearchBar 
+    <div className="flex flex-col h-full w-full transition-colors duration-300 absolute inset-0">
+      {isSearchEnabled && searchInputRef?.current && <SearchBar 
         defaultValue={searchText} 
         onChange={setSearchText} 
-        inputRef={searchInputRef as any}
+        inputRef={searchInputRef}
       />}
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 transition-colors duration-300">
-        <div className="flex flex-col h-full">
-          <div className="h-[calc(100vh-theme(spacing.32))] overflow-auto p-4 relative">
+      
+      {/* Empty state with centered input */}
+      {!hasMessages && (
+        <div className="flex-1 flex items-center justify-center px-3 sm:px-6 lg:px-8">
+          <div className="w-full max-w-4xl space-y-6 sm:space-y-8">
+            <div className="text-center space-y-2 sm:space-y-4 mb-4 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-semibold text-primary-text">What can I help you with?</h2>
+              <p className="text-secondary-text text-xs sm:text-sm">Ask me anything or try one of the examples below</p>
+            </div>
+            
+            {/* Centered input bubble */}
+            <div className="bg-surface border border-border rounded-2xl p-3 sm:p-4 shadow-lg">
+              <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleTextareaKeyDown}
+                  placeholder="Type your message here..."
+                  className="w-full px-0 py-0 bg-transparent text-primary-text placeholder-tertiary-text focus:outline-none resize-none text-sm"
+                  style={{ minHeight: '60px', maxHeight: '200px' }}
+                  rows={2}
+                  disabled={isLoading}
+                />
+                {input.length > 0 && (
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={isLoading || !input.trim()}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {isLoading && (
+                        <span className="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full"></span>
+                      )}
+                      {isLoading ? 'Sending...' : 'Send message'}
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
+
+            {/* Example prompts */}
             <Messages searchText={searchText} messages={messages} onPromptClick={(prompt) => {
               setInput(prompt);
               sendMessage(prompt);
             }}/>
           </div>
-          <div className="p-4 border-t border-gray-700 bg-gray-800">
-            <form className="flex space-x-2" onSubmit={handleSubmit}>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleTextareaKeyDown}
-                placeholder="Type your message..."
-                className="w-full px-4 py-2 border rounded-lg bg-gray-700 text-white border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 resize-none overflow-hidden"
-                style={{ height: '40px', minHeight: '40px', maxHeight: '120px' }}
-                rows={1}
-                disabled={isLoading && lastMessage !== undefined && lastMessage.role === "user" && currentChat.state !== "streaming"}
-              />
-              {
-                !isLoading && input.length > 0 && <button
-                type="submit"
-                className=" sm:w-auto px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>
-                ) : null}
-
-                {retry ? (isLoading ? 'Retrying...' : 'Retry') : (isLoading ? 'Sending...' : 'Send')}
-              </button>
-              }
-              {isLoading && (
-                <button
-                  type="button"
-                  onClick={handleStopRequest}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200"
-                >
-                  Stop
-                </button>
-              )}
-            </form>
-          </div>
         </div>
-      </div>
+      )}
+
+      {/* Messages view with bottom input */}
+      {hasMessages && (
+        <>
+          <div className="flex-1 overflow-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+            <div className="max-w-5xl mx-auto">
+              <Messages searchText={searchText} messages={messages} onPromptClick={(prompt) => {
+                setInput(prompt);
+                sendMessage(prompt);
+              }}/>
+            </div>
+          </div>
+          
+          {/* Bottom input bar */}
+          <div className="border-t border-border bg-background/80 backdrop-blur-sm">
+            <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3">
+              <form className="flex gap-1.5 sm:gap-2" onSubmit={handleSubmit}>
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleTextareaKeyDown}
+                  placeholder="Type your message..."
+                  className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-surface border border-border rounded-xl text-primary-text text-sm placeholder-tertiary-text focus:outline-none focus:border-primary transition-all resize-none"
+                  style={{ height: '40px', minHeight: '40px', maxHeight: '120px' }}
+                  rows={1}
+                  disabled={isLoading && lastMessage !== undefined && lastMessage.role === "user" && currentChat.state !== "streaming"}
+                />
+                {!isLoading && input.length > 0 && (
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {retry ? 'Retry' : 'Send'}
+                  </button>
+                )}
+                {isLoading && (
+                  <button
+                    type="button"
+                    onClick={handleStopRequest}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-surface hover:bg-red-500/10 text-secondary-text hover:text-red-400 border border-border hover:border-red-500/30 text-xs sm:text-sm font-medium rounded-xl transition-all duration-200"
+                  >
+                    Stop
+                  </button>
+                )}
+              </form>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

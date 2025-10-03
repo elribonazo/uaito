@@ -6,18 +6,23 @@ import { ToolComponent } from './ToolComponent';
 import { ThinkingComponent } from './ThinkingComponent';
 import { useMountedApp } from '../redux/store';
 import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock, SignatureDeltaBlock, AudioBlock } from '@uaito/sdk';
+import { PhotoIcon, MagnifyingGlassIcon, GlobeAltIcon, MusicalNoteIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: boolean, children: React.ReactNode}) => {
     return (
         <div
             key={`msg-${id}`}
-            className={`inline-block mt-4 p-3 rounded-lg w-full ${
-                isUser
-                    ? 'bg-primary text-primary-text shadow-md mr-auto'
-                    : 'bg-surface text-primary-text shadow-md mr-auto'
-            }`}
+            className={`flex mb-3 ${isUser ? 'justify-end' : 'justify-start'}`}
         >
-            {children}
+            <div
+                className={`p-3 rounded-xl max-w-[85%] ${
+                    isUser
+                        ? 'bg-primary/90 text-white shadow-sm'
+                        : 'bg-surface text-primary-text shadow-sm border border-border'
+                }`}
+            >
+                {children}
+            </div>
         </div>
     );
 };
@@ -193,26 +198,53 @@ export const Message: React.FC<{
 
 const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => void }) => {
     const prompts = [
-        "Generate 5 random pictures of a pomsky dog dressing as a crypto bro and doing different activities",
-        "Find me the best steak Restaurants in Madrid, best price, meat quality and space for year 2025",
-        "What is the capital of France?",
-        "A song with 80s pop track with bassy drums and synth",
-        'A song with Modern electronic music with a retro vibe, techno with a modern twist, bassy drums and synth, vocals',
-       `Generate a long 3 chapters story about a Robot that visits earth and interacts with humans, animals and plants. Each chapter is composed of a title, description and chapter image.`,
+        {
+            icon: PhotoIcon,
+            text: "Generate 5 random pictures of a pomsky dog dressing as a crypto bro and doing different activities",
+            shortText: "Generate dog pictures"
+        },
+        {
+            icon: MagnifyingGlassIcon,
+            text: "Find me the best steak Restaurants in Madrid, best price, meat quality and space for year 2025",
+            shortText: "Find restaurants"
+        },
+        {
+            icon: GlobeAltIcon,
+            text: "What is the capital of France?",
+            shortText: "Capital of France?"
+        },
+        {
+            icon: MusicalNoteIcon,
+            text: "A song with 80s pop track with bassy drums and synth",
+            shortText: "80s pop song"
+        },
+        {
+            icon: MusicalNoteIcon,
+            text: 'A song with Modern electronic music with a retro vibe, techno with a modern twist, bassy drums and synth, vocals',
+            shortText: "Modern electronic"
+        },
+        {
+            icon: BookOpenIcon,
+            text: `Generate a long 3 chapters story about a Robot that visits earth and interacts with humans, animals and plants. Each chapter is composed of a title, description and chapter image.`,
+            shortText: "Robot story"
+        },
     ];
 
     return (
-        <div className="flex-grow flex flex-col items-center justify-center mt-20">
-            <h2 className="text-2xl font-bold text-secondary-text mb-4">AI Chat</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+        <div className="w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
                 {prompts.map((prompt) => (
                     <button
-                        key={prompt}
+                        key={prompt.text}
                         type="button"
-                        onClick={() => onPromptClick(prompt)}
-                        className="p-4 bg-surface rounded-lg shadow-md hover:bg-slate-700 transition-colors duration-200 text-left border border-muted"
+                        onClick={() => onPromptClick(prompt.text)}
+                        className="p-2 sm:p-3 bg-surface hover:bg-surface-hover rounded-xl transition-all duration-200 text-left border border-border hover:border-border-light group flex items-start gap-2"
                     >
-                        <p className="text-primary-text font-semibold">{prompt}</p>
+                        <prompt.icon className="h-4 w-4 sm:h-5 sm:w-5 text-accent flex-shrink-0 mt-0.5" />
+                        <div className="min-w-0 flex-1">
+                            <p className="text-secondary-text group-hover:text-primary-text text-xs sm:text-sm line-clamp-2 sm:hidden">{prompt.shortText}</p>
+                            <p className="text-secondary-text group-hover:text-primary-text text-sm line-clamp-2 hidden sm:block">{prompt.text}</p>
+                        </div>
                     </button>
                 ))}
             </div>
@@ -251,7 +283,7 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[], 
             return tooled;
         }, []);
         return (
-            <>
+            <div className="flex flex-col space-y-2">
                 {toolledMessages.map((message, i) => <Message
                     key={`msg-cmp-${message.id}-${i}`}
                     message={message}
@@ -259,7 +291,7 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[], 
                     messages={toolledMessages}
                 />)}
                 <div ref={messagesEndRef} />
-            </>
+            </div>
         );
     }
 
