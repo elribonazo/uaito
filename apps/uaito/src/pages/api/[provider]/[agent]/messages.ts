@@ -82,7 +82,7 @@ async function AutomatedEngineerTask(
   if (selectedModel) {
     model = selectedModel;
   } else if (type === LLMProvider.Anthropic) {
-    model = AnthropicModels['claude-4-sonnet'];
+    model = AnthropicModels['claude-sonnet-4.5'];
   } else if (type === LLMProvider.Grok) {
     model = GrokModels['grok-4'];
   } else if (type === LLMProvider.OpenAI) {
