@@ -150,10 +150,10 @@ export const MessageItem:React.FC<{
     } else if (content.type === "tool_use") {
         return <ToolComponent messageId={`msg-${id}-block`} {...content} messages={messages} currentMessageId={id} />
     }else if (content.type === "tool_result") {
-        const toolIndex = app.user.messages.findIndex((m) =>  m.type === "tool_use" &&  m.id === content.tool_use_id);
+        const toolIndex = messages?.findIndex((m) =>  m.type === "tool_use" &&  m.id === content.tool_use_id);
 
    
-        const toolName = toolIndex >= 0 ?  ( app.user.messages[toolIndex].content[0] as ToolUseBlock).name: content.name
+        const toolName = toolIndex !== undefined && toolIndex >= 0 && messages ?  ( messages[toolIndex].content[0] as ToolUseBlock).name: content.name
             
         return <ToolComponent messageId={`msg-${id}-block`} {...{
             ...content,
