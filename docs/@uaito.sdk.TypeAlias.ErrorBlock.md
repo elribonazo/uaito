@@ -19,7 +19,7 @@ type ErrorBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:442](https://github.com/elribonazo/uaito/blob/1a6f6faf1528125623c7d775cf6caa06e2c7ffe4/packages/sdk/src/domain/types.ts#L442)
+Defined in: [domain/types.ts:442](https://github.com/elribonazo/uaito/blob/3722008e5e5d50d8c487d1875818e7f7f77283ee/packages/sdk/src/domain/types.ts#L442)
 
 Represents an error block.
 
@@ -31,7 +31,7 @@ Represents an error block.
 message: string;
 ```
 
-Defined in: [domain/types.ts:452](https://github.com/elribonazo/uaito/blob/1a6f6faf1528125623c7d775cf6caa06e2c7ffe4/packages/sdk/src/domain/types.ts#L452)
+Defined in: [domain/types.ts:452](https://github.com/elribonazo/uaito/blob/3722008e5e5d50d8c487d1875818e7f7f77283ee/packages/sdk/src/domain/types.ts#L452)
 
 The error message.
 
@@ -43,6 +43,6 @@ The error message.
 type: "error";
 ```
 
-Defined in: [domain/types.ts:447](https://github.com/elribonazo/uaito/blob/1a6f6faf1528125623c7d775cf6caa06e2c7ffe4/packages/sdk/src/domain/types.ts#L447)
+Defined in: [domain/types.ts:447](https://github.com/elribonazo/uaito/blob/3722008e5e5d50d8c487d1875818e7f7f77283ee/packages/sdk/src/domain/types.ts#L447)
 
 The type of the block.
