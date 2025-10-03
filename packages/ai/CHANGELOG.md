@@ -1,3 +1,15 @@
+## 0.0.20 (2025-10-03)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.15
+- Updated @uaito/anthropic to 0.0.16
+- Updated @uaito/google to 0.0.6
+- Updated @uaito/openai to 0.0.15
+- Updated @uaito/build to 0.0.9
+- Updated @uaito/api to 0.0.15
+- Updated @uaito/sdk to 0.8.14
+
 ## 0.0.19 (2025-10-03)
 
 ### 🧱 Updated Dependencies

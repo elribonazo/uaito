@@ -12,7 +12,7 @@
 
 # Interface: SignatureDeltaBlock
 
-Defined in: [domain/types.ts:500](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L500)
+Defined in: [domain/types.ts:500](https://github.com/elribonazo/uaito/blob/dd820f72333bb82d2ff3109d56fa5b50c6c012fd/packages/sdk/src/domain/types.ts#L500)
 
 Represents a signature delta block.
  SignatureDeltaBlock
@@ -25,7 +25,7 @@ Represents a signature delta block.
 signature: string;
 ```
 
-Defined in: [domain/types.ts:505](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L505)
+Defined in: [domain/types.ts:505](https://github.com/elribonazo/uaito/blob/dd820f72333bb82d2ff3109d56fa5b50c6c012fd/packages/sdk/src/domain/types.ts#L505)
 
 The signature of the block.
 
@@ -37,6 +37,6 @@ The signature of the block.
 type: "signature_delta";
 ```
 
-Defined in: [domain/types.ts:511](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/sdk/src/domain/types.ts#L511)
+Defined in: [domain/types.ts:511](https://github.com/elribonazo/uaito/blob/dd820f72333bb82d2ff3109d56fa5b50c6c012fd/packages/sdk/src/domain/types.ts#L511)
 
 The type of the block.

@@ -27,6 +27,6 @@ type DType =
   | undefined;
 ```
 
-Defined in: [types.ts:69](https://github.com/elribonazo/uaito/blob/320acaadaf5873c6222c5d1653cbe5d1666d5dbe/packages/huggingFace/src/types.ts#L69)
+Defined in: [types.ts:69](https://github.com/elribonazo/uaito/blob/dd820f72333bb82d2ff3109d56fa5b50c6c012fd/packages/huggingFace/src/types.ts#L69)
 
 Type alias for the data types supported by the model.

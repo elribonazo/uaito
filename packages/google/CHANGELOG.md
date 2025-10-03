@@ -1,3 +1,10 @@
+## 0.0.6 (2025-10-03)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.9
+- Updated @uaito/sdk to 0.8.14
+
 ## 0.0.5 (2025-10-03)
 
 ### 🧱 Updated Dependencies
