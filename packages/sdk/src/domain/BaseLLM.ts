@@ -1,8 +1,8 @@
 
 import { v4 } from 'uuid';
 import { MessageArray } from '../utils';
-import type { BaseLLMCache, ErrorBlock, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable, ToolInputDelta, ToolResultBlock, ToolUseBlock, TransformStreamFn, UsageBlock } from './types';
-import type {  LLMProvider } from '@/types';
+import type { BaseLLMCache, DeltaBlock, ErrorBlock, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable, ToolInputDelta, ToolResultBlock, ToolUseBlock, TransformStreamFn, UsageBlock } from './types';
+import type { LLMProvider } from '@/types';
 
 
 
@@ -20,9 +20,9 @@ export abstract class Runner {
      * @param {string} system - The system prompt.
      * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
      */
-    abstract performTaskStream( userPrompt: string, chainOfThought: string, system: string,
- ): Promise<ReadableStreamWithAsyncIterable<Message>>;
- }
+    abstract performTaskStream(userPrompt: string, chainOfThought: string, system: string,
+    ): Promise<ReadableStreamWithAsyncIterable<Message>>;
+}
 /**
  * Abstract base class for Language Model implementations.
  * @template TYPE The type of the language model.
@@ -198,6 +198,10 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
         const reader = input.getReader();
         const stream = new ReadableStream({
             start: async (controller) => {
+                let usageBlock: UsageBlock | null = null;
+                let deltaBlock: DeltaBlock | null = null;
+
+
                 while (true) {
                     const s = await reader.read();
                     if (s.done) {
@@ -216,56 +220,48 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
 
                     const message = await transform(messageInput);
 
-                    if (message !== null) {
-                        //Message pre-processing, cache and tools
-                        const isErrorMessage = message.type === "error";
-                        const isDeltaMessage = message.type === "delta";
-                        const isToolDeltaMessage = message.type === "tool_delta";
-                        const isToolUseMessage = message.type === "tool_use";
-                        const isChunkMessage = message.type === "message";
-                        const isUsageMessage = message.type === "usage";
-                        const isThinkingMessage = message.type === "thinking";
-                        const isRedactedThinkingMessage = message.type === "redacted_thinking";
-                        const isSignatureDeltaMessage = message.type === "signature_delta";
-                        let usageBlock: UsageBlock | null = null;
+                    if (!message) {
+                        continue;
+                    }
 
-                        if (isChunkMessage || isErrorMessage || isToolDeltaMessage || isToolUseMessage || isUsageMessage || isThinkingMessage || isRedactedThinkingMessage || isSignatureDeltaMessage) {
 
-                            for (const content of message.content) {
-                                if (content.type === "usage") {
-                                    const id = message.content.findIndex((c) => c.type === "usage");
-                                    if (id !== -1) {
-                                        usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
-                                    }
-                                }
+                    for (const content of message.content) {
+                        if (content.type === "usage") {
+                            const id = message.content.findIndex((c) => c.type === "usage");
+                            if (id !== -1) {
+                                usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
                             }
-                            if (message.content.length) {
-                                controller.enqueue(message);;
-                            }
-                        } else if (isDeltaMessage) {
-                            for (const content of message.content) {
-                                if (content.type === "usage") {
-                                    const id = message.content.findIndex((c) => c.type === "usage");
-                                    if (id !== -1) {
-                                        usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
-                                    }
-                                }
-                            }
-                            if (message.content.length) {
-                                controller.enqueue(message);
+                        } else if (content.type === 'delta') {
+                            const id = message.content.findIndex((c) => c.type === "delta");
+                            if (id !== -1) {
+                                deltaBlock = message.content.splice(id, 1)[0] as DeltaBlock;
                             }
                         }
+                    }
 
-                        if (usageBlock) {
-                            const usageMessage = {
-                                id: v4(),
-                                role: 'assistant',
-                                type: 'usage',
-                                content: [usageBlock]
-                            } as BChunk;
+                    if (message.content.length) {
+                        controller.enqueue(message);
+                    }
 
-                            controller.enqueue(usageMessage);
-                        }
+                    if (usageBlock) {
+                        debugger;
+                        controller.enqueue({
+                            id: v4(),
+                            role: 'assistant',
+                            type: 'usage',
+                            content: [usageBlock]
+                        });
+                        usageBlock = null;
+                    }
+
+                    if (deltaBlock) {
+                        controller.enqueue({
+                            id: v4(),
+                            role: 'assistant',
+                            type: 'delta',
+                            content: [deltaBlock]
+                        });
+                        deltaBlock = null;
                     }
                 }
 
@@ -306,14 +302,7 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
 
                         this.log(`tChunk: ${tChunk.type} ${JSON.stringify(tChunk)}`);
 
-                        if (tChunk.type === "error" ||
-                            tChunk.type === "usage" ||
-                            tChunk.type === "delta" ||
-                            tChunk.type === "tool_delta" ||
-                            tChunk.type === "message"
-                        ) {
-                            controller.enqueue(tChunk)
-                        } else if (tChunk.type === "thinking" || tChunk.type === "redacted_thinking" || tChunk.type === "signature_delta") {
+                        if (tChunk.type === "thinking" || tChunk.type === "redacted_thinking" || tChunk.type === "signature_delta") {
                             // Only push non-chunked thinking/signature blocks to inputs for context preservation
                             const lastInput = this.inputs[this.inputs.length - 1];
                             if (lastInput.type !== "thinking" && lastInput.type !== "signature_delta") {
@@ -374,19 +363,26 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                                 oldReader.releaseLock()
 
                             }
+                        } else if (tChunk.content.length) {
+                            controller.enqueue(tChunk)
                         }
-                    } catch (err: unknown) {
+                    } catch (err) {
                         console.error('Error in transformAutoMode:', err);
-                        const errorBlock: ErrorBlock = {
-                            type: "error",
-                            message: (err as Error).message
+                        if (err instanceof Error && err.message.includes('aborted')) {
+                            controller.close();
+                        } else {
+
+                            const errorBlock: ErrorBlock = {
+                                type: "error",
+                                message: (err as Error).message
+                            }
+                            controller.enqueue({
+                                id: v4(),
+                                role: 'assistant',
+                                type: 'error',
+                                content: [errorBlock]
+                            } as Message)
                         }
-                        controller.enqueue({
-                            id: v4(),
-                            role: 'assistant',
-                            type: 'error',
-                            content: [errorBlock]
-                        } as Message)
                     }
                 }
                 reader.releaseLock()

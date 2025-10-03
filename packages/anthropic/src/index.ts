@@ -394,7 +394,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
    * @param {string} system - The system prompt.
    * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
    */
-   async performTaskStream(
+   async performTaskStream<Input extends SDK.RawMessageStreamEvent, Output extends Message>(
     prompt: string,
     chainOfThought: string,
     system: string,
@@ -423,25 +423,19 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
             },
             options
           )
-          return stream.toReadableStream() as ReadableStreamWithAsyncIterable<SDK.RawMessageStreamEvent>
+          return stream.toReadableStream() as ReadableStreamWithAsyncIterable<Input>
       });
     };
 
     const stream = await createStream();
-    const transform = await this.transformStream<SDK.RawMessageStreamEvent, Message>(
-      stream,
-      this.chunk.bind(this)
-    )
+    const transform = await this.transformStream<Input, Output>( stream, this.chunk.bind(this))
 
     const automodeStream = await this.transformAutoMode(
       transform,
       async () => {
         params.messages = this.llmInputs
         const stream = await createStream();
-        return this.transformStream<SDK.RawMessageStreamEvent, Message>(
-          stream, 
-          this.chunk.bind(this)
-        )
+        return this.transformStream<Input, Output>(  stream,    this.chunk.bind(this)  )
       },
       this.onTool
     )

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import NextCors from 'nextjs-cors';
-import {SHA512} from '@stablelib/sha512';
-import {  ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, Tool, BaseAgent } from '@uaito/sdk';
+import { SHA512 } from '@stablelib/sha512';
+import { ErrorBlock, LLMProvider, Message, MessageArray, MessageInput, Tool, BaseAgent, UsageBlock } from '@uaito/sdk';
 import { browseWebPageTool, createFileTool, createFolderTool, editAndApplyTool, executeCommandTool, readFileTool, tavilySearch } from '@/ai/tools';
 import { findUserByEmail, IUser } from "@/db/models/User"
 import { createUsage } from '@/db/models/Usage';
@@ -10,7 +10,7 @@ import db from '@/db';
 import { AutomatedEngineer } from '@/ai/agents/AutomatedEngineer';
 import { onTool as SystemOnTool } from '../../../../ai/agents/onTool';
 import { ensureUserExists } from '../../auth/[...nextauth]';
-import { AnthropicModels, AnthropicOptions } from '@uaito/anthropic';
+import { AnthropicModels } from '@uaito/anthropic';
 import { GrokModels, OpenAIModels } from '@uaito/openai';
 import { GoogleModels } from '@uaito/google';
 
@@ -43,36 +43,36 @@ async function AutomatedEngineerTask(
   prompt: string,
   selectedModel?: string,
   tools?: Tool[]
-):Promise<{hash: Uint8Array, stream:ReadableStream<Message>}> {
-  const availableTools = tools && Array.isArray(tools) ? 
-  tools: directory ? [
-    createFolderTool,
-    createFileTool,
-    editAndApplyTool,
-    readFileTool,
-    browseWebPageTool,
-    tavilySearch,
-    executeCommandTool,
-  ]: [
-    browseWebPageTool,
-    tavilySearch,
-  ];
+): Promise<{ hash: Uint8Array, stream: ReadableStream<Message> }> {
+  const availableTools = tools && Array.isArray(tools) ?
+    tools : directory ? [
+      createFolderTool,
+      createFileTool,
+      editAndApplyTool,
+      readFileTool,
+      browseWebPageTool,
+      tavilySearch,
+      executeCommandTool,
+    ] : [
+      browseWebPageTool,
+      tavilySearch,
+    ];
   const activeTools = availableTools.map((tool) => {
-    const {name, description, input_schema} = tool;
-    return {name, description, input_schema}
+    const { name, description, input_schema } = tool;
+    return { name, description, input_schema }
   })
 
-  let apiKey!:string;
+  let apiKey!: string;
   if (type === LLMProvider.Anthropic) {
-   apiKey = process.env.ANTHROPIC_API_KEY!;
+    apiKey = process.env.ANTHROPIC_API_KEY!;
   } else if (type === LLMProvider.Grok) {
-   apiKey = process.env.GROK_API_KEY!;
+    apiKey = process.env.GROK_API_KEY!;
   } else if (type === LLMProvider.OpenAI) {
-   apiKey = process.env.OPENAI_API_KEY!;
+    apiKey = process.env.OPENAI_API_KEY!;
   } else if (type === LLMProvider.Google) {
-   apiKey = process.env.GOOGLE_API_KEY!;
+    apiKey = process.env.GOOGLE_API_KEY!;
   }
-  
+
   if (!apiKey) {
     throw new Error(`API key not found for provider ${type}`);
   }
@@ -99,8 +99,8 @@ async function AutomatedEngineerTask(
     apiKey,
     model,
     signal: abortController.signal,
-    maxTokens: process.env.MAX_TOKENS && !isGod ?parseInt(process.env.MAX_TOKENS): 64000,
-    tools:activeTools
+    maxTokens: process.env.MAX_TOKENS && !isGod ? parseInt(process.env.MAX_TOKENS) : 64000,
+    tools: activeTools
   };
   const hash = new SHA512();
   hash.update(
@@ -110,7 +110,7 @@ async function AutomatedEngineerTask(
       )
     )
   )
-  const hashId =  hash.digest();
+  const hashId = hash.digest();
   const threadId = Buffer.from(hashId).toString('hex')
   res.writeHead(200, {
     'Content-Type': 'text/plain',
@@ -122,29 +122,29 @@ async function AutomatedEngineerTask(
 
 
 
-  const agent =  await AutomatedEngineer.create(
+  const agent = await AutomatedEngineer.create(
     type,
     {
       ...options,
-      onTool:function onTool(
+      onTool: function onTool(
         this: BaseAgent,
         message: Message,
-      )  {
-          return SystemOnTool.bind(agent)(
-            currentUser.id,
-            threadId,
-            message,
-            abortController
-          )
-        }
+      ) {
+        return SystemOnTool.bind(agent)(
+          currentUser.id,
+          threadId,
+          message,
+          abortController
+        )
+      }
     },
     directory,
     inputs,
   );
   const { response } = await agent.performTask(prompt);
   return {
-    stream:response,
-    hash:hashId
+    stream: response,
+    hash: hashId
   }
 }
 
@@ -154,7 +154,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     origin: '*',
     optionsSuccessStatus: 200,
   });
-  res.setHeader("Access-Control-Expose-Headers","X-Thread-Id")
+  res.setHeader("Access-Control-Expose-Headers", "X-Thread-Id")
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).end('Method Not Allowed');
@@ -174,76 +174,98 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const parsedBody = JSON.parse(rawBody.toString());
 
   try {
-    const inputs = (parsedBody.inputs ?? []).map((input ) => {
+    const inputs = (parsedBody.inputs ?? []).map((input) => {
       if (typeof input === "string") {
         return JSON.parse(input)
       }
       return input
     });
     const { prompt, directory, tools, model } = parsedBody;
-    const gods = process.env.GODS ? process.env.GODS.split(",").map((e) => e.trim()): [];
+    const gods = process.env.GODS ? process.env.GODS.split(",").map((e) => e.trim()) : [];
     const email = currentUser.email
     const isGod = gods.includes(email);
     const safeInputs = new MessageArray<MessageInput>(inputs)
+    if (!prompt) {
+      throw new Error('No prompt provided');
+    }
+    const { stream, hash } = await AutomatedEngineerTask(
+      toProvider(provider),
+      res,
+      currentUser,
+      abortController,
+      safeInputs,
+      isGod,
+      directory,
+      prompt,
+      model,
+      tools
+    )
+    const reader = stream.getReader();
+    const threadId = Buffer.from(hash).toString('hex')
+    await ensureUserExists(
+      {
+        email: email,
+        name: currentUser.name
+      }
+    )
+
+    let usageMessage: Message | null = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      };
+      const content = value.content ?? [];
+
+      const hasUsage = content.find((content) => content.type === "usage");
+      const hasDelta = content.find((content) => content.type === "delta");
 
 
-      if (!prompt) {
-        throw new Error('No prompt provided');
-      }
-      const {stream, hash} = await AutomatedEngineerTask(
-        toProvider(provider),
-        res, 
-        currentUser,
-        abortController,
-        safeInputs,
-        isGod,
-        directory,
-        prompt,
-        model,
-        tools
-      )
-      const reader = stream.getReader();
-      const threadId = Buffer.from(hash).toString('hex')
-      await ensureUserExists(
-        {
-          email: email,
-          name: currentUser.name
-        }
-      )
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) {
-            break;
-          };
-          const usage = (value?.content?? []).find((content) => content.type === "usage");
-          if (usage ) {
-            const existingUser = await findUserByEmail(email);
-            if (!existingUser) {
-              throw new Error("Unexpected user not found")
-            }
-            ;
-            await createUsage(
-              existingUser,
-              threadId,
-              usage.input,
-              usage.output
-            )
-          }
-          const chunk = JSON.stringify(value);
-          res.write(chunk.toString() +  SEPARATOR);
-          if (value.type === "delta") {
-            const deltaBlock = value.content.find((block) => block.type === "delta");
-            if (deltaBlock) {
-              const stopReason = deltaBlock.stop_reason;
-              console.log("Stream ended:", stopReason);
-              if (stopReason === "end_turn" || stopReason === "max_tokens") {
-                break;
-              }
-            }
-          }
-        
-      }
+      const chunkContent = content.filter((content) => content.type !== "usage" && content.type !== "delta");
+     if (chunkContent.length) {
+      const encoded = JSON.stringify({
+        ...value,
+        content: chunkContent
+      });
+      res.write(encoded.toString() + SEPARATOR);
+     }
+
      
+      if (hasUsage) {
+        const existingUser = await findUserByEmail(email);
+        if (!existingUser) {
+          throw new Error("Unexpected user not found")
+        }
+        await createUsage(
+          existingUser,
+          threadId,
+          hasUsage.input,
+          hasUsage.output
+        )
+        usageMessage = {
+          ...value,
+          type: 'usage',
+          content: [hasUsage]
+        };
+      }
+
+      if (hasDelta) {
+        const stopReason = hasDelta.stop_reason;
+        console.log("Stream ended:", stopReason);
+
+        if (usageMessage) {
+          const encoded = JSON.stringify(usageMessage);
+          res.write(encoded.toString() + SEPARATOR);
+        }
+
+        if (stopReason === "end_turn" || stopReason === "max_tokens") {
+          break;
+        }
+      }
+
+    }
+    res.end();
   } catch (error) {
     console.error("Error:", error);
     const errorBlock: ErrorBlock = {
@@ -251,8 +273,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       message: (error as Error).message
     };
     const chunk = Buffer.from(JSON.stringify(errorBlock))
-    res.write(chunk.toString() +  SEPARATOR);
-  } finally {
+    res.write(chunk.toString() + SEPARATOR);
     res.end();
   }
 }

@@ -11,6 +11,7 @@ import { v4 } from 'uuid';
 import type { GoogleOptions } from './types';
 import {
   BaseLLM,
+  BlockType,
   LLMProvider,
   MessageArray,
   type BaseLLMCache,
@@ -80,7 +81,7 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
     this.api = new GoogleGenAI({ apiKey: options.apiKey });
 
     this.onTool = onTool ?? options.onTool;
-    
+
     if (options.verbose) {
       this.log(`[Google LLM] Initialized with model: ${options.model}`);
       this.log(`[Google LLM] Max output tokens: ${this.maxTokens}`);
@@ -103,12 +104,14 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
     if (this.options.verbose) {
       this.log(`[Google LLM] Converting message input - Role: ${model.role}, Content blocks: ${model.content.length}`);
     }
-    
+
     const parts: Part[] = model.content
       .map((content): Part | null => {
         switch (content.type) {
           case 'text':
             return { text: content.text };
+          case 'thinking':
+            return { thought: true, text: content.thinking };
           case 'image':
             return {
               inlineData: {
@@ -129,7 +132,6 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
               .find(
                 (c) => c.type === 'tool_use' && c.id === content.tool_use_id,
               );
-            if (!toolUse) return null;
             return {
               functionResponse: {
                 name: (toolUse as ToolUseBlock).name,
@@ -179,176 +181,123 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
     if (this.options.verbose) {
       this.log(`[Google LLM] Processing chunk - Has candidate: ${!!candidate}, Finish reason: ${candidate?.finishReason ?? 'none'}`);
     }
-
-    // Handle usage metadata first
-    if (chunk.usageMetadata) {
-      this.cache.tokens.input = chunk.usageMetadata.promptTokenCount ?? 0;
-      this.cache.tokens.output +=
-        chunk.usageMetadata.candidatesTokenCount ?? 0;
-      
-      if (this.options.verbose) {
-        this.log(`[Google LLM] Usage - Input tokens: ${this.cache.tokens.input}, Output tokens: ${this.cache.tokens.output}`);
-      }
-    }
-
     if (!candidate) {
       return null;
     }
 
-    const contents = candidate.content?.parts;
-    const firstContent = contents?.[0];
-    // Check for content first before handling finish reasons
-    if (!firstContent) {
-      // Only handle finish reasons if there's no content
-      if (candidate.finishReason === FinishReason.STOP) {
-        if (this.cache.toolInput && this.cache.toolInput.type === 'tool_use') {
-          const toolCall = {
-            ...this.cache.toolInput,
-            input: this.cache.toolInput.input,
-          };
-          this.cache.toolInput = null;
-          return {
-            id: v4(),
-            role: 'assistant',
-            type: 'tool_use',
-            content: [toolCall],
-          };
-        }
-        const usageBlock: UsageBlock = {
-          type: 'usage',
-          output: this.cache.tokens.output,
-          input: this.cache.tokens.input,
-        };
-        return {
-          id: v4(),
-          role: 'assistant',
-          type: 'delta',
-          content: [
-            {
-              stop_reason: 'end_turn',
-              stop_sequence: null,
-              type: 'delta',
-            } as DeltaBlock,
-            usageBlock,
-          ],
-        };
-      }
-      return null;
+    const contents = candidate.content?.parts || [];
+    const [content] = contents;
+
+    const inputTokens = chunk.usageMetadata?.promptTokenCount ?? 0;
+    const outputTokens = chunk.usageMetadata?.totalTokenCount ?? 0;
+
+    this.cache.tokens.input += inputTokens;
+    this.cache.tokens.output += outputTokens - inputTokens;
+
+    if (!this.cache.chunks) {
+      this.cache.chunks = v4();
     }
 
-    // Handle text content first
-    if ('text' in firstContent && firstContent.text) {
-      if (this.options.verbose) {
-        this.log(`[Google LLM] Text chunk received - Length: ${firstContent.text.length}`);
-      }
-      
-      // Store that we've seen text, so we can emit delta/usage on next iteration
-      if (!this.cache.chunks) {
-        this.cache.chunks = v4();
-      }
+    if (content) {
 
-      if (firstContent.thought) {
-        this.isThinking = true;
+      if (content.text) {
+        if (this.options.verbose) {
+          this.log(`[Google LLM] Text chunk received - Length: ${content.text.length}`);
+        }
+
+        if (content.thought) {
+          this.isThinking = true;
+          return {
+            id: this.cache.chunks,
+            role: 'assistant',
+            type: 'thinking',
+            chunk: true,
+            content: [
+              {
+                type: 'thinking',
+                thinking: content.text,
+                signature: content.thoughtSignature ?? '',
+              },
+            ],
+          };
+        }
+
+        if (this.isThinking) {
+          this.isThinking = false;
+          this.cache.chunks = v4();
+        }
+
+        const blocks: BlockType[] = [
+          {
+            type: 'text',
+            text: content.text,
+          },
+        ];
+  
+        if (candidate.finishReason) {
+          if (candidate.finishReason === FinishReason.STOP) {
+            const usageBlock: UsageBlock = {
+              type: 'usage',
+              output: this.cache.tokens.output,
+              input: this.cache.tokens.input,
+            };
+            const deltaBlock: DeltaBlock = {
+              type: 'delta',
+              stop_reason: 'end_turn',
+              stop_sequence: null,
+            };
+            blocks.push(usageBlock);
+            blocks.push(deltaBlock);
+          } else {
+            const errorBlock: ErrorBlock = {
+              type: 'error',
+              message: `Stream stopped for reason: ${candidate.finishReason}`,
+            };
+            blocks.push(errorBlock);
+          }
+
+        }
         return {
           id: this.cache.chunks,
           role: 'assistant',
-          type: 'thinking',
+          type: 'message',
           chunk: true,
-          content: [
-            {
-              type: 'thinking',
-              thinking: firstContent.text,
-              signature: firstContent.thoughtSignature ?? '',
-            },
-          ],
+          content: blocks
         };
       }
-      
-      if (this.isThinking) {
-        this.isThinking = false;
-        this.cache.chunks = v4();
-      }
 
-      return {
-        id: this.cache.chunks,
-        role: 'assistant',
-        type: 'message',
-        chunk: true,
-        content: [
-          {
-            type: 'text',
-            text: firstContent.text,
-          },
-        ],
-      };
-    }
-
-    // Handle function calls
-    if ('functionCall' in firstContent && firstContent.functionCall) {
-      const functionCall = firstContent.functionCall;
-      
-      if (this.options.verbose) {
-        this.log(`[Google LLM] Function call detected - Name: ${functionCall.name}`);
-      }
-      
-      if (!this.cache.toolInput) {
-        this.cache.toolInput = {
+      if (content.functionCall) {
+        const functionCall = content.functionCall;
+  
+        if (this.options.verbose) {
+          this.log(`[Google LLM] Function call detected - Name: ${functionCall.name}`);
+        }
+  
+        if (!this.cache.toolInput) {
+          this.cache.toolInput = {
+            type: 'tool_use',
+            id: v4(),
+            name: functionCall.name ?? '',
+            input: {},
+          };
+        }
+        (this.cache.toolInput as ToolUseBlock).input = functionCall.args;
+  
+        const toolUseBlock: ToolUseBlock = {
+          id: v4(),
           type: 'tool_use',
-          id: v4(),
           name: functionCall.name ?? '',
-          input: {},
+          input: functionCall.args,
         };
-      }
-      (this.cache.toolInput as ToolUseBlock).input = functionCall.args;
 
-      const toolUseBlock: ToolUseBlock = {
-        id: v4(),
-        type: 'tool_use',
-        name: functionCall.name ?? '',
-        input: functionCall.args,
-      };
-      return {
-        id: toolUseBlock.id,
-        role: 'assistant',
-        type: 'tool_use',
-        content: [toolUseBlock],
-      };
-    }
-
-    // Handle tool call finish reason
-    // @ts-ignore
-    if (candidate.finishReason === FinishReason.TOOL_CALLS) {
-      if (this.cache.toolInput && this.cache.toolInput.type === 'tool_use') {
-        const toolCall = { ...this.cache.toolInput };
-        this.cache.toolInput = null;
         return {
-          id: v4(),
+          id: toolUseBlock.id,
           role: 'assistant',
           type: 'tool_use',
-          content: [toolCall] as ToolUseBlock[],
+          content: [toolUseBlock],
         };
       }
     }
-
-    // Handle error finish reasons
-    if (
-      candidate.finishReason &&
-      candidate.finishReason !== FinishReason.STOP &&
-      // @ts-ignore
-      candidate.finishReason !== FinishReason.TOOL_CALLS
-    ) {
-      const errorBlock: ErrorBlock = {
-        type: 'error',
-        message: `Stream stopped for reason: ${candidate.finishReason}`,
-      };
-      return {
-        id: v4(),
-        role: 'assistant',
-        type: 'error',
-        content: [errorBlock],
-      };
-    }
-
     return null;
   }
 
@@ -373,13 +322,14 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
     chainOfThought: string,
     system: string,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
+
     if (this.options.verbose) {
       this.log(`[Google LLM] Starting task stream`);
       this.log(`[Google LLM] System prompt length: ${system.length}`);
       this.log(`[Google LLM] User prompt length: ${prompt.length}`);
       this.log(`[Google LLM] Chain of thought length: ${chainOfThought.length}`);
     }
-    
+
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
 
     if (this.options.verbose) {
@@ -392,7 +342,6 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
         if (this.options.verbose) {
           this.log(`[Google LLM] Making API call to generateContentStream`);
         }
-        
         const result = await this.api.models.generateContentStream({
           contents: this.llmInputs,
           model: this.options.model,
@@ -406,7 +355,7 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
                 mode: FunctionCallingConfigMode.AUTO,
               }
             },
-            tools:[
+            tools: [
               {
                 functionDeclarations: this.getTools(),
               }
@@ -418,17 +367,25 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
             topK: this.options.topK,
           }
         });
-        
+
         if (this.options.verbose) {
           this.log(`[Google LLM] API call successful, creating stream`);
         }
-        
+
         const stream = new ReadableStream({
           async start(controller) {
-            for await (const chunk of result) {
-              controller.enqueue(chunk);
+            try {
+              for await (const chunk of result) {
+                controller.enqueue(chunk);
+              }
+              controller.close();
+            } catch (error) {
+              if (error.message.includes('aborted')) {
+                controller.close();
+              } else {
+                controller.error(error);
+              }
             }
-            controller.close();
           }
         });
         return stream as ReadableStreamWithAsyncIterable<GenerateContentResponse>;
@@ -436,23 +393,16 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
     };
 
     const stream = await createStream();
-    const transform = await this.transformStream<
-      GenerateContentResponse,
-      Message
-    >(stream, this.chunk.bind(this));
+    const transform = await this.transformStream<GenerateContentResponse, Message>(stream, this.chunk.bind(this));
 
-    const automodeStream = await this.transformAutoMode(
+
+    return this.transformAutoMode(
       transform,
       async () => {
         const stream = await createStream();
-        return this.transformStream<GenerateContentResponse, Message>(
-          stream,
-          this.chunk.bind(this),
-        );
+        return this.transformStream<GenerateContentResponse, Message>(stream, this.chunk.bind(this));
       },
       this.onTool,
     );
-
-    return automodeStream;
   }
 }
