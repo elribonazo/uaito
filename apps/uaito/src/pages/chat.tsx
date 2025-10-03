@@ -141,7 +141,7 @@ const Chat: React.FC<
 								<Bars3Icon className="h-5 w-5 text-secondary-text" />
 							</button>
 							<h1 className="text-lg sm:text-2xl font-bold flex-shrink-0">
-								<Link href="/">
+								<Link href="/chat">
 									<AnimatedText />
 								</Link>
 							</h1>
