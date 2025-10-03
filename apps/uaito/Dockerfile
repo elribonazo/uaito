@@ -12,6 +12,12 @@ ARG ANTHROPIC_API_KEY
 ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 ARG OPENAI_API_KEY
 ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+ARG GOOGLE_API_KEY
+ENV GOOGLE_API_KEY=${GOOGLE_API_KEY}
+ARG GROK_API_KEY
+ENV GROK_API_KEY=${GROK_API_KEY}
+ARG TAVILY_API_KEY
+ENV TAVILY_API_KEY=${TAVILY_API_KEY}
 ARG GCLIENT_ID
 ENV GCLIENT_ID=${GCLIENT_ID}
 ARG GCLIENT_SECTET
@@ -43,6 +49,7 @@ COPY packages/api/package.json ./packages/api/
 COPY packages/build/package.json ./packages/build/
 COPY packages/huggingFace/package.json ./packages/huggingFace/
 COPY packages/openai/package.json ./packages/openai/
+COPY packages/google/package.json ./packages/google/
 COPY packages/sdk/package.json ./packages/sdk/
 COPY apps/uaito/package.json ./apps/uaito/
 
