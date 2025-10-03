@@ -159,7 +159,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     }).filter(Boolean) // Remove null values from signature_delta entries
     
     return {
-      role: model.role,
+      role: content.find((c) => c.type === 'tool_result') ? 'user' : model.role,
       content
     } as MessageParam
   }
