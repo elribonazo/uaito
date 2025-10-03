@@ -77,6 +77,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
   };
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: This div contains interactive children (input, buttons) so it can't be a button element
     <div
       role="button"
       tabIndex={0}
@@ -208,42 +209,70 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           </div>
 
           {/* New Chat Button */}
-          <div className="p-4">
+          <div className={`p-4 ${!isOpen ? 'flex justify-center' : ''}`}>
             <button
               type="button"
               onClick={onNewChat}
-              className={`w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg transition-all duration-200 ${
-                !isOpen ? 'px-2' : ''
+              className={`flex items-center justify-center bg-primary hover:bg-primary-hover text-white transition-all duration-200 ${
+                isOpen 
+                  ? 'w-full gap-2 px-4 py-2 rounded-lg' 
+                  : 'w-10 h-10 rounded-full'
               }`}
               title="New chat"
             >
-              <PlusIcon className="h-5 w-5" />
+              <PlusIcon className="h-5 w-5 flex-shrink-0" />
               {isOpen && <span className="font-medium">New Chat</span>}
             </button>
           </div>
 
           {/* Chat List */}
-          <div className="flex-1 overflow-y-auto px-4 space-y-2">
-            {chatOrder.length === 0 && isOpen && (
-              <div className="text-center text-secondary-text text-sm py-8">
-                No chats yet. Create one to get started!
-              </div>
-            )}
-            {chatOrder.map((chatId) => {
-              const chat = chats[chatId];
-              if (!chat) return null;
-              return (
-                <ChatItem
-                  key={chatId}
-                  chat={chat}
-                  isActive={activeChatId === chatId}
-                  onSelect={() => onSelectChat(chatId)}
-                  onDelete={() => onDeleteChat(chatId)}
-                  onRename={(name) => onRenameChat(chatId, name)}
-                />
-              );
-            })}
-          </div>
+          {isOpen ? (
+            <div className="flex-1 overflow-y-auto px-4 space-y-2">
+              {chatOrder.length === 0 && (
+                <div className="text-center text-secondary-text text-sm py-8">
+                  No chats yet. Create one to get started!
+                </div>
+              )}
+              {chatOrder.map((chatId) => {
+                const chat = chats[chatId];
+                if (!chat) return null;
+                return (
+                  <ChatItem
+                    key={chatId}
+                    chat={chat}
+                    isActive={activeChatId === chatId}
+                    onSelect={() => onSelectChat(chatId)}
+                    onDelete={() => onDeleteChat(chatId)}
+                    onRename={(name) => onRenameChat(chatId, name)}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex-1 px-2 space-y-2">
+              {chatOrder.slice(0, 5).map((chatId) => {
+                const chat = chats[chatId];
+                if (!chat) return null;
+                return (
+                  <button
+                    key={chatId}
+                    type="button"
+                    onClick={() => onSelectChat(chatId)}
+                    className={`group relative w-full p-2 rounded-lg transition-all duration-200 flex items-center justify-center ${
+                      activeChatId === chatId
+                        ? 'bg-primary/10 border border-primary/20'
+                        : 'hover:bg-surface-hover border border-transparent'
+                    }`}
+                  >
+                    <ChatBubbleLeftIcon className="h-5 w-5 text-accent" />
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-surface border border-border text-primary-text text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                        {chat.name}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </aside>
     </>

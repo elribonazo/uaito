@@ -135,7 +135,7 @@ const Chat: React.FC<
 							<button
 								type="button"
 								onClick={() => setSidebarOpen(!sidebarOpen)}
-								className="p-1.5 sm:p-2 hover:bg-surface-hover rounded-lg transition-colors lg:hidden"
+								className={`p-1.5 sm:p-2 hover:bg-surface-hover rounded-lg transition-colors lg:hidden ${sidebarOpen ? "hidden" : "block"}`}
 								title="Toggle sidebar"
 							>
 								<Bars3Icon className="h-5 w-5 text-secondary-text" />
@@ -148,41 +148,44 @@ const Chat: React.FC<
 						</div>
 						<div className="flex-grow min-w-0"></div>
 						<div className="flex flex-row items-center space-x-1 sm:space-x-2 lg:space-x-3">
-					{isDownloading && (
-						<div className="hidden md:flex items-center space-x-2">
-							<span className="text-primary-text text-sm">
-								Downloading Model:
-							</span>
-							<div className="w-32 bg-surface rounded-full h-2.5">
-								<div
-									className="bg-primary h-2.5 rounded-full"
-									style={{ width: `${downloadProgress}%` }}
-								></div>
-							</div>
-							<span className="text-primary-text text-sm">
-								{downloadProgress}%
-							</span>
-						</div>
-					)}
-					<TokenCounter input={usage.input} output={usage.output} />
-					{provider && (
-						<Provider value={provider} onSelected={handleProviderSelect} />
-					)}
-					<ModelSelector onSelected={handleModelSelect} />
-
-					<Link
-						href={"/dashboard"}
-						className="bg-surface hover:bg-slate-700 text-primary-text font-bold p-1.5 sm:p-2 rounded-lg transition duration-300 flex items-center justify-center border border-muted flex-shrink-0"
-					>
-						<UserIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-					</Link>
-					<button
-						onClick={() => signOut()}
-						type="button"
-						className="bg-red-600 hover:bg-red-700 text-white p-1.5 sm:p-2 rounded-lg transition duration-300 flex items-center justify-center flex-shrink-0"
-					>
-						<ArrowRightEndOnRectangleIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-					</button>
+							{!sidebarOpen && (
+								<>
+									{isDownloading && (
+										<div className="hidden md:flex items-center space-x-2">
+											<span className="text-primary-text text-sm">
+												Downloading Model:
+											</span>
+											<div className="w-32 bg-surface rounded-full h-2.5">
+												<div
+													className="bg-primary h-2.5 rounded-full"
+													style={{ width: `${downloadProgress}%` }}
+												></div>
+											</div>
+											<span className="text-primary-text text-sm">
+												{downloadProgress}%
+											</span>
+										</div>
+									)}
+									<TokenCounter input={usage.input} output={usage.output} />
+									{provider && (
+										<Provider value={provider} onSelected={handleProviderSelect} />
+									)}
+									<ModelSelector onSelected={handleModelSelect} />
+									<Link
+										href={"/dashboard"}
+										className="bg-surface hover:bg-slate-700 text-primary-text font-bold p-1.5 sm:p-2 rounded-lg transition duration-300 flex items-center justify-center border border-muted flex-shrink-0"
+									>
+										<UserIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+									</Link>
+									<button
+										onClick={() => signOut()}
+										type="button"
+										className="bg-red-600 hover:bg-red-700 text-white p-1.5 sm:p-2 rounded-lg transition duration-300 flex items-center justify-center flex-shrink-0"
+									>
+										<ArrowRightEndOnRectangleIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+									</button>
+								</>
+							)}
 						</div>
 					</div>
 				</header>
