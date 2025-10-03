@@ -72,6 +72,8 @@
     "@rollup/rollup-linux-x64-gnu": "^4.24.0"
   },
   "dependencies": {
-    "chromedriver": "^138.0.1"
+    "chromedriver": "^138.0.1",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.22"
   }
 }

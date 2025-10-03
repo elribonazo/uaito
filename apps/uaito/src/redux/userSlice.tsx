@@ -37,17 +37,31 @@ export type FeatureSectionProps = {
     reverse?: boolean,
     preview?: React.ReactNode
 }
-export interface ChatState {
-  error: SerializedError | null,
-  id: string | null,
-  name: string | null,
-  messages: MessageState[],
-  state: 'streaming' | 'ready',
+export interface Chat {
+  id: string;
+  name: string;
+  messages: MessageState[];
+  state: 'streaming' | 'ready';
+  createdAt: number;
+  updatedAt: number;
+  provider: LLMProvider;
+  model: string;
   usage: {
-    apiKey: string|null,
-    input: number,
-    output: number
-  },
+    input: number;
+    output: number;
+  };
+}
+
+export interface ChatState {
+  error: SerializedError | null;
+  chats: Record<string, Chat>;
+  activeChatId: string | null;
+  chatOrder: string[];
+  usage: {
+    apiKey: string | null;
+    input: number;
+    output: number;
+  };
   provider: LLMProvider | null;
   selectedModel: string | null;
   isFetchingUsageToken: boolean;
@@ -57,10 +71,9 @@ export interface ChatState {
 
 export const initialState: ChatState = {
   error: null,
-  id: null,
-  name: null,
-  messages: [],
-  state: 'ready',
+  chats: {},
+  activeChatId: null,
+  chatOrder: [],
   usage: {
     apiKey: null,
     input: 0,
@@ -68,12 +81,13 @@ export const initialState: ChatState = {
   },
   provider: null,
   selectedModel: null,
-  isFetchingUsageToken:false,
+  isFetchingUsageToken: false,
   hasFetchedUsageToken: false,
   downloadProgress: null,
 };
 
 export interface PushChatMessage {
+  chatId: string;
   chatMessage: {
     message: Message;
     role?: 'user' | 'assistant'
@@ -110,8 +124,113 @@ const userSlice = createSlice({
     setDownloadProgress: (state, action: PayloadAction<number | null>) => {
       state.downloadProgress = action.payload;
     },
+    createNewChat: (state, action: PayloadAction<{
+      provider: LLMProvider;
+      model: string;
+    }>) => {
+      const id = `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newChat: Chat = {
+        id,
+        name: `Chat ${Object.keys(state.chats).length + 1}`,
+        messages: [],
+        state: 'ready',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        provider: action.payload.provider,
+        model: action.payload.model,
+        usage: {
+          input: 0,
+          output: 0
+        }
+      };
+      state.chats[id] = newChat;
+      state.chatOrder.unshift(id);
+      state.activeChatId = id;
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('uaito-chats', JSON.stringify({
+          chats: state.chats,
+          activeChatId: state.activeChatId,
+          chatOrder: state.chatOrder,
+        }));
+      }
+    },
+    setActiveChat: (state, action: PayloadAction<string>) => {
+      if (state.chats[action.payload]) {
+        state.activeChatId = action.payload;
+        
+        // Save to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('uaito-chats', JSON.stringify({
+            chats: state.chats,
+            activeChatId: state.activeChatId,
+            chatOrder: state.chatOrder,
+          }));
+        }
+      }
+    },
+    deleteChat: (state, action: PayloadAction<string>) => {
+      delete state.chats[action.payload];
+      state.chatOrder = state.chatOrder.filter(id => id !== action.payload);
+      
+      // Set new active chat if deleted was active
+      if (state.activeChatId === action.payload) {
+        state.activeChatId = state.chatOrder[0] || null;
+      }
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('uaito-chats', JSON.stringify({
+          chats: state.chats,
+          activeChatId: state.activeChatId,
+          chatOrder: state.chatOrder,
+        }));
+      }
+    },
+    renameChat: (state, action: PayloadAction<{
+      id: string;
+      name: string;
+    }>) => {
+      const chat = state.chats[action.payload.id];
+      if (chat) {
+        chat.name = action.payload.name;
+        chat.updatedAt = Date.now();
+        
+        // Save to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('uaito-chats', JSON.stringify({
+            chats: state.chats,
+            activeChatId: state.activeChatId,
+            chatOrder: state.chatOrder,
+          }));
+        }
+      }
+    },
+    loadChatsFromStorage: (state) => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('uaito-chats');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            state.chats = parsed.chats || {};
+            state.activeChatId = parsed.activeChatId || null;
+            state.chatOrder = parsed.chatOrder || [];
+          } catch (error) {
+            console.error('Failed to load chats from storage:', error);
+          }
+        }
+      }
+    },
     pushChatMessage: (state, action: PayloadAction<PushChatMessage>) => {
-      const { chatMessage: { message } } = action.payload;
+      const { chatId, chatMessage: { message } } = action.payload;
+      const chat = state.chats[chatId];
+      
+      if (!chat) {
+        console.error(`Chat ${chatId} not found`);
+        return state;
+      }
+
       console.log("SATH pushChatMessage", message);
 
       if (message.type === "error") {
@@ -125,37 +244,56 @@ const userSlice = createSlice({
           { position: 'bottom-right', })
         return state
       }
+      
       if (message.type === "usage") {
-        state.usage.input +=( message.content[0] as any).input ?? 0;
-        state.usage.output +=( message.content[0] as any).output ?? 0;
+        const inputTokens = (message.content[0] as any).input ?? 0;
+        const outputTokens = (message.content[0] as any).output ?? 0;
+        state.usage.input += inputTokens;
+        state.usage.output += outputTokens;
+        chat.usage.input += inputTokens;
+        chat.usage.output += outputTokens;
       } else if (message.type === "delta"){
         const [usageBlock] = message.content.filter((block) => block.type === "usage");
         const deltaBlocks = message.content.filter((block) => block.type === "delta");
         if (usageBlock) {
           state.usage.input += usageBlock.input ?? 0;
           state.usage.output += usageBlock.output ?? 0;
+          chat.usage.input += usageBlock.input ?? 0;
+          chat.usage.output += usageBlock.output ?? 0;
         }
 
-        state.messages.push({
+        chat.messages.push({
           ...message,
           content: deltaBlocks
         })
       } else {
-        const existingIndex = state.messages.findIndex((m) =>  message.id === m.id);
+        const existingIndex = chat.messages.findIndex((m) =>  message.id === m.id);
         if (existingIndex < 0) {
-          state.messages.push(message)
+          chat.messages.push(message)
         } else if (existingIndex > 0) {
-          if (state.messages[existingIndex]?.chunk ) {
-              if (state.messages[existingIndex]?.content[0].type === "text") {
-                state.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
-              } else if (state.messages[existingIndex]?.content[0].type === "thinking") {
-                state.messages[existingIndex].content[0].thinking += (message.content[0] as any).thinking
+          if (chat.messages[existingIndex]?.chunk ) {
+              if (chat.messages[existingIndex]?.content[0].type === "text") {
+                chat.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
+              } else if (chat.messages[existingIndex]?.content[0].type === "thinking") {
+                chat.messages[existingIndex].content[0].thinking += (message.content[0] as any).thinking
               } 
           } else {
-            state.messages.push(message)
+            chat.messages.push(message)
           }
         }
       }
+      
+      chat.updatedAt = Date.now();
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('uaito-chats', JSON.stringify({
+          chats: state.chats,
+          activeChatId: state.activeChatId,
+          chatOrder: state.chatOrder,
+        }));
+      }
+      
       return state;
     },
   },
@@ -171,22 +309,45 @@ const userSlice = createSlice({
       state.hasFetchedUsageToken = false;
     })
     builder
-      .addCase(streamMessage.pending, (state) => {
-        state.state = "streaming"
+      .addCase(streamMessage.pending, (state, action) => {
+        const chatId = (action.meta.arg as any).chatId;
+        const chat = state.chats[chatId];
+        if (chat) {
+          chat.state = "streaming";
+        }
         state.error = null;
       })
     builder
-      .addCase(streamMessage.fulfilled, (state) => {
-        state.state = "ready"
+      .addCase(streamMessage.fulfilled, (state, action) => {
+        const chatId = (action.meta.arg as any).chatId;
+        const chat = state.chats[chatId];
+        if (chat) {
+          chat.state = "ready";
+        }
         state.error = null;
       })
     builder
       .addCase(streamMessage.rejected, (state, action) => {
-        state.state = "ready"
+        const chatId = (action.meta.arg as any).chatId;
+        const chat = state.chats[chatId];
+        if (chat) {
+          chat.state = "ready";
+        }
         state.error = action.error
       })
   },
 });
 
-export const { pushChatMessage, setDownloadProgress, initializeProvider, setProvider, setSelectedModel } = userSlice.actions;
+export const { 
+  pushChatMessage, 
+  setDownloadProgress, 
+  initializeProvider, 
+  setProvider, 
+  setSelectedModel,
+  createNewChat,
+  setActiveChat,
+  deleteChat,
+  renameChat,
+  loadChatsFromStorage
+} = userSlice.actions;
 export default userSlice.reducer;

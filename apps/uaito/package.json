@@ -24,6 +24,7 @@
     "@uaito/huggingface": "workspace:*",
     "@uaito/openai": "workspace:*",
     "@uaito/sdk": "workspace:*",
+    "date-fns": "^4.1.0",
     "moment-timezone": "^0.6.0",
     "mongoose": "^8.18.2",
     "next": "15.5.3",

@@ -11,6 +11,7 @@ import { HuggingFaceONNXModels, HuggingFaceONNXOptions } from "@uaito/huggingfac
 import { Agent } from "@uaito/ai";
 
 interface StreamInput {
+	chatId: string;
 	agent?: string;
 	session: Session;
 	prompt: string;
@@ -25,6 +26,7 @@ const withWebGPU = [LLMProvider.Local];
 
 async function processStream(
 	stream: ReadableStream<Uint8Array>,
+	chatId: string,
 	session: Session,
 	dispatch: AppDispatch,
 ) {
@@ -51,6 +53,7 @@ async function processStream(
 					const parsed: Message = JSON.parse(message);
 					dispatch(
 						pushChatMessage({
+							chatId,
 							session,
 							chatMessage: { message: parsed },
 						}),
@@ -85,7 +88,7 @@ const agents: Map<string, any> = new Map();
 export const streamMessage = createAsyncThunk(
 	"user/message",
 	async (options: StreamInput, { fulfillWithValue, rejectWithValue }) => {
-		const { prompt, inputs, signal, dispatch } = options;
+		const { chatId, prompt, inputs, signal, dispatch } = options;
 		try {
 			const provider = options.provider ?? LLMProvider.Local;
 			const agent = options.agent ?? "orquestrator";
@@ -98,6 +101,7 @@ export const streamMessage = createAsyncThunk(
 
 			dispatch(
 				pushChatMessage({
+					chatId,
 					session: options.session,
 					chatMessage: {
 						message: userMessage,
@@ -126,7 +130,7 @@ export const streamMessage = createAsyncThunk(
 					return rejectWithValue("An error occurred. Please try again later.");
 				}
 				if (response.body) {
-					await processStream(response.body, options.session, dispatch);
+					await processStream(response.body, chatId, options.session, dispatch);
 				}
 				return fulfillWithValue(null);
 			}
@@ -326,7 +330,7 @@ export const streamMessage = createAsyncThunk(
 				},
 			});
 
-			await processStream(uint8ArrayStream, options.session, dispatch);
+			await processStream(uint8ArrayStream, chatId, options.session, dispatch);
 			return fulfillWithValue(null);
 		} catch (error) {
 			const err =
@@ -340,6 +344,7 @@ export const streamMessage = createAsyncThunk(
 
 			dispatch(
 				pushChatMessage({
+					chatId,
 					session: options.session,
 					chatMessage: {
 						message: userMessage,

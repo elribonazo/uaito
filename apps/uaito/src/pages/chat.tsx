@@ -18,6 +18,7 @@ import { signOut } from "next-auth/react";
 import {
 	ArrowRightEndOnRectangleIcon,
 	UserIcon,
+	Bars3Icon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { ModelSelector } from "@/components/ModelSelector";
@@ -26,8 +27,14 @@ import {
 	initializeProvider,
 	setProvider,
 	setSelectedModel,
+	createNewChat,
+	setActiveChat,
+	deleteChat,
+	renameChat,
+	loadChatsFromStorage,
 } from "@/redux/userSlice";
 import { useDispatch } from "react-redux";
+import { ChatSidebar } from "@/components/ChatSidebar";
 
 const InputComponent = dynamic(() => import("@/components/InputComponent"), {
 	ssr: false,
@@ -43,8 +50,9 @@ const Chat: React.FC<
 	const dispatch = useDispatch();
 	const agent = "orquestrator";
 	const [selectedModel, setSelectedModelState] = useState<string>("");
+	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const {
-		user: { provider, downloadProgress, usage },
+		user: { provider, downloadProgress, usage, chats, activeChatId, chatOrder },
 	} = useMountedApp();
 	const webGPU =
 		provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
@@ -53,7 +61,15 @@ const Chat: React.FC<
 
 	useEffect(() => {
 		dispatch(initializeProvider());
+		dispatch(loadChatsFromStorage());
 	}, [dispatch]);
+
+	// Create default chat if none exist
+	useEffect(() => {
+		if (provider && selectedModel && Object.keys(chats).length === 0) {
+			dispatch(createNewChat({ provider, model: selectedModel }));
+		}
+	}, [provider, selectedModel, chats, dispatch]);
 
 	useEffect(() => {
 		// Add no-scroll class to body to prevent scrolling on mobile
@@ -74,19 +90,64 @@ const Chat: React.FC<
 		dispatch(setSelectedModel(model));
 	};
 
+	const handleNewChat = () => {
+		if (provider && selectedModel) {
+			dispatch(createNewChat({ provider, model: selectedModel }));
+			setSidebarOpen(false);
+		}
+	};
+
+	const handleSelectChat = (chatId: string) => {
+		dispatch(setActiveChat(chatId));
+		setSidebarOpen(false);
+	};
+
+	const handleDeleteChat = (chatId: string) => {
+		dispatch(deleteChat(chatId));
+	};
+
+	const handleRenameChat = (chatId: string, name: string) => {
+		dispatch(renameChat({ id: chatId, name }));
+	};
+
 	return (
-		<div className="bg-background w-full h-[100dvh] flex flex-col overflow-hidden">
+		<div className="bg-background w-full h-[100dvh] flex overflow-hidden">
 			<SpaceBackground />
 
-			<header className="w-full shadow-sm h-14 sm:h-16 sticky top-0 right-0 left-0 z-50 bg-background/80 backdrop-blur-sm border-b border-muted">
-				<div className="w-full h-full flex flex-row items-center justify-between px-2 sm:px-4">
-          <h1 className="text-lg sm:text-2xl font-bold flex-shrink-0">
-            <Link href="/">
-              <AnimatedText />
-            </Link>
-          </h1>
-				<div className="flex-grow min-w-0"></div>
-				<div className="flex flex-row items-center space-x-1 sm:space-x-2 lg:space-x-3">
+			{/* Chat Sidebar */}
+			<ChatSidebar
+				isOpen={sidebarOpen}
+				chats={chats}
+				chatOrder={chatOrder}
+				activeChatId={activeChatId}
+				onToggle={() => setSidebarOpen(!sidebarOpen)}
+				onNewChat={handleNewChat}
+				onSelectChat={handleSelectChat}
+				onDeleteChat={handleDeleteChat}
+				onRenameChat={handleRenameChat}
+			/>
+
+			{/* Main Content Area */}
+			<div className={`flex flex-col flex-1 transition-all duration-300 ${sidebarOpen ? 'lg:ml-80' : 'lg:ml-16'}`}>
+				<header className="w-full shadow-sm h-14 sm:h-16 sticky top-0 right-0 left-0 z-40 bg-background/80 backdrop-blur-sm border-b border-muted">
+					<div className="w-full h-full flex flex-row items-center justify-between px-2 sm:px-4">
+						<div className="flex items-center gap-2 sm:gap-3">
+							<button
+								type="button"
+								onClick={() => setSidebarOpen(!sidebarOpen)}
+								className="p-1.5 sm:p-2 hover:bg-surface-hover rounded-lg transition-colors lg:hidden"
+								title="Toggle sidebar"
+							>
+								<Bars3Icon className="h-5 w-5 text-secondary-text" />
+							</button>
+							<h1 className="text-lg sm:text-2xl font-bold flex-shrink-0">
+								<Link href="/">
+									<AnimatedText />
+								</Link>
+							</h1>
+						</div>
+						<div className="flex-grow min-w-0"></div>
+						<div className="flex flex-row items-center space-x-1 sm:space-x-2 lg:space-x-3">
 					{isDownloading && (
 						<div className="hidden md:flex items-center space-x-2">
 							<span className="text-primary-text text-sm">
@@ -122,37 +183,51 @@ const Chat: React.FC<
 					>
 						<ArrowRightEndOnRectangleIcon className="h-4 w-4 sm:h-5 sm:w-5" />
 					</button>
-				</div>
+						</div>
+					</div>
+				</header>
 
-        </div>
-
-		</header>
-
-		<main className="flex-1 w-full relative bg-gray-900 min-h-0 overflow-hidden">
-			{provider && (
-				<InputComponent
-					agent={agent}
-					provider={provider}
-					model={selectedModel}
-				/>
-			)}
-				<ToastContainer
-					autoClose={5000}
-					hideProgressBar={true}
-					newestOnTop={false}
-					closeOnClick
-					rtl={false}
-					pauseOnFocusLoss
-					draggable
-					pauseOnHover
-					theme={
-						typeof document !== "undefined" &&
-						document.documentElement.classList.contains("dark")
-							? "dark"
-							: "light"
-					}
-				/>
-			</main>
+				<main className="flex-1 w-full relative bg-gray-900 min-h-0 overflow-hidden">
+					{provider && activeChatId && (
+						<InputComponent
+							chatId={activeChatId}
+							agent={agent}
+							provider={provider}
+							model={selectedModel}
+						/>
+					)}
+					{provider && !activeChatId && (
+						<div className="flex items-center justify-center h-full">
+							<div className="text-center">
+								<p className="text-secondary-text mb-4">No chat selected</p>
+								<button
+									type="button"
+									onClick={handleNewChat}
+									className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg transition-all duration-200"
+								>
+									Create New Chat
+								</button>
+							</div>
+						</div>
+					)}
+					<ToastContainer
+						autoClose={5000}
+						hideProgressBar={true}
+						newestOnTop={false}
+						closeOnClick
+						rtl={false}
+						pauseOnFocusLoss
+						draggable
+						pauseOnHover
+						theme={
+							typeof document !== "undefined" &&
+							document.documentElement.classList.contains("dark")
+								? "dark"
+								: "light"
+						}
+					/>
+				</main>
+			</div>
 		</div>
 	);
 };

@@ -11,7 +11,7 @@ import type { TextBlockParam } from '@anthropic-ai/sdk/resources';
 import { useSession } from 'next-auth/react';
 import { MessageArray, type LLMProvider, type Message, type MessageInput } from '@uaito/sdk';
 
-const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
+const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
   const app = useMountedApp();
   const session = useSession();
   
@@ -19,7 +19,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchText, setSearchText] = useState('');
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
-  const currentChat = app.user;
+  const currentChat = app.user.chats[props.chatId];
   const isLoading = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
   
@@ -45,7 +45,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
     return () => {
       window.removeEventListener('keydown', fn);
     };
-  }, [isSearchEnabled]);
+  }, []);
 
   const sendMessage = (prompt:string) => {
     if (!prompt.trim() || isLoading) return;
@@ -89,6 +89,7 @@ const InputComponent: React.FC<{agent?: string, provider?: LLMProvider, model?: 
     }, []).map((item) => ({role: item.role, content: item.content})) as MessageInput[]
 
     app.streamMessage({
+      chatId: props.chatId,
       agent:props.agent,
       prompt: prompt,
       inputs: MessageArray.from(reducedInputs),
