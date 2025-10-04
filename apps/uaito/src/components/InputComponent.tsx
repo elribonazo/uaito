@@ -21,6 +21,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
   const currentChat = app.user.chats[props.chatId];
   const isLoading = currentChat?.state === "streaming";
+  const isStreaming = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
   
   const lastMessage = messages[messages.length - 1];
@@ -186,7 +187,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
             </div>
 
             {/* Example prompts */}
-            <Messages searchText={searchText} messages={messages} onPromptClick={(prompt) => {
+            <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} onPromptClick={(prompt) => {
               setInput(prompt);
               sendMessage(prompt);
             }}/>
@@ -199,7 +200,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
         <>
           <div className="flex-1 overflow-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="max-w-5xl mx-auto">
-              <Messages searchText={searchText} messages={messages} onPromptClick={(prompt) => {
+              <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} onPromptClick={(prompt) => {
                 setInput(prompt);
                 sendMessage(prompt);
               }}/>

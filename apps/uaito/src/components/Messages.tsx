@@ -4,7 +4,6 @@ import type { MessageState } from '../redux/userSlice';
 import { Markdown } from './Markdown';
 import { ToolComponent } from './ToolComponent';
 import { ThinkingComponent } from './ThinkingComponent';
-import { useMountedApp } from '../redux/store';
 import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock, SignatureDeltaBlock, AudioBlock } from '@uaito/sdk';
 import { PhotoIcon, MagnifyingGlassIcon, GlobeAltIcon, MusicalNoteIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
@@ -77,9 +76,9 @@ export const MessageItem:React.FC<{
     content: TextBlock | ToolBlock | ImageBlock |AudioBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock,
     searchText: string,
     type: MessageState['type'],
-    messages?: MessageState[]
-}> = ({id, isUser, content, searchText, messages}) => {
-    const app = useMountedApp();
+    messages?: MessageState[],
+    isStreaming?: boolean
+}> = ({id, isUser, content, searchText, messages, isStreaming}) => {
     if (content.type === "text") {
         const text = content.text;
         
@@ -144,11 +143,11 @@ export const MessageItem:React.FC<{
         );
     
     } else if (content.type === "thinking") {
-        return <ThinkingComponent thinking={content.thinking} messages={messages} currentMessageId={id} />;
+        return <ThinkingComponent thinking={content.thinking} messages={messages} currentMessageId={id} isStreaming={isStreaming} />;
     } else if (content.type === "redacted_thinking") {
-        return <ThinkingComponent thinking="[Thinking content redacted]" messages={messages} currentMessageId={id} />;
+        return <ThinkingComponent thinking="[Thinking content redacted]" messages={messages} currentMessageId={id} isStreaming={isStreaming} />;
     } else if (content.type === "tool_use") {
-        return <ToolComponent messageId={`msg-${id}-block`} {...content} messages={messages} currentMessageId={id} />
+        return <ToolComponent messageId={`msg-${id}-block`} {...content} messages={messages} currentMessageId={id} isStreaming={isStreaming} />
     }else if (content.type === "tool_result") {
         const toolIndex = messages?.findIndex((m) =>  m.type === "tool_use" &&  m.id === content.tool_use_id);
 
@@ -160,6 +159,7 @@ export const MessageItem:React.FC<{
             name: toolName,
             messages,
             currentMessageId: id,
+            isStreaming,
         }} />
     } else if (content.type === "signature_delta") {
         // Handle signature delta - could render as a special text block or ignore
@@ -174,9 +174,10 @@ export const MessageItem:React.FC<{
 export const Message: React.FC<{
     message: MessageState,
     searchText: string,
-    messages?: MessageState[]
+    messages?: MessageState[],
+    isStreaming?: boolean
 }> = (props) => {
-    const { message, searchText, messages } = props;
+    const { message, searchText, messages, isStreaming } = props;
     const { id, role, content, type } = message;
     const isUser = role === 'user';
     if (Array.isArray(content)) {
@@ -188,7 +189,8 @@ export const Message: React.FC<{
             content={currentContent} 
             searchText={searchText}
             type={type}
-            messages={messages}/>
+            messages={messages}
+            isStreaming={isStreaming}/>
         }
          )
     }
@@ -253,7 +255,7 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
 };
 
 
-export const Messages: React.FC<{ searchText: string, messages: MessageState[], onPromptClick: (prompt: string) => void }> = (props) => {
+export const Messages: React.FC<{ searchText: string, messages: MessageState[], isStreaming?: boolean, onPromptClick: (prompt: string) => void }> = (props) => {
     const messages: MessageState[] = props.messages;
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -289,6 +291,7 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[], 
                     message={message}
                     searchText={props.searchText}
                     messages={toolledMessages}
+                    isStreaming={props.isStreaming}
                 />)}
                 <div ref={messagesEndRef} />
             </div>

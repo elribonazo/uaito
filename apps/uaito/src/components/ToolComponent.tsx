@@ -20,10 +20,11 @@ const statusIcon = {
 interface ToolUseComponentProps extends ToolUseBlock {
   messages?: MessageState[];
   currentMessageId?: string;
+  isStreaming?: boolean;
 }
 
 const ToolUseComponent: FC<ToolUseComponentProps>  = (props) => {
-   const { messages = [], currentMessageId, name } = props;
+   const { messages = [], currentMessageId, name, isStreaming = false } = props;
    const status = 'started';
    const [isComplete, setIsComplete] = useState(false);
    const [shouldFadeOut, setShouldFadeOut] = useState(false);
@@ -39,7 +40,14 @@ const ToolUseComponent: FC<ToolUseComponentProps>  = (props) => {
        msg.type !== 'thinking' && msg.type !== 'redacted_thinking' && msg.type !== 'tool_use'
      );
 
-     if (hasNonToolAfter && !shouldFadeOut) {
+     // If not streaming and there are non-tool messages after, hide immediately
+     if (!isStreaming && hasNonToolAfter) {
+       setIsComplete(true);
+       return;
+     }
+
+     // Only animate fade-out when streaming
+     if (isStreaming && hasNonToolAfter && !shouldFadeOut) {
        const delayTimer = setTimeout(() => {
          setShouldFadeOut(true);
          const fadeTimer = setTimeout(() => {
@@ -49,18 +57,18 @@ const ToolUseComponent: FC<ToolUseComponentProps>  = (props) => {
        }, 10);
        return () => clearTimeout(delayTimer);
      }
-   }, [messages, currentMessageId, shouldFadeOut]);
+   }, [messages, currentMessageId, shouldFadeOut, isStreaming]);
 
    if (isComplete) {
      return null;
    }
 
    return <div 
-     className="w-full mt-4 p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs transition-all duration-300 ease-out"
+     className={`w-full mt-4 p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs ${isStreaming ? 'transition-all duration-300 ease-out' : ''}`}
      style={{
        opacity: shouldFadeOut ? 0 : 1,
        marginTop: shouldFadeOut ? 0 : '1rem',
-       transform: shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
+       transform: isStreaming && shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
        height: shouldFadeOut ? 0 : 'auto',
        padding: shouldFadeOut ? 0 : undefined,
        overflow: shouldFadeOut ? 'hidden' : 'visible',
@@ -83,10 +91,11 @@ interface ToolOutputComponentProps extends ToolResultBlock {
   messageId: string,
   messages?: MessageState[];
   currentMessageId?: string;
+  isStreaming?: boolean;
 }
 
 const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
-  const { messages = [], currentMessageId } = props;
+  const { messages = [], currentMessageId, isStreaming = false } = props;
   const name = props.name;
   const [showRaw, setShowRaw] = useState(false);
   const status = props.isError === true ? 'error' : 'completed';
@@ -106,7 +115,14 @@ const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
       msg.type !== 'thinking' && msg.type !== 'redacted_thinking' && msg.type !== 'tool_use' && msg.type !== 'tool_result'
     );
 
-    if (hasNonToolAfter && !shouldFadeOut) {
+    // If not streaming and there are non-tool messages after, hide immediately
+    if (!isStreaming && hasNonToolAfter) {
+      setIsComplete(true);
+      return;
+    }
+
+    // Only animate fade-out when streaming
+    if (isStreaming && hasNonToolAfter && !shouldFadeOut) {
       const delayTimer = setTimeout(() => {
         setShouldFadeOut(true);
         const fadeTimer = setTimeout(() => {
@@ -116,7 +132,7 @@ const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
       }, 1500);
       return () => clearTimeout(delayTimer);
     }
-  }, [messages, currentMessageId, shouldFadeOut]);
+  }, [messages, currentMessageId, shouldFadeOut, isStreaming]);
 
   if (isComplete) {
     return null;
@@ -128,11 +144,11 @@ const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
     onMouseEnter={() => setIsExpanded(true)}
     onMouseLeave={() => setIsExpanded(false)}
     role="tooltip"
-    className={`w-full p-2 mt-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs transition-all duration-300 ease-out ${isExpanded ? 'w-full' : 'inline-block'}`}
+    className={`w-full p-2 mt-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs ${isStreaming ? 'transition-all duration-300 ease-out' : ''} ${isExpanded ? 'w-full' : 'inline-block'}`}
     style={{
       opacity: shouldFadeOut ? 0 : 1,
       marginTop: shouldFadeOut ? 0 : '1rem',
-      transform: shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
+      transform: isStreaming && shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
     }}
   >
      <div className="flex items-center justify-between">
@@ -188,14 +204,15 @@ export type ToolComponentProps = (ToolInputDelta | ToolUseBlock | ToolResultBloc
   messages?: MessageState[];
   currentMessageId?: string;
   name?: string;
+  isStreaming?: boolean;
 };
 
 export const ToolComponent: FC<ToolComponentProps>  = (props) => {
   if (props.type === "tool_use") {
-    return <ToolUseComponent {...props} messages={props.messages} currentMessageId={props.currentMessageId} />
+    return <ToolUseComponent {...props} messages={props.messages} currentMessageId={props.currentMessageId} isStreaming={props.isStreaming} />
   }
   if (props.type === "tool_result" && props.name) {
-    return <ToolOutputComponent {...props} name={props.name} />
+    return <ToolOutputComponent {...props} name={props.name} isStreaming={props.isStreaming} />
   }
   return null;
 };

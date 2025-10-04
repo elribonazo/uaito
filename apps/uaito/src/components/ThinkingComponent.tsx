@@ -6,7 +6,8 @@ export const ThinkingComponent: React.FC<{
   thinking: string;
   messages?: MessageState[];
   currentMessageId?: string;
-}> = ({ thinking, messages = [], currentMessageId }) => {
+  isStreaming?: boolean;
+}> = ({ thinking, messages = [], currentMessageId, isStreaming = false }) => {
   const [isThinkingComplete, setIsThinkingComplete] = useState(false);
   const [shouldFadeOut, setShouldFadeOut] = useState(false);
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
@@ -56,7 +57,7 @@ export const ThinkingComponent: React.FC<{
     }
   }, [thinking, shouldFadeOut, isExpanded]); // Update height when thinking changes or expanded state changes
 
-  // Fade out logic
+  // Fade out logic - only when streaming
   useEffect(() => {
     if (!messages.length || !currentMessageId) return;
 
@@ -67,7 +68,14 @@ export const ThinkingComponent: React.FC<{
       msg.type !== 'thinking' && msg.type !== 'redacted_thinking'
     );
 
-    if (hasNonThinkingAfter && !shouldFadeOut) {
+    // If not streaming and there are non-thinking messages after, hide immediately
+    if (!isStreaming && hasNonThinkingAfter) {
+      setIsThinkingComplete(true);
+      return;
+    }
+
+    // Only animate fade-out when streaming
+    if (isStreaming && hasNonThinkingAfter && !shouldFadeOut) {
       // Add a delay before starting the fade-out process
       const delayTimer = setTimeout(() => {
         setShouldFadeOut(true);
@@ -78,11 +86,11 @@ export const ThinkingComponent: React.FC<{
         }, 500); // Duration of fade-out animation
         
         return () => clearTimeout(fadeTimer);
-      }, 10); // 1.5 second delay before starting fade-out
+      }, 10); // Small delay before starting fade-out
       
       return () => clearTimeout(delayTimer);
     }
-  }, [messages, currentMessageId, shouldFadeOut]);
+  }, [messages, currentMessageId, shouldFadeOut, isStreaming]);
 
   if (isThinkingComplete) {
     return null;
@@ -93,7 +101,7 @@ export const ThinkingComponent: React.FC<{
       ref={containerRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative transition-all duration-300 ease-out bg-gray-800/30 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-800/50 ${
+      className={`relative ${isStreaming ? 'transition-all duration-300 ease-out' : ''} bg-gray-800/30 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-800/50 ${
         isExpanded ? 'w-full text-left' : 'inline-flex items-center w-auto'
       }`}
       style={{
@@ -101,7 +109,7 @@ export const ThinkingComponent: React.FC<{
         opacity: shouldFadeOut ? 0 : 1,
         marginTop: shouldFadeOut ? 0 : '1rem',
         padding: shouldFadeOut ? 0 : (isExpanded ? '1.25rem 1rem' : '0.75rem'), // Smaller padding when collapsed
-        transform: shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
+        transform: isStreaming && shouldFadeOut ? 'translateY(-8px) scale(0.95)' : 'translateY(0) scale(1)',
         overflow: shouldFadeOut ? 'hidden' : 'visible',
         width: isExpanded ? '100%' : 'auto'
       }}

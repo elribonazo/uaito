@@ -213,7 +213,14 @@ const userSlice = createSlice({
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
-            state.chats = parsed.chats || {};
+            // Reset all chat states to 'ready' since no chats can be actively streaming on page load
+            const chats = parsed.chats || {};
+            Object.keys(chats).forEach(chatId => {
+              if (chats[chatId]) {
+                chats[chatId].state = 'ready';
+              }
+            });
+            state.chats = chats;
             state.activeChatId = parsed.activeChatId || null;
             state.chatOrder = parsed.chatOrder || [];
           } catch (error) {
