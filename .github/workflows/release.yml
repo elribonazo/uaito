@@ -59,9 +59,8 @@ jobs:
           yarn install
           npm run build
           if [[ $GITHUB_REF == *"refs/heads/develop"* ]]; then
-            echo "Creating RC version for develop branch"
-            npx nx release version prerelease --preid=rc --verbose
-            npx nx release changelog --verbose
+            echo "Creating RC version and changelog for develop branch"
+            npx nx release prerelease --preid=rc --skip-publish --verbose
             echo "Publishing with RC tag for develop branch"
             npx nx release publish --tag rc --verbose
           else
