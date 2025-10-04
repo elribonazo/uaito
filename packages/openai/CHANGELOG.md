@@ -1,3 +1,13 @@
+## 0.0.20 (2025-10-04)
+
+### 🩹 Fixes
+
+- improve openai and grok parsing and tool usage Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([23d7d06](https://github.com/elribonazo/uaito/commit/23d7d06))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.19 (2025-10-04)
 
 ### 🩹 Fixes

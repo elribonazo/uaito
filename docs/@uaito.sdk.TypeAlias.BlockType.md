@@ -28,6 +28,6 @@ type BlockType =
   | SignatureDeltaBlock;
 ```
 
-Defined in: [domain/types.ts:722](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L722)
+Defined in: [domain/types.ts:722](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/types.ts#L722)
 
 Represents the type of a block.

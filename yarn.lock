@@ -6271,7 +6271,7 @@ __metadata:
     "@uaito/anthropic": ^0.0.20
     "@uaito/api": ^0.0.19
     "@uaito/huggingface": ^0.0.19
-    "@uaito/openai": ^0.0.19
+    "@uaito/openai": ^0.0.20
   bin:
     uaito-cli: build/cli.js
   languageName: unknown
