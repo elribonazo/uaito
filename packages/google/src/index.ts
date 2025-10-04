@@ -318,9 +318,9 @@ export class Google extends BaseLLM<LLMProvider.Google, GoogleOptions> {
   }
 
   async performTaskStream(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
+    prompt,
+    chainOfThought,
+    system,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
 
     if (this.options.verbose) {

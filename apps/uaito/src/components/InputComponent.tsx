@@ -2,6 +2,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useCallback,
 } from 'react';
 
 import { useMountedApp } from '../redux/store';
@@ -9,8 +10,8 @@ import SearchBar from './SearchBar';
 import { Messages } from './Messages';
 import type { TextBlockParam } from '@anthropic-ai/sdk/resources';
 import { useSession } from 'next-auth/react';
-import { MessageArray, type LLMProvider, type Message, type MessageInput } from '@uaito/sdk';
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import { MessageArray, LLMProvider, type Message, type MessageInput, type BlockType } from '@uaito/sdk';
+import { ArrowPathIcon, XMarkIcon, CloudArrowUpIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
   const app = useMountedApp();
@@ -26,6 +27,9 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const isStreaming = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
   
+  // Check if image upload is allowed (only for Local provider)
+  const isImageUploadAllowed = props.provider === LLMProvider.Local;
+  
   // Pull to refresh state
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
@@ -39,6 +43,11 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const [input, setInput] = useState(retry ? 
     (lastMessage.content[0] as TextBlockParam)?.text ?? '' :
     '');
+  
+  // File upload state
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fn = (event: KeyboardEvent) => {
@@ -121,9 +130,101 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
     };
   }, [isPulling, pullDistance, pullThreshold, isLoading]);
 
-  const sendMessage = (prompt:string) => {
-    if (!prompt.trim() || isLoading) return;
-    if (!session || !session.data) return
+  // File handling functions
+  const handleFiles = useCallback((files: FileList | null) => {
+    if (!files) return;
+    const newFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+    if (newFiles.length < files.length) {
+      // Optional: You could add a toast notification here
+      console.warn('Only image files are allowed');
+    }
+    setAttachedFiles(prev => [...prev, ...newFiles]);
+  }, []);
+
+  const removeFile = useCallback((index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isImageUploadAllowed && e.dataTransfer.types.includes('Files')) {
+      setIsDragging(true);
+    }
+  }, [isImageUploadAllowed]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only hide if we're leaving the entire drop zone, not just a child element
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    if (
+      e.clientX <= rect.left ||
+      e.clientX >= rect.right ||
+      e.clientY <= rect.top ||
+      e.clientY >= rect.bottom
+    ) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isImageUploadAllowed && e.dataTransfer.types.includes('Files')) {
+      setIsDragging(true);
+    }
+  }, [isImageUploadAllowed]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (isImageUploadAllowed) {
+      handleFiles(e.dataTransfer.files);
+    }
+  }, [handleFiles, isImageUploadAllowed]);
+
+  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFiles(e.target.files);
+  }, [handleFiles]);
+
+  // Convert files to base64 ImageBlock format
+  const convertFilesToImageBlocks = async (files: File[]): Promise<BlockType[]> => {
+    const imageBlocks: BlockType[] = [];
+    
+    for (const file of files) {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Remove data URL prefix to get pure base64
+          const base64Data = result.split(',')[1];
+          resolve(base64Data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Determine media type from file type
+      const mediaType = file.type as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+      
+      imageBlocks.push({
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: mediaType,
+          data: base64
+        }
+      } as BlockType);
+    }
+    
+    return imageBlocks;
+  };
+
+  const sendMessage = async (prompt: string) => {
+    if ((!prompt.trim() && attachedFiles.length === 0) || isLoading) return;
+    if (!session || !session.data) return;
     abortControllerRef.current = new AbortController();
 
     const reducedInputs = (messages as Message[]).reduce<Message[]>((all, current) => {
@@ -162,10 +263,22 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
       return all
     }, []).map((item) => ({role: item.role, content: item.content})) as MessageInput[]
 
+    // Convert attached files to image blocks
+    let promptContent: string | BlockType[] = prompt;
+    if (attachedFiles.length > 0) {
+      const imageBlocks = await convertFilesToImageBlocks(attachedFiles);
+      // Combine text and images into BlockType array
+      const textBlock: BlockType = {
+        type: 'text',
+        text: prompt || 'Please analyze these images.'
+      } as BlockType;
+      promptContent = [textBlock, ...imageBlocks];
+    }
+
     app.streamMessage({
       chatId: props.chatId,
       agent:props.agent,
-      prompt: prompt,
+      prompt: promptContent,
       inputs: MessageArray.from(reducedInputs),
       signal: abortControllerRef.current.signal,
       dispatch: app.dispatch,
@@ -175,6 +288,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
     })
 
     setInput('');
+    setAttachedFiles([]); // Clear attached files after sending
   }
   
   useEffect(() => {
@@ -210,6 +324,62 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
     return <>Chat not found</>;
   }
 
+  // File attachment display component with image previews
+  const FileAttachments = () => {
+    if (attachedFiles.length === 0) return null;
+    
+    return (
+      <div className="flex flex-wrap gap-2 mb-2">
+        {attachedFiles.map((file, index) => {
+          const imageUrl = URL.createObjectURL(file);
+          return (
+            <div
+              key={`${file.name}-${index}`}
+              className="relative group bg-surface border border-border rounded-lg overflow-hidden hover:border-accent transition-colors"
+              style={{ width: '120px', height: '120px' }}
+            >
+              {/* Image Preview */}
+              <img
+                src={imageUrl}
+                alt={file.name}
+                className="w-full h-full object-cover"
+                onLoad={() => URL.revokeObjectURL(imageUrl)} // Clean up the object URL after loading
+              />
+              
+              {/* Overlay with file info */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+                <PhotoIcon className="h-8 w-8 text-white mb-1" />
+                <span className="text-white text-xs text-center px-2 truncate w-full">
+                  {file.name}
+                </span>
+                <span className="text-white/80 text-xs">
+                  {(file.size / 1024).toFixed(1)} KB
+                </span>
+              </div>
+              
+              {/* Remove button */}
+              <button
+                type="button"
+                onClick={() => removeFile(index)}
+                className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                title="Remove image"
+              >
+                <XMarkIcon className="h-4 w-4" />
+              </button>
+              
+              {/* File name label at bottom - always visible */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                <span className="text-white text-xs truncate block">
+                  {file.name}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const hasMessages = messages.length > 0;
 
   return (
@@ -230,23 +400,70 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
             </div>
             
             {/* Centered input bubble */}
-            <div className="bg-surface border border-border rounded-2xl p-3 sm:p-4 shadow-lg">
-              <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3">
+            <section 
+              aria-label="Message input with image drop zone"
+              className={`bg-surface border rounded-2xl p-3 sm:p-4 shadow-lg relative transition-all duration-200 ${
+                isDragging && isImageUploadAllowed ? 'border-primary border-2 bg-primary/5 scale-[1.02]' : 'border-border'
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {isDragging && isImageUploadAllowed && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-primary/20 backdrop-blur-sm rounded-2xl z-10 pointer-events-none border-2 border-dashed border-primary animate-pulse">
+                  <CloudArrowUpIcon className="w-16 h-16 text-primary mb-3" />
+                  <div className="text-primary text-lg font-semibold">Drop images here</div>
+                  <div className="text-primary-text text-sm mt-1">Release to attach</div>
+                </div>
+              )}
+              <form 
+                onSubmit={handleSubmit} 
+                className="space-y-2 sm:space-y-3"
+                onDragEnter={handleDragEnter}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <FileAttachments />
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleTextareaKeyDown}
-                  placeholder="Type your message here..."
+                  onDragEnter={handleDragEnter}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  placeholder={isImageUploadAllowed ? "Type your message or drag & drop images here..." : "Type your message..."}
                   className="w-full px-0 py-0 bg-transparent text-primary-text placeholder-tertiary-text focus:outline-none resize-none text-sm"
                   style={{ minHeight: '60px', maxHeight: '200px' }}
                   rows={2}
                   disabled={isLoading}
                 />
-                {input.length > 0 && (
-                  <div className="flex justify-end">
+                {(input.length > 0 || attachedFiles.length > 0) && (
+                  <div className="flex justify-between items-center">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileInputChange}
+                      className="hidden"
+                      disabled={!isImageUploadAllowed}
+                    />
+                    {isImageUploadAllowed && (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-2 sm:px-3 py-1.5 text-secondary-text hover:text-primary-text text-xs sm:text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                      >
+                        <PhotoIcon className="h-4 w-4" />
+                        <span className="hidden sm:inline">Attach Image</span>
+                      </button>
+                    )}
                     <button
                       type="submit"
-                      disabled={isLoading || !input.trim()}
+                      disabled={isLoading || (!input.trim() && attachedFiles.length === 0)}
                       className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isLoading && (
@@ -257,7 +474,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                   </div>
                 )}
               </form>
-            </div>
+            </section>
 
             {/* Example prompts */}
             <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} onPromptClick={(prompt) => {
@@ -360,40 +577,92 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
           </div>
           
           {/* Bottom input bar */}
-          <div className="border-t border-border bg-background/80 backdrop-blur-sm">
+          <section 
+            aria-label="Message input with image drop zone"
+            className={`border-t bg-background/80 backdrop-blur-sm relative transition-all duration-200 ${
+              isDragging && isImageUploadAllowed ? 'border-primary border-t-4' : 'border-border'
+            }`}
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {isDragging && isImageUploadAllowed && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-primary/20 backdrop-blur-md z-10 pointer-events-none border-2 border-dashed border-primary">
+                <CloudArrowUpIcon className="w-12 h-12 sm:w-16 sm:h-16 text-primary mb-2 sm:mb-3 animate-bounce" />
+                <div className="text-primary text-base sm:text-lg font-semibold">Drop images here</div>
+                <div className="text-primary-text text-xs sm:text-sm mt-1">Release to attach</div>
+              </div>
+            )}
             <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3">
-              <form className="flex gap-1.5 sm:gap-2" onSubmit={handleSubmit}>
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleTextareaKeyDown}
-                  placeholder="Type your message..."
-                  className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-surface border border-border rounded-xl text-primary-text text-sm placeholder-tertiary-text focus:outline-none focus:border-primary transition-all resize-none"
-                  style={{ height: '40px', minHeight: '40px', maxHeight: '120px' }}
-                  rows={1}
-                  disabled={isLoading && lastMessage !== undefined && lastMessage.role === "user" && currentChat.state !== "streaming"}
-                />
-                {!isLoading && input.length > 0 && (
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                  >
-                    {retry ? 'Retry' : 'Send'}
-                  </button>
-                )}
-                {isLoading && (
-                  <button
-                    type="button"
-                    onClick={handleStopRequest}
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-surface hover:bg-red-500/10 text-secondary-text hover:text-red-400 border border-border hover:border-red-500/30 text-xs sm:text-sm font-medium rounded-xl transition-all duration-200"
-                  >
-                    Stop
-                  </button>
-                )}
+              <form 
+                className="space-y-2" 
+                onSubmit={handleSubmit}
+                onDragEnter={handleDragEnter}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <FileAttachments />
+                <div className="flex gap-1.5 sm:gap-2">
+                  <div className="flex-1 relative">
+                    <textarea
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleTextareaKeyDown}
+                      onDragEnter={handleDragEnter}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      placeholder={isImageUploadAllowed ? "Type a message or drag & drop images..." : "Type a message..."}
+                      className="w-full px-2 sm:px-3 py-1.5 sm:py-2 bg-surface border border-border rounded-xl text-primary-text text-sm placeholder-tertiary-text focus:outline-none focus:border-primary transition-all resize-none"
+                      style={{ height: '40px', minHeight: '40px', maxHeight: '120px' }}
+                      rows={1}
+                      disabled={isLoading && lastMessage !== undefined && lastMessage.role === "user" && currentChat.state !== "streaming"}
+                    />
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileInputChange}
+                    className="hidden"
+                    disabled={!isImageUploadAllowed}
+                  />
+                  {isImageUploadAllowed && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isLoading}
+                      className="px-2 sm:px-3 py-1.5 sm:py-2 bg-surface hover:bg-surface-hover text-secondary-text hover:text-primary-text border border-border text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                      title="Attach image"
+                    >
+                      <PhotoIcon className="h-4 w-4" />
+                    </button>
+                  )}
+                  {!isLoading && (input.length > 0 || attachedFiles.length > 0) && (
+                    <button
+                      type="submit"
+                      disabled={isLoading || (!input.trim() && attachedFiles.length === 0)}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    >
+                      {retry ? 'Retry' : 'Send'}
+                    </button>
+                  )}
+                  {isLoading && (
+                    <button
+                      type="button"
+                      onClick={handleStopRequest}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-surface hover:bg-red-500/10 text-secondary-text hover:text-red-400 border border-border hover:border-red-500/30 text-xs sm:text-sm font-medium rounded-xl transition-all duration-200"
+                    >
+                      Stop
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
-          </div>
+          </section>
         </>
       )}
     </div>

@@ -2,7 +2,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { AppDispatch } from "@/redux/store";
 import type { Session } from "next-auth";
-import { LLMProvider,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent } from "@uaito/sdk";
+import { LLMProvider,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent, BlockType } from "@uaito/sdk";
 
 import { v4 } from "uuid";
 import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
@@ -14,7 +14,7 @@ interface StreamInput {
 	chatId: string;
 	agent?: string;
 	session: Session;
-	prompt: string;
+	prompt: string | BlockType[];
 	inputs: MessageArray<MessageInput>;
 	signal: AbortSignal;
 	provider?: LLMProvider;
@@ -92,12 +92,23 @@ export const streamMessage = createAsyncThunk(
 		try {
 			const provider = options.provider ?? LLMProvider.Local;
 			const agent = options.agent ?? "orquestrator";
-			const userMessage: Message = {
+
+			let userMessage: Message;
+			if (typeof prompt === "string") {
+				userMessage = {
 				role: "user",
 				type: "message",
 				id: v4(),
-				content: [{ type: "text", text: prompt }],
-			};
+					content: [{ type: "text", text: prompt }],
+				};
+			} else {
+				userMessage = {
+					role: "user",
+					type: "message",
+					id: v4(),
+					content: prompt,
+				};
+			}
 
 			dispatch(
 				pushChatMessage({
@@ -173,6 +184,27 @@ export const streamMessage = createAsyncThunk(
 							},
 						},
 						{
+							name: "imageEdit",
+							description:
+								"Edit an image based on a prompt. This tool should be used when you need to edit an image based on a prompt and returns the blob url of the edited image, to be used inside blob:http://...... tag, always append blob: together with the url.",
+							input_schema: {
+								type: "object",
+								properties: {
+									image: {
+										type: "string",
+										description:
+											"The image blob url to edit.",
+									},
+									prompt: {
+										type: "string",
+										description:
+											"A detailed prompt describing the picture, applying the visual style and quality of the picture.",
+									},
+								},
+								required: ["prompt", "image"],
+							},
+						},
+						{
 							name: "generateAudio",
 							description:
 								"Generate an audio based on a prompt. This tool should be used when you need to generate an audio based on a prompt and returns the blob url of the generated audio, to be used inside blob:http://...... tag, always append blob: together with the url.",
@@ -216,7 +248,32 @@ export const streamMessage = createAsyncThunk(
 						const toolUse = message.content.find((m) => m.type === "tool_use");
 						const id = message.id;
 
-						if (toolUse?.name === "generateAudio") {
+						if (toolUse?.name === "imageEdit") {
+							const input = toolUse?.input as { prompt: string, image: string };
+							debugger;
+							const { response } = await imageAgent.performTask(input.prompt, input.image);
+							const toolResult: Message = {
+								...message,
+								id,
+								type: "tool_result",
+								content: [
+									{
+										name: (toolUse as any).name,
+										type: "tool_result",
+										tool_use_id: id,
+										content: [],
+									} as ToolResultBlock,
+								],
+								role: "assistant",
+							};
+							for await (const chunk of response) {
+								for (const content of chunk.content) {
+									(toolResult as any).content[0].content.push(content);
+								}
+							}
+							this.inputs.push(toolResult);
+
+						}else if (toolUse?.name === "generateAudio") {
 							const input = toolUse?.input as { prompt: string };
 							const { response } = await audioAgent.performTask(input.prompt);
 							const toolResult: Message = {

@@ -228,6 +228,16 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       .map((c) => c.text)
       .join("\n\n");
 
+    const imagesContent = content
+      .filter((c): c is ImageBlock => c.type === "image")
+      .map((c) => c.source)
+      .map((c) => {
+        const decodedImage = Buffer.from(c.data, 'base64');
+        const blob = new Blob([decodedImage], { type: c.media_type });
+        return URL.createObjectURL(blob);
+      })
+      .join("");
+
     const toolUseContent = content
       .filter((c): c is ToolUseBlock => c.type === "tool_use")
       .map((toolUse) =>
@@ -282,10 +292,17 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
         role: 'assistant',
         content: toolResultContent,
       };
-
     }
 
     const finalContent = [textContent].filter(Boolean).join('\n\n');
+
+    if (imagesContent) {
+      return {
+        role: message.role,
+        content:`${finalContent}\n\n${imagesContent}`,
+      };
+    }
+
     return {
       role: message.role,
       content: finalContent,
@@ -403,7 +420,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @param {string} chainOfThought - The chain of thought for the task.
    * @param {string} system - The system prompt.
    */
-  private addDefaultItems(prompt: string, chainOfThought: string, system: string) {
+  private addDefaultItems(prompt: any, chainOfThought: string, system: string) {
     if (this.inputs.length === 0 && system !== '') {
       //Internal message
       const systemPrompt: Message = {
@@ -417,12 +434,23 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       }
       this.inputs.push(systemPrompt as MessageInput);
     }
-    this.inputs = MessageArray.from(
-      [
-        ...this.inputs,
-        { role: 'user', content: [{ type: 'text', text: `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}` }] }
-      ]
-    )
+
+    if (typeof prompt === 'string') {
+      this.inputs = MessageArray.from(
+        [
+          ...this.inputs,
+          { role: 'user', content: [{ type: 'text', text: `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}` }] }
+        ]
+      )
+    } else {
+      this.inputs = MessageArray.from(
+        [
+          ...this.inputs,
+          { role: 'user', content:prompt }
+        ]
+      )
+    }
+    
   }
 
   
@@ -434,13 +462,17 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @param {string} system - The system prompt.
    * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
    */
-  async performTaskStream(prompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+  async performTaskStream(prompt, chainOfThought, system): Promise<ReadableStreamWithAsyncIterable<Message>> {
+
     this.stoppingCriteria.reset();
     this.messageCache = new MessageCache(this.options.tools ?? [], this.log);
 
     this.log("Starting performTaskStream");
     await this.load();
     this.addDefaultItems(prompt, system, chainOfThought);
+
+
+
     const rawStream = await this.createStream();
     const transformedStream = await this.transformStream<string, Message>(
       rawStream,

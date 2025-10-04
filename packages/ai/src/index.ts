@@ -2,7 +2,7 @@
  * @packageDocumentation 
  * UAITO AI 
  */
-import type { OnTool, MessageInput, BaseLLM, ReadableStreamWithAsyncIterable, Message, ToolUseBlock } from "@uaito/sdk";
+import type { OnTool, MessageInput, BaseLLM, ReadableStreamWithAsyncIterable, Message, ToolUseBlock, BlockType } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import type { MessageArray } from "@uaito/sdk";
 
@@ -152,17 +152,22 @@ export class Agent {
 
     /**
      * Perform a task using the LLM.
-     * @param {string} prompt - The user prompt.
+     * @param {string | BlockType[]} prompt - The user prompt.
      * @returns {Promise<{ usage: { input: number, output: number }, response: ReadableStreamWithAsyncIterable<Message> }>} A Promise resolving to the usage and response stream.
      */
     async performTask(
-        prompt: string,
+        prompt: string | BlockType[],
+        image?: string
     ): Promise<{
         usage: { input: number, output: number },
         response: ReadableStreamWithAsyncIterable<Message>
     }> {
         const {cache:{tokens: usage}} = this.#agent;
         const {systemPrompt, chainOfThought} = this;
+        if (image) {
+            const response = await this.#agent.performTaskStream(prompt, image, '');
+            return {  usage,    response  }
+        }
         const response = await this.#agent.performTaskStream(prompt, chainOfThought, systemPrompt);
         return {  usage,    response  }
     }

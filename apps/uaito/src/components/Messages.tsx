@@ -127,11 +127,23 @@ export const MessageItem:React.FC<{
             </Markdown>
         </MessageContainer>
     } else if (content.type === "image") {
-        return <img
-            src={`${content.source.data}`}
-            className="w-64 h-auto"
-            alt="generated content"
-        />
+        // Handle base64 image data
+        const imageSrc = content.source.data.startsWith('data:') 
+            ? content.source.data 
+            : `data:${content.source.media_type};base64,${content.source.data}`;
+        
+        return <MessageContainer id={id} isUser={isUser}>
+            <div className="flex items-center gap-2 mb-2 text-xs text-secondary-text">
+                <PhotoIcon className="h-4 w-4" />
+                <span>Image</span>
+            </div>
+            <img
+                src={imageSrc}
+                className="max-w-full h-auto rounded-lg border border-border"
+                alt="User uploaded content"
+                style={{ maxHeight: '400px' }}
+            />
+        </MessageContainer>
     } else if (content.type === "audio") {
         return (
             // biome-ignore lint/a11y/useMediaCaption: Audio content is generated and doesn't need captions

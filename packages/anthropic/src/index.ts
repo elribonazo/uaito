@@ -395,9 +395,9 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
    * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
    */
    async performTaskStream<Input extends SDK.RawMessageStreamEvent, Output extends Message>(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
+    prompt,
+    chainOfThought,
+    system,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
     const params: SDK.MessageCreateParams = {

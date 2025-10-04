@@ -239,7 +239,7 @@ export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, Huggi
    * @param {string} prompt - The prompt for the task.
    * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
    */
-  async performTaskStream(prompt: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+  async performTaskStream(prompt): Promise<ReadableStreamWithAsyncIterable<Message>> {
     await this.load();
     const stream = new ReadableStream<Message>({
       start: async (controller) => {

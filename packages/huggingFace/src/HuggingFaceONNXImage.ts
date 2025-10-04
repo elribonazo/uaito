@@ -6,6 +6,7 @@ import type {
   ReadableStreamWithAsyncIterable,
   Message,
   MessageInput,
+  BlockType,
 } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import { MessageArray } from "@uaito/sdk";
@@ -146,21 +147,37 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
    * @param {string} prompt - The prompt for the task.
    * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
    */
-  async performTaskStream(prompt: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+  async performTaskStream(prompt, image:string): Promise<ReadableStreamWithAsyncIterable<Message>> {
     await this.load();
     const stream = new ReadableStream<Message>({
       start: async (controller) => {
-        const conversation = [
-          {
-            role: "<|User|>",
-            content: prompt
-          },
-        ];
-        if (!prompt || prompt.trim() === "") {
-          controller.error(new Error("No prompt provided"));
-          return;
+        let conversation: any[] = [];
+        let options: any = undefined;
+        if (typeof image === 'string' && typeof prompt === 'string') {
+          conversation = [
+            {
+              role: "<|User|>",
+              content: "<image_placeholder>\n" + prompt,
+              images: [image],
+            },
+          ];
+          
+        } else {
+          conversation = [
+            {
+              role: "<|User|>",
+              content: prompt
+            },
+          ];
+          if (!prompt || prompt.trim() === "") {
+            controller.error(new Error("No prompt provided"));
+            return;
+          }
+          options = { chat_template: "text_to_image" }
         }
-        const inputs = await this.processor(conversation, { chat_template: "text_to_image" });
+        
+
+        const inputs = await this.processor(conversation,options);
         const num_image_tokens = this.processor.num_image_tokens;
         const outputs = await this.model.generate_images({
           ...inputs,
@@ -169,8 +186,8 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
           do_sample: true,
         });
         ;
-        const [image] = outputs;
-        const blobUrl = URL.createObjectURL( await image.toBlob()   );
+        const [generatedImage] = outputs;
+        const blobUrl = URL.createObjectURL( await generatedImage.toBlob()   );
         const message: Message = {
             id: v4(),
             role: 'assistant',

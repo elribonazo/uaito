@@ -1,7 +1,7 @@
 
 import { v4 } from 'uuid';
 import { MessageArray } from '../utils';
-import type { BaseLLMCache, DeltaBlock, ErrorBlock, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable, ToolInputDelta, ToolResultBlock, ToolUseBlock, TransformStreamFn, UsageBlock } from './types';
+import type { BaseLLMCache, BlockType, DeltaBlock, ErrorBlock, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable, ToolInputDelta, ToolResultBlock, ToolUseBlock, TransformStreamFn, UsageBlock } from './types';
 import type { LLMProvider } from '@/types';
 
 
@@ -15,13 +15,14 @@ export abstract class Runner {
     /**
      * Performs a task stream.
      * @abstract
-     * @param {string} userPrompt - The user prompt.
+     * @param {string | BlockType[]} userPrompt - The user prompt.
      * @param {string} chainOfThought - The chain of thought for the task.
      * @param {string} system - The system prompt.
      * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
      */
-    abstract performTaskStream(userPrompt: string, chainOfThought: string, system: string,
-    ): Promise<ReadableStreamWithAsyncIterable<Message>>;
+    abstract performTaskStream(userPrompt: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>>;
+    abstract performTaskStream(userPrompt: BlockType[], chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>>;
+    abstract performTaskStream(userPrompt: string | BlockType[], chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>>;
 }
 /**
  * Abstract base class for Language Model implementations.

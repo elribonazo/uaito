@@ -362,9 +362,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
    * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
    */
   async performTaskStream(
-    prompt: string,
-    chainOfThought: string,
-    system: string,
+    prompt,
+    chainOfThought,
+    system,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
 

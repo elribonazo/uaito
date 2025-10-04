@@ -102,7 +102,7 @@ export class UaitoAPI extends BaseLLM<LLMProvider.API, UaitoAPIOptions> {
         }) as ReadableStreamWithAsyncIterable<Message>;
     }
 
-    performTaskStream(userPrompt: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    performTaskStream(userPrompt): Promise<ReadableStreamWithAsyncIterable<Message>> {
         return this.request(userPrompt);
     }
 
