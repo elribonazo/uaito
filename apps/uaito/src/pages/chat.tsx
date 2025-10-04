@@ -46,7 +46,7 @@ const Provider = dynamic(() => import("@/components/Provider"), {
 
 const Chat: React.FC<
 	InferGetServerSidePropsType<typeof getServerSideProps>
-> = () => {
+> = ({ enabledProviders }) => {
 	const dispatch = useDispatch();
 	const agent = "orquestrator";
 	const [selectedModel, setSelectedModelState] = useState<string>("");
@@ -62,7 +62,18 @@ const Chat: React.FC<
 	useEffect(() => {
 		dispatch(initializeProvider());
 		dispatch(loadChatsFromStorage());
-	}, [dispatch]);
+		
+		// If current provider is not in enabled list, switch to first enabled provider
+		if (provider && !enabledProviders.includes(provider)) {
+			if (enabledProviders.length > 0) {
+				dispatch(setProvider(enabledProviders[0]));
+			}
+		}
+		// If no provider is set but we have enabled providers, set the first one
+		if (!provider && enabledProviders.length > 0) {
+			dispatch(setProvider(enabledProviders[0]));
+		}
+	}, [dispatch, provider, enabledProviders]);
 
 	// Create default chat if none exist
 	useEffect(() => {
@@ -168,7 +179,11 @@ const Chat: React.FC<
 									)}
 									<TokenCounter input={usage.input} output={usage.output} />
 									{provider && (
-										<Provider value={provider} onSelected={handleProviderSelect} />
+										<Provider 
+											value={provider} 
+											onSelected={handleProviderSelect}
+											enabledProviders={enabledProviders}
+										/>
 									)}
 									<ModelSelector onSelected={handleModelSelect} />
 									<Link
@@ -246,8 +261,30 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 		};
 	}
 
+	// Check which providers are enabled based on environment variables
+	const enabledProviders: LLMProvider[] = [];
+	
+	// Check for API keys
+	if (process.env.ANTHROPIC_API_KEY) {
+		enabledProviders.push(LLMProvider.Anthropic);
+	}
+	if (process.env.OPENAI_API_KEY) {
+		enabledProviders.push(LLMProvider.OpenAI);
+	}
+	if (process.env.GROK_API_KEY) {
+		enabledProviders.push(LLMProvider.Grok);
+	}
+	if (process.env.GOOGLE_API_KEY) {
+		enabledProviders.push(LLMProvider.Google);
+	}
+	
+	// Local providers don't need API keys - always enabled
+	enabledProviders.push(LLMProvider.Local);
+	
 	return {
-		props: {},
+		props: {
+			enabledProviders,
+		},
 	};
 }
 

@@ -3,22 +3,15 @@ import  { LLMProvider } from "@uaito/sdk";
 import { useMemo, useState } from "react";
 import { useAppSelector } from "@/redux/store";
 
-const enabledProviders = [
-    LLMProvider.Anthropic,
-    LLMProvider.Grok,
-    LLMProvider.OpenAI,
-    LLMProvider.Google,
-    LLMProvider.Local,
-]
-
 export const Provider: React.FC<{ 
   value: LLMProvider,
-  onSelected: (value: LLMProvider) => void 
-}> = ({ value, onSelected }) => {
+  onSelected: (value: LLMProvider) => void,
+  enabledProviders: LLMProvider[]
+}> = ({ value, onSelected, enabledProviders }) => {
   const [isOpen, setIsOpen] = useState(false);
   const downloadProgress = useAppSelector((state) => state.user.downloadProgress);
 
-  const enabled = useMemo(() => enabledProviders.length > 1, []);
+  const enabled = useMemo(() => enabledProviders.length > 1, [enabledProviders]);
 
   const webGPU = value === LLMProvider.Local || value === LLMProvider.LocalImage;
   const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
