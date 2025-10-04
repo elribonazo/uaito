@@ -88,7 +88,18 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   private functionCallsByItemId: Record<string, { name?: string, call_id?: string }> = {};
 
   /**
-   * Internal state for extracting <thinking> tags.
+   * Tracks the current output item being processed.
+   * @private
+   * @type {({ itemId: string, type: 'reasoning' | 'message' | 'function_call', contentIndex?: number } | null)}
+   */
+  private currentOutputItem: {
+    itemId: string,
+    type: 'reasoning' | 'message' | 'function_call',
+    contentIndex?: number
+  } | null = null;
+
+  /**
+   * Internal state for extracting <thinking> / <think> tags from streamed text.
    * @private
    * @type {({ inThinking: boolean, openTag: '' | '<thinking>' | '<think>', bufferTag: string, carryVisible: string, carryThinking: string } | undefined)}
    */
@@ -98,6 +109,19 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     bufferTag: string,
     carryVisible: string,
     carryThinking: string,
+  };
+
+  /**
+   * Internal state for extracting <tool_call> tags (for Grok compatibility).
+   * @private
+   * @type {({ inToolCall: boolean, bufferTag: string, carryVisible: string, carryToolCall: string, completedToolCalls: string[] } | undefined)}
+   */
+  private _toolCallState?: {
+    inToolCall: boolean,
+    bufferTag: string,
+    carryVisible: string,
+    carryToolCall: string,
+    completedToolCalls: string[],
   };
 
   /**
@@ -169,7 +193,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         content: [
           {
             type: 'input_text',
-            text: `Tool result (${toolResult.name} -> ${toolResult.tool_use_id}):\n${textContent}`,
+            text: `[TOOL RESULT from ${toolResult.name}]\n${textContent}\n[END TOOL RESULT]\n\nPlease use the above tool result to complete your response to the user. Do not make the same tool call again unless you need different parameters.`,
           } as ResponseInputText,
         ],
       } as ResponseInputItem;
@@ -201,7 +225,13 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
    */
   get tools() {
     const functionTools: ResponsesTool[] | undefined = this.options.tools
-      ?.filter((tool) => tool.name !== "browseWebPage" && tool.name !== "tavilySearch")
+      ?.filter((tool) =>{
+        if (this.options.type === LLMProvider.OpenAI  && tool.name !== "browseWebPage" && tool.name !== "tavilySearch"){
+          return true;
+        }
+        return true;
+        }
+      )
       .map((tool) => {
         if ("type" in tool && (tool.type === "image_generation" || tool.type === "web_search_preview")) {
           return tool as any;
@@ -237,6 +267,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         return true;
       });
   }
+
 
   /**
    * Internal state for extracting <thinking> / <think> tags from streamed text.
@@ -355,6 +386,116 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
+   * Internal state for extracting <tool_call> tags from streamed text.
+   * @private
+   * @returns {{ inToolCall: boolean, bufferTag: string, carryVisible: string, carryToolCall: string, completedToolCalls: string[] }} The tool call state.
+   */
+  private get toolCallState() {
+    this._toolCallState ??= {
+      inToolCall: false,
+      bufferTag: '',
+      carryVisible: '',
+      carryToolCall: '',
+      completedToolCalls: [],
+    };
+    return this._toolCallState as {
+      inToolCall: boolean,
+      bufferTag: string,
+      carryVisible: string,
+      carryToolCall: string,
+      completedToolCalls: string[],
+    };
+  }
+
+  /**
+   * Processes a delta of text to extract tool_call tags.
+   * @private
+   * @param {string} delta - The delta of text to process.
+   */
+  private processToolCallDelta(delta: string) {
+    const state = this.toolCallState;
+    let s = (state.bufferTag || '') + (delta || '');
+    state.bufferTag = '';
+
+    const openTag = '<tool_call>';
+    const closeTag = '</tool_call>';
+
+    while (s.length > 0) {
+      if (!state.inToolCall) {
+        const idx = s.indexOf(openTag);
+        if (idx === -1) {
+          state.carryVisible += s;
+          s = '';
+          break;
+        }
+        if (idx > 0) {
+          state.carryVisible += s.slice(0, idx);
+        }
+        state.inToolCall = true;
+        s = s.slice(idx + openTag.length);
+        continue;
+      } else {
+        const closeIdx = s.indexOf(closeTag);
+        if (closeIdx === -1) {
+          state.carryToolCall += s;
+          s = '';
+          break;
+        }
+        if (closeIdx > 0) {
+          state.carryToolCall += s.slice(0, closeIdx);
+        }
+        // Complete tool call found
+        state.completedToolCalls.push(state.carryToolCall.trim());
+        state.carryToolCall = '';
+        state.inToolCall = false;
+        s = s.slice(closeIdx + closeTag.length);
+        continue;
+      }
+    }
+
+    // Keep at most a small potential tag prefix at the end for next round
+    const candidates = [openTag, closeTag];
+    const maxLen = Math.max(...candidates.map((t) => t.length));
+    const tail = (state.inToolCall ? state.carryToolCall : state.carryVisible).slice(-maxLen + 1);
+    for (const cand of candidates) {
+      const need = cand.length - 1;
+      if (tail && cand.startsWith(tail) && tail.length <= need) {
+        state.bufferTag = tail;
+        if (state.inToolCall) {
+          state.carryToolCall = state.carryToolCall.slice(0, -tail.length);
+        } else {
+          state.carryVisible = state.carryVisible.slice(0, -tail.length);
+        }
+        break;
+      }
+    }
+  }
+
+  /**
+   * Takes the buffered visible chunk from tool call processing.
+   * @private
+   * @returns {string} The visible chunk.
+   */
+  private takeToolCallVisibleChunk(): string {
+    const state = this.toolCallState;
+    const out = state.carryVisible;
+    state.carryVisible = '';
+    return out;
+  }
+
+  /**
+   * Takes completed tool calls.
+   * @private
+   * @returns {string[]} Array of completed tool call JSON strings.
+   */
+  private takeCompletedToolCalls(): string[] {
+    const state = this.toolCallState;
+    const out = [...state.completedToolCalls];
+    state.completedToolCalls = [];
+    return out;
+  }
+
+  /**
    * Performs a task stream using the LLM.
    * @param {string} prompt - The user prompt.
    * @param {string} chainOfThought - The chain of thought for the task.
@@ -368,21 +509,26 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
 
-   
-   if (this.options.type === LLMProvider.OpenAI) {
-    this.options.tools?.push({
-      'type': 'image_generation',
-      'size': '1024x1024',
-      'output_format': 'png',
-      'model':'gpt-image-1',
-    } as any)
-    this.options.tools?.push({
-      type: "web_search_preview",
-      search_context_size: "low",
-    } as any)
-   }
 
-    const tools = (this.tools && this.tools.length > 0 ? this.tools : [])
+    const tools= (this.tools && this.tools.length > 0 ? this.tools : []) 
+
+    if (this.options.type === LLMProvider.OpenAI) {
+      tools.push({
+        'type': 'image_generation',
+        'size': '1024x1024',
+        'output_format': 'png',
+        'model':'gpt-image-1',
+      })
+      tools.push({
+        type: "web_search",
+        search_context_size: "high"
+      });
+    } 
+
+    if (this.options.type === LLMProvider.Grok) {
+      system += `\n\n When using tools, use the following format: <tool_call>{"name":"tool_name","parameters":{"parameter_name":"parameter_value"}}</tool_call>`
+    }
+
     const request: ResponseCreateParamsStreaming = {
       model: this.options.model,
       input: this.llmInputs as ResponseCreateParamsStreaming['input'],
@@ -390,12 +536,14 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       max_output_tokens: this.maxTokens,
       stream: true,
       tools,
+      reasoning:{},
     };
 
     // Reset usage and per-turn state
     this.cache.tokens.input = 0;
     this.cache.tokens.output = 0;
     this.functionCallsByItemId = {};
+    this.currentOutputItem = null;
 
     const createStream = async (params: ResponseCreateParamsStreaming) => {
       return this.retryApiCall(async () => {
@@ -441,83 +589,57 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   private async chunk(
     chunk: ResponseStreamEvent,
   ): Promise<Message | null> {
-    // Text streaming (with thinking tag extraction)
-    if (chunk.type === 'response.output_text.delta') {
-      const { delta } = chunk as ResponseTextDeltaEvent;
-      // Ensure a stable message id for all text deltas in this turn
-      if (!this.cache.chunks) {
-        this.cache.chunks = v4();
-      }
+    this.log(`Processing chunk: ${JSON.stringify(chunk, null, 2)}`);
 
-      // Parse and buffer by thinking / visible
-      this.processThinkingDelta(delta || '');
-
-      const state = this.thinkingState;
-
-      // Emit pending visible or thinking fairly; prioritize thinking when we're inside
-      let toEmitType: 'thinking' | 'visible' | null = null;
-      if (state.carryThinking.length > 0) {
-        toEmitType = 'thinking';
-      } else if (state.carryVisible.length > 0) {
-        toEmitType = 'visible';
-      }
-
-      if (toEmitType === 'thinking') {
-        this.cache.textId = null;
-        if (!this.cache.thinkingId) {
-          this.cache.thinkingId = v4();
-        }
-        const thinkingText = this.takeThinkingChunk();
-        return {
-          id: this.cache.thinkingId,
-          role: 'assistant',
-          type: 'thinking',
-          chunk: true,
-          content: [
-            {
-              type: 'thinking',
-              thinking: thinkingText,
-              signature: ''
-            }
-          ]
-        };
-      }
-
-      if (toEmitType === 'visible') {
-        this.cache.thinkingId = null;
-        if (!this.cache.textId) {
-          this.cache.textId = v4();
-        }
-        const textOut = this.takeVisibleChunk();
-        if (textOut.length === 0) return null;
-        const textBlock: TextBlock = {
-          type: 'text',
-          text: textOut,
-        };
-        return {
-          id: this.cache.textId,
-          role: 'assistant',
-          type: 'message',
-          chunk: true,
-          content: [textBlock]
-        };
-      }
-
-      return null;
-    }
-
-    // Function call item added (gives us name and call_id)
+    // Track when output items are added - this tells us what type of content to expect
     if (chunk.type === 'response.output_item.added') {
       const { item } = chunk as ResponseOutputItemAddedEvent;
       const outputItem = item as ResponseOutputItem;
-      if (this.isFunctionCallItem(outputItem)) {
+      
+      // Store the current output item being processed
+      if (outputItem.type === 'reasoning') {
+        this.currentOutputItem = {
+          itemId: outputItem.id,
+          type: 'reasoning',
+        };
+        // Don't return anything yet, wait for content
+        return null;
+      } else if (outputItem.type === 'message') {
+        this.currentOutputItem = {
+          itemId: outputItem.id,
+          type: 'message',
+        };
+        // Don't return anything yet, wait for content
+        return null;
+      } else if (this.isFunctionCallItem(outputItem)) {
         const fc = outputItem;
+        this.currentOutputItem = {
+          itemId: fc.id,
+          type: 'function_call',
+        };
+        
+        if (fc.status === 'completed') {
+          const tool_use: ToolUseBlock = {
+            id: fc.id,
+            name: fc.name,
+            type: 'tool_use',
+            input: JSON.parse(fc.arguments ?? '{}'),
+          };
+          this.cache.toolInput = tool_use;
+          return {
+            id: v4(),
+            role: 'assistant',
+            type: 'tool_use',
+            content: [tool_use]
+          };
+        }
+        
         this.functionCallsByItemId[fc.id] = { name: fc.name, call_id: fc.call_id };
         const tool_delta: ToolInputDelta = {
           id: fc.id,
           name: fc.name,
           type: 'tool_delta',
-          partial: '',
+          partial: fc.arguments ?? '',
         };
         this.cache.toolInput = tool_delta;
         return {
@@ -527,6 +649,152 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
           content: [tool_delta]
         };
       }
+      return null;
+    }
+
+    // Track when output items are done
+    if (chunk.type === 'response.output_item.done') {
+      const { item } = chunk;
+      // If this matches our current output item, clear it
+      if (this.currentOutputItem && item.id === this.currentOutputItem.itemId) {
+        this.currentOutputItem = null;
+      }
+      return null;
+    }
+
+    // Track content parts being added (helps with multi-part messages)
+    if (chunk.type === 'response.content_part.added') {
+      const { content_index, item_id } = chunk;
+      if (this.currentOutputItem && item_id === this.currentOutputItem.itemId) {
+        this.currentOutputItem.contentIndex = content_index;
+      }
+      return null;
+    }
+
+    // Text streaming - now we know what type based on currentOutputItem
+    if (chunk.type === 'response.output_text.delta') {
+      const { delta } = chunk as ResponseTextDeltaEvent;
+      
+      if (!delta) return null;
+
+      // Determine type based on the current output item
+      const outputType = this.currentOutputItem?.type;
+
+      // Handle reasoning/thinking output
+      if (outputType === 'reasoning') {
+        if (!this.cache.thinkingId) {
+          this.cache.thinkingId = v4();
+        }
+        return {
+          id: this.cache.thinkingId,
+          role: 'assistant',
+          type: 'thinking',
+          chunk: true,
+          content: [
+            {
+              type: 'thinking',
+              thinking: delta,
+              signature: ''
+            }
+          ]
+        };
+      }
+
+      // Handle regular message output
+      if (outputType === 'message') {
+        // Process thinking tags first (both OpenAI and Grok models use <thinking> tags in messages)
+        this.processThinkingDelta(delta);
+        
+        // Check if we have thinking content to emit
+        const state = this.thinkingState;
+        if (state.carryThinking.length > 0) {
+          // Emit thinking content
+          this.cache.textId = null;
+          if (!this.cache.thinkingId) {
+            this.cache.thinkingId = v4();
+          }
+          const thinkingText = this.takeThinkingChunk();
+          return {
+            id: this.cache.thinkingId,
+            role: 'assistant',
+            type: 'thinking',
+            chunk: true,
+            content: [
+              {
+                type: 'thinking',
+                thinking: thinkingText,
+                signature: ''
+              }
+            ]
+          };
+        }
+
+        // Get visible text (after thinking extraction)
+        const visibleText = this.takeVisibleChunk();
+        
+        // For Grok: also process tool_call tags from visible text
+        if (this.options.type === LLMProvider.Grok && visibleText) {
+          this.processToolCallDelta(visibleText);
+          
+          // Check for completed tool calls
+          const completedToolCalls = this.takeCompletedToolCalls();
+          if (completedToolCalls.length > 0) {
+            const toolCall = completedToolCalls[0];
+            try {
+              const toolData = JSON.parse(toolCall);
+              const toolUseBlock: ToolUseBlock = {
+                id: v4(),
+                name: toolData.name ?? '',
+                input: toolData.parameters ?? {},
+                type: 'tool_use'
+              };
+              return {
+                id: v4(),
+                role: 'assistant',
+                type: 'tool_use',
+                content: [toolUseBlock]
+              };
+            } catch (error) {
+              this.log(`Failed to parse tool call JSON: ${error}`);
+            }
+          }
+          
+          // Get final visible text (excluding tool_call tags)
+          const finalVisibleText = this.takeToolCallVisibleChunk();
+          // Skip if empty or whitespace-only
+          if (!finalVisibleText || !finalVisibleText.trim()) return null;
+          
+          if (!this.cache.textId) {
+            this.cache.textId = v4();
+          }
+          return {
+            id: this.cache.textId,
+            role: 'assistant',
+            type: 'message',
+            chunk: true,
+            content: [{ type: 'text', text: finalVisibleText }]
+          };
+        }
+
+        // For non-Grok or when no visible text after thinking extraction
+        // Skip if empty or whitespace-only
+        if (!visibleText || !visibleText.trim()) return null;
+        
+        this.cache.thinkingId = null;
+        if (!this.cache.textId) {
+          this.cache.textId = v4();
+        }
+        return {
+          id: this.cache.textId,
+          role: 'assistant',
+          type: 'message',
+          chunk: true,
+          content: [{ type: 'text', text: visibleText }]
+        };
+      }
+
+      // Unknown output type - log and skip
+      this.log(`Received text delta for unknown output type: ${outputType}`);
       return null;
     }
 
@@ -641,13 +909,24 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       this.cache.chunks = null;
       this.cache.textId = null;
       this.cache.thinkingId = null;
+      // Reset output item tracking
+      this.currentOutputItem = null;
       // Reset thinking state for next turn
-      const state = this.thinkingState;
-      state.inThinking = false;
-      state.openTag = '';
-      state.bufferTag = '';
-      state.carryThinking = '';
-      state.carryVisible = '';
+      if (this._thinkingState) {
+        this._thinkingState.inThinking = false;
+        this._thinkingState.openTag = '';
+        this._thinkingState.bufferTag = '';
+        this._thinkingState.carryThinking = '';
+        this._thinkingState.carryVisible = '';
+      }
+      // Reset tool call state for next turn (Grok compatibility)
+      if (this._toolCallState) {
+        this._toolCallState.inToolCall = false;
+        this._toolCallState.bufferTag = '';
+        this._toolCallState.carryVisible = '';
+        this._toolCallState.carryToolCall = '';
+        this._toolCallState.completedToolCalls = [];
+      }
       // Reset function calls map
       this.functionCallsByItemId = {};
 
@@ -683,7 +962,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         ]
       } as Message;
     }
-
     return null;
   }
 
