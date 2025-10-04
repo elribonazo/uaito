@@ -180,16 +180,25 @@ export const authOptions: NextAuthOptions = {
       // New user, let the adapter handle creation.
       return true;
     },
-      session: async ({ session, user }: { session: NextAuthSession; user: AdapterUser }): Promise<CustomSession> => {
-          const customSession: CustomSession = {
-              ...session,
-              user: {
-                  ...session.user,
-                  _id: user.id,
-              },
-          };
-          return customSession;
-      },
+    session: async ({ session, user }: { session: NextAuthSession; user: AdapterUser }): Promise<CustomSession> => {
+        const customSession: CustomSession = {
+            ...session,
+            user: {
+                ...session.user,
+                _id: user.id,
+            },
+        };
+        return customSession;
+    },
+    async redirect({ url, baseUrl }) {
+      // Handle Keycloak logout redirect
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      } else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      return baseUrl;
+    },
   },
   providers,
 }

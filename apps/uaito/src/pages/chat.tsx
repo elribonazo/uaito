@@ -201,7 +201,11 @@ const Chat: React.FC<
 										<UserIcon className="h-4 w-4 sm:h-5 sm:w-5" />
 									</Link>
 									<button
-										onClick={() => signOut()}
+										onClick={async () => {
+											await signOut({ redirect: false });
+											// Redirect to a logout endpoint that will handle Keycloak logout
+											window.location.href = '/api/auth/logout-keycloak';
+										}}
 										type="button"
 										className="bg-red-600 hover:bg-red-700 text-white p-1.5 sm:p-2 rounded-lg transition duration-300 flex items-center justify-center flex-shrink-0"
 									>

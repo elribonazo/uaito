@@ -28,7 +28,12 @@ const WelcomeSection: FC<{ email: string }> = ({ email }) => (
     <h2 className="text-xl font-semibold text-primary-text">Welcome back, {email}!</h2>
     <button
       type="button"
-      onClick={() => signOut()}
+      onClick={async () => {
+        // Sign out from NextAuth first, then redirect to Keycloak logout
+        await signOut({ redirect: false });
+        // Redirect to a logout endpoint that will handle Keycloak logout
+        window.location.href = '/api/auth/logout-keycloak';
+      }}
       className="bg-surface hover:bg-red-500/10 text-secondary-text hover:text-red-400 border border-border hover:border-red-500/30 px-3 py-1.5 rounded-lg text-xs transition-all duration-200"
     >
       Sign Out
