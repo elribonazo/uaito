@@ -1,3 +1,9 @@
+## 0.8.16 (2025-10-04)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.11
+
 ## 0.8.15 (2025-10-04)
 
 ### 🩹 Fixes
