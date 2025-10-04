@@ -1,3 +1,17 @@
+## 0.8.18 (2025-10-04)
+
+### 🩹 Fixes
+
+- dropping images in the input field to analise image contents and edit pictures Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([f43d63b](https://github.com/elribonazo/uaito/commit/f43d63b))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.13
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.17 (2025-10-04)
 
 ### 🧱 Updated Dependencies

@@ -12,7 +12,7 @@
 
 # Enumeration: OpenAIModels
 
-Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/openai/src/types.ts#L7)
+Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/openai/src/types.ts#L7)
 
 Enumeration of the available OpenAI models.
 
@@ -20,5 +20,5 @@ Enumeration of the available OpenAI models.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gpt-5-mini"></a> `gpt-5-mini` | `"gpt-5-mini-2025-08-07"` | The GPT-5 Mini model. | [types.ts:15](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/openai/src/types.ts#L15) |
-| <a id="gpt-5-nano"></a> `gpt-5-nano` | `"gpt-5-nano-2025-08-07"` | The GPT-5 Nano model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/openai/src/types.ts#L11) |
+| <a id="gpt-5-mini"></a> `gpt-5-mini` | `"gpt-5-mini-2025-08-07"` | The GPT-5 Mini model. | [types.ts:15](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/openai/src/types.ts#L15) |
+| <a id="gpt-5-nano"></a> `gpt-5-nano` | `"gpt-5-nano-2025-08-07"` | The GPT-5 Nano model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/openai/src/types.ts#L11) |

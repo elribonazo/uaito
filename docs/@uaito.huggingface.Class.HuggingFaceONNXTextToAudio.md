@@ -12,7 +12,7 @@
 
 # Class: HuggingFaceONNXTextToAudio
 
-Defined in: [HuggingFaceONNXAudio.ts:151](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L151)
+Defined in: [HuggingFaceONNXAudio.ts:151](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L151)
 
 A class for handling text-to-audio generation using a Hugging Face ONNX model.
  HuggingFaceONNXTextToAudio
@@ -29,7 +29,7 @@ A class for handling text-to-audio generation using a Hugging Face ONNX model.
 new HuggingFaceONNXTextToAudio({, onTool?): HuggingFaceONNXTextToAudio;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:196](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L196)
+Defined in: [HuggingFaceONNXAudio.ts:196](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L196)
 
 Creates an instance of HuggingFaceONNXTextToAudio.
 
@@ -59,7 +59,7 @@ BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>.constructor
 cache: BaseLLMCache;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:158](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L158)
+Defined in: [HuggingFaceONNXAudio.ts:158](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L158)
 
 The cache for the LLM.
 
@@ -77,7 +77,7 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:93
+Defined in: ../../sdk/build/index.d.ts:95
 
 A record of data for the LLM.
 
@@ -95,7 +95,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:170](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L170)
+Defined in: [HuggingFaceONNXAudio.ts:170](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L170)
 
 An array of message inputs.
 
@@ -113,7 +113,7 @@ BaseLLM.inputs
 loadProgress: number = 0;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:164](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L164)
+Defined in: [HuggingFaceONNXAudio.ts:164](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L164)
 
 The progress of loading the model.
 
@@ -125,7 +125,7 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:190](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L190)
+Defined in: [HuggingFaceONNXAudio.ts:190](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L190)
 
 ***
 
@@ -135,7 +135,7 @@ Defined in: [HuggingFaceONNXAudio.ts:190](https://github.com/elribonazo/uaito/bl
 readonly options: HuggingFaceONNXOptions;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:61
+Defined in: ../../sdk/build/index.d.ts:63
 
 #### Inherited from
 
@@ -151,7 +151,7 @@ BaseLLM.options
 readonly type: Local;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:60
+Defined in: ../../sdk/build/index.d.ts:62
 
 #### Inherited from
 
@@ -170,7 +170,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:127
+Defined in: ../../sdk/build/index.d.ts:129
 
 Includes the last prompt in the input.
 
@@ -202,7 +202,7 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:208](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L208)
+Defined in: [HuggingFaceONNXAudio.ts:208](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L208)
 
 Loads the model and tokenizer.
 
@@ -218,7 +218,7 @@ Loads the model and tokenizer.
 log(message): any;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:99
+Defined in: ../../sdk/build/index.d.ts:101
 
 Logs a message.
 
@@ -246,7 +246,7 @@ BaseLLM.log
 performTaskStream(prompt): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:242](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L242)
+Defined in: [HuggingFaceONNXAudio.ts:242](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L242)
 
 Performs a text-to-audio task stream.
 
@@ -254,7 +254,7 @@ Performs a text-to-audio task stream.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `prompt` | `string` | The prompt for the task. |
+| `prompt` | `any` | The prompt for the task. |
 
 #### Returns
 
@@ -276,7 +276,7 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:106
+Defined in: ../../sdk/build/index.d.ts:108
 
 Retries an API call with a delay.
 
@@ -312,7 +312,7 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:113
+Defined in: ../../sdk/build/index.d.ts:115
 
 Run a command safely, catching and handling any errors.
 
@@ -344,7 +344,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:146
+Defined in: ../../sdk/build/index.d.ts:148
 
 Transforms an input stream using the provided transform function.
 
@@ -382,7 +382,7 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:137
+Defined in: ../../sdk/build/index.d.ts:139
 
 Transforms the given stream from an AI provider into a Uaito Stream
 This also keeps track of the received messages

@@ -16,7 +16,7 @@
 type ArrayElementType<T> = T extends infer U[] ? U : never;
 ```
 
-Defined in: [domain/types.ts:633](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L633)
+Defined in: [domain/types.ts:633](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L633)
 
 Gets the element type of an array.
 

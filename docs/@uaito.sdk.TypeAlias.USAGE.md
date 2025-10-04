@@ -19,7 +19,7 @@ type USAGE = {
 };
 ```
 
-Defined in: [domain/types.ts:246](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L246)
+Defined in: [domain/types.ts:246](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L246)
 
 Represents the usage of tokens.
 
@@ -31,7 +31,7 @@ Represents the usage of tokens.
 input_tokens: number;
 ```
 
-Defined in: [domain/types.ts:251](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L251)
+Defined in: [domain/types.ts:251](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L251)
 
 The number of input tokens.
 
@@ -43,6 +43,6 @@ The number of input tokens.
 output_tokens: number;
 ```
 
-Defined in: [domain/types.ts:256](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L256)
+Defined in: [domain/types.ts:256](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L256)
 
 The number of output tokens.

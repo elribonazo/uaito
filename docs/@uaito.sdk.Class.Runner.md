@@ -12,7 +12,7 @@
 
 # Abstract Class: Runner
 
-Defined in: [domain/BaseLLM.ts:14](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/BaseLLM.ts#L14)
+Defined in: [domain/BaseLLM.ts:14](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/BaseLLM.ts#L14)
 
 An abstract class for a runner that performs a task stream.
 
@@ -38,6 +38,8 @@ new Runner(): Runner;
 
 ### performTaskStream()
 
+#### Call Signature
+
 ```ts
 abstract performTaskStream(
    userPrompt, 
@@ -45,11 +47,11 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/BaseLLM.ts#L23)
+Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/BaseLLM.ts#L23)
 
 Performs a task stream.
 
-#### Parameters
+##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
@@ -57,7 +59,61 @@ Performs a task stream.
 | `chainOfThought` | `string` | The chain of thought for the task. |
 | `system` | `string` | The system prompt. |
 
-#### Returns
+##### Returns
+
+`Promise`\<[`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<[`Message`](@uaito.sdk.TypeAlias.Message.md)\>\>
+
+A promise that resolves to a readable stream of messages.
+
+#### Call Signature
+
+```ts
+abstract performTaskStream(
+   userPrompt, 
+   chainOfThought, 
+system): Promise<ReadableStreamWithAsyncIterable<Message>>;
+```
+
+Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/BaseLLM.ts#L24)
+
+Performs a task stream.
+
+##### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `userPrompt` | [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user prompt. |
+| `chainOfThought` | `string` | The chain of thought for the task. |
+| `system` | `string` | The system prompt. |
+
+##### Returns
+
+`Promise`\<[`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<[`Message`](@uaito.sdk.TypeAlias.Message.md)\>\>
+
+A promise that resolves to a readable stream of messages.
+
+#### Call Signature
+
+```ts
+abstract performTaskStream(
+   userPrompt, 
+   chainOfThought, 
+system): Promise<ReadableStreamWithAsyncIterable<Message>>;
+```
+
+Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/BaseLLM.ts#L25)
+
+Performs a task stream.
+
+##### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `userPrompt` | `string` \| [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user prompt. |
+| `chainOfThought` | `string` | The chain of thought for the task. |
+| `system` | `string` | The system prompt. |
+
+##### Returns
 
 `Promise`\<[`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<[`Message`](@uaito.sdk.TypeAlias.Message.md)\>\>
 

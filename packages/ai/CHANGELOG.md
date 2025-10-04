@@ -1,3 +1,23 @@
+## 0.0.24 (2025-10-04)
+
+### 🩹 Fixes
+
+- dropping images in the input field to analise image contents and edit pictures Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([f43d63b](https://github.com/elribonazo/uaito/commit/f43d63b))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.19
+- Updated @uaito/anthropic to 0.0.20
+- Updated @uaito/google to 0.0.10
+- Updated @uaito/openai to 0.0.19
+- Updated @uaito/build to 0.0.13
+- Updated @uaito/api to 0.0.19
+- Updated @uaito/sdk to 0.8.18
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.23 (2025-10-04)
 
 ### 🧱 Updated Dependencies

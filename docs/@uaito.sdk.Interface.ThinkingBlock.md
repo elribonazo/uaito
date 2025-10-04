@@ -12,7 +12,7 @@
 
 # Interface: ThinkingBlock
 
-Defined in: [domain/types.ts:476](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L476)
+Defined in: [domain/types.ts:476](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L476)
 
 Represents a thinking block.
  ThinkingBlock
@@ -25,7 +25,7 @@ Represents a thinking block.
 signature: string;
 ```
 
-Defined in: [domain/types.ts:481](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L481)
+Defined in: [domain/types.ts:481](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L481)
 
 The signature of the thinking block.
 
@@ -37,7 +37,7 @@ The signature of the thinking block.
 thinking: string;
 ```
 
-Defined in: [domain/types.ts:487](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L487)
+Defined in: [domain/types.ts:487](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L487)
 
 The thinking content.
 
@@ -49,6 +49,6 @@ The thinking content.
 type: "thinking";
 ```
 
-Defined in: [domain/types.ts:493](https://github.com/elribonazo/uaito/blob/870f2f65de42d3455a95b7b9a6d0b1b49e6b01cd/packages/sdk/src/domain/types.ts#L493)
+Defined in: [domain/types.ts:493](https://github.com/elribonazo/uaito/blob/d8422bf658a9c6f5720beebc17c9bf42cf7a778c/packages/sdk/src/domain/types.ts#L493)
 
 The type of the block.
