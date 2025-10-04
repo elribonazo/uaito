@@ -243,7 +243,7 @@ export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, Huggi
     await this.load();
     const stream = new ReadableStream<Message>({
       start: async (controller) => {
-        const duration = 35;
+        const duration = 6;
 
         const max_length = Math.min(
           Math.max(Math.floor(duration * 50), 1) + 4,
