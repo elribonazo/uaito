@@ -190,6 +190,20 @@ const userSlice = createSlice({
         }));
       }
     },
+    deleteAllChats: (state) => {
+      state.chats = {};
+      state.chatOrder = [];
+      state.activeChatId = null;
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('uaito-chats', JSON.stringify({
+          chats: state.chats,
+          activeChatId: state.activeChatId,
+          chatOrder: state.chatOrder,
+        }));
+      }
+    },
     renameChat: (state, action: PayloadAction<{
       id: string;
       name: string;
@@ -361,6 +375,7 @@ export const {
   setActiveChat,
   deleteChat,
   renameChat,
-  loadChatsFromStorage
+  loadChatsFromStorage,
+  deleteAllChats
 } = userSlice.actions;
 export default userSlice.reducer;

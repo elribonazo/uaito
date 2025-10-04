@@ -20,6 +20,7 @@ interface ChatSidebarProps {
   onSelectChat: (id: string) => void;
   onDeleteChat: (id: string) => void;
   onRenameChat: (id: string, name: string) => void;
+  onDeleteAllChats: () => void;
 }
 
 interface ChatItemProps {
@@ -162,6 +163,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSelectChat,
   onDeleteChat,
   onRenameChat,
+  onDeleteAllChats,
 }) => {
   return (
     <>
@@ -273,6 +275,36 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               })}
             </div>
           )}
+           <div className="p-4 border-t border-border mt-auto">
+    {isOpen ? (
+        <button
+            type="button"
+            onClick={() => {
+                if (window.confirm('Are you sure you want to delete all chats?')) {
+                  onDeleteAllChats();
+                }
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-surface hover:bg-red-500/10 text-secondary-text hover:text-red-400 transition-colors duration-200 border border-border hover:border-red-500/30"
+            title="Delete all chats"
+        >
+            <TrashIcon className="h-5 w-5" />
+            <span>Delete All Chats</span>
+        </button>
+    ) : (
+        <button
+            type="button"
+            onClick={() => {
+                if (window.confirm('Are you sure you want to delete all chats?')) {
+                  onDeleteAllChats();
+                }
+            }}
+            className="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-surface hover:bg-red-500/10 text-secondary-text hover:text-red-400 transition-colors duration-200 border border-border hover:border-red-500/30"
+            title="Delete all chats"
+        >
+            <TrashIcon className="h-5 w-5" />
+        </button>
+    )}
+</div>
         </div>
       </aside>
     </>

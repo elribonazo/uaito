@@ -32,6 +32,7 @@ import {
 	deleteChat,
 	renameChat,
 	loadChatsFromStorage,
+	deleteAllChats,
 } from "@/redux/userSlice";
 import { useDispatch } from "react-redux";
 import { ChatSidebar } from "@/components/ChatSidebar";
@@ -123,6 +124,10 @@ const Chat: React.FC<
 		dispatch(renameChat({ id: chatId, name }));
 	};
 
+	const handleDeleteAllChats = useCallback(() => {
+		dispatch(deleteAllChats());
+	}, [dispatch]);
+
 	return (
 		<div className="bg-background w-full h-[100dvh] flex overflow-hidden">
 			<SpaceBackground />
@@ -138,6 +143,7 @@ const Chat: React.FC<
 				onSelectChat={handleSelectChat}
 				onDeleteChat={handleDeleteChat}
 				onRenameChat={handleRenameChat}
+				onDeleteAllChats={handleDeleteAllChats}
 			/>
 
 			{/* Main Content Area */}
