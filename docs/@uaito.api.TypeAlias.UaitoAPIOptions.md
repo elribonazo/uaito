@@ -24,16 +24,16 @@ type UaitoAPIOptions = {
 } & BaseLLMOptions;
 ```
 
-Defined in: [types.ts:5](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L5)
+Defined in: [types.ts:5](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L5)
 
 ## Type Declaration
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `agent?` | `string` | [types.ts:10](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L10) |
-| `apiKey` | `string` | [types.ts:6](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L6) |
-| `baseUrl?` | `string` | [types.ts:7](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L7) |
-| `inputs?` | `MessageArray`\<`MessageInput`\> | [types.ts:8](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L8) |
-| `model?` | `string` | [types.ts:12](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L12) |
-| `provider` | `LLMProvider.Anthropic` \| `LLMProvider.OpenAI` | [types.ts:9](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L9) |
-| `signal?` | `AbortSignal` | [types.ts:11](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/api/src/types.ts#L11) |
+| `agent?` | `string` | [types.ts:10](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L10) |
+| `apiKey` | `string` | [types.ts:6](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L6) |
+| `baseUrl?` | `string` | [types.ts:7](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L7) |
+| `inputs?` | `MessageArray`\<`MessageInput`\> | [types.ts:8](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L8) |
+| `model?` | `string` | [types.ts:12](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L12) |
+| `provider` | `LLMProvider.Anthropic` \| `LLMProvider.OpenAI` | [types.ts:9](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L9) |
+| `signal?` | `AbortSignal` | [types.ts:11](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/api/src/types.ts#L11) |
