@@ -1,7 +1,7 @@
 "use client";
 import "react-toastify/dist/ReactToastify.css";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type {
 	GetServerSidePropsContext,
 	InferGetServerSidePropsType,
@@ -69,24 +69,13 @@ const Chat: React.FC<
 
 	// Handle provider initialization and validation
 	useEffect(() => {
-		if (hasInitialized) return;
-
-		if (enabledProviders.length === 0) return; // Wait for enabled providers to be available
-
-		// Check if provider needs to be set or validated
-		if (provider === null || provider === undefined) {
-			// No provider saved - set to first enabled provider
-			dispatch(setProvider(enabledProviders[0]));
-			setHasInitialized(true);
-		} else if (!enabledProviders.includes(provider)) {
-			// Saved provider is not in enabled list - switch to first enabled provider
-			dispatch(setProvider(enabledProviders[0]));
-			setHasInitialized(true);
-		} else {
-			// Provider is valid, mark as initialized
-			setHasInitialized(true);
+		if (hasInitialized || !provider || enabledProviders.length === 0) return;
+	
+		if (!enabledProviders.includes(provider)) {
+		  dispatch(setProvider(enabledProviders[0]));
 		}
-	}, [provider, enabledProviders, hasInitialized, dispatch]);
+		setHasInitialized(true);
+	  }, [provider, enabledProviders, hasInitialized, dispatch]);
 
 	// Create default chat if none exist
 	useEffect(() => {
@@ -105,14 +94,14 @@ const Chat: React.FC<
 		};
 	}, []);
 
-	const handleProviderSelect = (selectedProvider: LLMProvider) => {
+	const handleProviderSelect = useCallback((selectedProvider: LLMProvider) => {
 		dispatch(setProvider(selectedProvider));
-	};
+	}, [dispatch]);
 
-	const handleModelSelect = (model: string) => {
+	const handleModelSelect = useCallback((model: string) => {
 		setSelectedModelState(model);
 		dispatch(setSelectedModel(model));
-	};
+	}, [dispatch]);
 
 	const handleNewChat = () => {
 		if (provider && selectedModel) {

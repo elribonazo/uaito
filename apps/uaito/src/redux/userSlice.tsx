@@ -113,11 +113,14 @@ const userSlice = createSlice({
     },
     initializeProvider: (state) => {
       if (typeof window !== 'undefined') {
-        const savedProvider = localStorage.getItem('uaito-selected-provider') as LLMProvider;
-        if (savedProvider && Object.values(LLMProvider).includes(savedProvider)) {
-          state.provider = savedProvider;
+        const savedProvider = localStorage.getItem('uaito-selected-provider');
+        if (savedProvider && Object.values(LLMProvider).includes(savedProvider as LLMProvider)) {
+          state.provider = savedProvider as LLMProvider;
+          const savedModel = localStorage.getItem(`uaito-selected-model-${savedProvider}`);
+          if (savedModel) {
+            state.selectedModel = savedModel;
+          }
         }
-        // Don't set a default here - let the chat page set it based on enabled providers
       }
     },
     setDownloadProgress: (state, action: PayloadAction<number | null>) => {
@@ -252,8 +255,10 @@ const userSlice = createSlice({
       }
       
       if (message.type === "usage") {
-        const inputTokens = (message.content[0] as any).input ?? 0;
-        const outputTokens = (message.content[0] as any).output ?? 0;
+        const { content } = message
+        const usage = content[0] as UsageBlock
+        const inputTokens = (usage as any).input ?? 0;
+        const outputTokens = (usage as any).output ?? 0;
         state.usage.input += inputTokens;
         state.usage.output += outputTokens;
         chat.usage.input += inputTokens;
@@ -281,7 +286,9 @@ const userSlice = createSlice({
               if (chat.messages[existingIndex]?.content[0].type === "text") {
                 chat.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
               } else if (chat.messages[existingIndex]?.content[0].type === "thinking") {
-                chat.messages[existingIndex].content[0].thinking += (message.content[0] as any).thinking
+                const thinking = message.content[0] as any
+                const existingThinking = chat.messages[existingIndex].content[0] as any
+                existingThinking.thinking += thinking.thinking
               } 
           } else {
             chat.messages.push(message)
@@ -316,7 +323,7 @@ const userSlice = createSlice({
     })
     builder
       .addCase(streamMessage.pending, (state, action) => {
-        const chatId = (action.meta.arg as any).chatId;
+        const { chatId } = action.meta.arg;
         const chat = state.chats[chatId];
         if (chat) {
           chat.state = "streaming";
@@ -325,7 +332,7 @@ const userSlice = createSlice({
       })
     builder
       .addCase(streamMessage.fulfilled, (state, action) => {
-        const chatId = (action.meta.arg as any).chatId;
+        const { chatId } = action.meta.arg
         const chat = state.chats[chatId];
         if (chat) {
           chat.state = "ready";
@@ -334,7 +341,7 @@ const userSlice = createSlice({
       })
     builder
       .addCase(streamMessage.rejected, (state, action) => {
-        const chatId = (action.meta.arg as any).chatId;
+        const { chatId } = action.meta.arg
         const chat = state.chats[chatId];
         if (chat) {
           chat.state = "ready";
