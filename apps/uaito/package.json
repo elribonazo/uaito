@@ -16,6 +16,8 @@
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
     "@octokit/rest": "^21.0.2",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
     "@stablelib/sha512": "^2.0.1",
     "@uaito/ai": "workspace:*",
     "@uaito/anthropic": "workspace:*",
@@ -47,6 +49,7 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "scrolly-video": "^0.0.24",
+    "three": "^0.180.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
@@ -61,6 +64,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/react-syntax-highlighter": "15.5.0",
+    "@types/three": "^0",
     "@types/uuid": "^10.0.0",
     "@types/webpack-hot-middleware": "^2.25.9",
     "copy-webpack-plugin": "^13.0.1",

@@ -20,13 +20,15 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
             <Header />
             <ParallaxBanner />
 
-            <div id="features">
-                <KeyFeatures features={features} />
-            </div>
-            <FeatureSection
-                title="Examples"
-                chats={chats}
-            />
+            {/* Main content with background */}
+            <div className="relative bg-background">
+                <div id="features">
+                    <KeyFeatures features={features} />
+                </div>
+                <FeatureSection
+                    title="Examples"
+                    chats={chats}
+                />
 
             <FadeInSection>
                 <TestimonialSection />
@@ -91,13 +93,14 @@ const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (
                 </section>
             </FadeInSection>
 
-            <FadeInSection>
-                <div className="flex items-center justify-center h-screen bg-surface">
-                    <h1 className="font-sans font-thin text-5xl text-primary-text text-center px-4">
-                        Unlimited posibilities, contact us to build you a custom solution for your needs!
-                    </h1>
-                </div>
-            </FadeInSection>
+                <FadeInSection>
+                    <div className="flex items-center justify-center h-screen bg-surface">
+                        <h1 className="font-sans font-thin text-5xl text-primary-text text-center px-4">
+                            Unlimited posibilities, contact us to build you a custom solution for your needs!
+                        </h1>
+                    </div>
+                </FadeInSection>
+            </div>
 
             <Footer />
         </ParallaxProvider>
