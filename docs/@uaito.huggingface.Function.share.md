@@ -16,7 +16,7 @@
 function share(body, settings): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:128](https://github.com/elribonazo/uaito/blob/75571bfa1ec32ece35814caf545c60b4fbdd41ce/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L128)
+Defined in: [HuggingFaceONNXAudio.ts:128](https://github.com/elribonazo/uaito/blob/c30e1f36a1ae338126469442bb452130a0ac57c5/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L128)
 
 Shares a file to Hugging Face.
 
