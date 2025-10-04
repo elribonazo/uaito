@@ -10,6 +10,7 @@ import { Messages } from './Messages';
 import type { TextBlockParam } from '@anthropic-ai/sdk/resources';
 import { useSession } from 'next-auth/react';
 import { MessageArray, type LLMProvider, type Message, type MessageInput } from '@uaito/sdk';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
   const app = useMountedApp();
@@ -17,12 +18,20 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   
   const abortControllerRef = useRef<AbortController | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [searchText, setSearchText] = useState('');
   const [isSearchEnabled, setIsSearchEnabled] = useState(false);
   const currentChat = app.user.chats[props.chatId];
   const isLoading = currentChat?.state === "streaming";
   const isStreaming = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
+  
+  // Pull to refresh state
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const touchStartY = useRef(0);
+  const pullThreshold = 80; // pixels to pull before triggering refresh
   
   const lastMessage = messages[messages.length - 1];
   const retry = lastMessage && lastMessage.role === "user" && currentChat.state !== "streaming";
@@ -47,6 +56,70 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
       window.removeEventListener('keydown', fn);
     };
   }, []);
+
+  // Pull to refresh handlers (mobile only)
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    // Check if device is mobile
+    const isMobile = () => {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    };
+
+    if (!isMobile()) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      // Only allow pull to refresh when scrolled to top
+      if (container.scrollTop === 0 && !isLoading) {
+        touchStartY.current = e.touches[0].clientY;
+        setIsPulling(true);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPulling || isLoading) return;
+
+      const touchY = e.touches[0].clientY;
+      const distance = touchY - touchStartY.current;
+
+      // Only allow pulling down
+      if (distance > 0 && container.scrollTop === 0) {
+        e.preventDefault();
+        // Apply resistance to the pull
+        const resistedDistance = Math.min(distance * 0.5, pullThreshold * 1.5);
+        setPullDistance(resistedDistance);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (!isPulling) return;
+
+      setIsPulling(false);
+
+      // Trigger refresh if pulled beyond threshold
+      if (pullDistance >= pullThreshold && !isLoading) {
+        setIsRefreshing(true);
+        // Refresh the page
+        setTimeout(() => {
+          window.location.reload();
+        }, 300);
+      } else {
+        // Reset pull distance with animation
+        setPullDistance(0);
+      }
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: false });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPulling, pullDistance, pullThreshold, isLoading]);
 
   const sendMessage = (prompt:string) => {
     if (!prompt.trim() || isLoading) return;
@@ -198,7 +271,86 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
       {/* Messages view with bottom input */}
       {hasMessages && (
         <>
-          <div className="flex-1 overflow-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div 
+            ref={messagesContainerRef}
+            className="flex-1 overflow-auto px-3 sm:px-6 lg:px-8 relative"
+            style={{
+              paddingTop: `${Math.max(pullDistance, 12)}px`,
+              paddingBottom: '12px',
+              transition: isPulling ? 'none' : 'padding-top 0.3s ease-out'
+            }}
+          >
+            {/* Pull to refresh indicator */}
+            {pullDistance > 0 && (
+              <div 
+                className="absolute left-0 right-0 flex items-center justify-center z-10 pointer-events-none"
+                style={{
+                  top: `${Math.max(0, pullDistance - 85)}px`,
+                  opacity: Math.min(pullDistance / pullThreshold, 1)
+                }}
+              >
+                <div className="flex flex-col items-center space-y-2">
+                  {/* Circular progress indicator */}
+                  <div className="relative w-12 h-12">
+                    {/* Background circle */}
+                    <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 48 48" aria-label="Pull to refresh progress">
+                      <title>Refresh Progress</title>
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="rgb(156, 163, 175)"
+                        strokeWidth="3"
+                        fill="none"
+                        opacity="0.3"
+                      />
+                      {/* Progress circle */}
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="rgb(99, 102, 241)"
+                        strokeWidth="3"
+                        fill="none"
+                        className="transition-all duration-150"
+                        strokeDasharray={`${2 * Math.PI * 20}`}
+                        strokeDashoffset={`${2 * Math.PI * 20 * (1 - Math.min(pullDistance / pullThreshold, 1))}`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    {/* Icon in center */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <ArrowPathIcon 
+                        className={`h-6 w-6 text-primary transition-transform duration-300 ${
+                          isRefreshing || pullDistance >= pullThreshold 
+                            ? 'animate-spin' 
+                            : ''
+                        }`}
+                        style={{
+                          transform: !isRefreshing && pullDistance < pullThreshold 
+                            ? `rotate(${(pullDistance / pullThreshold) * 360}deg)` 
+                            : undefined
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {/* Text indicator with smooth fade */}
+                  <div className="relative h-5 overflow-hidden">
+                    <span 
+                      className={`text-xs font-medium transition-all duration-300 ${
+                        isRefreshing 
+                          ? 'text-primary' 
+                          : pullDistance >= pullThreshold 
+                            ? 'text-accent' 
+                            : 'text-secondary-text'
+                      }`}
+                    >
+                      {isRefreshing ? 'Refreshing...' : pullDistance >= pullThreshold ? 'Release to refresh' : 'Pull to refresh'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="max-w-5xl mx-auto">
               <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} onPromptClick={(prompt) => {
                 setInput(prompt);
