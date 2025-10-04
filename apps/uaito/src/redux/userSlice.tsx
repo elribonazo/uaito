@@ -116,9 +116,8 @@ const userSlice = createSlice({
         const savedProvider = localStorage.getItem('uaito-selected-provider') as LLMProvider;
         if (savedProvider && Object.values(LLMProvider).includes(savedProvider)) {
           state.provider = savedProvider;
-        } else {
-          state.provider = LLMProvider.Anthropic;
         }
+        // Don't set a default here - let the chat page set it based on enabled providers
       }
     },
     setDownloadProgress: (state, action: PayloadAction<number | null>) => {

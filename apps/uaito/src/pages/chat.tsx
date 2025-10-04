@@ -59,21 +59,34 @@ const Chat: React.FC<
 	const isDownloading =
 		webGPU && downloadProgress !== null && downloadProgress < 100;
 
+	// Track if we've already initialized to avoid re-running the logic
+	const [hasInitialized, setHasInitialized] = useState(false);
+
 	useEffect(() => {
 		dispatch(initializeProvider());
 		dispatch(loadChatsFromStorage());
-		
-		// If current provider is not in enabled list, switch to first enabled provider
-		if (provider && !enabledProviders.includes(provider)) {
-			if (enabledProviders.length > 0) {
-				dispatch(setProvider(enabledProviders[0]));
-			}
-		}
-		// If no provider is set but we have enabled providers, set the first one
-		if (!provider && enabledProviders.length > 0) {
+	}, [dispatch]);
+
+	// Handle provider initialization and validation
+	useEffect(() => {
+		if (hasInitialized) return;
+
+		if (enabledProviders.length === 0) return; // Wait for enabled providers to be available
+
+		// Check if provider needs to be set or validated
+		if (provider === null || provider === undefined) {
+			// No provider saved - set to first enabled provider
 			dispatch(setProvider(enabledProviders[0]));
+			setHasInitialized(true);
+		} else if (!enabledProviders.includes(provider)) {
+			// Saved provider is not in enabled list - switch to first enabled provider
+			dispatch(setProvider(enabledProviders[0]));
+			setHasInitialized(true);
+		} else {
+			// Provider is valid, mark as initialized
+			setHasInitialized(true);
 		}
-	}, [dispatch, provider, enabledProviders]);
+	}, [provider, enabledProviders, hasInitialized, dispatch]);
 
 	// Create default chat if none exist
 	useEffect(() => {
