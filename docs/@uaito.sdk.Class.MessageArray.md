@@ -12,7 +12,7 @@
 
 # Class: MessageArray\<T\>
 
-Defined in: [utils.ts:80](https://github.com/elribonazo/uaito/blob/4dd0eb0a789ce253f2bab714de6ccbcb99265776/packages/sdk/src/utils.ts#L80)
+Defined in: [utils.ts:80](https://github.com/elribonazo/uaito/blob/ab87da6190fe18ca789b112d80a001767ccf222e/packages/sdk/src/utils.ts#L80)
 
 A specialized array class for managing messages, with validation and merging capabilities.
  MessageArray
@@ -41,7 +41,7 @@ A specialized array class for managing messages, with validation and merging cap
 new MessageArray<T>(items?): MessageArray<T>;
 ```
 
-Defined in: [utils.ts:95](https://github.com/elribonazo/uaito/blob/4dd0eb0a789ce253f2bab714de6ccbcb99265776/packages/sdk/src/utils.ts#L95)
+Defined in: [utils.ts:95](https://github.com/elribonazo/uaito/blob/ab87da6190fe18ca789b112d80a001767ccf222e/packages/sdk/src/utils.ts#L95)
 
 Creates an instance of MessageArray.
 
@@ -1095,7 +1095,7 @@ Array.indexOf
 protected isSameRole(lastOne, item): boolean;
 ```
 
-Defined in: [utils.ts:152](https://github.com/elribonazo/uaito/blob/4dd0eb0a789ce253f2bab714de6ccbcb99265776/packages/sdk/src/utils.ts#L152)
+Defined in: [utils.ts:152](https://github.com/elribonazo/uaito/blob/ab87da6190fe18ca789b112d80a001767ccf222e/packages/sdk/src/utils.ts#L152)
 
 Checks if two messages have the same role and should be merged.
 
@@ -1932,7 +1932,7 @@ Array.with
 static from(items): MessageArray<MessageInput>;
 ```
 
-Defined in: [utils.ts:87](https://github.com/elribonazo/uaito/blob/4dd0eb0a789ce253f2bab714de6ccbcb99265776/packages/sdk/src/utils.ts#L87)
+Defined in: [utils.ts:87](https://github.com/elribonazo/uaito/blob/ab87da6190fe18ca789b112d80a001767ccf222e/packages/sdk/src/utils.ts#L87)
 
 Creates a MessageArray from an array of MessageInput items.
 
