@@ -12,7 +12,7 @@
 
 # Enumeration: AnthropicModels
 
-Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/f7cb352fea9d23c9e96ddab16e6a9d7a49becc32/packages/anthropic/src/types.ts#L7)
+Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/4dd0eb0a789ce253f2bab714de6ccbcb99265776/packages/anthropic/src/types.ts#L7)
 
 Enumeration of the available Anthropic models.
 
@@ -20,5 +20,5 @@ Enumeration of the available Anthropic models.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="claude-4-sonnet"></a> `claude-4-sonnet` | `"claude-sonnet-4-20250514"` | - | [types.ts:12](https://github.com/elribonazo/uaito/blob/f7cb352fea9d23c9e96ddab16e6a9d7a49becc32/packages/anthropic/src/types.ts#L12) |
-| <a id="claude-sonnet-45"></a> `claude-sonnet-4.5` | `"claude-sonnet-4-5-20250929"` | The Claude 4 Sonnet model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/f7cb352fea9d23c9e96ddab16e6a9d7a49becc32/packages/anthropic/src/types.ts#L11) |
+| <a id="claude-4-sonnet"></a> `claude-4-sonnet` | `"claude-sonnet-4-20250514"` | - | [types.ts:12](https://github.com/elribonazo/uaito/blob/4dd0eb0a789ce253f2bab714de6ccbcb99265776/packages/anthropic/src/types.ts#L12) |
+| <a id="claude-sonnet-45"></a> `claude-sonnet-4.5` | `"claude-sonnet-4-5-20250929"` | The Claude 4 Sonnet model. | [types.ts:11](https://github.com/elribonazo/uaito/blob/4dd0eb0a789ce253f2bab714de6ccbcb99265776/packages/anthropic/src/types.ts#L11) |
