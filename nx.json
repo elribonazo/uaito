@@ -8,10 +8,7 @@
   "release": {
     "releaseTagPattern": "{projectName}@{version}",
     "projectsRelationship": "independent",
-    "git": {
-      "commit": true,
-      "commitMessage": "chore(release): {version} [skip ci]"
-    },
+
     "version": {
       "conventionalCommits": true,
       "preVersionCommand": "sh release.sh",
