@@ -1,3 +1,23 @@
+## 0.0.21 (2025-10-04)
+
+### 🩹 Fixes
+
+- improving pipeline ([#6](https://github.com/elribonazo/uaito/pull/6))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.16
+- Updated @uaito/anthropic to 0.0.17
+- Updated @uaito/google to 0.0.7
+- Updated @uaito/openai to 0.0.16
+- Updated @uaito/build to 0.0.10
+- Updated @uaito/api to 0.0.16
+- Updated @uaito/sdk to 0.8.15
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.21-rc.1 (2025-10-04)
 
 ### 🧱 Updated Dependencies

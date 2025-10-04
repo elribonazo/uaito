@@ -1,3 +1,18 @@
+## 0.0.16 (2025-10-04)
+
+### 🩹 Fixes
+
+- improving pipeline ([#6](https://github.com/elribonazo/uaito/pull/6))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.10
+- Updated @uaito/sdk to 0.8.15
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.16-rc.1 (2025-10-04)
 
 ### 🧱 Updated Dependencies

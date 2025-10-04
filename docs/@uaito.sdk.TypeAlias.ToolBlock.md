@@ -19,6 +19,6 @@ type ToolBlock =
   | ToolResultBlock;
 ```
 
-Defined in: [domain/types.ts:92](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/sdk/src/domain/types.ts#L92)
+Defined in: [domain/types.ts:92](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/sdk/src/domain/types.ts#L92)
 
 Represents a block of a tool.

@@ -16,7 +16,7 @@
 function blobToDataURL(blob): Promise<string>;
 ```
 
-Defined in: [domain/utils.ts:6](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/sdk/src/domain/utils.ts#L6)
+Defined in: [domain/utils.ts:6](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/sdk/src/domain/utils.ts#L6)
 
 Converts a Blob to a data URL.
 

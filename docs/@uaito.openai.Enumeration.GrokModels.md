@@ -12,10 +12,10 @@
 
 # Enumeration: GrokModels
 
-Defined in: [types.ts:18](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/openai/src/types.ts#L18)
+Defined in: [types.ts:18](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/openai/src/types.ts#L18)
 
 ## Enumeration Members
 
 | Enumeration Member | Value | Defined in |
 | ------ | ------ | ------ |
-| <a id="grok-4"></a> `grok-4` | `"grok-4-fast-reasoning"` | [types.ts:19](https://github.com/elribonazo/uaito/blob/780947ea6c24067fd2792374e0d02fcaf4cab1a7/packages/openai/src/types.ts#L19) |
+| <a id="grok-4"></a> `grok-4` | `"grok-4-fast-reasoning"` | [types.ts:19](https://github.com/elribonazo/uaito/blob/f62317ea80274231e2e005442ee3cfc0926e1dd2/packages/openai/src/types.ts#L19) |
