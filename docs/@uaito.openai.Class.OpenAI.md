@@ -12,7 +12,7 @@
 
 # Class: OpenAI\<T\>
 
-Defined in: [index.ts:52](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L52)
+Defined in: [index.ts:52](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L52)
 
 A more complete implementation of the OpenAI-based LLM,
 mirroring the structure and patterns found in the Anthropic class.
@@ -35,7 +35,7 @@ mirroring the structure and patterns found in the Anthropic class.
 new OpenAI<T>({, onTool?): OpenAI<T>;
 ```
 
-Defined in: [index.ts:132](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L132)
+Defined in: [index.ts:132](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L132)
 
 Creates an instance of the OpenAI LLM.
 
@@ -70,7 +70,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [index.ts:76](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L76)
+Defined in: [index.ts:76](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L76)
 
 The cache for the LLM.
 
@@ -132,7 +132,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:69](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L69)
+Defined in: [index.ts:69](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L69)
 
 An array of message inputs.
 
@@ -150,7 +150,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:57](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L57)
+Defined in: [index.ts:57](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L57)
 
 Optional callback for tool usage.
 
@@ -196,7 +196,7 @@ BaseLLM.type
 get llmInputs(): ResponseInputItem[];
 ```
 
-Defined in: [index.ts:257](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L257)
+Defined in: [index.ts:257](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L257)
 
 Gets the inputs for the LLM.
 
@@ -216,7 +216,7 @@ The LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:153](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L153)
+Defined in: [index.ts:153](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L153)
 
 Return max tokens or a default (e.g. 4096).
 
@@ -236,7 +236,7 @@ The maximum number of tokens.
 get tools(): undefined | Tool[];
 ```
 
-Defined in: [index.ts:226](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L226)
+Defined in: [index.ts:226](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L226)
 
 Gets the tools available to the LLM.
 
@@ -320,7 +320,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:505](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/index.ts#L505)
+Defined in: [index.ts:505](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/openai/src/index.ts#L505)
 
 Performs a task stream using the LLM.
 
