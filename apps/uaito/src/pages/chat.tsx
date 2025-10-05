@@ -70,9 +70,9 @@ const Chat: React.FC<
 
 	// Handle provider initialization and validation
 	useEffect(() => {
-		if (hasInitialized || !provider || enabledProviders.length === 0) return;
+		if (hasInitialized || enabledProviders.length === 0) return;
 	
-		if (!enabledProviders.includes(provider)) {
+		if (!provider || !enabledProviders.includes(provider)) {
 		  dispatch(setProvider(enabledProviders[0]));
 		}
 		setHasInitialized(true);

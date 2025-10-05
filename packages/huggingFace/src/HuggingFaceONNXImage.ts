@@ -153,29 +153,18 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
       start: async (controller) => {
         let conversation: any[] = [];
         let options: any = undefined;
-        if (typeof image === 'string' && typeof prompt === 'string') {
-          conversation = [
-            {
-              role: "<|User|>",
-              content: "<image_placeholder>\n" + prompt,
-              images: [image],
-            },
-          ];
-          
-        } else {
-          conversation = [
-            {
-              role: "<|User|>",
-              content: prompt
-            },
-          ];
-          if (!prompt || prompt.trim() === "") {
-            controller.error(new Error("No prompt provided"));
-            return;
-          }
-          options = { chat_template: "text_to_image" }
-        }
         
+        conversation = [
+          {
+            role: "<|User|>",
+            content: prompt
+          },
+        ];
+        if (!prompt || prompt.trim() === "") {
+          controller.error(new Error("No prompt provided"));
+          return;
+        }
+        options = { chat_template: "text_to_image" }
 
         const inputs = await this.processor(conversation,options);
         const num_image_tokens = this.processor.num_image_tokens;
