@@ -6270,7 +6270,7 @@ __metadata:
   peerDependencies:
     "@uaito/anthropic": ^0.0.21
     "@uaito/api": ^0.0.20
-    "@uaito/huggingface": ^0.0.20
+    "@uaito/huggingface": ^0.0.21
     "@uaito/openai": ^0.0.21
   bin:
     uaito-cli: build/cli.js

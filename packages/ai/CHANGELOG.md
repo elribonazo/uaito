@@ -1,3 +1,9 @@
+## 0.0.27 (2025-10-05)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.21
+
 ## 0.0.26 (2025-10-05)
 
 ### 🧱 Updated Dependencies

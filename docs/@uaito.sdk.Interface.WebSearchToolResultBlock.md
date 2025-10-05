@@ -12,7 +12,7 @@
 
 # Interface: WebSearchToolResultBlock
 
-Defined in: [domain/types.ts:169](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/types.ts#L169)
+Defined in: [domain/types.ts:169](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/sdk/src/domain/types.ts#L169)
 
 Represents a web search tool result block.
  WebSearchToolResultBlock
@@ -25,7 +25,7 @@ Represents a web search tool result block.
 content: WebSearchToolResultBlockContent;
 ```
 
-Defined in: [domain/types.ts:174](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/types.ts#L174)
+Defined in: [domain/types.ts:174](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/sdk/src/domain/types.ts#L174)
 
 The content of the block.
 
@@ -37,7 +37,7 @@ The content of the block.
 tool_use_id: string;
 ```
 
-Defined in: [domain/types.ts:180](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/types.ts#L180)
+Defined in: [domain/types.ts:180](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/sdk/src/domain/types.ts#L180)
 
 The ID of the tool use.
 
@@ -49,6 +49,6 @@ The ID of the tool use.
 type: "web_search_tool_result";
 ```
 
-Defined in: [domain/types.ts:186](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/types.ts#L186)
+Defined in: [domain/types.ts:186](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/sdk/src/domain/types.ts#L186)
 
 The type of the block.

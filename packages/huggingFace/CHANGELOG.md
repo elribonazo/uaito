@@ -1,3 +1,13 @@
+## 0.0.21 (2025-10-05)
+
+### 🩹 Fixes
+
+- ui improvements Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([43e51fd](https://github.com/elribonazo/uaito/commit/43e51fd))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.20 (2025-10-05)
 
 ### 🩹 Fixes

@@ -21,7 +21,7 @@ type OpenAIOptions<T> = BaseLLMOptions & {
 };
 ```
 
-Defined in: [types.ts:32](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/openai/src/types.ts#L32)
+Defined in: [types.ts:32](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/types.ts#L32)
 
 Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey.
 
@@ -29,10 +29,10 @@ Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey.
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `apiKey?` | `string` | [types.ts:32](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/openai/src/types.ts#L32) |
-| `baseURL?` | `string` | [types.ts:32](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/openai/src/types.ts#L32) |
-| `model` | `LLMProviderToOpenAIModel`\[`T`\] | [types.ts:32](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/openai/src/types.ts#L32) |
-| `type` | `T` | [types.ts:32](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/openai/src/types.ts#L32) |
+| `apiKey?` | `string` | [types.ts:32](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/types.ts#L32) |
+| `baseURL?` | `string` | [types.ts:32](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/types.ts#L32) |
+| `model` | `LLMProviderToOpenAIModel`\[`T`\] | [types.ts:32](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/types.ts#L32) |
+| `type` | `T` | [types.ts:32](https://github.com/elribonazo/uaito/blob/43e51fd5de833da3eaf6272814a790a6205b5df9/packages/openai/src/types.ts#L32) |
 
 ## Type Parameters
 
