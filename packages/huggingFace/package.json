@@ -45,7 +45,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@huggingface/transformers": "3.7.1",
+    "@huggingface/transformers": "3.7.5",
     "abort-controller": "^3.0.0",
     "idb": "^8.0.3",
     "lodash": "^4.17.21",
