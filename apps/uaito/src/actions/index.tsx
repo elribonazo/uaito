@@ -184,27 +184,6 @@ export const streamMessage = createAsyncThunk(
 							},
 						},
 						{
-							name: "imageEdit",
-							description:
-								"Edit an image based on a prompt. This tool should be used when you need to edit an image based on a prompt and returns the blob url of the edited image, to be used inside blob:http://...... tag, always append blob: together with the url.",
-							input_schema: {
-								type: "object",
-								properties: {
-									image: {
-										type: "string",
-										description:
-											"The image blob url to edit.",
-									},
-									prompt: {
-										type: "string",
-										description:
-											"A detailed prompt describing the picture, applying the visual style and quality of the picture.",
-									},
-								},
-								required: ["prompt", "image"],
-							},
-						},
-						{
 							name: "generateAudio",
 							description:
 								"Generate an audio based on a prompt. This tool should be used when you need to generate an audio based on a prompt and returns the blob url of the generated audio, to be used inside blob:http://...... tag, always append blob: together with the url.",
@@ -248,32 +227,7 @@ export const streamMessage = createAsyncThunk(
 						const toolUse = message.content.find((m) => m.type === "tool_use");
 						const id = message.id;
 
-						if (toolUse?.name === "imageEdit") {
-							const input = toolUse?.input as { prompt: string, image: string };
-							debugger;
-							const { response } = await imageAgent.performTask(input.prompt, input.image);
-							const toolResult: Message = {
-								...message,
-								id,
-								type: "tool_result",
-								content: [
-									{
-										name: (toolUse as any).name,
-										type: "tool_result",
-										tool_use_id: id,
-										content: [],
-									} as ToolResultBlock,
-								],
-								role: "assistant",
-							};
-							for await (const chunk of response) {
-								for (const content of chunk.content) {
-									(toolResult as any).content[0].content.push(content);
-								}
-							}
-							this.inputs.push(toolResult);
-
-						}else if (toolUse?.name === "generateAudio") {
+						if (toolUse?.name === "generateAudio") {
 							const input = toolUse?.input as { prompt: string };
 							const { response } = await audioAgent.performTask(input.prompt);
 							const toolResult: Message = {
