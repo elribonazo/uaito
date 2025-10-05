@@ -55,10 +55,6 @@ export async function onTool<T extends LLMProvider>(
         throw new Error(`Invalid tool ${tool.name}`)
     }
 
-    if ((canUse as any).type === "image_generation") {   
-        return 
-    }
-
     const localTools = ['tavilySearch', 'browseWebPage'];
     const toolName = tool.name as 'tavilySearch' | 'browseWebPage' | 'executeCommand' | 'editAndApply' | 'createFile' | 'createFolder' | 'readFile' | 'listFiles';
 
