@@ -12,7 +12,7 @@
 
 # Abstract Class: BaseLLM\<TYPE, OPTIONS\>
 
-Defined in: [domain/BaseLLM.ts:33](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L33)
+Defined in: [domain/BaseLLM.ts:33](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L33)
 
 Abstract base class for Language Model implementations.
 
@@ -35,7 +35,7 @@ Abstract base class for Language Model implementations.
 new BaseLLM<TYPE, OPTIONS>(type, options): BaseLLM<TYPE, OPTIONS>;
 ```
 
-Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L143)
+Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L143)
 
 Creates an instance of BaseLLM.
 
@@ -62,7 +62,7 @@ Creates an instance of BaseLLM.
 abstract cache: BaseLLMCache;
 ```
 
-Defined in: [domain/BaseLLM.ts:52](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L52)
+Defined in: [domain/BaseLLM.ts:52](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L52)
 
 The cache for the LLM.
 
@@ -74,7 +74,7 @@ The cache for the LLM.
 data: Record<string, unknown> = {};
 ```
 
-Defined in: [domain/BaseLLM.ts:65](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L65)
+Defined in: [domain/BaseLLM.ts:65](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L65)
 
 A record of data for the LLM.
 
@@ -86,7 +86,7 @@ A record of data for the LLM.
 abstract inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [domain/BaseLLM.ts:59](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L59)
+Defined in: [domain/BaseLLM.ts:59](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L59)
 
 An array of message inputs.
 
@@ -98,7 +98,7 @@ An array of message inputs.
 readonly options: OPTIONS;
 ```
 
-Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L143)
+Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L143)
 
 The options for the language model.
 
@@ -110,7 +110,7 @@ The options for the language model.
 readonly type: TYPE;
 ```
 
-Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L143)
+Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L143)
 
 The type of the language model.
 
@@ -125,7 +125,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: [domain/BaseLLM.ts:154](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L154)
+Defined in: [domain/BaseLLM.ts:154](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L154)
 
 Includes the last prompt in the input.
 
@@ -151,7 +151,7 @@ The updated input messages.
 log(message): any;
 ```
 
-Defined in: [domain/BaseLLM.ts:72](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L72)
+Defined in: [domain/BaseLLM.ts:72](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L72)
 
 Logs a message.
 
@@ -178,7 +178,7 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L23)
+Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L23)
 
 Performs a task stream.
 
@@ -209,7 +209,7 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L24)
+Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L24)
 
 Performs a task stream.
 
@@ -240,7 +240,7 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L25)
+Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L25)
 
 Performs a task stream.
 
@@ -270,7 +270,7 @@ A promise that resolves to a readable stream of messages.
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: [domain/BaseLLM.ts:83](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L83)
+Defined in: [domain/BaseLLM.ts:83](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L83)
 
 Retries an API call with a delay.
 
@@ -300,7 +300,7 @@ The result of the API call.
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: [domain/BaseLLM.ts:107](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L107)
+Defined in: [domain/BaseLLM.ts:107](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L107)
 
 Run a command safely, catching and handling any errors.
 
@@ -326,7 +326,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:282](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L282)
+Defined in: [domain/BaseLLM.ts:282](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L282)
 
 Transforms an input stream using the provided transform function.
 
@@ -358,7 +358,7 @@ A promise that resolves to the transformed readable stream.
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:194](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/BaseLLM.ts#L194)
+Defined in: [domain/BaseLLM.ts:194](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/BaseLLM.ts#L194)
 
 Transforms the given stream from an AI provider into a Uaito Stream
 This also keeps track of the received messages

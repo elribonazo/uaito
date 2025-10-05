@@ -1,3 +1,18 @@
+## 0.0.20 (2025-10-05)
+
+### 🩹 Fixes
+
+- upgrade huggingface Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([32b7ed6](https://github.com/elribonazo/uaito/commit/32b7ed6))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.14
+- Updated @uaito/sdk to 0.8.19
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.19 (2025-10-04)
 
 ### 🩹 Fixes

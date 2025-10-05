@@ -26,6 +26,6 @@ type MessageType =
   | SignatureDeltaBlock["type"];
 ```
 
-Defined in: [domain/types.ts:706](https://github.com/elribonazo/uaito/blob/23d7d061485e237b2bbd2381e70b698200803cd7/packages/sdk/src/domain/types.ts#L706)
+Defined in: [domain/types.ts:706](https://github.com/elribonazo/uaito/blob/32b7ed681e19ab2b616ebe6cb537c3852aa82ced/packages/sdk/src/domain/types.ts#L706)
 
 Represents the type of a message.
