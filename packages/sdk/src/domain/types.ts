@@ -598,6 +598,8 @@ import { MessageArray } from "@/utils";
      * @type {'tool_use'}
      */
     type: 'tool_use';
+
+    isRemote?: boolean;
   }
   
   /**

@@ -214,7 +214,7 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
     const prompts = [
         {
             icon: PhotoIcon,
-            text: "Generate 5 random pictures of a pomsky dog dressing as a crypto bro and doing different activities",
+            text: "Generate a random picture of a pomsky dog dressing as a crypto bro, doing heavy lifting in the gym.",
             shortText: "Generate dog pictures"
         },
         {

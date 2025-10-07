@@ -8,8 +8,8 @@ export enum AnthropicModels {
     /**
      * The Claude 4 Sonnet model.
      */
-    'claude-sonnet-4.5' = "claude-sonnet-4-5-20250929",
-    'claude-4-sonnet' = "claude-sonnet-4-20250514",
+    'Sonnet-4.5' = "claude-sonnet-4-5-20250929",
+    // 'claude-4-sonnet' = "claude-sonnet-4-20250514",
 
   }
 

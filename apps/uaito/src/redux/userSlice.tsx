@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { getApiKey, streamMessage } from '@/actions';
 import type { Session } from 'next-auth';
 import { LLMProvider } from '@uaito/sdk';
-import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ToolBlock, UsageBlock } from '@uaito/sdk';
+import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ThinkingBlock, ToolBlock, UsageBlock } from '@uaito/sdk';
 
 export type MessageState = Message;
 export type UserSession = {
@@ -67,6 +67,7 @@ export interface ChatState {
   isFetchingUsageToken: boolean;
   hasFetchedUsageToken: boolean;
   downloadProgress: number | null;
+  isProviderInitialized: boolean;
 }
 
 export const initialState: ChatState = {
@@ -84,6 +85,7 @@ export const initialState: ChatState = {
   isFetchingUsageToken: false,
   hasFetchedUsageToken: false,
   downloadProgress: null,
+  isProviderInitialized: false,
 };
 
 export interface PushChatMessage {
@@ -122,6 +124,7 @@ const userSlice = createSlice({
           }
         }
       }
+      state.isProviderInitialized = true;
     },
     setDownloadProgress: (state, action: PayloadAction<number | null>) => {
       state.downloadProgress = action.payload;
@@ -271,8 +274,8 @@ const userSlice = createSlice({
       if (message.type === "usage") {
         const { content } = message
         const usage = content[0] as UsageBlock
-        const inputTokens = (usage as any).input ?? 0;
-        const outputTokens = (usage as any).output ?? 0;
+        const inputTokens = usage.input ?? 0;
+        const outputTokens = usage.output ?? 0;
         state.usage.input += inputTokens;
         state.usage.output += outputTokens;
         chat.usage.input += inputTokens;
@@ -300,8 +303,8 @@ const userSlice = createSlice({
               if (chat.messages[existingIndex]?.content[0].type === "text") {
                 chat.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
               } else if (chat.messages[existingIndex]?.content[0].type === "thinking") {
-                const thinking = message.content[0] as any
-                const existingThinking = chat.messages[existingIndex].content[0] as any
+                const thinking = message.content[0] as ThinkingBlock;
+                const existingThinking = chat.messages[existingIndex].content[0] as ThinkingBlock;
                 existingThinking.thinking += thinking.thinking
               } 
           } else {

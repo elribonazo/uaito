@@ -6,7 +6,6 @@ import { BaseLLM, LLMProvider,
   ToolUseBlock,
   OnTool,
   DeltaBlock,
-  TextBlock,
   UsageBlock,
   BaseLLMCache,
   ReadableStreamWithAsyncIterable,
@@ -208,6 +207,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         contents.push({ type: 'input_image', image_url: dataUrl, detail: 'auto' } as ResponseInputImage);
       } else if (c.type === "tool_use") {
         // Tool calls are outputs from the model; do not include them as inputs.
+        debugger;
         continue;
       }
     }
@@ -233,9 +233,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         }
       )
       .map((tool) => {
-        if ("type" in tool && (tool.type === "image_generation" || tool.type === "web_search_preview")) {
-          return tool as any;
-        }
         const parsedTool = JSON.parse(JSON.stringify(tool));
         const functionTool: FunctionTool = {
           type: 'function',
@@ -536,7 +533,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       max_output_tokens: this.maxTokens,
       stream: true,
       tools,
-      reasoning:{},
+      reasoning:{
+        effort:'low'
+      },
     };
 
     // Reset usage and per-turn state
@@ -798,63 +797,43 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       return null;
     }
 
-    if (chunk.type === 'response.image_generation_call.generating') {
+    if (chunk.type === "response.image_generation_call.in_progress") {
+      debugger;
+      this.cache.imageGenerationCallId = chunk.item_id;
+      const toolUseBlock: ToolUseBlock = {
+        id: this.cache.imageGenerationCallId,
+        name: "image_generation",
+        type: "tool_use",
+        input: {},
+        isRemote: true
+      };
       return {
         chunk: true,
         id: this.cache.imageGenerationCallId!,
-        role: 'assistant',
-        type: 'message',
+        role: "assistant",
+        type: "tool_use",
         content: [
-          {
-            type: 'text', text: 'Generating image...\r\n\n\r\n'
-          }
+          toolUseBlock
         ]
-      }
+      };
     }
 
-    if (chunk.type === 'response.image_generation_call.completed') {
-      const buffer = Buffer.from(this.cache.imageBase64!, 'base64');
-      const blob = new Blob([buffer]);
-      const dataurl = await blobToDataURL(blob);
-      return {
-        role: 'assistant',
-        id: v4(),
-        type: 'message',   
-        content: [
-          { type: 'text', text: `<image>${dataurl}</image>` }
-        ]
-      }
-    }
-
-    if (chunk.type === 'response.image_generation_call.in_progress') {
-      this.cache.imageGenerationCallId = chunk.item_id;
-      return {
-        chunk: true,
-        id: this.cache.imageGenerationCallId,
-        role: 'assistant',
-        type: 'message',
-        content: [
-          {
-            type: 'text', text: 'Creating image... \r\n\n\r\n'
-          }
-        ]
-      }
-    }
 
     if (chunk.type === "response.image_generation_call.partial_image") {
       const imageBase64 = chunk.partial_image_b64;
       this.cache.imageBase64 = imageBase64;
+      const buffer = Buffer.from(this.cache.imageBase64, "base64");
+      const blob = new Blob([buffer]);
+      const dataurl = await blobToDataURL(blob);
+      debugger;
       return {
-        chunk: true,
+        role: "assistant",
         id: this.cache.imageGenerationCallId!,
-        role: 'assistant',
-        type: 'message',
+        type: "tool_result",
         content: [
-          {
-            type: 'text', text: 'Processing image...\r\n\n\r\n'
-          }
+          { type: "text", text: `<image>${dataurl}</image>` }
         ]
-      }
+      };
     }
 
     // Function call arguments streaming delta

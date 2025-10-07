@@ -323,7 +323,7 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                                 content: tChunk.content,
                                 type: 'tool_use'
                             })
-                            if (onTool && tChunk.content[0].type === "tool_use") {
+                            if (onTool && tChunk.content[0].type === "tool_use" && !tChunk.content[0].isRemote) {
                                 const toolUse = tChunk.content[0] as ToolUseBlock;
                                 const cacheEntry = (this.cache.toolInput ?? { input: tChunk.content[0].input }) as ToolInputDelta;
                                 const partial = cacheEntry?.partial || (cacheEntry as any).input;

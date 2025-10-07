@@ -53,15 +53,12 @@ const Chat: React.FC<
 	const [selectedModel, setSelectedModelState] = useState<string>("");
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const {
-		user: { provider, downloadProgress, usage, chats, activeChatId, chatOrder },
+		user: { provider, downloadProgress, usage, chats, activeChatId, chatOrder, isProviderInitialized },
 	} = useMountedApp();
 	const webGPU =
 		provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
 	const isDownloading =
 		webGPU && downloadProgress !== null && downloadProgress < 100;
-
-	// Track if we've already initialized to avoid re-running the logic
-	const [hasInitialized, setHasInitialized] = useState(false);
 
 	useEffect(() => {
 		dispatch(initializeProvider());
@@ -70,13 +67,12 @@ const Chat: React.FC<
 
 	// Handle provider initialization and validation
 	useEffect(() => {
-		if (hasInitialized || enabledProviders.length === 0) return;
+		if (!isProviderInitialized || enabledProviders.length === 0) return;
 	
 		if (!provider || !enabledProviders.includes(provider)) {
 		  dispatch(setProvider(enabledProviders[0]));
 		}
-		setHasInitialized(true);
-	  }, [provider, enabledProviders, hasInitialized, dispatch]);
+	  }, [isProviderInitialized, provider, enabledProviders, dispatch]);
 
 	// Create default chat if none exist
 	useEffect(() => {
