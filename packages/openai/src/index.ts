@@ -207,7 +207,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         contents.push({ type: 'input_image', image_url: dataUrl, detail: 'auto' } as ResponseInputImage);
       } else if (c.type === "tool_use") {
         // Tool calls are outputs from the model; do not include them as inputs.
-        debugger;
         continue;
       }
     }
@@ -798,7 +797,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     }
 
     if (chunk.type === "response.image_generation_call.in_progress") {
-      debugger;
       this.cache.imageGenerationCallId = chunk.item_id;
       const toolUseBlock: ToolUseBlock = {
         id: this.cache.imageGenerationCallId,
@@ -825,7 +823,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       const buffer = Buffer.from(this.cache.imageBase64, "base64");
       const blob = new Blob([buffer]);
       const dataurl = await blobToDataURL(blob);
-      debugger;
       return {
         role: "assistant",
         id: this.cache.imageGenerationCallId!,

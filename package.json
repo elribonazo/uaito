@@ -74,6 +74,7 @@
   "dependencies": {
     "chromedriver": "^138.0.1",
     "date-fns": "^4.1.0",
-    "framer-motion": "^12.23.22"
+    "framer-motion": "^12.23.22",
+    "redux-persist": "^6.0.0"
   }
 }
