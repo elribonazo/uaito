@@ -37,10 +37,10 @@ export enum HuggingFaceONNXModels {
     LUCY="onnx-community/Lucy-ONNX",
 
     GRANITE="onnx-community/granite-4.0-micro-ONNX-web",
-    DEMO='onnx-community/llama-3.2-1b-medical-notes-ONNX', 
-    LFM2_RAG='onnx-community/LFM2-1.2B-RAG-ONNX',
-    LFM2_EXTRACT='onnx-community/LFM2-350M-Extract-ONNX',
-    LMF2_6B='onnx-community/LFM2-2.6B-ONNX'
+    // DEMO='onnx-community/llama-3.2-1b-medical-notes-ONNX', 
+    // LFM2_RAG='onnx-community/LFM2-1.2B-RAG-ONNX',
+    // LFM2_EXTRACT='onnx-community/LFM2-350M-Extract-ONNX',
+    // LMF2_6B='onnx-community/LFM2-2.6B-ONNX'
   }
 
   export enum HuggingFaceONNXChatTemplates {

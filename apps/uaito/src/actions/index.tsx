@@ -155,7 +155,7 @@ export const streamMessage = createAsyncThunk(
 				// Use selected model or default to QWEN_1
 				const selectedModel = options.model
 					? (options.model as HuggingFaceONNXModels)
-					: HuggingFaceONNXModels.QWEN3;
+					: HuggingFaceONNXModels.JANO;
 
 				const device =
 					typeof navigator !== "undefined" && (navigator as any).gpu
