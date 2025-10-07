@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { getApiKey, streamMessage } from '@/actions';
 import type { Session } from 'next-auth';
 import { LLMProvider } from '@uaito/sdk';
-import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ThinkingBlock, ToolBlock, UsageBlock } from '@uaito/sdk';
+import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ToolBlock, UsageBlock } from '@uaito/sdk';
 
 export type MessageState = Message;
 export type UserSession = {
@@ -67,7 +67,6 @@ export interface ChatState {
   isFetchingUsageToken: boolean;
   hasFetchedUsageToken: boolean;
   downloadProgress: number | null;
-  isProviderInitialized: boolean;
 }
 
 export const initialState: ChatState = {
@@ -85,7 +84,6 @@ export const initialState: ChatState = {
   isFetchingUsageToken: false,
   hasFetchedUsageToken: false,
   downloadProgress: null,
-  isProviderInitialized: false,
 };
 
 export interface PushChatMessage {
@@ -103,28 +101,14 @@ const userSlice = createSlice({
   reducers: {
     setProvider: (state, action: PayloadAction<LLMProvider>) => {
       state.provider = action.payload;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('uaito-selected-provider', action.payload);
-      }
     },
     setSelectedModel: (state, action: PayloadAction<string>) => {
       state.selectedModel = action.payload;
-      if (typeof window !== 'undefined' && state.provider) {
-        localStorage.setItem(`uaito-selected-model-${state.provider}`, action.payload);
-      }
     },
     initializeProvider: (state) => {
-      if (typeof window !== 'undefined') {
-        const savedProvider = localStorage.getItem('uaito-selected-provider');
-        if (savedProvider && Object.values(LLMProvider).includes(savedProvider as LLMProvider)) {
-          state.provider = savedProvider as LLMProvider;
-          const savedModel = localStorage.getItem(`uaito-selected-model-${savedProvider}`);
-          if (savedModel) {
-            state.selectedModel = savedModel;
-          }
+        if (!state.provider) {
+            state.provider = LLMProvider.Anthropic;
         }
-      }
-      state.isProviderInitialized = true;
     },
     setDownloadProgress: (state, action: PayloadAction<number | null>) => {
       state.downloadProgress = action.payload;
@@ -151,28 +135,10 @@ const userSlice = createSlice({
       state.chats[id] = newChat;
       state.chatOrder.unshift(id);
       state.activeChatId = id;
-      
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('uaito-chats', JSON.stringify({
-          chats: state.chats,
-          activeChatId: state.activeChatId,
-          chatOrder: state.chatOrder,
-        }));
-      }
     },
     setActiveChat: (state, action: PayloadAction<string>) => {
       if (state.chats[action.payload]) {
         state.activeChatId = action.payload;
-        
-        // Save to localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('uaito-chats', JSON.stringify({
-            chats: state.chats,
-            activeChatId: state.activeChatId,
-            chatOrder: state.chatOrder,
-          }));
-        }
       }
     },
     deleteChat: (state, action: PayloadAction<string>) => {
@@ -183,29 +149,11 @@ const userSlice = createSlice({
       if (state.activeChatId === action.payload) {
         state.activeChatId = state.chatOrder[0] || null;
       }
-      
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('uaito-chats', JSON.stringify({
-          chats: state.chats,
-          activeChatId: state.activeChatId,
-          chatOrder: state.chatOrder,
-        }));
-      }
     },
     deleteAllChats: (state) => {
       state.chats = {};
       state.chatOrder = [];
       state.activeChatId = null;
-      
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('uaito-chats', JSON.stringify({
-          chats: state.chats,
-          activeChatId: state.activeChatId,
-          chatOrder: state.chatOrder,
-        }));
-      }
     },
     renameChat: (state, action: PayloadAction<{
       id: string;
@@ -215,38 +163,14 @@ const userSlice = createSlice({
       if (chat) {
         chat.name = action.payload.name;
         chat.updatedAt = Date.now();
-        
-        // Save to localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('uaito-chats', JSON.stringify({
-            chats: state.chats,
-            activeChatId: state.activeChatId,
-            chatOrder: state.chatOrder,
-          }));
-        }
       }
     },
     loadChatsFromStorage: (state) => {
-      if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('uaito-chats');
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            // Reset all chat states to 'ready' since no chats can be actively streaming on page load
-            const chats = parsed.chats || {};
-            Object.keys(chats).forEach(chatId => {
-              if (chats[chatId]) {
-                chats[chatId].state = 'ready';
-              }
-            });
-            state.chats = chats;
-            state.activeChatId = parsed.activeChatId || null;
-            state.chatOrder = parsed.chatOrder || [];
-          } catch (error) {
-            console.error('Failed to load chats from storage:', error);
-          }
-        }
-      }
+        Object.values(state.chats).forEach(chat => {
+            if (chat) {
+              chat.state = 'ready';
+            }
+        });
     },
     pushChatMessage: (state, action: PayloadAction<PushChatMessage>) => {
       const { chatId, chatMessage: { message } } = action.payload;
@@ -274,8 +198,8 @@ const userSlice = createSlice({
       if (message.type === "usage") {
         const { content } = message
         const usage = content[0] as UsageBlock
-        const inputTokens = usage.input ?? 0;
-        const outputTokens = usage.output ?? 0;
+        const inputTokens = (usage as any).input ?? 0;
+        const outputTokens = (usage as any).output ?? 0;
         state.usage.input += inputTokens;
         state.usage.output += outputTokens;
         chat.usage.input += inputTokens;
@@ -303,8 +227,8 @@ const userSlice = createSlice({
               if (chat.messages[existingIndex]?.content[0].type === "text") {
                 chat.messages[existingIndex].content[0].text += (message.content[0] as TextBlock).text
               } else if (chat.messages[existingIndex]?.content[0].type === "thinking") {
-                const thinking = message.content[0] as ThinkingBlock;
-                const existingThinking = chat.messages[existingIndex].content[0] as ThinkingBlock;
+                const thinking = message.content[0] as any
+                const existingThinking = chat.messages[existingIndex].content[0] as any
                 existingThinking.thinking += thinking.thinking
               } 
           } else {
@@ -314,15 +238,6 @@ const userSlice = createSlice({
       }
       
       chat.updatedAt = Date.now();
-      
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('uaito-chats', JSON.stringify({
-          chats: state.chats,
-          activeChatId: state.activeChatId,
-          chatOrder: state.chatOrder,
-        }));
-      }
       
       return state;
     },
