@@ -1,3 +1,23 @@
+## 0.0.28 (2025-10-09)
+
+### 🩹 Fixes
+
+- improve image gen for openAI ([#9](https://github.com/elribonazo/uaito/pull/9))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.22
+- Updated @uaito/anthropic to 0.0.22
+- Updated @uaito/google to 0.0.12
+- Updated @uaito/openai to 0.0.22
+- Updated @uaito/build to 0.0.15
+- Updated @uaito/api to 0.0.21
+- Updated @uaito/sdk to 0.8.20
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.28-rc.0 (2025-10-09)
 
 ### 🧱 Updated Dependencies
