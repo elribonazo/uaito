@@ -113,22 +113,22 @@ export const FeatureSection: React.FC<Partial<FeatureSectionProps>> = ({ title, 
             
             <div ref={sectionRef} className={`container mx-auto py-8 px-4 sm:px-6 lg:px-8 flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center`}>
                 <div className="w-full my-8 lg:mb-0 transform translate-y-0 will-change-transform">
-                    <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl lg:text-[3vw] text-white text-left mb-5">{title}</h2>
+                    <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl lg:text-[3vw] text-primary-text text-left mb-5">{title}</h2>
                     {hasContent ? (
-                        <div className="bg-gray-100 rounded-lg p-4 w-full"> 
+                        <div className="bg-surface rounded-lg p-4 w-full border border-border"> 
                             {chatMessages.map((msg, index) => (
                                 (msg.visibleContent ?? []).length > 0 ? (
                                     
 
                                     <div key={index} className={`mt-5 flex items-start justify-start`}>
                                         {msg.role === 'assistant' &&  msg.visibleContent.length && !msg.visibleContent.some((t) => t.type.includes("tool")) && (
-                                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden flex-shrink-0 mr-2">
+                                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden flex-shrink-0 mr-2 bg-gradient-to-br from-surface to-muted dark:from-transparent dark:to-transparent p-0.5">
                                                 <Image src="/UAITO.png" alt="UAITO Logo" width={32} height={32} className="object-cover w-full h-full" />
                                             </div>
                                         )}
                                        {
                                         msg.visibleContent.find((item) => item.type === "text") ? 
-                                        <div className={`max-w-[calc(100%-40px)] p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-900'}`}>
+                                        <div className={`max-w-[calc(100%-40px)] p-3 rounded-lg transition-colors ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-surface text-primary-text border border-border'}`}>
                                         {
                                             (msg.visibleContent ?? []).map((content,  i) => {
                                                 return <Markdown key={'markdown'+index+i} searchText={''}>
@@ -142,7 +142,7 @@ export const FeatureSection: React.FC<Partial<FeatureSectionProps>> = ({ title, 
 
                                         (msg.visibleContent ?? []).map((content, i) => {
                                             if (content.type === "text") {
-                                                return <div key={'markdown-2-'+index+i} className={`p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-900'}`}>
+                                                return <div key={'markdown-2-'+index+i} className={`p-3 rounded-lg transition-colors ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-surface text-primary-text border border-border'}`}>
                                                     <Markdown searchText={''}>
                                                         {(content as TextBlock).text}
                                                     </Markdown>
@@ -165,13 +165,13 @@ export const FeatureSection: React.FC<Partial<FeatureSectionProps>> = ({ title, 
                             ))}
                             {preview}
                         </div>
-                    ):<div className="bg-gray-100 rounded-lg p-4 w-full">
+                    ):<div className="bg-surface rounded-lg p-4 w-full border border-border">
                     <div className="flex flex-col items-center justify-center h-32">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mb-4">
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mb-4 bg-gradient-to-br from-surface to-muted dark:from-transparent dark:to-transparent p-1">
                         <Image src="/UAITO.png" alt="UAITO Logo" width={32} height={32} className="object-cover w-full h-full" />
 
                         </div>
-                        <p className="text-gray-600 font-medium">Agent is streaming the response</p>
+                        <p className="text-secondary-text font-medium">Agent is streaming the response</p>
                     </div>
                 </div>}
                 </div>

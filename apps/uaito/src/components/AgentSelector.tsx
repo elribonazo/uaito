@@ -24,22 +24,22 @@ export const AgentSelector: React.FC<{onSelected?: (value: string) => void | Pro
               setIsOpen(!isOpen)
             }
           }}
-          className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-opacity-90 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded transition duration-300 hover:bg-gray-400 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full flex items-center pt-1 pb-2 pr-1 space-x-2 bg-surface text-primary-text font-bold rounded transition duration-300 hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary border border-border"
         >
-          <SparklesIcon className="ml-2 h-5 w-5 text-blue-500" />
+          <SparklesIcon className="ml-2 h-5 w-5 text-primary" />
           <span>{selectedValue}</span>
           {
             enabled && <ChevronDownIcon className={`flex flex-end h-5 w-5 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} />
           }
         </button>
         {isOpen && (
-          <div className="absolute mt-2 w-full  z-10">
+          <div className="absolute mt-2 w-full z-10 bg-surface border border-border rounded-lg shadow-lg">
             <ul className="py-1">
                 {
                     enabledAgents.map((agentName, i) => {
                         return <li
                         key={`agent-${i}`}
-                        className="px-4 py-2 bg-opacity-90 bg-gray-700 text-white font-bold  transition duration-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 bg-surface text-primary-text font-bold transition duration-300 hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                         onClick={() => {
                           setSelectedValue(agentName);
                           setIsOpen(false);

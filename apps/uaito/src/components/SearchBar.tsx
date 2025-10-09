@@ -14,7 +14,7 @@ const SearchBar = (props: SearchBarProps) => {
   }, []);
 
   return (
-    <div className="z-20 fixed top-20 right-0 dark:bg-gray-900 transition-colors duration-300">
+    <div className="z-20 fixed top-20 right-0 bg-background transition-colors duration-300">
       <div className="m-2">
         <input
           type="text"
@@ -24,10 +24,10 @@ const SearchBar = (props: SearchBarProps) => {
           ref={props.inputRef}
           className={`
             w-full p-2 rounded-md
-            bg-white dark:bg-gray-800
-            text-gray-800 dark:text-gray-200
-            border border-gray-300 dark:border-gray-600
-            focus:outline-none focus:ring-2 focus:ring-blue-500
+            bg-surface
+            text-primary-text
+            border border-border
+            focus:outline-none focus:ring-2 focus:ring-primary
             transition-all duration-300 ease-in-out
             ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
           `}

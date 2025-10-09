@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import type { Chat } from '@/redux/userSlice';
 import { formatDistanceToNow } from 'date-fns';
+import { ThemeToggle } from './ThemeToggle';
 
 interface ChatSidebarProps {
   isOpen: boolean;
@@ -275,7 +276,12 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               })}
             </div>
           )}
-           <div className="p-4 border-t border-border mt-auto">
+           <div className="p-4 border-t border-border mt-auto space-y-3">
+    {isOpen && (
+      <div className="mb-3">
+        <ThemeToggle />
+      </div>
+    )}
     {isOpen ? (
         <button
             type="button"

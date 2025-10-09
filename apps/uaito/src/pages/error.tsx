@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { AnimatedText } from '@/components/AnimatedText';
+import { Logo } from '@/components/Logo';
 
 const ErrorPage = () => {
   const router = useRouter();
@@ -15,20 +15,18 @@ const ErrorPage = () => {
   }, [router.query]);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center text-white">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center text-primary-text">
       <nav className="fixed z-40 top-4 w-full">
-        <div className="flex items-center justify-between m-auto rounded-full p-2 transition bg-gray-800 w-11/12 lg:w-auto">
+        <div className="flex items-center justify-between m-auto rounded-full p-2 transition bg-surface border border-border w-11/12 lg:w-auto">
           <Link href="/" className="pl-4">
             <div className="flex gap-3 items-center">
-              <Image
-                src="/UAITO.png"
-                alt="UAITO Logo"
+              <Logo
                 width={25}
                 height={25}
-                className="animate-subtle-bounce"
                 priority
+                variant="small"
               />
-              <span className="uppercase font-bold text-white tracking-wider text-[20px] -mb-[4px]">
+              <span className="uppercase font-bold text-primary-text tracking-wider text-[20px] -mb-[4px]">
                 <AnimatedText />
               </span>
             </div>
@@ -43,7 +41,7 @@ const ErrorPage = () => {
         <div className="mb-8">
           <AnimatedText />
         </div>
-        <Link href="/" className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg hover:shadow-green-500/50">
+        <Link href="/" className="bg-accent hover:bg-accent-hover text-white font-bold py-4 px-10 rounded-full text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg">
           Go back to homepage
         </Link>
       </div>

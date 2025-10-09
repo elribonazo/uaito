@@ -55,7 +55,7 @@ export const ThinkingComponent: React.FC<{
         resizeObserver.disconnect();
       };
     }
-  }, [thinking, shouldFadeOut, isExpanded]); // Update height when thinking changes or expanded state changes
+  }, [shouldFadeOut, isExpanded]); // Update height when expanded state changes
 
   // Fade out logic - only when streaming
   useEffect(() => {
@@ -101,7 +101,7 @@ export const ThinkingComponent: React.FC<{
       ref={containerRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative ${isStreaming ? 'transition-all duration-300 ease-out' : ''} bg-gray-800/30 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-800/50 ${
+      className={`relative ${isStreaming ? 'transition-all duration-300 ease-out' : ''} bg-surface/50 rounded-lg border border-border cursor-pointer hover:bg-surface-hover ${
         isExpanded ? 'w-full text-left' : 'inline-flex items-center w-auto'
       }`}
       style={{
@@ -121,17 +121,17 @@ export const ThinkingComponent: React.FC<{
           ref={contentRef}
           className="flex items-start space-x-3 min-h-0"
         >
-          <LightBulbIcon className="w-5 h-5 text-yellow-400 animate-pulse flex-shrink-0 mt-0.5" />
+          <LightBulbIcon className="w-5 h-5 text-warning animate-pulse flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+            <div className="text-sm font-medium text-secondary-text leading-relaxed whitespace-pre-wrap break-words">
               {thinking || 'Thinking'}
             </div>
           </div>
         </div>
       ) : (
         <div className="flex items-center space-x-2">
-          <LightBulbIcon className="w-5 h-5 text-yellow-400 animate-pulse flex-shrink-0" />
-          <span className="text-xs font-medium text-gray-300">
+          <LightBulbIcon className="w-5 h-5 text-warning animate-pulse flex-shrink-0" />
+          <span className="text-xs font-medium text-secondary-text">
             Thinking
           </span>
         </div>

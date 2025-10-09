@@ -2,9 +2,9 @@ import { ChartBarIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 const getColorForTokenCount = (count: number): string => {
-    if (count < 66667) return 'text-accent';
-    if (count < 133334) return 'text-orange-400';
-    return 'text-red-400';
+    if (count < 66667) return 'text-success';
+    if (count < 133334) return 'text-warning';
+    return 'text-error';
   };
   
   const formatNumber = (num: number): string => {

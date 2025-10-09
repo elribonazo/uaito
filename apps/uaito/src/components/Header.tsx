@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { AnimatedText } from './AnimatedText';
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
 import { useThrottle } from '@/hooks/useThrottle';
 import { Bars3Icon } from '@heroicons/react/24/outline';
 import { MobileMenu } from './MobileMenu';
+import { Logo } from './Logo';
 
 export const Header: FC = () => {
     const [isDesktop, setIsDesktop] = useState(true);
@@ -27,13 +27,11 @@ export const Header: FC = () => {
                 <div className="relative flex w-full items-center justify-between bg-surface p-2 px-6">
                     <Link href="/" className="pl-4">
                         <div className="flex items-center gap-3">
-                            <Image
-                                src="/UAITO.png"
-                                alt="UAITO Logo"
+                            <Logo
                                 width={25}
                                 height={25}
-                                className="animate-subtle-bounce"
                                 priority
+                                variant="small"
                             />
                             {isDesktop && (
                                 <span className="uppercase font-bold text-primary-text tracking-wider text-xl">
@@ -47,7 +45,7 @@ export const Header: FC = () => {
                             <Link href="/docs" className="text-secondary-text hover:text-primary-text transition-colors">Docs</Link>
                             <Link 
                                 href={"/dashboard"} 
-                                className={`bg-primary hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                className={`bg-primary hover:bg-primary-hover text-white font-bold py-2 px-6 rounded-lg text-base transition-all duration-300 ease-in-out transform hover:scale-105 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''}`} 
                                 onClick={(e) => !acceptedTerms && e.preventDefault()}
                             >
                                 Beta access

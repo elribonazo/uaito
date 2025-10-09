@@ -68,6 +68,7 @@ export interface ChatState {
   isFetchingUsageToken: boolean;
   hasFetchedUsageToken: boolean;
   downloadProgress: number | null;
+  theme: 'light' | 'dark' | 'system';
 }
 
 export const initialState: ChatState = {
@@ -85,6 +86,7 @@ export const initialState: ChatState = {
   isFetchingUsageToken: false,
   hasFetchedUsageToken: false,
   downloadProgress: null,
+  theme: 'system',
 };
 
 export interface PushChatMessage {
@@ -100,6 +102,9 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    setTheme: (state, action: PayloadAction<'light' | 'dark' | 'system'>) => {
+      state.theme = action.payload;
+    },
     setProvider: (state, action: PayloadAction<LLMProvider>) => {
       state.provider = action.payload;
     },
@@ -324,6 +329,7 @@ export const {
   initializeProvider, 
   setProvider, 
   setSelectedModel,
+  setTheme,
   createNewChat,
   setActiveChat,
   deleteChat,

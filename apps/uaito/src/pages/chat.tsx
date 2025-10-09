@@ -55,7 +55,7 @@ const Chat: React.FC<
 	const [selectedModel, setSelectedModelState] = useState<string>("");
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const {
-		user: { provider, downloadProgress, usage, chats, activeChatId, chatOrder },
+		user: { provider, downloadProgress, usage, chats, activeChatId, chatOrder, theme },
 	} = useMountedApp();
 	const webGPU =
 		provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
@@ -105,6 +105,26 @@ const Chat: React.FC<
 			document.body.classList.remove('no-scroll');
 		};
 	}, []);
+
+	// Sync theme with DOM
+	useEffect(() => {
+		const root = document.documentElement;
+		
+		if (theme === 'system') {
+			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			if (systemTheme === 'dark') {
+				root.classList.add('dark');
+			} else {
+				root.classList.remove('dark');
+			}
+		} else {
+			if (theme === 'dark') {
+				root.classList.add('dark');
+			} else {
+				root.classList.remove('dark');
+			}
+		}
+	}, [theme]);
 
 	const handleProviderSelect = useCallback((selectedProvider: LLMProvider) => {
 		dispatch(setProvider(selectedProvider));
@@ -228,7 +248,7 @@ const Chat: React.FC<
 					</div>
 				</header>
 
-				<main className="flex-1 w-full relative bg-gray-900 min-h-0 overflow-hidden">
+				<main className="flex-1 w-full relative bg-background min-h-0 overflow-hidden transition-colors">
 					{provider && activeChatId && (
 						<InputComponent
 							chatId={activeChatId}

@@ -3,8 +3,48 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Light mode colors - Accessible for color-blind users */
+    --color-background: 248 250 252; /* slate-50 */
+    --color-surface: 255 255 255; /* white */
+    --color-surface-hover: 241 245 249; /* slate-100 */
+    --color-primary: 59 130 246; /* blue-500 - distinguishable for all color-blind types */
+    --color-primary-hover: 37 99 235; /* blue-600 */
+    --color-accent: 249 115 22; /* orange-500 - excellent contrast with blue, color-blind friendly */
+    --color-accent-hover: 234 88 12; /* orange-600 */
+    --color-primary-text: 15 23 42; /* slate-900 */
+    --color-secondary-text: 71 85 105; /* slate-600 */
+    --color-tertiary-text: 100 116 139; /* slate-500 */
+    --color-muted: 226 232 240; /* slate-200 */
+    --color-border: 226 232 240; /* slate-200 */
+    --color-border-light: 203 213 225; /* slate-300 */
+    --color-success: 59 130 246; /* blue-500 - using blue instead of green for color-blind accessibility */
+    --color-warning: 251 191 36; /* amber-400 */
+    --color-error: 239 68 68; /* red-500 - still usable with good contrast */
+  }
+
+  .dark {
+    /* Dark mode colors - Accessible for color-blind users */
+    --color-background: 10 14 26; /* Very dark blue-gray */
+    --color-surface: 20 24 36; /* Dark blue-gray */
+    --color-surface-hover: 26 31 46; /* Lighter dark blue-gray */
+    --color-primary: 96 165 250; /* blue-400 - brighter for dark mode */
+    --color-primary-hover: 59 130 246; /* blue-500 */
+    --color-accent: 251 146 60; /* orange-400 - brighter for dark mode */
+    --color-accent-hover: 249 115 22; /* orange-500 */
+    --color-primary-text: 248 250 252; /* slate-50 */
+    --color-secondary-text: 148 163 184; /* slate-400 */
+    --color-tertiary-text: 100 116 139; /* slate-500 */
+    --color-muted: 30 41 59; /* slate-800 */
+    --color-border: 30 41 59; /* slate-800 */
+    --color-border-light: 51 65 85; /* slate-700 */
+    --color-success: 96 165 250; /* blue-400 */
+    --color-warning: 251 191 36; /* amber-400 */
+    --color-error: 248 113 113; /* red-400 */
+  }
+
   body {
-    @apply bg-background text-secondary-text;
+    @apply bg-background text-secondary-text transition-colors duration-200;
   }
 }
 

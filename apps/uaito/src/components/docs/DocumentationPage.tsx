@@ -49,10 +49,10 @@ const MenuItem = ({
         onClick={handleClick}
         className={`group flex items-center text-sm font-medium transition-all duration-200 ${
           isBackButton
-            ? 'text-teal-500 hover:text-teal-400 flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-teal-500/10 to-emerald-500/10 border border-teal-500/20 hover:border-teal-500/30 hover:shadow-lg hover:shadow-teal-500/10'
+            ? 'text-accent hover:text-accent-hover flex items-center gap-2 p-3 rounded-lg bg-accent/10 border border-accent/20 hover:border-accent/30 hover:shadow-lg'
             : activeSection === item.title.toLowerCase().replace(/\s+/g, '-')
-            ? 'text-teal-400 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 p-3 rounded-lg border border-teal-500/20 shadow-lg shadow-teal-500/10'
-            : 'text-gray-300 hover:text-white p-3 rounded-lg hover:bg-white/5 border border-transparent hover:border-white/10'
+            ? 'text-accent bg-accent/10 p-3 rounded-lg border border-accent/20 shadow-lg'
+            : 'text-secondary-text hover:text-primary-text p-3 rounded-lg hover:bg-surface-hover border border-transparent hover:border-border'
         }`}
       >
         {isBackButton && (
@@ -91,6 +91,16 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({
 }) => {
   const [activeSection, setActiveSection] = useState<string>('');
   const router = useRouter();
+
+  // Force dark mode on docs pages for consistency
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add('dark');
+    
+    return () => {
+      // Cleanup - theme will be restored by other pages
+    };
+  }, []);
 
   useEffect(() => {
     const observerOptions = {

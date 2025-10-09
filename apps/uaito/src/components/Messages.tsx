@@ -14,9 +14,9 @@ export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: 
             className={`flex mb-3 ${isUser ? 'justify-end' : 'justify-start'}`}
         >
             <div
-                className={`p-3 rounded-xl max-w-[85%] ${
+                className={`p-3 rounded-xl max-w-[85%] transition-colors ${
                     isUser
-                        ? 'bg-primary/90 text-white shadow-sm'
+                        ? 'bg-primary text-white shadow-sm'
                         : 'bg-surface text-primary-text shadow-sm border border-border'
                 }`}
             >
@@ -256,8 +256,8 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
                     >
                         <prompt.icon className="h-4 w-4 sm:h-5 sm:w-5 text-accent flex-shrink-0 mt-0.5" />
                         <div className="min-w-0 flex-1">
-                            <p className="text-secondary-text group-hover:text-primary-text text-xs sm:text-sm line-clamp-2 sm:hidden">{prompt.shortText}</p>
-                            <p className="text-secondary-text group-hover:text-primary-text text-sm line-clamp-2 hidden sm:block">{prompt.text}</p>
+                            <p className="text-secondary-text group-hover:text-primary-text transition-colors text-xs sm:text-sm line-clamp-2 sm:hidden">{prompt.shortText}</p>
+                            <p className="text-secondary-text group-hover:text-primary-text transition-colors text-sm line-clamp-2 hidden sm:block">{prompt.text}</p>
                         </div>
                     </button>
                 ))}
@@ -273,7 +273,8 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[], 
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [messages.length]);
 
     if (messages.length > 0) {
         const toolledMessages = messages.reduce<MessageState[]>((tooled, currentMessage) => {

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 
 interface Star {
   x: number;
@@ -13,6 +14,7 @@ interface Star {
 
 const ClientSpaceBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -43,8 +45,13 @@ const ClientSpaceBackground: React.FC = () => {
 
     const drawGradient = () => {
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#1a1a1a');
-      gradient.addColorStop(1, '#000000');
+      if (isDark) {
+        gradient.addColorStop(0, '#1a1a1a');
+        gradient.addColorStop(1, '#000000');
+      } else {
+        gradient.addColorStop(0, '#e0f2fe');
+        gradient.addColorStop(1, '#bae6fd');
+      }
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
@@ -52,7 +59,9 @@ const ClientSpaceBackground: React.FC = () => {
     const drawStar = (star: Star) => {
       ctx.beginPath();
       ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+      const starOpacity = isDark ? star.opacity : star.opacity * 0.3;
+      const starColor = isDark ? '255, 255, 255' : '100, 116, 139';
+      ctx.fillStyle = `rgba(${starColor}, ${starOpacity})`;
       ctx.fill();
     };
 
@@ -95,7 +104,7 @@ const ClientSpaceBackground: React.FC = () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [isDark]);
 
   return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full z-0" />;
 };

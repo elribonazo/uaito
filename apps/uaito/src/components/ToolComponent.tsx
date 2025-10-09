@@ -6,15 +6,15 @@ import type { MessageState } from '../redux/userSlice';
 
 
 const statusStyles = {
-  started: 'text-yellow-700 bg-yellow-100 dark:text-yellow-200 dark:bg-yellow-900',
-  completed: 'text-green-700 bg-green-100 dark:text-green-200 dark:bg-green-900',
-  error: 'text-red-700 bg-red-100 dark:text-red-200 dark:bg-red-900'
+  started: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/20',
+  completed: 'text-success bg-success/10 dark:text-success dark:bg-success/20',
+  error: 'text-error bg-error/10 dark:text-error dark:bg-error/20'
 };
 
 const statusIcon = {
-  started: <ClockIcon className="w-3 h-3 text-yellow-600 dark:text-yellow-400 animate-spin" />,
-  completed: <CheckCircleIcon className="w-3 h-3 text-green-600 dark:text-green-400" />,
-  error: <ExclamationCircleIcon className="w-3 h-3 text-red-600 dark:text-red-400" />
+  started: <ClockIcon className="w-3 h-3 text-warning animate-spin" />,
+  completed: <CheckCircleIcon className="w-3 h-3 text-success" />,
+  error: <ExclamationCircleIcon className="w-3 h-3 text-error" />
 };
 
 interface ToolUseComponentProps extends ToolUseBlock {
@@ -64,7 +64,7 @@ const ToolUseComponent: FC<ToolUseComponentProps>  = (props) => {
    }
 
    return <div 
-     className={`w-full mt-4 p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs ${isStreaming ? 'transition-all duration-300 ease-out' : ''}`}
+     className={`w-full mt-4 p-2 bg-surface border border-border rounded-md shadow-sm text-xs ${isStreaming ? 'transition-all duration-300 ease-out' : ''}`}
      style={{
        opacity: shouldFadeOut ? 0 : 1,
        marginTop: shouldFadeOut ? 0 : '1rem',
@@ -75,7 +75,7 @@ const ToolUseComponent: FC<ToolUseComponentProps>  = (props) => {
      }}
    >
       <div className="flex items-center justify-between">
-        <span className="font-medium truncate text-gray-800 dark:text-gray-200" title={`Running task ${name}`}>
+        <span className="font-medium truncate text-primary-text" title={`Running task ${name}`}>
           Running task {name} - {props.id}
         </span>
         <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded ${statusStyles[status] || statusStyles.error}`}>
@@ -144,7 +144,7 @@ const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
     onMouseEnter={() => setIsExpanded(true)}
     onMouseLeave={() => setIsExpanded(false)}
     role="tooltip"
-    className={`w-full p-2 mt-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-xs ${isStreaming ? 'transition-all duration-300 ease-out' : ''} ${isExpanded ? 'w-full' : 'inline-block'}`}
+    className={`w-full p-2 mt-4 bg-surface border border-border rounded-md shadow-sm text-xs ${isStreaming ? 'transition-all duration-300 ease-out' : ''} ${isExpanded ? 'w-full' : 'inline-block'}`}
     style={{
       opacity: shouldFadeOut ? 0 : 1,
       marginTop: shouldFadeOut ? 0 : '1rem',
@@ -152,7 +152,7 @@ const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
     }}
   >
      <div className="flex items-center justify-between">
-       <span className="font-medium truncate text-gray-800 dark:text-gray-200" title={name}>
+       <span className="font-medium truncate text-primary-text" title={name}>
          {name} - {props.tool_use_id}
        </span>
        <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded ${statusStyles[status] || statusStyles.error}`}>
@@ -166,14 +166,14 @@ const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
       <>
         <button
           type="button"
-          className="mt-1 w-full px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center"
+          className="mt-1 w-full px-2 py-1 text-xs font-medium text-secondary-text bg-surface-hover rounded hover:bg-muted transition-colors duration-200 flex items-center justify-center"
           onClick={() => setShowRaw(!showRaw)}
         >
           {showRaw ? <ChevronUpIcon className="w-3 h-3 mr-1" /> : <ChevronDownIcon className="w-3 h-3 mr-1" />}
           {showRaw ? 'Hide' : 'Show'} Raw
         </button>
         {showRaw && (
-          <pre className="mt-1 p-1 bg-gray-100 dark:bg-gray-700 rounded text-[10px] text-gray-800 dark:text-gray-200 overflow-x-auto max-h-60 border border-gray-300 dark:border-gray-600">
+          <pre className="mt-1 p-1 bg-muted rounded text-[10px] text-primary-text overflow-x-auto max-h-60 border border-border">
             {typeof props.content === "string" && props.content}
             {props.content && typeof props.content !== "string" && props.content.map((content, i) => {
               if (content.type === "text") {

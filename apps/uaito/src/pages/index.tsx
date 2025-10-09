@@ -10,11 +10,22 @@ import { ParallaxBanner } from '@/components/ParallaxBanner';
 import { Header } from '@/components/Header';
 import { createDocumentationServerSideProps } from '@/utils/documentationHelpers';
 import { UAITO_DOCS_ORIGIN } from '@/config';
-import SectionRenderer from '@/components/docs/SectionRenderer';
+import { useEffect } from 'react';
 
 
 
 const Home: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ features, chats, sections }) => {
+    // Force dark mode on homepage for better aesthetics with space background
+    useEffect(() => {
+        const root = document.documentElement;
+        root.classList.add('dark');
+        
+        return () => {
+            // Cleanup - restore theme on unmount if needed
+            // The theme will be properly set by other pages
+        };
+    }, []);
+
     return (
         <ParallaxProvider>
             <Header />

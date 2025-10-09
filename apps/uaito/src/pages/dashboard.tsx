@@ -14,6 +14,7 @@ import { UserModel } from '../db/models/User';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import moment from 'moment-timezone';
 import { type TooltipProps } from 'recharts';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Header: FC = () => (
   <header className="w-full text-center mb-6">
@@ -93,7 +94,7 @@ const CustomLegend: FC<{ payload?: any[], todayTotals: {input: number, output: n
       <ul className="recharts-default-legend" style={{ padding: 0, margin: 0, textAlign: 'center' }}>
         {payload?.map((entry: any) => (
           <li key={entry.value} style={{ display: 'inline-block', marginRight: 10 }}>
-            <svg className="recharts-surface" width="14" height="14" viewBox="0 0 32 32" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }}>
+            <svg className="recharts-surface" width="14" height="14" viewBox="0 0 32 32" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} aria-hidden="true">
               <path fill="none" stroke={entry.color} strokeWidth="4" d="M0,16h32" />
             </svg>
             <span style={{ color: entry.color }}>
@@ -321,6 +322,11 @@ const Dashboard: FC<InferGetServerSidePropsType<typeof getServerSideProps>> = (p
                   <h3 className="text-lg font-semibold mb-3 text-primary-text">Your API Key</h3>
                   <p className="text-secondary-text text-sm mb-3">Use this to integrate UAITO API into your projects.</p>
                   <RevealableApiKey />
+                </div>
+                <div className="bg-surface p-5 rounded-xl border border-border">
+                  <h3 className="text-lg font-semibold mb-3 text-primary-text">Theme Preference</h3>
+                  <p className="text-secondary-text text-sm mb-3">Choose your preferred color theme or use your system settings.</p>
+                  <ThemeToggle />
                 </div>
                 <div className="bg-surface p-5 rounded-xl border border-border">
                   <h3 className="text-lg font-semibold mb-3 text-primary-text">Your Usage</h3>

@@ -4,6 +4,9 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 // @ts-ignore
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+// @ts-ignore
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useTheme } from '@/hooks/useTheme';
 
 const CopyButton = ({ code }) => {
   const [copied, setCopied] = useState(false);
@@ -14,8 +17,9 @@ const CopyButton = ({ code }) => {
   };
   return (
     <button
+      type="button"
       onClick={handleCopy}
-      className="absolute top-2 right-2 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+      className="absolute top-2 right-2 px-2 py-1 text-xs font-medium text-secondary-text bg-surface rounded-md hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
     >
       {copied ? 'Copied!' : 'Copy'}
     </button>
@@ -23,6 +27,7 @@ const CopyButton = ({ code }) => {
 };
 
 export const CodeBlock = ({ searchText, node, inline, className, children, ...props }) => {
+  const { isDark } = useTheme();
   const match = /language-(\w+)/.exec(className || '');
   const highlightedCode = String(children).replace(/\n$/, '');
 
@@ -38,7 +43,7 @@ export const CodeBlock = ({ searchText, node, inline, className, children, ...pr
       return (
         <span key={`span-${i}`} {...props}>
           {parts.map((part, index) => 
-            index % 2 === 0 ? part : <mark key={`mark-${index}`} className="bg-yellow-300">{part}</mark>
+            index % 2 === 0 ? part : <mark key={`mark-${index}`} className="bg-warning/30 dark:bg-warning/20">{part}</mark>
           )}
         </span>
       );
@@ -52,7 +57,7 @@ export const CodeBlock = ({ searchText, node, inline, className, children, ...pr
   const customRenderer = ({ rows }) => {
     return rows.map((row, index) => (
       <div key={index} className="flex">
-        <span className="w-10 pr-4 text-right text-gray-500 select-none opacity-50">
+        <span className="w-10 pr-4 text-right text-tertiary-text select-none opacity-50">
           {index + 1}
         </span>
         <span className="flex-1">{renderComponent(row, index)}</span>
@@ -69,11 +74,12 @@ export const CodeBlock = ({ searchText, node, inline, className, children, ...pr
         language={match[1]}
         PreTag="div"
         renderer={customRenderer}
-        style={oneDark}
+        style={isDark ? oneDark : oneLight}
         customStyle={{
           margin: 0,
           padding: '1rem',
           borderRadius: '0.375rem',
+          backgroundColor: isDark ? undefined : 'rgb(255, 255, 255)',
         }}
         codeTagProps={{
           className: 'text-sm font-mono',
@@ -84,7 +90,7 @@ export const CodeBlock = ({ searchText, node, inline, className, children, ...pr
       </SyntaxHighlighter>
     </div>
   ) : (
-    <code className={`${className} px-1 py-0.5 rounded bg-gray-300`} {...props}>
+    <code className={`${className} px-1 py-0.5 rounded bg-muted text-primary-text`} {...props}>
       {highlightedCode}
     </code>
   );

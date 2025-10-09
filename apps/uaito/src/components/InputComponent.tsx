@@ -613,7 +613,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                         cx="24"
                         cy="24"
                         r="20"
-                        stroke="rgb(156, 163, 175)"
+                        className="stroke-tertiary-text"
                         strokeWidth="3"
                         fill="none"
                         opacity="0.3"
@@ -623,10 +623,9 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                         cx="24"
                         cy="24"
                         r="20"
-                        stroke="rgb(99, 102, 241)"
+                        className="stroke-primary transition-all duration-150"
                         strokeWidth="3"
                         fill="none"
-                        className="transition-all duration-150"
                         strokeDasharray={`${2 * Math.PI * 20}`}
                         strokeDashoffset={`${2 * Math.PI * 20 * (1 - Math.min(pullDistance / pullThreshold, 1))}`}
                         strokeLinecap="round"

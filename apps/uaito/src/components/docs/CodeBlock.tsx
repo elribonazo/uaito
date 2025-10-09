@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Highlight, themes } from 'prism-react-renderer';
+import { useTheme } from '@/hooks/useTheme';
 
 interface CodeBlockProps {
   language: string;
@@ -10,6 +11,7 @@ interface CodeBlockProps {
 
 export function CodeBlock({ language, code }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const { isDark } = useTheme();
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
@@ -18,15 +20,16 @@ export function CodeBlock({ language, code }: CodeBlockProps) {
   };
 
   return (
-    <div className="relative rounded-lg overflow-hidden mb-4 group">
+    <div className="relative rounded-lg overflow-hidden mb-4 group border border-border">
       {/* Header */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-850 text-gray-400 py-2 px-4 border-b border-gray-700 flex justify-between items-center">
+      <div className="bg-muted text-secondary-text py-2 px-4 border-b border-border flex justify-between items-center">
         <span className="text-xs font-medium">{language}</span>
         <button
+          type="button"
           onClick={handleCopy}
           className="flex items-center gap-2 px-3 py-1 text-xs rounded-md 
-            bg-gray-700/50 hover:bg-gray-700 transition-colors duration-200
-            text-gray-300 hover:text-white"
+            bg-surface-hover hover:bg-surface transition-colors duration-200
+            text-secondary-text hover:text-primary-text"
           aria-label={copied ? "Copied to clipboard" : "Copy to clipboard"}
         >
           {copied ? (
@@ -44,16 +47,16 @@ export function CodeBlock({ language, code }: CodeBlockProps) {
       </div>
 
       {/* Code content */}
-      <div className="bg-gradient-to-b from-gray-900 to-gray-950">
+      <div className="bg-surface">
         <Highlight
-          theme={themes.nightOwl}
+          theme={isDark ? themes.nightOwl : themes.github}
           code={code.trim()}
           language={language.toLowerCase()}
         >
           {({ className, tokens, getLineProps, getTokenProps }) => (
             <div className="flex">
-              <div className="text-gray-500 text-xs py-4 px-4 text-right select-none 
-                border-r border-gray-700/50 bg-gray-800/30 min-w-[3.5rem]">
+              <div className="text-tertiary-text text-xs py-4 px-4 text-right select-none 
+                border-r border-border bg-muted/30 min-w-[3.5rem]">
                 {tokens.map((_, i) => (
                   <div key={i + 1}>{i + 1}</div>
                 ))}

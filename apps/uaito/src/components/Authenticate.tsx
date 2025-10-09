@@ -4,7 +4,7 @@
 
 import { signIn } from "next-auth/react";
 import Link from 'next/link';
-import Image from 'next/image';
+import { Logo } from './Logo';
 
 
 
@@ -13,7 +13,7 @@ const LoginButton = () => (
     <button
       type="button"
       onClick={() => signIn('keycloak')}
-      className="flex items-center justify-center bg-primary hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary w-full max-w-xs"
+      className="flex items-center justify-center bg-primary hover:bg-primary-hover text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary w-full max-w-xs"
     >
       Sign in to the BETA
     </button>
@@ -46,12 +46,10 @@ const Authenticate = () => {
             </p>
           </div>
           <div className="md:w-1/2 md:pl-8 flex justify-center items-center">
-            <Image
-              src="/UAITO.png"
-              alt="UAITO"
+            <Logo
               width={300}
               height={300}
-              className="rounded-lg"
+              variant="large"
             />
           </div>
         </div>

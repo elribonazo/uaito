@@ -1,8 +1,8 @@
 
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import Image from 'next/image';
 import { AnimatedText } from './AnimatedText';
+import { Logo } from './Logo';
 
 export const MobileMenu = ({ isOpen, onClose, acceptedTerms }) => {
     if (!isOpen) return null;
@@ -15,13 +15,11 @@ export const MobileMenu = ({ isOpen, onClose, acceptedTerms }) => {
                 </button>
                 <Link href="/" className="pl-4" onClick={onClose}>
                     <div className="flex gap-3 items-center">
-                        <Image
-                            src="/UAITO.png"
-                            alt="UAITO Logo"
+                        <Logo
                             width={25}
                             height={25}
-                            className="animate-subtle-bounce"
                             priority
+                            variant="small"
                         />
                         <span className="uppercase font-bold text-primary-text tracking-wider text-xl">
                             <AnimatedText />
@@ -34,7 +32,7 @@ export const MobileMenu = ({ isOpen, onClose, acceptedTerms }) => {
                         <li className="w-full">
                             <Link 
                                 href={"/dashboard"} 
-                                className={`block w-full text-center bg-primary hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg text-lg transition-all duration-300 ease-in-out transform hover:scale-105 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                className={`block w-full text-center bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg text-lg transition-all duration-300 ease-in-out transform hover:scale-105 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed' : ''}`} 
                                 onClick={(e) => {if(!acceptedTerms) e.preventDefault(); onClose();}}
                             >
                                 Beta access

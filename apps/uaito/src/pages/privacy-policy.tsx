@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import SpaceBackground from '../components/SpaceBackground';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { AnimatedText } from '@/components/AnimatedText';
 
 const PrivacyPolicy: React.FC = () => {
+  // Force dark mode for pages with SpaceBackground
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add('dark');
+    
+    return () => {
+      // Cleanup - theme will be restored by other pages
+    };
+  }, []);
+
   return (
     <main className="min-h-screen relative bg-background text-secondary-text font-sans">
       <SpaceBackground />
