@@ -1,3 +1,7 @@
+## 0.0.15-rc.0 (2025-10-09)
+
+This was a version bump only for @uaito/build to align it with other projects, there were no code changes.
+
 ## 0.0.10-rc.1 (2025-10-04)
 
 This was a version bump only for @uaito/build to align it with other projects, there were no code changes.

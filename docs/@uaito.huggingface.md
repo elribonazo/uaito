@@ -16,6 +16,7 @@
 
 | Enumeration | Description |
 | ------ | ------ |
+| [HuggingFaceONNXChatTemplates](@uaito.huggingface.Enumeration.HuggingFaceONNXChatTemplates.md) | - |
 | [HuggingFaceONNXModels](@uaito.huggingface.Enumeration.HuggingFaceONNXModels.md) | Enumeration of the available Hugging Face ONNX models. |
 
 ## Classes

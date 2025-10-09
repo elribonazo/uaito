@@ -14,6 +14,7 @@
 
 ```ts
 type ImageBlock = {
+  imageGenerationCallId?: string;
   source: {
      data: string;
      media_type: "image/jpeg" | "image/png" | "image/gif" | "image/webp";
@@ -23,11 +24,23 @@ type ImageBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L520)
+Defined in: [domain/types.ts:520](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L520)
 
 Represents an image block.
 
 ## Properties
+
+### imageGenerationCallId?
+
+```ts
+optional imageGenerationCallId: string;
+```
+
+Defined in: [domain/types.ts:539](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L539)
+
+Optional ID reference to a previous image generation call (for multi-turn editing).
+
+***
 
 ### source
 
@@ -39,7 +52,7 @@ source: {
 };
 ```
 
-Defined in: [domain/types.ts:525](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L525)
+Defined in: [domain/types.ts:525](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L525)
 
 The source of the image.
 
@@ -69,6 +82,6 @@ type: "base64";
 type: "image";
 ```
 
-Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L534)
+Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L534)
 
 The type of the block.

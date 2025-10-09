@@ -11,7 +11,77 @@ import { Messages } from './Messages';
 import type { TextBlockParam } from '@anthropic-ai/sdk/resources';
 import { useSession } from 'next-auth/react';
 import { MessageArray, LLMProvider, type Message, type MessageInput, type BlockType } from '@uaito/sdk';
-import { ArrowPathIcon, XMarkIcon, CloudArrowUpIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import {
+  ArrowPathIcon,
+  XMarkIcon,
+  CloudArrowUpIcon,
+  PhotoIcon,
+  CameraIcon,
+} from '@heroicons/react/24/outline';
+
+const pullThreshold = 80; // pixels to pull before triggering refresh
+
+const FileAttachments = ({
+  attachedFiles,
+  removeFile,
+}: {
+  attachedFiles: File[];
+  removeFile: (index: number) => void;
+}) => {
+  if (attachedFiles.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2 mb-2">
+      {attachedFiles.map((file, index) => {
+        const imageUrl = URL.createObjectURL(file);
+        return (
+          <div
+            key={`${file.name}-${index}`}
+            className="relative group bg-surface border border-border rounded-lg overflow-hidden hover:border-accent transition-colors"
+            style={{ width: '120px', height: '120px' }}
+          >
+            {/* Image Preview */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl}
+              alt={file.name}
+              className="w-full h-full object-cover"
+              onLoad={() => URL.revokeObjectURL(imageUrl)} // Clean up the object URL after loading
+            />
+            
+            {/* Overlay with file info */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
+              <PhotoIcon className="h-8 w-8 text-white mb-1" />
+              <span className="text-white text-xs text-center px-2 truncate w-full">
+                {file.name}
+              </span>
+              <span className="text-white/80 text-xs">
+                {(file.size / 1024).toFixed(1)} KB
+              </span>
+            </div>
+            
+            {/* Remove button */}
+            <button
+              type="button"
+              onClick={() => removeFile(index)}
+              className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+              title="Remove image"
+            >
+              <XMarkIcon className="h-4 w-4" />
+            </button>
+            
+            {/* File name label at bottom - always visible */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+              <span className="text-white text-xs truncate block">
+                {file.name}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
   const app = useMountedApp();
@@ -27,16 +97,16 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const isStreaming = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
   
-  // Check if image upload is allowed (only for Local provider)
-  const isImageUploadAllowed = props.provider === LLMProvider.Local;
+  // Check if image upload is allowed (Local and OpenAI providers)
+  const isImageUploadAllowed = props.provider === LLMProvider.Local || props.provider === LLMProvider.OpenAI;
   
   // Pull to refresh state
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartY = useRef(0);
-  const pullThreshold = 80; // pixels to pull before triggering refresh
   
+
   const lastMessage = messages[messages.length - 1];
   const retry = lastMessage && lastMessage.role === "user" && currentChat.state !== "streaming";
 
@@ -48,6 +118,11 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const fn = (event: KeyboardEvent) => {
@@ -128,21 +203,22 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isPulling, pullDistance, pullThreshold, isLoading]);
+  }, [isPulling, pullDistance, isLoading]);
 
   // File handling functions
-  const handleFiles = useCallback((files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files) return;
-    const newFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-    if (newFiles.length < files.length) {
+    const fileArray = Array.from(files);
+    const newFiles = fileArray.filter((file) => file.type.startsWith("image/"));
+    if (newFiles.length < fileArray.length) {
       // Optional: You could add a toast notification here
-      console.warn('Only image files are allowed');
+      console.warn("Only image files are allowed");
     }
-    setAttachedFiles(prev => [...prev, ...newFiles]);
+    setAttachedFiles((prev) => [...prev, ...newFiles]);
   }, []);
 
   const removeFile = useCallback((index: number) => {
-    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -185,9 +261,64 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
     }
   }, [handleFiles, isImageUploadAllowed]);
 
-  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFiles(e.target.files);
-  }, [handleFiles]);
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      handleFiles(e.target.files);
+    },
+    [handleFiles],
+  );
+
+  const openCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+      });
+      setStream(mediaStream);
+      setIsCameraOpen(true);
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+      // Maybe show a toast notification
+    }
+  };
+
+  const closeCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    setStream(null);
+    setIsCameraOpen(false);
+  };
+
+  const takePicture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext("2d");
+      if (context) {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const file = new File([blob], `capture-${Date.now()}.png`, {
+                type: "image/png",
+              });
+              handleFiles([file]);
+            }
+            closeCamera();
+          },
+          "image/png",
+        );
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isCameraOpen && videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [isCameraOpen, stream]);
 
   // Convert files to base64 ImageBlock format
   const convertFilesToImageBlocks = async (files: File[]): Promise<BlockType[]> => {
@@ -325,60 +456,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   }
 
   // File attachment display component with image previews
-  const FileAttachments = () => {
-    if (attachedFiles.length === 0) return null;
-    
-    return (
-      <div className="flex flex-wrap gap-2 mb-2">
-        {attachedFiles.map((file, index) => {
-          const imageUrl = URL.createObjectURL(file);
-          return (
-            <div
-              key={`${file.name}-${index}`}
-              className="relative group bg-surface border border-border rounded-lg overflow-hidden hover:border-accent transition-colors"
-              style={{ width: '120px', height: '120px' }}
-            >
-              {/* Image Preview */}
-              <img
-                src={imageUrl}
-                alt={file.name}
-                className="w-full h-full object-cover"
-                onLoad={() => URL.revokeObjectURL(imageUrl)} // Clean up the object URL after loading
-              />
-              
-              {/* Overlay with file info */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
-                <PhotoIcon className="h-8 w-8 text-white mb-1" />
-                <span className="text-white text-xs text-center px-2 truncate w-full">
-                  {file.name}
-                </span>
-                <span className="text-white/80 text-xs">
-                  {(file.size / 1024).toFixed(1)} KB
-                </span>
-              </div>
-              
-              {/* Remove button */}
-              <button
-                type="button"
-                onClick={() => removeFile(index)}
-                className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-                title="Remove image"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-              
-              {/* File name label at bottom - always visible */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
-                <span className="text-white text-xs truncate block">
-                  {file.name}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  
 
   const hasMessages = messages.length > 0;
 
@@ -425,7 +503,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <FileAttachments />
+                <FileAttachments attachedFiles={attachedFiles} removeFile={removeFile} />
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -434,14 +512,18 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  placeholder={isImageUploadAllowed ? "Type your message or drag & drop images here..." : "Type your message..."}
+                  placeholder={
+                    isImageUploadAllowed
+                      ? "Type your message or drag & drop images here..."
+                      : "Type your message..."
+                  }
                   className="w-full px-0 py-0 bg-transparent text-primary-text placeholder-tertiary-text focus:outline-none resize-none text-sm"
-                  style={{ minHeight: '60px', maxHeight: '200px' }}
+                  style={{ minHeight: "60px", maxHeight: "200px" }}
                   rows={2}
                   disabled={isLoading}
                 />
-                {(input.length > 0 || attachedFiles.length > 0) && (
-                  <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center">
+                  <div className="flex">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -461,18 +543,33 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                         <span className="hidden sm:inline">Attach Image</span>
                       </button>
                     )}
+                    {isImageUploadAllowed && (
+                      <button
+                        type="button"
+                        onClick={openCamera}
+                        className="px-2 sm:px-3 py-1.5 text-secondary-text hover:text-primary-text text-xs sm:text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                      >
+                        <CameraIcon className="h-4 w-4" />
+                        <span className="hidden sm:inline">Use Camera</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {(input.length > 0 || attachedFiles.length > 0) && (
                     <button
                       type="submit"
-                      disabled={isLoading || (!input.trim() && attachedFiles.length === 0)}
+                      disabled={
+                        isLoading || (!input.trim() && attachedFiles.length === 0)
+                      }
                       className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isLoading && (
-                        <span className="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full"></span>
+                        <span className="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full" />
                       )}
-                      {isLoading ? 'Sending...' : 'Send message'}
+                      {isLoading ? "Sending..." : "Send message"}
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </form>
             </section>
 
@@ -603,7 +700,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <FileAttachments />
+                <FileAttachments attachedFiles={attachedFiles} removeFile={removeFile} />
                 <div className="flex gap-1.5 sm:gap-2">
                   <div className="flex-1 relative">
                     <textarea
@@ -641,6 +738,17 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                       <PhotoIcon className="h-4 w-4" />
                     </button>
                   )}
+                  {isImageUploadAllowed && (
+                    <button
+                      type="button"
+                      onClick={openCamera}
+                      disabled={isLoading}
+                      className="px-2 sm:px-3 py-1.5 sm:py-2 bg-surface hover:bg-surface-hover text-secondary-text hover:text-primary-text border border-border text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                      title="Use camera"
+                    >
+                      <CameraIcon className="h-4 w-4" />
+                    </button>
+                  )}
                   {!isLoading && (input.length > 0 || attachedFiles.length > 0) && (
                     <button
                       type="submit"
@@ -664,6 +772,36 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
             </div>
           </section>
         </>
+      )}
+      {isCameraOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-surface p-4 rounded-lg shadow-lg w-full max-w-xl">
+            {/* biome-ignore lint/a11y/useMediaCaption: live stream does not need captions */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-auto max-w-lg rounded mb-4"
+            />
+            <canvas ref={canvasRef} className="hidden" />
+            <div className="flex justify-center mt-4 space-x-4">
+              <button
+                type="button"
+                onClick={takePicture}
+                className="px-4 py-2 bg-primary hover:bg-primary-hover text-white font-medium rounded-lg transition-colors"
+              >
+                Take Picture
+              </button>
+              <button
+                type="button"
+                onClick={closeCamera}
+                className="px-4 py-2 bg-surface hover:bg-surface-hover text-secondary-text font-medium rounded-lg border border-border transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

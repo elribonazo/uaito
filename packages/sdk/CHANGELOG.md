@@ -1,3 +1,18 @@
+## 0.8.20-rc.0 (2025-10-09)
+
+### 🩹 Fixes
+
+- improve openAI image generation Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([14cc5d8](https://github.com/elribonazo/uaito/commit/14cc5d8))
+- release Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([aa4805c](https://github.com/elribonazo/uaito/commit/aa4805c))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.15-rc.0
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.8.19 (2025-10-05)
 
 ### 🧱 Updated Dependencies

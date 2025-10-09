@@ -532,6 +532,11 @@ import { MessageArray } from "@/utils";
      * @type {'image'}
      */
     type: 'image';
+    /**
+     * Optional ID reference to a previous image generation call (for multi-turn editing).
+     * @type {(string | undefined)}
+     */
+    imageGenerationCallId?: string;
   }
   
   /**
