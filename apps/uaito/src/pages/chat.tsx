@@ -33,9 +33,11 @@ import {
 	renameChat,
 	loadChatsFromStorage,
 	deleteAllChats,
+	clearOldChats,
 } from "@/redux/userSlice";
 import { useDispatch } from "react-redux";
 import { ChatSidebar } from "@/components/ChatSidebar";
+import { STORAGE_CONFIG } from "@/config/storage";
 
 const InputComponent = dynamic(() => import("@/components/InputComponent"), {
 	ssr: false,
@@ -84,6 +86,15 @@ const Chat: React.FC<
 			dispatch(createNewChat({ provider, model: selectedModel }));
 		}
 	}, [provider, selectedModel, chats, dispatch]);
+
+	// Auto-cleanup old chats when threshold is exceeded
+	useEffect(() => {
+		const chatCount = Object.keys(chats).length;
+		if (chatCount > STORAGE_CONFIG.AUTO_CLEANUP_THRESHOLD) {
+			console.log(`Chat count (${chatCount}) exceeded threshold (${STORAGE_CONFIG.AUTO_CLEANUP_THRESHOLD}). Triggering auto-cleanup...`);
+			dispatch(clearOldChats({ keepCount: STORAGE_CONFIG.AUTO_CLEANUP_KEEP_COUNT }));
+		}
+	}, [chats, dispatch]);
 
 	useEffect(() => {
 		// Add no-scroll class to body to prevent scrolling on mobile

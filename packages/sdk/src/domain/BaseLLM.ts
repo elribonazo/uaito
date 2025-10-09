@@ -151,35 +151,57 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
      * @param {MessageArray<MessageInput>} input - The input messages.
      * @returns {MessageArray<MessageInput>} The updated input messages.
      */
-    includeLastPrompt(prompt: string, chainOfThought: string, input: MessageArray<MessageInput>): MessageArray<MessageInput> {
-        const promptWithChainOfThought = `${prompt}\r\n\r\n${chainOfThought}`
-        if (input.length <= 0) {
+    includeLastPrompt(prompt: string | BlockType[], chainOfThought: string, input: MessageArray<MessageInput>): MessageArray<MessageInput> {
+        if (typeof prompt === 'string') {
+            const promptWithChainOfThought = `${prompt}\r\n\r\n${chainOfThought}`
+            if (input.length <= 0) {
+                return MessageArray.from(
+                    [
+                        { role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] }
+                    ]
+                )
+            }
+            const last = input[input.length - 1];
+            if (last && last.content.length > 0) {
+                const found = last.content.find((c) => c.type === "text" && c.text === prompt);
+                if (found) {
+                    return input;
+                } else {
+                    if (input[input.length - 1].role === 'user' && input[input.length - 1].content[0].type === 'text') {
+                        input[input.length - 1].content.push({ type: 'text', text: prompt });
+                    } else {
+                        input.push({ role: 'user', content: [{ type: 'text', text: prompt }] })
+                    }
+                    return input;
+                }
+            }
+
             return MessageArray.from(
                 [
-                    { role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] }
+                    ...input,
+                    { role: 'user', content: [{ type: 'text', text: prompt }] }
+                ]
+            )
+
+        } else {
+            const textBlock = prompt.find((p) => p.type === 'text');
+            const imageBlock = prompt.find((p) => p.type === 'image');
+
+            if (!textBlock || !imageBlock) {
+                throw new Error("Expected text and image block in prompt if prompt is not string");
+            }
+
+            if (input.length<=0) {
+                textBlock.text = `${textBlock.text}\r\n\r\n${chainOfThought}`
+            }
+
+            return MessageArray.from(
+                [
+                    ...input,
+                    { role: 'user', content: [textBlock, imageBlock] }
                 ]
             )
         }
-        const last = input[input.length - 1];
-        if (last && last.content.length > 0) {
-            const found = last.content.find((c) => c.type === "text" && c.text === promptWithChainOfThought);
-            if (found) {
-                return input;
-            } else {
-                if (input[input.length - 1].role === 'user' && input[input.length - 1].content[0].type === 'text') {
-                    input[input.length - 1].content.push({ type: 'text', text: promptWithChainOfThought });
-                } else {
-                    input.push({ role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] })
-                }
-                return input;
-            }
-        }
-        return MessageArray.from(
-            [
-                ...input,
-                { role: 'user', content: [{ type: 'text', text: promptWithChainOfThought }] }
-            ]
-        )
     }
 
     /**

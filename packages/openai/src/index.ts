@@ -11,7 +11,9 @@ import { BaseLLM, LLMProvider,
   ReadableStreamWithAsyncIterable,
   ToolInputDelta,
   MessageArray,
-  blobToDataURL
+  blobToDataURL,
+  ImageBlock,
+  BlockType
  } from "@uaito/sdk";
 import type {
   ResponseStreamEvent,
@@ -178,7 +180,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     // "No tool call found for function call with output id" errors. Treating tool
     // results as user input avoids that constraint while preserving the content.
     const toolResult = filteredContent.find((c) => c.type === 'tool_result');
-    if (toolResult && toolResult.type === 'tool_result') {
+    if (toolResult && toolResult.type === 'tool_result' && toolResult.name !== 'image_generation') {
       const textContent = (toolResult.content ?? [])
         .map((inner) => {
           if (inner.type === 'text') return inner.text;
@@ -203,8 +205,14 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         const typeForRole = mappedRole === 'assistant' ? 'output_text' : 'input_text';
         contents.push({ type: typeForRole as 'input_text' | 'output_text', text: c.text } as ResponseInputText);
       } else if (c.type === "image") {
-        const dataUrl = `data:${c.source.media_type};base64,${c.source.data}`;
-        contents.push({ type: 'input_image', image_url: dataUrl, detail: 'auto' } as ResponseInputImage);
+        // Skip images that are references to image generation calls (they'll be handled separately)
+        if (c.imageGenerationCallId) {
+          continue;
+        }
+        if (c.source) {
+          const dataUrl = `data:${c.source.media_type};base64,${c.source.data}`;
+          contents.push({ type: 'input_image', image_url: dataUrl, detail: 'auto' } as ResponseInputImage);
+        }
       } else if (c.type === "tool_use") {
         // Tool calls are outputs from the model; do not include them as inputs.
         continue;
@@ -251,17 +259,35 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
    * @returns {ResponseInputItem[]} The LLM inputs.
    */
   get llmInputs(): ResponseInputItem[] {
-    return this.inputs
-      .map((input) => this.fromInputToParam(input))
-      .filter((c) => {
-        if (c.type === 'message') {
-          const content = (c as ResponseInputItem & { content?: unknown[] }).content ?? [];
-          if (Array.isArray(content) && content.length === 0) {
-            return false;
-          }
+    const result: ResponseInputItem[] = [];
+    
+    for (const input of this.inputs) {
+      // Check if this input contains an image with imageGenerationCallId
+      const imageGenCall = input.content.find(
+        (c) => c.type === 'image' && c.imageGenerationCallId !== undefined
+      );
+      
+      // Convert the normal input
+      const convertedInput = this.fromInputToParam(input);
+      // Only add if it has content
+      if (convertedInput.type === 'message') {
+        const content = (convertedInput as ResponseInputItem & { content?: unknown[] }).content ?? [];
+        if (Array.isArray(content) && content.length > 0) {
+          result.push(convertedInput);
         }
-        return true;
-      });
+      } else {
+        result.push(convertedInput);
+      }
+      
+      // If we found an image generation call reference, add it as a separate item
+      if (imageGenCall && imageGenCall.type === 'image' && imageGenCall.imageGenerationCallId) {
+        result.push({
+          type: 'image_generation_call',
+          id: imageGenCall.imageGenerationCallId,
+        } as ResponseInputItem);
+      }
+    }
+    return result;
   }
 
 
@@ -491,6 +517,15 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     return out;
   }
 
+      /**
+     * Includes the last prompt in the input.
+     * @param {string} prompt - The user prompt.
+     * @param {string} chainOfThought - The chain of thought for the task.
+     * @param {MessageArray<MessageInput>} input - The input messages.
+     * @returns {MessageArray<MessageInput>} The updated input messages.
+     */
+      
+
   /**
    * Performs a task stream using the LLM.
    * @param {string} prompt - The user prompt.
@@ -504,8 +539,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     system,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
-
-
     const tools= (this.tools && this.tools.length > 0 ? this.tools : []) 
 
     if (this.options.type === LLMProvider.OpenAI) {
@@ -798,8 +831,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
 
     if (chunk.type === "response.image_generation_call.in_progress") {
       this.cache.imageGenerationCallId = chunk.item_id;
+      const callId = this.cache.imageGenerationCallId ?? v4();
       const toolUseBlock: ToolUseBlock = {
-        id: this.cache.imageGenerationCallId,
+        id: callId,
         name: "image_generation",
         type: "tool_use",
         input: {},
@@ -807,7 +841,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       };
       return {
         chunk: true,
-        id: this.cache.imageGenerationCallId!,
+        id: callId,
         role: "assistant",
         type: "tool_use",
         content: [
@@ -820,16 +854,24 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     if (chunk.type === "response.image_generation_call.partial_image") {
       const imageBase64 = chunk.partial_image_b64;
       this.cache.imageBase64 = imageBase64;
-      const buffer = Buffer.from(this.cache.imageBase64, "base64");
-      const blob = new Blob([buffer]);
-      const dataurl = await blobToDataURL(blob);
+      
+      // Return the image as a proper ImageBlock with the generation call ID
+      // This allows it to be referenced later for multi-turn editing
+      const imageBlock: ImageBlock = {
+        type: "image",
+        source: {
+          data: imageBase64,
+          media_type: "image/png",
+          type: "base64"
+        },
+        imageGenerationCallId: this.cache.imageGenerationCallId ?? undefined
+      };
+      
       return {
         role: "assistant",
-        id: this.cache.imageGenerationCallId!,
+        id: this.cache.imageGenerationCallId ?? v4(),
         type: "tool_result",
-        content: [
-          { type: "text", text: `<image>${dataurl}</image>` }
-        ]
+        content: [imageBlock]
       };
     }
 
