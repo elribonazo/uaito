@@ -1,3 +1,18 @@
+## 0.0.22-rc.0 (2025-10-09)
+
+### 🩹 Fixes
+
+- release Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([aa4805c](https://github.com/elribonazo/uaito/commit/aa4805c))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.15-rc.0
+- Updated @uaito/sdk to 0.8.20-rc.0
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.21 (2025-10-05)
 
 ### 🧱 Updated Dependencies

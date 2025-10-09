@@ -22,7 +22,7 @@ type Message = {
 };
 ```
 
-Defined in: [domain/types.ts:729](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L729)
+Defined in: [domain/types.ts:736](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L736)
 
 Represents a message.
 
@@ -34,7 +34,7 @@ Represents a message.
 optional chunk: boolean;
 ```
 
-Defined in: [domain/types.ts:749](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L749)
+Defined in: [domain/types.ts:756](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L756)
 
 Whether the message is a chunk.
 
@@ -46,7 +46,7 @@ Whether the message is a chunk.
 content: BlockType[];
 ```
 
-Defined in: [domain/types.ts:744](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L744)
+Defined in: [domain/types.ts:751](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L751)
 
 The content of the message.
 
@@ -58,7 +58,7 @@ The content of the message.
 id: string;
 ```
 
-Defined in: [domain/types.ts:734](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L734)
+Defined in: [domain/types.ts:741](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L741)
 
 The unique ID of the message.
 
@@ -70,7 +70,7 @@ The unique ID of the message.
 role: Role;
 ```
 
-Defined in: [domain/types.ts:754](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L754)
+Defined in: [domain/types.ts:761](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L761)
 
 The role of the message.
 
@@ -82,6 +82,6 @@ The role of the message.
 type: MessageType;
 ```
 
-Defined in: [domain/types.ts:739](https://github.com/elribonazo/uaito/blob/67954ddafa72656ac93232fb4a5af024ea5efed4/packages/sdk/src/domain/types.ts#L739)
+Defined in: [domain/types.ts:746](https://github.com/elribonazo/uaito/blob/14cc5d8874ee2252c5294c529f579706013fa351/packages/sdk/src/domain/types.ts#L746)
 
 The type of the message.
