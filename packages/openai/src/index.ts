@@ -516,14 +516,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     state.completedToolCalls = [];
     return out;
   }
-
-      /**
-     * Includes the last prompt in the input.
-     * @param {string} prompt - The user prompt.
-     * @param {string} chainOfThought - The chain of thought for the task.
-     * @param {MessageArray<MessageInput>} input - The input messages.
-     * @returns {MessageArray<MessageInput>} The updated input messages.
-     */
       
 
   /**
@@ -565,9 +557,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       max_output_tokens: this.maxTokens,
       stream: true,
       tools,
-      reasoning:{
+      reasoning:this.options.type === LLMProvider.OpenAI ? {
         effort:'low'
-      },
+      } : undefined,
     };
 
     // Reset usage and per-turn state
