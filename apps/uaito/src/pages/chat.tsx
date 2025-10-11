@@ -57,6 +57,7 @@ const Chat: React.FC<
 	const {
 		user: { provider, downloadProgress, usage, chats, activeChatId, chatOrder, theme },
 	} = useMountedApp();
+
 	const webGPU =
 		provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
 	const isDownloading =
@@ -161,8 +162,6 @@ const Chat: React.FC<
 
 	return (
 		<div className="bg-background w-full h-[100dvh] flex overflow-hidden">
-			<SpaceBackground />
-
 			{/* Chat Sidebar */}
 			<ChatSidebar
 				isOpen={sidebarOpen}

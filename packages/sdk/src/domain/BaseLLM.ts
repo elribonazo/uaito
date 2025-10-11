@@ -70,8 +70,8 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
      * @returns {void}
      */
     log(message: string) {
-        const fn = (this.options as any)?.log ?? console.log;
-        return fn(message);
+        // const fn = (this.options as any)?.log ?? console.log;
+        // return fn(message);
     }
 
     /**
@@ -228,8 +228,7 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                 while (true) {
                     const s = await reader.read();
                     if (s.done) {
-                        controller.close();
-                        reader.releaseLock()
+                        //reader.releaseLock()
                         break;
                     }
 
@@ -253,11 +252,23 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                             const id = message.content.findIndex((c) => c.type === "usage");
                             if (id !== -1) {
                                 usageBlock = message.content.splice(id, 1)[0] as UsageBlock;
+                                controller.enqueue({
+                                    id: v4(),
+                                    role: 'assistant',
+                                    type: 'usage',
+                                    content: [usageBlock]
+                                });
                             }
                         } else if (content.type === 'delta') {
                             const id = message.content.findIndex((c) => c.type === "delta");
                             if (id !== -1) {
                                 deltaBlock = message.content.splice(id, 1)[0] as DeltaBlock;
+                                controller.enqueue({
+                                    id: v4(),
+                                    role: 'assistant',
+                                    type: 'delta',
+                                    content: [deltaBlock]
+                                });
                             }
                         }
                     }
@@ -265,28 +276,7 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                     if (message.content.length) {
                         controller.enqueue(message);
                     }
-
-                    if (usageBlock) {
-                        controller.enqueue({
-                            id: v4(),
-                            role: 'assistant',
-                            type: 'usage',
-                            content: [usageBlock]
-                        });
-                        usageBlock = null;
-                    }
-
-                    if (deltaBlock) {
-                        controller.enqueue({
-                            id: v4(),
-                            role: 'assistant',
-                            type: 'delta',
-                            content: [deltaBlock]
-                        });
-                        deltaBlock = null;
-                    }
                 }
-
             }
         })
         return stream as ReadableStream<BChunk> & AsyncIterable<BChunk>
@@ -313,15 +303,15 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                 while (true) {
                     const readerResult = await reader.read();
                     if (readerResult.done) {
+                        //reader.releaseLock()
                         break;
                     }
+                    if (!readerResult.value) {
+                        continue;
+                    }
+                    const tChunk: AChunk = readerResult.value;
 
                     try {
-                        if (!readerResult.value) {
-                            continue;
-                        }
-                        const tChunk: AChunk = readerResult.value;
-
                         this.log(`tChunk: ${tChunk.type} ${JSON.stringify(tChunk)}`);
 
                         if (tChunk.type === "thinking" || tChunk.type === "redacted_thinking" || tChunk.type === "signature_delta") {
@@ -380,20 +370,17 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
 
 
                                 const newStream = await getNext.bind(this)();
-                                const oldReader = reader;
+                                // const oldReader = reader;
                                 reader = newStream.getReader()
-                                oldReader.releaseLock()
+                                // oldReader.releaseLock()
 
                             }
                         } else if (tChunk.content.length) {
                             controller.enqueue(tChunk)
                         }
                     } catch (err) {
-                        console.error('Error in transformAutoMode:', err);
-                        if (err instanceof Error && err.message.includes('aborted')) {
-                            controller.close();
-                        } else {
-
+                        console.error('Error in transformAutoMode:', err, tChunk);
+                        if (err instanceof Error && !err.message.includes("aborted")) {
                             const errorBlock: ErrorBlock = {
                                 type: "error",
                                 message: (err as Error).message
@@ -407,7 +394,6 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                         }
                     }
                 }
-                reader.releaseLock()
             }
         })
         return stream as ReadableStreamWithAsyncIterable<AChunk>

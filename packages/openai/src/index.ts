@@ -536,9 +536,11 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     if (this.options.type === LLMProvider.OpenAI) {
       tools.push({
         'type': 'image_generation',
-        'size': '1024x1024',
+        'size': 'auto',
         'output_format': 'png',
         'model':'gpt-image-1',
+        input_fidelity: 'high',
+        quality: 'high'
       })
       tools.push({
         type: "web_search",
@@ -601,7 +603,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     return automodeStream;
   }
 
-
+ 
 
   /**
    * Processes a chunk of the response stream.
@@ -886,7 +888,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         content: [current]
       };
     }
-
     // Function call arguments done -> emit tool_use
     if (chunk.type === 'response.function_call_arguments.done') {
       const ev = chunk as ResponseFunctionCallArgumentsDoneEvent;
@@ -953,8 +954,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       return {
         id: v4(),
         role: 'assistant',
-        type: 'delta',
-        content: [deltaBlock, usageBlock]
+        type: 'usage',
+        content: [usageBlock, deltaBlock]
       };
     }
 
