@@ -34,7 +34,7 @@ import type {
   ResponseErrorEvent,
 } from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
-import type { OpenAIOptions } from './types';
+import { ImageGenConfig, OpenAIImageModels, type OpenAIOptions } from './types';
 
 export * from './types';
 
@@ -125,6 +125,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     completedToolCalls: string[],
   };
 
+  private imageGenConfig: ImageGenConfig | null = null;
+
   /**
    * Creates an instance of the OpenAI LLM.
    * @param {{ options: OpenAIOptions }} { options } - The options for the LLM.
@@ -141,8 +143,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     this.openai = new OpenAIAPI({
       apiKey: options.apiKey,
       baseURL: defaultBaseUrl,
+      
     });
 
+    this.imageGenConfig = options.imageGenConfig ?? null;
 
     this.onTool = onTool ?? options.onTool;
   }
@@ -530,17 +534,25 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     chainOfThought,
     system,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    const {
+      model:imageModel = OpenAIImageModels['gpt-image-1-mini'],
+      quality = 'low',
+      output_format = 'png',
+      size = 'auto',
+      input_fidelity = 'low'
+    } = this.imageGenConfig ?? {};
+
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
     const tools= (this.tools && this.tools.length > 0 ? this.tools : []) 
 
     if (this.options.type === LLMProvider.OpenAI) {
       tools.push({
-        'type': 'image_generation',
-        'size': 'auto',
-        'output_format': 'png',
-        'model':'gpt-image-1',
-        input_fidelity: 'high',
-        quality: 'high'
+        type: 'image_generation',
+        size: size,
+        output_format: output_format,
+        model:imageModel as any,
+        input_fidelity,
+        quality
       })
       tools.push({
         type: "web_search",

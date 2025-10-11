@@ -1,5 +1,4 @@
 import {  ToolUseBlock, Message, LLMProvider, MessageInput, MessageArray  } from "@uaito/sdk";
-import type { AutomatedEngineer } from "./AutomatedEngineer";
 import { ToolModel } from '@/db/models/Tool';
 import type { AbortSignal } from 'abort-controller';
 import { AbortController } from 'abort-controller';

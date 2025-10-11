@@ -1,6 +1,7 @@
 import { Agent } from "@uaito/ai";
 import { OpenAI, OpenAIModels } from "@uaito/openai";
 import { LLMProvider, type DeltaBlock } from "@uaito/sdk";
+import { moods, colorSchemes, promptTemplates, getRandomElement } from "./storybook/constants";
 
 export interface StoryImageProperties {
     storyTitle: string;
@@ -14,119 +15,57 @@ export interface StoryImageProperties {
     style: string;
 }
 
-const moods = {
-    happy: "joyful, cheerful, bright and uplifting atmosphere",
-    adventurous: "exciting, dynamic, full of action and energy",
-    magical: "enchanting, mystical, dreamlike with magical elements",
-    peaceful: "calm, serene, tranquil and soothing",
-    heroic: "brave, strong, epic and inspiring",
-    mysterious: "intriguing, enigmatic, with secrets to discover",
-    playful: "fun, lighthearted, whimsical and entertaining"
-};
-
-const colorSchemes = {
-    vibrant: "bright, saturated colors with high contrast",
-    pastel: "soft, muted pastel colors with gentle tones",
-    warm: "warm color palette with reds, oranges, and yellows",
-    cool: "cool color palette with blues, greens, and purples",
-    monochrome: "black and white with shades of gray",
-    neon: "vibrant neon colors with glowing effects",
-    natural: "natural, earthy tones with organic colors"
-};
-
-const promptTemplates = {
-    cartoon: "colorful cartoon drawing with bold outlines and vibrant colors",
-    sketch: "detailed pencil sketch drawing with realistic shading and artistic line work",
-    watercolor: "beautiful watercolor painting with soft blended colors and artistic brush strokes",
-    comic: "comic book style illustration with dramatic shading, bold colors, and dynamic poses",
-    anime: "anime-style drawing with large expressive eyes, stylized features, and vibrant colors",
-    line_art: "clean line art with minimal details, black lines on white background",
-    pop_art: "pop art style illustration with bold colors, high contrast, and graphic design elements",
-    disney: "Disney Pixar animation style with expressive characters and magical atmosphere",
-    chibi: "cute chibi style with oversized head, tiny body, and adorable features",
-    vintage: "vintage illustration style with retro colors and classic artistic elements"
-};
-
 export class StoryImage extends Agent {
     protected name = "StoryImage";
     private properties!: StoryImageProperties;
 
     override get systemPrompt() {
-        return `You are an expert AI image prompt engineer specialized in creating precise, detailed prompts for image generation models that will be used in children's storybooks.
+        const moodKey = this.properties.mood as keyof typeof moods;
+        const colorSchemeKey = this.properties.colorScheme as keyof typeof colorSchemes;
+        const styleKey = this.properties.style as keyof typeof promptTemplates;
+        
+        return `You are an expert prompt engineer for image stylization in children's books. Your task is to generate a concise prompt for editing/adapting an EXISTING REFERENCE IMAGE (provided separately) to fit a story's aesthetic. For ages ≤6: Enforce 'tiny tale' mode—short, echoey, sense-packed. Match chapter's tiny vocabulary visually—e.g., label-like colors/shapes if story counts them.
 
-Your task is to analyze the provided story elements and character image, then create an optimized prompt that will generate a high-quality main illustration for the storybook.
-
-**Story Elements:**
-- Title: ${this.properties.storyTitle}
-- Description: ${this.properties.storyDescription}
-- Character: ${this.properties.characterDescription}
-- Setting: ${this.properties.settingBackground}
-- Mood: ${moods[this.properties.mood as keyof typeof moods] || this.properties.mood}
-- Color Scheme: ${colorSchemes[this.properties.colorScheme as keyof typeof colorSchemes] || this.properties.colorScheme}
-- Style: ${promptTemplates[this.properties.style as keyof typeof promptTemplates] || this.properties.style}
-- Print Size: ${this.properties.printSize}
-${this.properties.additionalElements ? `- Additional Elements: ${this.properties.additionalElements}` : ''}
-
-**Your Goal:**
-Generate a single, optimized image generation prompt that will:
-1. Transform the provided character image to match the desired artistic style
-2. Capture the essence of the story and character
-3. Create a visually compelling main illustration suitable for a children's storybook cover
-4. Be optimized for professional printing at ${this.properties.printSize} size
-5. Maintain the character's recognizable features while applying the artistic style
-6. Include all relevant visual elements that represent the story's themes
-
-**Quality Requirements:**
-- High resolution and print-ready quality
-- Age-appropriate visual language for children
-- Consistent character representation that can be replicated in chapter illustrations
-- Professional composition with proper focal points
-- Suitable for the specified mood and color scheme
-
-**Response Format:**
-You MUST respond with ONLY the optimized image generation prompt. Do not include any explanations, prefixes, or additional text. Just the prompt itself that will be sent to the image generation model.
-
-The prompt should be detailed but concise, focusing on:
-1. The artistic style transformation
-2. Character description and pose
-3. Setting and background elements
-4. Mood and atmosphere
-5. Color palette and lighting
-6. Technical specifications (quality, composition, print-ready)`;
+IMPORTANT RULES:
+- PRIORITIZE the reference image: Treat it as the base. Preserve the main subject's identity, pose, facial features, clothing, and overall composition. Do NOT add new characters, actions, or backgrounds that override the reference—focus on subtle enhancements.
+- Apply STYLE ADAPTATION only: Transform the reference to match ${promptTemplates[styleKey] ? getRandomElement(promptTemplates[styleKey]) : this.properties.style} art style, with a ${colorSchemes[colorSchemeKey] ? getRandomElement(colorSchemes[colorSchemeKey]) : this.properties.colorScheme} palette, and a ${moods[moodKey] ? getRandomElement(moods[moodKey]) : this.properties.mood} tone. Make it suitable for ${this.properties.printSize} format.
+- Reference the story: Briefly incorporate the theme of "${this.properties.storyTitle}" and character details like "${this.properties.characterDescription}" to ensure the style fits, but keep it minimal.
+- Keep prompts short (50-100 words): Focus on visual style transfer, not narrative storytelling. End with "high quality, detailed, children's book illustration."
+- Output ONLY the prompt—no explanations. Example: "Adapt the reference image to a colorful cartoon style with a vibrant color palette, maintaining the child's pose and features while adding a gentle adventurous expression for a book page."`;
     }
 
     override get chainOfThought() {
+        const moodKey = this.properties.mood as keyof typeof moods;
+        const colorSchemeKey = this.properties.colorScheme as keyof typeof colorSchemes;
+        const styleKey = this.properties.style as keyof typeof promptTemplates;
+
         return `To create an optimal image generation prompt, I need to:
 
 1. **Analyze the Character & Story**: Understand the main character's personality, appearance, and role in the story.
-
-2. **Apply the Artistic Style**: Transform the reference image to match ${this.properties.style} style while maintaining character recognition.
-
+2. **Apply the Artistic Style**: Transform the reference image to match ${this.properties.style} style while maintaining character recognition. Match chapter's tiny vocabulary visually—e.g., label-like colors/shapes if story counts them.
 3. **Incorporate Story Context**: 
    - The story "${this.properties.storyTitle}" is about: ${this.properties.storyDescription}
    - Setting: ${this.properties.settingBackground}
    - This should inform the character's pose, expression, and surroundings
-
 4. **Optimize for Mood & Atmosphere**: 
    - The ${this.properties.mood} mood requires specific visual cues
-   - ${moods[this.properties.mood as keyof typeof moods] || this.properties.mood}
-
+   - ${moods[moodKey] ? getRandomElement(moods[moodKey]) : this.properties.mood}
 5. **Technical Specifications**:
-   - Style: ${promptTemplates[this.properties.style as keyof typeof promptTemplates] || this.properties.style}
-   - Colors: ${colorSchemes[this.properties.colorScheme as keyof typeof colorSchemes] || this.properties.colorScheme}
+   - Style: ${promptTemplates[styleKey] ? getRandomElement(promptTemplates[styleKey]) : this.properties.style}
+   - Colors: ${colorSchemes[colorSchemeKey] ? getRandomElement(colorSchemes[colorSchemeKey]) : this.properties.colorScheme}
    - Quality: High resolution, print-ready for ${this.properties.printSize}
-
 6. **Compose the Final Prompt**: Synthesize all elements into a coherent, detailed prompt that balances artistic vision with technical requirements.
+7. **Validate output**: Does it fit ≤6 limits? (e.g., word count < 80, 80% simple words).
 
 I will now generate the optimized prompt focusing on transforming the uploaded character image while incorporating all story elements.`;
     }
 
-    constructor() {
+    private constructor() {
         super(
             new OpenAI({
                 options: {
                     type: LLMProvider.OpenAI,
-                    model: OpenAIModels['gpt-5'],
+                    model: OpenAIModels["gpt-5"],
                     apiKey: process.env.OPENAI_API_KEY,
                     tools: [],
                 },
@@ -134,20 +73,37 @@ I will now generate the optimized prompt focusing on transforming the uploaded c
         )
 
     }
+
+    static create() {
+        return new StoryImage();
+    }
+
+
+    public usage ={
+        type: 'usage',
+        input: 0,
+        output: 0
+    };
     
     async generatePrompt(properties: StoryImageProperties): Promise<string> {
         this.properties = properties;
-        const { response } = await this.performTask(
+        console.log('[StoryImage Agent] Generating prompt...');
+        const { response } = await this.retryApiCall(() =>  this.performTask(
             "Generate the optimized image generation prompt based on the story elements provided."
-        );
+        ));
 
         // Collect the full response
         let fullPrompt = "";
         for await (const chunk of response) {
             if (chunk.type === 'message' && chunk.content[0]?.type === 'text') {
                 fullPrompt += chunk.content[0].text;
-            } else if (chunk.type === 'delta') {
+            } else {
                 const deltaContent = chunk.content.find(c => c.type === 'delta');
+                const usageContent = chunk.content.find(c => c.type === 'usage');
+                if (usageContent && usageContent.type === 'usage') {
+                    this.usage.input += usageContent.input || 0;
+                    this.usage.output += usageContent.output || 0;
+                }
                 if (deltaContent && deltaContent.type === 'delta') {
                     const delta = deltaContent as DeltaBlock;
                     if (delta.stop_reason === 'stop_sequence' || delta.stop_reason === 'tool_use' || delta.stop_reason === 'end_turn') {
@@ -156,6 +112,8 @@ I will now generate the optimized prompt focusing on transforming the uploaded c
                 }
             }
         }
+
+        console.log('[StoryImage Agent] Prompt generated successfully.');
 
         return fullPrompt.trim();
     }

@@ -2,16 +2,17 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import NextCors from 'nextjs-cors';
 import { getSessionUser } from '@/utils/getSessionUser';
 import db from '@/db';
-import { OpenAI, OpenAIModels } from '@uaito/openai';
-import { Story, type StoryProperties } from '@/ai/agents/Story';
-import { StoryImage, type StoryImageProperties } from '@/ai/agents/StoryImage';
-import { StoryImageChapter, type StoryImageChapterProperties } from '@/ai/agents/StoryImageChapter';
-import { type DeltaBlock, LLMProvider, type BlockType, type ImageBlock } from '@uaito/sdk';
+import { StoryDetails } from '@/ai/agents/StoryDetails';
+import { StoryPrompt } from '@/ai/agents/StoryPrompt';
+import { StoryChapter, type Chapter } from '@/ai/agents/StoryChapter';
+import { StoryImage } from '@/ai/agents/StoryImage';
+import { StoryImageChapter } from '@/ai/agents/StoryImageChapter';
+import type { BlockType, ImageBlock } from '@uaito/sdk';
 import formidable from 'formidable';
 import fs from 'fs';
 import jsPDF from 'jspdf';
-import { Agent } from '@uaito/ai';
 import { Image } from '@/ai/agents/Image';
+import sharp from 'sharp';
 
 export const config = {
 	api: {
@@ -82,6 +83,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		return res.status(405).json({ error: 'Method Not Allowed' });
 	}
 
+	const cumulativeUsage = {
+		input: 0,
+		output: 0,
+	};
+	const accumulateUsage = (agent: { usage: { input: number; output: number } }) => {
+		cumulativeUsage.input += agent.usage.input;
+		cumulativeUsage.output += agent.usage.output;
+	};
+
 	await db.connect();
 	const currentUser = await getSessionUser(req, res);
 	
@@ -93,13 +103,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		const { fields, files } = await parseFormData(req);
         
 		// Extract fields
-		const storyTitle = Array.isArray(fields.storyTitle) ? fields.storyTitle[0] : fields.storyTitle || 'My Story';
-		const storyDescription = Array.isArray(fields.storyDescription) ? fields.storyDescription[0] : fields.storyDescription || '';
-		const characterDescription = Array.isArray(fields.characterDescription) ? fields.characterDescription[0] : fields.characterDescription || '';
-		const settingBackground = Array.isArray(fields.settingBackground) ? fields.settingBackground[0] : fields.settingBackground || '';
+		const kidName = Array.isArray(fields.kidName) ? fields.kidName[0] : fields.kidName || 'Alex';
+		const kidGender = Array.isArray(fields.kidGender) ? fields.kidGender[0] : fields.kidGender || 'boy';
+		const kidLikes = Array.isArray(fields.kidLikes) ? fields.kidLikes[0] : fields.kidLikes || 'space';
 		const mood = Array.isArray(fields.mood) ? fields.mood[0] : fields.mood || 'adventurous';
 		const colorScheme = Array.isArray(fields.colorScheme) ? fields.colorScheme[0] : fields.colorScheme || 'vibrant';
-		const additionalElements = Array.isArray(fields.additionalElements) ? fields.additionalElements[0] : fields.additionalElements || '';
 		const style = Array.isArray(fields.style) ? fields.style[0] : fields.style || 'cartoon';
 		const printSize = Array.isArray(fields.printSize) ? fields.printSize[0] : fields.printSize || 'book';
 		const numChapters = parseInt(Array.isArray(fields.numChapters) ? fields.numChapters[0] : fields.numChapters || '3', 10);
@@ -111,35 +119,91 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			return res.status(400).json({ error: 'Character image is required' });
 		}
 
-		const storyAgent = new Story();
-		const chapters = await storyAgent.generate({
-			storyTitle,
-			storyDescription,
-			characterDescription,
-			settingBackground,
+		const aiProcessLog: {
+			userInput: { kidName: string; kidGender: string; kidLikes: string; mood: string; colorScheme: string; style: string; printSize: string; numChapters: number; age: number };
+			storyDetails: Record<string, unknown>;
+			detailedStoryPrompt: string;
+			generatedChapters: { title: string; content: string }[];
+			mainImagePrompt: string;
+			chapterImagePrompts: { title: string; prompt: string }[];
+		  } = {
+			userInput: { kidName, kidGender, kidLikes, mood, colorScheme, style, printSize, numChapters, age },
+			storyDetails: {},
+			detailedStoryPrompt: '',
+			generatedChapters: [],
+			mainImagePrompt: '',
+			chapterImagePrompts: [],
+		  };
+
+		// Phase 0: Generate story details
+		const storyDetailsAgent = StoryDetails.create();
+		const storyDetails = await storyDetailsAgent.generate({
+			name: kidName,
+			gender: kidGender,
+			likes: kidLikes,
 			mood,
-			additionalElements,
 			numChapters,
 			age,
 		});
+		accumulateUsage(storyDetailsAgent);
+
+		aiProcessLog.storyDetails = { ...storyDetails, name: kidName, gender: kidGender, likes: kidLikes, mood, numChapters, age };
+
+		// Phase 1: Generate detailed story prompt
+		const storyPromptAgent = StoryPrompt.create();
+		const detailedPrompt = await storyPromptAgent.generate({
+			name: kidName,
+			gender: kidGender,
+			likes: kidLikes,
+			mood,
+			numChapters,
+			age,
+			...storyDetails,
+		});
+		accumulateUsage(storyPromptAgent);
+
+		aiProcessLog.detailedStoryPrompt = detailedPrompt;
+
+		// Phase 2: Generate chapters
+		const chapters: Chapter[] = [];
+		for (let i = 1; i <= numChapters; i++) {
+			const storyChapterAgent = StoryChapter.create();
+			const chapter = await storyChapterAgent.generate({
+				age,
+				detailedPrompt,
+				chapterNumber: i,
+				previousChapters: chapters,
+			});
+			accumulateUsage(storyChapterAgent);
+
+			if (chapter) {
+				chapters.push(chapter);
+			} else {
+				throw new Error(`Failed to generate chapter ${i}`);
+			}
+		}
+
+		aiProcessLog.generatedChapters = chapters.map(({ title, content }) => ({ title, content }));
 
 		// Read file and generate prompt ONCE, outside retry loop
 		const fileContent = fs.readFileSync(file.filepath);
-		const base64 = fileContent.toString('base64');
+		const optimizedImageBuffer = await sharp(fileContent)
+			.resize({ width: 512, height: 512, fit: 'cover' })
+			.png({ quality: 80 })
+			.toBuffer();
+		const base64 = optimizedImageBuffer.toString('base64');
 
-		const storyImageAgent = new StoryImage();
+		const storyImageAgent = StoryImage.create();
 		const mainImagePrompt = await storyImageAgent.generatePrompt({
-			storyTitle,
-			storyDescription,
-			characterDescription,
-			settingBackground,
+			...storyDetails,
 			mood,
 			colorScheme,
-			additionalElements,
 			printSize,
 			style,
 		});
+		accumulateUsage(storyImageAgent);
 		const imageAgent = new Image();
+		aiProcessLog.mainImagePrompt = mainImagePrompt;
 		const imageBlock: ImageBlock = {
 			type: 'image',
 			source: {
@@ -153,42 +217,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			text: mainImagePrompt,
 		};
 		const mainImageUrl = await imageAgent.generateImage(textBlock, imageBlock)
-
-		// Extract base64 for chapter generation
-		const mainImageBase64 = mainImageUrl.split(',')[1];
+		accumulateUsage(imageAgent);
 
 		for (let i = 0; i < chapters.length; i++) {
-			const chapterImagePromptLLM = new StoryImageChapter();
+			const chapterImagePromptLLM = StoryImageChapter.create();
 			const chapter = chapters[i];
 			const chapterImagePrompt = await chapterImagePromptLLM.generatePrompt({
 				chapterTitle: chapter.title,
 				chapterContent: chapter.content,
-				characterDescription,
+				characterDescription: storyDetails.characterDescription,
 				mood,
 				colorScheme,
 				style,
 			});
+			accumulateUsage(chapterImagePromptLLM);
 
+			aiProcessLog.chapterImagePrompts.push({ title: chapter.title, prompt: chapterImagePrompt });
 			// Use retry logic for image generation
 			const chapterImageBlock: ImageBlock = {
 				type: 'image',
 				source: {
 					type: 'base64',
 					media_type: 'image/png',
-					data: mainImageBase64,
+					data: base64,
 				},
 			};
 			const chapterTextBlock: BlockType = {
 				type: 'text',
 				text: chapterImagePrompt,
 			};
-			const imageAgent = new Image();
-			const chapterImageUrl = await imageAgent.generateImage(chapterTextBlock, chapterImageBlock);
+			const chapterImageAgent = new Image();
+			const chapterImageUrl = await chapterImageAgent.generateImage(chapterTextBlock, chapterImageBlock);
 			chapter.image = chapterImageUrl;
+			accumulateUsage(chapterImageAgent);
 			console.log(`Chapter ${i + 1} image generated successfully`);
 
 		}
 
+		fs.writeFileSync(`ai-process-log-${Date.now()}.json`, JSON.stringify(aiProcessLog, null, 2));
 		// Step 4: Generate PDF
 		console.log('=== Step 4: Generating PDF ===');
 		console.log(`Chapters with images: ${chapters.filter(c => c.image).length}/${chapters.length}`);
@@ -196,14 +262,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		const pdfBuffer = await retryAsync(
 			async () => {
 				const pdf = new jsPDF('l', 'mm', 'a4');
-				const pdfWidth = pdf.internal.pageSize.getWidth();
-				const pdfHeight = pdf.internal.pageSize.getHeight();
 
-				/**
-				 * Enhanced text rendering function that preserves paragraphs and line breaks
-				 * Automatically creates new pages when content overflows
-				 * @returns The final Y position after all text is rendered
-				 */
 				const addFormattedText = (
 					text: string, 
 					x: number, 
@@ -217,15 +276,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 						allowPageBreaks?: boolean 
 					} = {}
 				): number => {
-					const lineSpacing = options.lineSpacing ?? fontSize * 0.35; // 35% of font size
-					const paragraphSpacing = options.paragraphSpacing ?? fontSize * 0.6; // 60% of font size
+					const lineSpacing = options.lineSpacing ?? fontSize * 0.35;
+					const paragraphSpacing = options.paragraphSpacing ?? fontSize * 0.6;
 					const bottomMargin = options.bottomMargin ?? 20;
 					const allowPageBreaks = options.allowPageBreaks ?? false;
 					
 					pdf.setFontSize(fontSize);
 					pdf.setFont('helvetica', 'normal');
+					pdf.setTextColor(255, 255, 255);
 					
-					// Split by paragraphs first (double line breaks or single line breaks)
 					const paragraphs = text.split(/\n\n+|\r\n\r\n+/);
 					let currentY = startY;
 					
@@ -233,41 +292,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 						const paragraph = paragraphs[p].trim();
 						if (!paragraph) continue;
 						
-						// Preserve single line breaks within paragraphs
 						const lines = paragraph.split(/\n|\r\n/);
 						
 						for (let l = 0; l < lines.length; l++) {
 							const line = lines[l].trim();
 							if (!line) continue;
 							
-							// Word wrap this line
 							const wrappedLines = pdf.splitTextToSize(line, maxWidth);
 							
 							for (let w = 0; w < wrappedLines.length; w++) {
-								// Check if we need a new page
-								if (currentY + fontSize > pdfHeight - bottomMargin) {
+								if (currentY + fontSize > pdf.internal.pageSize.getHeight() - bottomMargin) {
 									if (allowPageBreaks) {
-										console.log(`Adding new page at Y=${currentY} for text continuation`);
-										pdf.addPage();
-										currentY = 15; // Start at top of new page with small margin
+										addPageWithBackground();
+										currentY = 30; // Start at top of new page
 									} else {
-										console.log(`Text overflow at Y=${currentY}, stopping text render`);
 										return currentY;
 									}
 								}
 								
-								// Render line left-aligned
 								pdf.text(wrappedLines[w], x, currentY, { align: 'left' });
 								currentY += fontSize + lineSpacing;
 							}
 							
-							// Add extra spacing between lines within a paragraph (if not last line)
 							if (l < lines.length - 1) {
 								currentY += lineSpacing * 0.5;
 							}
 						}
 						
-						// Add paragraph spacing (if not last paragraph)
 						if (p < paragraphs.length - 1) {
 							currentY += paragraphSpacing;
 						}
@@ -276,104 +327,106 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 					return currentY;
 				};
 
+				const addPageWithBackground = () => {
+					pdf.addPage();
+					pdf.setFillColor(10, 14, 26); // Dark background color
+					pdf.rect(0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight(), 'F');
+				};
+
 				// Page 1: Title page with main image
-				pdf.setFontSize(36);
+				pdf.setFillColor(10, 14, 26); // Dark background color
+				pdf.rect(0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight(), 'F');
+				pdf.setFontSize(48);
 				pdf.setFont('helvetica', 'bold');
-				const titleY = 25;
-				pdf.text(storyTitle, pdfWidth / 2, titleY, { align: 'center' });
+				pdf.setTextColor(255, 255, 255); // White text
+				const titleY = 40;
+				pdf.text(storyDetails.storyTitle, pdf.internal.pageSize.getWidth() / 2, titleY, { align: 'center' });
 
 				if (mainImageUrl) {
 					try {
-						// Add main image centered below title
-						const imgWidth = 140;
-						const imgHeight = 140;
-						const imgX = (pdfWidth - imgWidth) / 2;
-						const imgY = 45;
+						const imgWidth = 160;
+						const imgHeight = 160;
+						const imgX = (pdf.internal.pageSize.getWidth() - imgWidth) / 2;
+						const imgY = 60;
 						pdf.addImage(mainImageUrl, 'PNG', imgX, imgY, imgWidth, imgHeight);
 						console.log('Main image added to PDF title page');
 					} catch (error) {
 						console.error('Error adding main image to PDF:', error);
-						// Continue without image on title page
 					}
 				}
 
 				// Add pages for each chapter
 				for (let i = 0; i < chapters.length; i++) {
 					const chapter = chapters[i];
-					pdf.addPage();
+					addPageWithBackground();
 
-					// Chapter title - larger font, left-aligned
-					const margin = 15;
-					pdf.setFontSize(20);
+					const margin = 20;
+					pdf.setFontSize(28);
 					pdf.setFont('helvetica', 'bold');
-					pdf.text(chapter.title, margin, 20, { align: 'left' });
+					pdf.setTextColor(255, 255, 255);
+					pdf.text(chapter.title, margin, 30, { align: 'left' });
 
-					// Draw a subtle line under the title
-					pdf.setDrawColor(150, 150, 150);
+					pdf.setDrawColor(51, 65, 85);
 					pdf.setLineWidth(0.5);
-					pdf.line(margin, 24, pdfWidth - margin, 24);
+					pdf.line(margin, 35, pdf.internal.pageSize.getWidth() - margin, 35);
 
-					const contentY = 32;
+					const contentY = 50;
 
 					if (chapter.image) {
 						try {
-							// Layout: Image on left, text on right
-							const imageWidth = (pdfWidth - 3 * margin) * 0.45; // 45% for image
-							const imageHeight = imageWidth; // Square aspect
-							pdf.addImage(chapter.image, 'PNG', margin, contentY, imageWidth, imageHeight);
+							const imageWidth = (pdf.internal.pageSize.getWidth() - 3 * margin) * 0.45;
+							const imageHeight = imageWidth;
+							const imageX = pdf.internal.pageSize.getWidth() - margin - imageWidth;
+							pdf.addImage(chapter.image, 'PNG', imageX, contentY, imageWidth, imageHeight);
 
-							// Text on right side with proper spacing
-							const textX = margin * 2 + imageWidth;
-							const textMaxWidth = pdfWidth - textX - margin;
+							const textX = margin;
+							const textMaxWidth = pdf.internal.pageSize.getWidth() - imageWidth - 3 * margin;
 							
-							// Use smaller font for chapter content with page breaks enabled
 							addFormattedText(
 								chapter.content, 
 								textX, 
 								contentY, 
 								textMaxWidth, 
-								11, // Font size
+								14, // Increased font size
 								{ 
-									lineSpacing: 2, 
-									paragraphSpacing: 5,
-									bottomMargin: 15,
-									allowPageBreaks: true // Allow chapter to span multiple pages
+									lineSpacing: 4, 
+									paragraphSpacing: 8,
+									bottomMargin: 20,
+									allowPageBreaks: true
 								}
 							);
 							console.log(`Chapter ${i + 1} added to PDF with image`);
 						} catch (error) {
 							console.error(`Error adding chapter ${i + 1} image to PDF:`, error);
-							// Fall back to text only
-							const textMaxWidth = pdfWidth - 2 * margin;
+							const textMaxWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
 							addFormattedText(
 								chapter.content, 
 								margin, 
 								contentY, 
 								textMaxWidth, 
-								12,
+								16, // Increased font size
 								{ 
-									lineSpacing: 2.5, 
-									paragraphSpacing: 6,
-									bottomMargin: 15,
-									allowPageBreaks: true // Allow chapter to span multiple pages
+									lineSpacing: 5, 
+									paragraphSpacing: 10,
+									bottomMargin: 20,
+									allowPageBreaks: true
 								}
 							);
 							console.log(`Chapter ${i + 1} added to PDF without image (fallback)`);
 						}
 					} else {
-						// Text only if no image - full width, larger font
-						const textMaxWidth = pdfWidth - 2 * margin;
+						const textMaxWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
 						addFormattedText(
 							chapter.content, 
 							margin, 
 							contentY, 
 							textMaxWidth, 
-							12,
+							16, // Increased font size
 							{ 
-								lineSpacing: 2.5, 
-								paragraphSpacing: 6,
-								bottomMargin: 15,
-								allowPageBreaks: true // Allow chapter to span multiple pages
+								lineSpacing: 5, 
+								paragraphSpacing: 10,
+								bottomMargin: 20,
+								allowPageBreaks: true
 							}
 						);
 						console.log(`Chapter ${i + 1} added to PDF (no image available)`);
@@ -392,10 +445,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 		// Set response headers for PDF download
 		res.setHeader('Content-Type', 'application/pdf');
-		res.setHeader('Content-Disposition', `attachment; filename="storybook-${storyTitle.replace(/\s+/g, '-')}-${Date.now()}.pdf"`);
+		res.setHeader('Content-Disposition', `attachment; filename="storybook-${kidName.replace(/\s+/g, '-')}-${Date.now()}.pdf"`);
 		res.setHeader('Content-Length', pdfBuffer.length);
 
 		// Send PDF
+		console.log('--- CUMULATIVE USAGE ---');
+		console.log(`Input tokens: ${cumulativeUsage.input}`);
+		console.log(`Output tokens: ${cumulativeUsage.output}`);
+		console.log(`Total tokens: ${cumulativeUsage.input + cumulativeUsage.output}`);
+		console.log('------------------------');
 		console.log('Sending PDF to client...');
 		res.send(pdfBuffer);
 		console.log('=== Storybook generation complete ===');
