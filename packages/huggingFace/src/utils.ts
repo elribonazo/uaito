@@ -8,7 +8,8 @@ import { TextMessage } from "./parse/TextMessage";
 import { AudioMessage } from "./parse/AudioMessage";
 
 /**
- * Represents a parsed Pythonic call.
+ * Represents a parsed Pythonic function call, separating the function name,
+ * positional arguments, and keyword arguments.
  * @interface
  */
 interface ParsedCall {
@@ -31,9 +32,10 @@ interface ParsedCall {
 
 
 /**
- * Parses a string of arguments into an array of strings.
+ * Parses a string of arguments, handling nested structures like quotes, parentheses, and braces.
+ * This is a utility for parsing arguments from a Pythonic function call string.
  * @param {string} argsString - The string of arguments to parse.
- * @returns {string[]} An array of parsed arguments.
+ * @returns {string[]} An array of parsed argument strings.
  */
 export function parseArguments(argsString: string): string[] {
     const args: string[] = [];
@@ -82,9 +84,10 @@ export function parseArguments(argsString: string): string[] {
   };
 
   /**
-   * Extracts Pythonic function calls from a string.
-   * @param {string} toolCallContent - The string containing tool calls.
-   * @returns {string[]} An array of extracted function calls.
+   * Extracts Pythonic function call strings from a larger content block.
+   * It can handle both JSON arrays of calls and single or multiple calls in a string.
+   * @param {string} toolCallContent - The string containing the tool calls.
+   * @returns {string[]} An array of extracted function call strings.
    */
   export function extractPythonicCalls(toolCallContent: string): string[] {
     try {
@@ -115,15 +118,16 @@ export function parseArguments(argsString: string): string[] {
   };
 
   /**
-   * Parses a Pythonic function call string into a ParsedCall object.
+   * Parses a Pythonic function call string (e.g., `my_func(arg1, kwarg1='value')`)
+   * into a `ParsedCall` object with the function name, positional args, and keyword args.
    * @param {string} command - The function call string to parse.
-   * @returns {ParsedCall | null} A ParsedCall object or null if parsing fails.
+   * @returns {ParsedCall | null | ParsedCall[]} A `ParsedCall` object, an array of them, or `null` if parsing fails.
    */
-  export function  parsePythonicCall(command: string): ParsedCall | null {
+  export function  parsePythonicCall(command: string): ParsedCall | null | ParsedCall[] {
     try {
       const parsed = JSON.parse(command);
       if (Array.isArray(parsed)) {
-        return parsed.map((call) => this.parsePythonicCall(call)) as any;
+        return parsed.map((call) => parsePythonicCall(call) as ParsedCall).filter(Boolean);
       }
       return {
         ...parsed,
@@ -163,11 +167,12 @@ export function parseArguments(argsString: string): string[] {
 
 
   /**
-   * Maps positional and keyword arguments to named parameters.
-   * @param {string[]} paramNames - An array of parameter names.
-   * @param {unknown[]} positionalArgs - An array of positional arguments.
-   * @param {Record<string, unknown>} keywordArgs - A record of keyword arguments.
-   * @returns {Record<string, unknown>} A record of named parameters.
+   * Maps positional and keyword arguments from a parsed function call to a named parameter object.
+   * This is useful for matching the extracted arguments to the a tool's defined `input_schema`.
+   * @param {string[]} paramNames - An array of the target parameter names in order.
+   * @param {unknown[]} positionalArgs - An array of the positional arguments from the call.
+   * @param {Record<string, unknown>} keywordArgs - A record of the keyword arguments from the call.
+   * @returns {Record<string, unknown>} An object where keys are parameter names and values are the mapped arguments.
    */
   export function mapArgsToNamedParams(  paramNames: string[],  positionalArgs: unknown[], keywordArgs: Record<string, unknown>): Record<string, unknown> {
     const namedParams: Record<string, unknown> = {};
@@ -185,29 +190,35 @@ export function parseArguments(argsString: string): string[] {
 
 
 /**
- * Caches and processes incoming message chunks to construct complete messages.
- * @class
+ * A class that caches and processes incoming message chunks from a stream to construct
+ * complete, structured `Message` objects. It handles different message types like text,
+ * thinking steps, and tool calls by using specialized parsers.
+ *
+ * @class MessageCache
  */
 export class MessageCache {
   /**
-   * The current message element being processed.
+   * The current message parser element that is actively processing chunks.
+   * This will be an instance of a class that extends `BaseMessage` (e.g., `ThinkingMessage`, `ToolUseMessage`).
    * @type {(BaseMessage | null)}
    */
   public currentElement: BaseMessage | null = null;
 
   /**
-   * Creates an instance of MessageCache.
-   * @param {Tool[]} tools - An array of available tools.
+   * Creates an instance of `MessageCache`.
+   * @param {Tool[]} tools - An array of available tools that can be parsed from the stream.
    * @param {(...messages: any[]) => void} [log=console.log] - A logging function.
    */
-  constructor(public tools: Tool[], private log: (...messages: any[]) => void = console.log) { }
+  constructor(public tools: Tool[], private log: (...messages: unknown[]) => void = console.log) { }
 
   /**
-   * Processes an incoming chunk of a message.
+   * Processes an incoming chunk from the stream. It identifies the type of message
+   * being streamed (e.g., thinking, tool_use, text) and uses the appropriate parser
+   * to build a complete message. It returns the message once it's fully parsed.
    * @param {string} chunk - The chunk of the message to process.
-   * @returns {Promise<any>} The processed message or null if more chunks are needed.
+   * @returns {Promise<any>} The fully parsed `Message` object, or `null` if more chunks are needed.
    */
-  async processChunk(chunk: string) {
+  async processChunk(chunk: string): Promise<any> {
     
     if (!this.currentElement) {
       //We need to know which type of element it is we are processing

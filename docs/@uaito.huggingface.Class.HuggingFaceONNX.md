@@ -12,7 +12,7 @@
 
 # Class: HuggingFaceONNX
 
-Defined in: [HuggingFaceONNX.ts:71](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L71)
+Defined in: [HuggingFaceONNX.ts:71](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L71)
 
 A class for handling Hugging Face ONNX models.
  HuggingFaceONNX
@@ -29,7 +29,7 @@ A class for handling Hugging Face ONNX models.
 new HuggingFaceONNX({, onTool?): HuggingFaceONNX;
 ```
 
-Defined in: [HuggingFaceONNX.ts:123](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L123)
+Defined in: [HuggingFaceONNX.ts:123](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L123)
 
 Creates an instance of HuggingFaceONNX.
 
@@ -63,7 +63,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [HuggingFaceONNX.ts:77](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L77)
+Defined in: [HuggingFaceONNX.ts:77](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L77)
 
 The cache for the LLM.
 
@@ -117,7 +117,7 @@ A record of data for the LLM.
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:89](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L89)
+Defined in: [HuggingFaceONNX.ts:89](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L89)
 
 An array of message inputs.
 
@@ -135,7 +135,7 @@ BaseLLM.inputs
 loadProgress: number = 0;
 ```
 
-Defined in: [HuggingFaceONNX.ts:83](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L83)
+Defined in: [HuggingFaceONNX.ts:83](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L83)
 
 The progress of loading the model.
 
@@ -147,7 +147,7 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNX.ts:115](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L115)
+Defined in: [HuggingFaceONNX.ts:115](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L115)
 
 ***
 
@@ -189,7 +189,7 @@ BaseLLM.type
 createStream(): Promise<ReadableStreamWithAsyncIterable<string>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:335](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L335)
+Defined in: [HuggingFaceONNX.ts:335](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L335)
 
 Creates a readable stream of strings.
 
@@ -242,7 +242,7 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:165](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L165)
+Defined in: [HuggingFaceONNX.ts:165](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L165)
 
 Loads the model and tokenizer.
 
@@ -255,7 +255,7 @@ Loads the model and tokenizer.
 ### log()
 
 ```ts
-log(message): any;
+log(message): void;
 ```
 
 Defined in: ../../sdk/build/index.d.ts:101
@@ -270,7 +270,7 @@ Logs a message.
 
 #### Returns
 
-`any`
+`void`
 
 #### Inherited from
 
@@ -289,7 +289,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:465](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L465)
+Defined in: [HuggingFaceONNX.ts:465](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L465)
 
 Performs a task stream using the LLM.
 
@@ -357,7 +357,7 @@ BaseLLM.retryApiCall
 runAbortable<Fn>(fn): Promise<unknown>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:149](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L149)
+Defined in: [HuggingFaceONNX.ts:149](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L149)
 
 Runs an abortable promise.
 
@@ -419,7 +419,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:506](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNX.ts#L506)
+Defined in: [HuggingFaceONNX.ts:506](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNX.ts#L506)
 
 Transforms an input stream using the provided transform function.
 

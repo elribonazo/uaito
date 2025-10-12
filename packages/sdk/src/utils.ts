@@ -1,19 +1,21 @@
 import { v4 } from "uuid";
-import { MessageInput, Role } from "./domain/types";
+import type { MessageInput, Role } from "./domain/types";
 
 /**
- * Checks if a given role is a valid Role.
- * @param {any} role - The role to validate.
- * @returns {role is Role} True if the role is valid, false otherwise.
+ * Validates if a given value is a valid `Role`.
+ * A valid role is one of 'assistant', 'user', 'system', or 'tool'.
+ * @param {any} role - The value to validate.
+ * @returns {role is Role} `true` if the role is a valid `Role`, otherwise `false`.
  */
 function isValidRole(role: any): role is Role {
   return role === 'assistant' || role === 'user' || role === 'system' || role === 'ipython';
 }
 
 /**
- * Checks if a given content object is valid message content.
- * @param {any} content - The content to validate.
- * @returns {boolean} True if the content is valid, false otherwise.
+ * Validates if a given object is a valid `MessageContent` block.
+ * This function checks the `type` property and validates the corresponding fields for each block type.
+ * @param {any} content - The content object to validate.
+ * @returns {boolean} `true` if the content is a valid block, otherwise `false`.
  */
 function isValidMessageContent(content: any): boolean {
   if (typeof content !== 'object' || content === null) {
@@ -56,9 +58,10 @@ function isValidMessageContent(content: any): boolean {
 }
 
 /**
- * Validates a MessageInput object.
- * @param {any} item - The item to validate.
- * @returns {item is MessageInput} True if the item is a valid MessageInput, false otherwise.
+ * Validates a `MessageInput` object, ensuring it has a valid role and content.
+ * If the object does not have an `id`, a new UUID is generated for it.
+ * @param {any} item - The object to validate.
+ * @returns {item is MessageInput} `true` if the object is a valid `MessageInput`, otherwise `false`.
  */
 function validateMessageInput(item: any): item is MessageInput {
   const contentValid = item.content.every(isValidMessageContent);
@@ -72,24 +75,37 @@ function validateMessageInput(item: any): item is MessageInput {
 }
 
 /**
- * A specialized array class for managing messages, with validation and merging capabilities.
+ * A specialized array class for managing an array of `MessageInput` objects.
+ * It extends the native `Array` but overrides the `push` method to automatically
+ * validate and merge consecutive messages from the same user role.
+ *
  * @class MessageArray
  * @extends {Array<T>}
- * @template T
+ * @template T - The type of message, which must extend `MessageInput`.
+ *
+ * @example
+ * ```typescript
+ * const messages = new MessageArray();
+ * messages.push({ role: 'user', content: [{ type: 'text', text: 'Hello' }] });
+ * messages.push({ role: 'user', content: [{ type: 'text', text: ' world!' }] });
+ * // messages will contain a single message with content "Hello world!"
+ * ```
  */
 export class MessageArray<T extends MessageInput> extends Array<T> {
 
   /**
-   * Creates a MessageArray from an array of MessageInput items.
-   * @param {MessageInput[]} items - The items to create the MessageArray from.
-   * @returns {MessageArray<MessageInput>} A new MessageArray instance.
+   * A static factory method to create a `MessageArray` from an array of `MessageInput` items.
+   * @param {MessageInput[]} items - The items to create the `MessageArray` from.
+   * @returns {MessageArray<MessageInput>} A new `MessageArray` instance.
    */
   static from(items: MessageInput[]): MessageArray<MessageInput> {
     return new MessageArray(items);
   }
 
   /**
-   * Creates an instance of MessageArray.
+   * Creates an instance of `MessageArray`.
+   * It uses a `Proxy` to intercept the `push` method, enabling custom logic for
+   * validating and merging messages before they are added to the array.
    * @param {T[]} [items=[]] - The initial items for the array.
    */
   constructor(items: T[] = []) {
@@ -143,11 +159,13 @@ export class MessageArray<T extends MessageInput> extends Array<T> {
   }
 
   /**
-   * Checks if two messages have the same role and should be merged.
+   * Determines whether a new message should be merged with the previous one.
+   * Merging occurs if both messages are from the 'user' and the new message does not contain a tool result.
+   * This is useful for combining consecutive user text inputs into a single message.
    * @protected
    * @param {T} lastOne - The last message in the array.
    * @param {T} item - The new message to be added.
-   * @returns {boolean} True if the roles are the same and the messages should be merged, false otherwise.
+   * @returns {boolean} `true` if the messages should be merged, otherwise `false`.
    */
   protected isSameRole(lastOne: T, item: T): boolean {
     const isTool = item.content.some((c) => c.type === 'tool_result');

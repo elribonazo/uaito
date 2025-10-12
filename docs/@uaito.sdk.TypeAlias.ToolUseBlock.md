@@ -22,7 +22,7 @@ type ToolUseBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:585](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/sdk/src/domain/types.ts#L585)
+Defined in: [domain/types.ts:585](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L585)
 
 Represents a tool use block.
 
@@ -34,7 +34,7 @@ Represents a tool use block.
 id: string;
 ```
 
-Defined in: [domain/types.ts:590](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/sdk/src/domain/types.ts#L590)
+Defined in: [domain/types.ts:590](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L590)
 
 The unique ID of the tool use.
 
@@ -46,7 +46,7 @@ The unique ID of the tool use.
 input: unknown;
 ```
 
-Defined in: [domain/types.ts:595](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/sdk/src/domain/types.ts#L595)
+Defined in: [domain/types.ts:595](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L595)
 
 The input for the tool.
 
@@ -58,7 +58,7 @@ The input for the tool.
 optional isRemote: boolean;
 ```
 
-Defined in: [domain/types.ts:607](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/sdk/src/domain/types.ts#L607)
+Defined in: [domain/types.ts:607](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L607)
 
 ***
 
@@ -68,7 +68,7 @@ Defined in: [domain/types.ts:607](https://github.com/elribonazo/uaito/blob/54db8
 name: string;
 ```
 
-Defined in: [domain/types.ts:600](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/sdk/src/domain/types.ts#L600)
+Defined in: [domain/types.ts:600](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L600)
 
 The name of the tool.
 
@@ -80,6 +80,6 @@ The name of the tool.
 type: "tool_use";
 ```
 
-Defined in: [domain/types.ts:605](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/sdk/src/domain/types.ts#L605)
+Defined in: [domain/types.ts:605](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L605)
 
 The type of the block.

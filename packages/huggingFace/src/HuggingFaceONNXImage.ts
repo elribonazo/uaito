@@ -10,10 +10,11 @@ import type {
 } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import { MessageArray } from "@uaito/sdk";
-import { HuggingFaceONNXOptions } from "./types";
+import type { HuggingFaceONNXOptions } from "./types";
 
 import type {
   PreTrainedTokenizer,
+  ImageProcessor,
 } from "@huggingface/transformers";
 import {
   AutoTokenizer,
@@ -26,9 +27,27 @@ import { BaseLLM } from "@uaito/sdk";
 
 
 /**
- * A class for handling text-to-image generation using a Hugging Face ONNX model.
+ * A class for handling text-to-image generation using a Hugging Face ONNX model locally in the browser.
+ * It extends the `BaseLLM` class to provide a consistent interface with the Uaito SDK,
+ * managing the loading of multimodal models, processing inputs, and generating images.
+ *
  * @class HuggingFaceONNXTextToImage
- * @extends {BaseLLM<LLMProvider.Local>}
+ * @extends {BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>}
+ *
+ * @example
+ * ```typescript
+ * const imageGenerator = new HuggingFaceONNXTextToImage({
+ *   options: {
+ *     model: 'onnx-community/Janus-Pro-1B-ONNX', // Or another compatible model
+ *   }
+ * });
+ *
+ * await imageGenerator.load();
+ * const { response } = await imageGenerator.performTaskStream("A photorealistic image of a cat playing a piano");
+ * for await (const chunk of response) {
+ *   // Process the image message chunk
+ * }
+ * ```
  */
 export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions> {
 
@@ -52,28 +71,32 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
   /**
-   * The multimodal causal language model.
+   * The multimodal causal language model for image generation.
    * @private
    * @type {MultiModalityCausalLM}
    */
   private model!: MultiModalityCausalLM;
   /**
-   * The tokenizer for the model.
+   * The tokenizer for processing text inputs.
    * @private
    * @type {PreTrainedTokenizer}
    */
   private tokenizer!: PreTrainedTokenizer;
   /**
-   * The processor for the model.
+   * The processor for handling model-specific input transformations.
    * @private
-   * @type {*}
+   * @type {any}
    */
   private processor!: any;
+  /**
+   * An optional callback function that is triggered when a tool is used.
+   * @type {OnTool | undefined}
+   */
   public onTool?: OnTool
   /**
-   * Creates an instance of HuggingFaceONNXTextToImage.
-   * @param {{ options: HuggingFaceONNXOptions }} { options } - The options for the LLM.
-   * @param {OnTool} [onTool] - Optional callback for tool usage.
+   * Creates an instance of `HuggingFaceONNXTextToImage`.
+   * @param {{ options: HuggingFaceONNXOptions }} params - The configuration options for the client.
+   * @param {OnTool} [onTool] - An optional callback for handling tool usage.
    */
   constructor({ options }: { options: HuggingFaceONNXOptions }, onTool?: OnTool) {
     super(LLMProvider.Local, options);
@@ -83,7 +106,9 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
   }
 
   /**
-   * Loads the model and tokenizer.
+   * Loads the image generation model, processor, and tokenizer from Hugging Face.
+   * It automatically detects support for FP16 and configures the model for optimal performance
+   * on the available hardware (WebGPU or WASM).
    * @returns {Promise<void>}
    */
   async load() {
@@ -92,7 +117,7 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
       try {
         const adapter = await (navigator as any).gpu.requestAdapter();
         return adapter.features.has("shader-f16");
-      } catch (e) {
+      } catch {
         return false;
       }
     }
@@ -143,24 +168,37 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
 
  
   /**
-   * Performs a text-to-image task stream.
-   * @param {string} prompt - The prompt for the task.
-   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
+   * Performs the text-to-image generation task. It processes the input prompt,
+   * runs the model to generate an image, and returns the image as a blob URL
+   * within a `Message` object in a readable stream.
+   * @param {string} prompt - The text prompt for the image generation.
+   * @param {string} [chainOfThought] - The chain of thought for the task (currently unused).
+   * @param {string} [system] - The system prompt (currently unused).
+   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages containing the image.
    */
-  async performTaskStream(prompt, image:string): Promise<ReadableStreamWithAsyncIterable<Message>> {
+  async performTaskStream(prompt: string | BlockType[], chainOfThought?: string, system?: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
     await this.load();
     const stream = new ReadableStream<Message>({
       start: async (controller) => {
-        let conversation: any[] = [];
-        let options: any = undefined;
+        let conversation: {
+          role: string;
+          content: string;
+      }[] = [];
+        let options: { chat_template: string } | undefined = undefined;
         
+        
+        if (!prompt || typeof prompt !== "string" || prompt.trim() === "") {
+          controller.error(new Error("No prompt provided"));
+          return;
+        }
+
         conversation = [
           {
             role: "<|User|>",
             content: prompt
           },
         ];
-        if (!prompt || prompt.trim() === "") {
+        if (!prompt || typeof prompt !== "string" || prompt.trim() === "") {
           controller.error(new Error("No prompt provided"));
           return;
         }

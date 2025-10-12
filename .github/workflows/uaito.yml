@@ -1,0 +1,32 @@
+name: UAITO AI Assistant
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  run-uaito-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Run UAITO GitHub Action
+        uses: ./packages/github-action
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          allowed-user: 'elribonazo'
+          llm-provider: 'OpenAI' # Or Anthropic, Google, etc.
+          llm-api-key: ${{ secrets.LLM_API_KEY }}
+          model: 'gpt-4' # Optional, defaults to a good model for the provider

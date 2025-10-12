@@ -39,6 +39,7 @@
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@trust0/ridb-build": "^0.0.21",
+    "@types/formidable": "^3.4.5",
     "@types/jest": "30.0.0",
     "@types/node": "^20.14.2",
     "@vitejs/plugin-react-swc": "^3.8.0",
@@ -74,6 +75,7 @@
   "dependencies": {
     "chromedriver": "^138.0.1",
     "date-fns": "^4.1.0",
+    "formidable": "^3.5.4",
     "framer-motion": "^12.23.22",
     "redux-persist": "^6.0.0"
   }

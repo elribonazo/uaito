@@ -1,8 +1,8 @@
-import type { Anthropic, AnthropicOptions } from "@uaito/anthropic";
+import { LLMProvider } from "@uaito/sdk";
 import type { UaitoAPI, UaitoAPIOptions } from "@uaito/api";
-import type { HuggingFaceONNX, HuggingFaceONNXTextToImage, HuggingFaceONNXTextToAudio, HuggingFaceONNXOptions } from "@uaito/huggingface";
+import type { Anthropic, AnthropicOptions } from "@uaito/anthropic";
 import type { OpenAI, OpenAIOptions } from "@uaito/openai";
-import type { LLMProvider } from "@uaito/sdk";
+import type { HuggingFaceONNX, HuggingFaceONNXOptions } from "@uaito/huggingface";
 
 
 /**
@@ -65,10 +65,10 @@ export type AgentTypeToClass = {
   /**
    * Class for the LocalImage provider.
    */
-  [LLMProvider.LocalImage]: HuggingFaceONNXTextToImage;
+  [LLMProvider.LocalImage]: HuggingFaceONNX;
   /**
    * Class for the LocalAudio provider.
    */
-  [LLMProvider.LocalAudio]: HuggingFaceONNXTextToAudio;
+  [LLMProvider.LocalAudio]: HuggingFaceONNX;
   [LLMProvider.API]: UaitoAPI;
 };

@@ -12,30 +12,30 @@ import {
 import { v4 } from "uuid";
 
 import { BaseLLM } from "@uaito/sdk";
-import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message } from "@uaito/sdk";
-import { LLMProvider } from "@uaito/sdk";
-import { MessageArray } from "@uaito/sdk";
-import { TensorDataType, HuggingFaceONNXOptions } from "./types";
+import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message, LLMProvider, MessageArray } from "@uaito/sdk";
+import type { TensorDataType, HuggingFaceONNXOptions } from "./types";
 import { MessageCache } from "./utils";
 
 /**
- * End tag for an imitation.
+ * A string representing the end of an imitation tag, used for parsing model outputs.
  * @type {string}
  */
 const IM_END_TAG = '<|im_end|>';
 /**
- * Cache for storing pre-trained models.
+ * A cache for storing pre-trained models to avoid redundant downloads.
+ * The key is the model identifier, and the value is the `PreTrainedModel` instance.
  * @type {Map<string, PreTrainedModel>}
  */
 const modelCache = new Map<string, PreTrainedModel>();
 /**
- * Cache for storing pre-trained tokenizers.
+ * A cache for storing pre-trained tokenizers to avoid redundant downloads.
+ * The key is the model identifier, and the value is the `PreTrainedTokenizer` instance.
  * @type {Map<string, PreTrainedTokenizer>}
  */
 const tokenizerCache = new Map<string, PreTrainedTokenizer>();
 
 /**
- * Represents a Hugging Face message.
+ * Extends the Hugging Face `Message` type to include an optional `type` and `id`.
  * @interface
  */
 type HuggingFaceMessage = HMessage & {
@@ -44,7 +44,8 @@ type HuggingFaceMessage = HMessage & {
 }
 
 /**
- * Represents a generative model.
+ * An interface representing a generative model with a `generate` method.
+ * This is used to ensure type compatibility with the Hugging Face `PreTrainedModel`.
  * @interface
  */
 type GenerativeModel = PreTrainedModel & {
@@ -52,7 +53,7 @@ type GenerativeModel = PreTrainedModel & {
 };
 
 /**
- * Represents the output of a generation task.
+ * Represents the output of a generation task from a Hugging Face model.
  * @interface
  */
 type GenerateOutput = {
@@ -64,13 +65,32 @@ type GenerateOutput = {
 
 
 /**
- * A class for handling Hugging Face ONNX models.
+ * A class for running Hugging Face ONNX models locally in the browser using WebGPU or WASM.
+ * It extends the `BaseLLM` class to provide a consistent interface with the Uaito SDK,
+ * handling model loading, tokenization, stream processing, and tool usage.
+ *
  * @class HuggingFaceONNX
- * @extends {BaseLLM<LLMProvider.Local>}
+ * @extends {BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>}
+ *
+ * @example
+ * ```typescript
+ * const onnx = new HuggingFaceONNX({
+ *   options: {
+ *     model: HuggingFaceONNXModels.JANO,
+ *     device: 'webgpu',
+ *   }
+ * });
+ *
+ * await onnx.load();
+ * const { response } = await onnx.performTaskStream("Hello, world!", "", "");
+ * for await (const chunk of response) {
+ *   // Process each message chunk
+ * }
+ * ```
  */
 export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions> {
   /**
-   * The cache for the LLM.
+   * The cache for the LLM, extended with optional IDs for tracking thinking, text, and image blocks.
    * @public
    * @type {BaseLLMCache & { thinkingId?: string | null, textId?: string | null, imageId?: string | null }}
    */
@@ -82,43 +102,47 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    */
   public loadProgress: number = 0;
   /**
-   * An array of message inputs.
+   * An array that holds the history of messages for the conversation.
    * @public
    * @type {MessageArray<MessageInput>}
    */
   public inputs: MessageArray<MessageInput> = new MessageArray();
   /**
-   * The tokenizer for the model.
+   * The tokenizer instance for the loaded model.
    * @private
    * @type {PreTrainedTokenizer}
    */
   private tokenizer!: PreTrainedTokenizer;
   /**
-   * The pre-trained model.
+   * The pre-trained model instance.
    * @private
    * @type {PreTrainedModel}
    */
   private model!: PreTrainedModel;
   /**
-   * The stopping criteria for the model.
+   * A stopping criteria instance that can be used to interrupt model generation.
    * @private
    * @type {InterruptableStoppingCriteria}
    */
   private stoppingCriteria = new InterruptableStoppingCriteria();
   /**
-   * The message cache for the model.
+   * A cache for processing and assembling messages from stream chunks.
    * @private
    * @type {MessageCache}
    */
   private messageCache!: MessageCache;
 
+  /**
+   * An optional callback function that is triggered when a tool is used.
+   * @type {OnTool | undefined}
+   */
   public onTool?: OnTool
 
 
   /**
-   * Creates an instance of HuggingFaceONNX.
-   * @param {{ options: HuggingFaceONNXOptions }} { options } - The options for the LLM.
-   * @param {OnTool} [onTool] - Optional callback for tool usage.
+   * Creates an instance of `HuggingFaceONNX`.
+   * @param {{ options: HuggingFaceONNXOptions }} params - The configuration options for the client.
+   * @param {OnTool} [onTool] - An optional callback for handling tool usage, which can also be provided in the options.
    */
   constructor(
     { options }: { options: HuggingFaceONNXOptions },
@@ -130,10 +154,11 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   /**
-   * Processes a chunk of the response stream.
+   * Processes a chunk of text from the response stream and transforms it into a `Message` object.
+   * This method relies on a `MessageCache` to handle the parsing of structured content like tool calls.
    * @private
-   * @param {string} chunk - The chunk to process.
-   * @returns {Promise<Message | null>} The processed message or null.
+   * @param {string} chunk - The chunk of text to process.
+   * @returns {Promise<Message | null>} A promise that resolves to the processed `Message` or `null`.
    */
   private async chunk(chunk: string): Promise<Message | null> {
     return this.messageCache.processChunk(chunk);
@@ -141,8 +166,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
 
   /**
-   * Runs an abortable promise.
-   * @template Fn
+   * A wrapper for running a promise that can be aborted via an `AbortSignal`.
+   * If the signal is aborted, the promise is rejected and the model's generation is interrupted.
+   * @template Fn - The type of the promise to run.
    * @param {Fn} fn - The promise to run.
    * @returns {Promise<unknown>} The result of the promise.
    */
@@ -159,7 +185,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   /**
-   * Loads the model and tokenizer.
+   * Loads the pre-trained model and tokenizer from Hugging Face. It uses a cache to avoid
+   * redundant downloads. This method also handles the configuration of the model for
+   * WebGPU or WASM execution and provides progress callbacks.
    * @returns {Promise<void>}
    */
   async load() {
@@ -216,10 +244,12 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   /**
-   * Converts a MessageInput object to a HuggingFaceMessage object.
+   * Converts a Uaito SDK `MessageInput` object into a `HuggingFaceMessage` object.
+   * This method handles the serialization of different content types (text, images, tool calls)
+   * into a format that can be processed by the tokenizer's chat template.
    * @private
-   * @param {MessageInput} message - The MessageInput object to convert.
-   * @returns {HuggingFaceMessage} The converted HuggingFaceMessage object.
+   * @param {MessageInput} message - The `MessageInput` object to convert.
+   * @returns {HuggingFaceMessage} The converted `HuggingFaceMessage` object.
    */
   private fromInputToParam(message: MessageInput): HuggingFaceMessage {
     const { content } = message;
@@ -310,9 +340,10 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   /**
-   * Gets the tensor data for the model.
+   * Prepares the tensor data for the model by applying the chat template to the message history.
+   * This converts the conversation into a format that the model can understand.
    * @private
-   * @returns {TensorDataType} The tensor data.
+   * @returns {TensorDataType} The tensor data for the model.
    */
   private getTensorData() {
     const currentInputs = MessageArray.from(this.inputs).map(this.fromInputToParam);
@@ -329,7 +360,8 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   /**
-   * Creates a readable stream of strings.
+   * Creates a readable stream of strings by running the model's generation process.
+   * It uses a `TextStreamer` to decode the model's output tokens into text in real-time.
    * @returns {Promise<ReadableStreamWithAsyncIterable<string>>} A promise that resolves to a readable stream of strings.
    */
   async createStream(): Promise<ReadableStreamWithAsyncIterable<string>> {
@@ -414,9 +446,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   }
 
   /**
-   * Adds default items to the inputs.
+   * Adds the system prompt and the latest user prompt to the message history before running the model.
    * @private
-   * @param {string} prompt - The user prompt.
+   * @param {any} prompt - The user prompt.
    * @param {string} chainOfThought - The chain of thought for the task.
    * @param {string} system - The system prompt.
    */
@@ -456,11 +488,13 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   
 
   /**
-   * Performs a task stream using the LLM.
-   * @param {string} prompt - The user prompt.
+   * Executes a task by preparing the inputs, running the model's generation process,
+   * and returning the response as a stream. It orchestrates the loading of the model,
+   * creation of the stream, and the application of transformations for auto-mode and tool usage.
+   * @param {string | BlockType[]} prompt - The user's prompt.
    * @param {string} chainOfThought - The chain of thought for the task.
    * @param {string} system - The system prompt.
-   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
+   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of `Message` objects.
    */
   async performTaskStream(prompt, chainOfThought, system): Promise<ReadableStreamWithAsyncIterable<Message>> {
 
@@ -496,12 +530,14 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
 
     /**
-   * Transforms an input stream using the provided transform function.
-   * @template T The type of the input chunk.
-   * @template S The type of the output stream, extending ReadableStream.
-   * @param {S} input - The input stream to be transformed.
-   * @param {TransformStreamFn<T, S>} transform - The function to transform each chunk.
-   * @returns {Promise<ReadableStream<S>>} A promise that resolves to the transformed readable stream.
+   * A specialized version of `transformAutoMode` for handling the streaming and tool-use logic
+   * of local Hugging Face models. It manages the lifecycle of the stream reader and reactivates
+   * the stream after a tool call.
+   * @template AChunk - The type of chunks in the stream, which must extend `Message`.
+   * @param {ReadableStreamWithAsyncIterable<AChunk>} input - The initial stream from the model.
+   * @param {() => Promise<ReadableStreamWithAsyncIterable<AChunk>>} getNext - A function to get the next stream after a tool call.
+   * @param {OnTool} [onTool] - An optional callback for handling tool usage.
+   * @returns {Promise<ReadableStreamWithAsyncIterable<AChunk>>} A promise that resolves to the final transformed stream.
    */
    override async transformAutoMode<AChunk extends Message> (
       input: ReadableStreamWithAsyncIterable<AChunk>,
@@ -545,9 +581,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                   this.inputs.push(tChunk);
                 } else {
                   if (tChunk.type === "thinking") {
-                    (this.inputs[this.inputs.length - 1].content[0] as any).thinking += (tChunk.content[0] as any).thinking;
+                    (this.inputs[this.inputs.length - 1].content[0] as {thinking: string}).thinking += (tChunk.content[0] as {thinking: string}).thinking;
                   } else {
-                    (this.inputs[this.inputs.length - 1].content[0] as any).signature += (tChunk.content[0] as any).signature;
+                    (this.inputs[this.inputs.length - 1].content[0] as {signature: string}).signature += (tChunk.content[0] as {signature: string}).signature;
                   }
                 }
                 controller.enqueue(tChunk);
@@ -561,8 +597,8 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                 })
                 if (onTool && tChunk.content[0].type === "tool_use" ) {
                   const toolUse = tChunk.content[0] as ToolUseBlock;
-                  const cacheEntry:ToolInputDelta = { input: tChunk.content[0].input} as any
-                  const partial = cacheEntry?.partial || (cacheEntry as any).input;
+                  const cacheEntry:ToolInputDelta = { input: tChunk.content[0].input} as unknown as ToolInputDelta
+                  const partial = cacheEntry?.partial || (cacheEntry as unknown as {input: string}).input;
                   if (partial) {
                     try {
                       toolUse.input = JSON.parse(partial)

@@ -6,6 +6,7 @@ import type {
   ReadableStreamWithAsyncIterable,
   Message,
   MessageInput,
+  BlockType,
 } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 
@@ -26,50 +27,52 @@ import { BaseLLM } from "@uaito/sdk";
 import { HuggingFaceONNXOptions } from "./types";
 
 /**
- * A streamer that executes a callback function for each value.
+ * A custom streamer class that extends `BaseStreamer` to execute a callback function
+ * for each value that is streamed. This is useful for tracking the progress of a generation task.
  * @class CallbackStreamer
  * @extends {BaseStreamer}
  */
 class CallbackStreamer extends BaseStreamer {
   /**
-   * The callback function to execute.
-   * @type {*}
+   * The callback function to execute for each streamed value.
+   * @type {(value?: any) => any}
    */
-  callback_fn: any;
+  callback_fn: (value?: unknown) => unknown;
   /**
-   * Creates an instance of CallbackStreamer.
-   * @param {*} callback_fn - The callback function.
+   * Creates an instance of `CallbackStreamer`.
+   * @param {(value?: any) => any} callback_fn - The callback function.
    */
-  constructor(callback_fn: any) {
+  constructor(callback_fn: (value?: unknown) => unknown) {
     super();
     this.callback_fn = callback_fn;
   }
 
   /**
-   * Puts a value into the streamer and executes the callback.
-   * @param {*} value - The value to put.
-   * @returns {*} The result of the callback function.
+   * Processes a value from the stream and executes the callback.
+   * @param {any} value - The value to process.
+   * @returns {any} The result of the callback function.
    */
-  put(value) {
+  put(value: unknown): unknown {
     return this.callback_fn(value);
   }
 
   /**
-   * Ends the stream and executes the callback.
-   * @returns {*} The result of the callback function.
+   * Finalizes the stream and executes the callback one last time.
+   * @returns {any} The result of the callback function.
    */
-  end() {
+  end(): unknown {
     return this.callback_fn();
   }
 }
 
 /**
- * Encodes audio samples into a WAV format buffer.
- * @param {any} samples - The audio samples to encode.
+ * Encodes raw audio samples into a WAV format `ArrayBuffer`.
+ * This is a utility function for creating a valid WAV file from audio data.
+ * @param {Float32Array} samples - The raw audio samples to encode.
  * @param {number} [sampleRate=16000] - The sample rate of the audio.
  * @returns {ArrayBuffer} The encoded WAV buffer.
  */
-export function encodeWAV(samples, sampleRate = 16000) {
+export function encodeWAV(samples: Float32Array, sampleRate = 16000): ArrayBuffer {
   let offset = 44;
   const buffer = new ArrayBuffer(offset + samples.length * 4);
   const view = new DataView(buffer);
@@ -108,24 +111,25 @@ export function encodeWAV(samples, sampleRate = 16000) {
   return buffer;
 }
 /**
- * Writes a string to a DataView.
- * @param {DataView} view - The DataView to write to.
- * @param {number} offset - The offset to write at.
+ * A utility function to write a string to a `DataView` at a specified offset.
+ * @param {DataView} view - The `DataView` to write to.
+ * @param {number} offset - The offset at which to start writing.
  * @param {string} string - The string to write.
  */
-function writeString(view, offset, string) {
+function writeString(view: DataView, offset: number, string: string) {
   for (let i = 0; i < string.length; ++i) {
     view.setUint8(offset + i, string.charCodeAt(i));
   }
 }
 
 /**
- * Shares a file to Hugging Face.
- * @param {*} body - The body of the request.
- * @param {*} settings - The settings for the share.
+ * A utility function to share a generated audio file to a Hugging Face Space discussion.
+ * This is primarily for demonstration and sharing purposes.
+ * @param {Blob} body - The audio file as a `Blob`.
+ * @param {{ prompt: string }} settings - The settings for the share, including the prompt.
  * @returns {Promise<void>}
  */
-export async function share(body, settings) {
+export async function share(body: Blob, settings: { prompt: string }): Promise<void> {
   const response = await fetch("https://huggingface.co/uploads", {
     method: "POST",
     body,
@@ -145,8 +149,26 @@ export async function share(body, settings) {
 
 /**
  * A class for handling text-to-audio generation using a Hugging Face ONNX model.
+ * It extends the `BaseLLM` class to provide a consistent interface with the Uaito SDK
+ * for loading models, processing inputs, and generating audio streams.
+ *
  * @class HuggingFaceONNXTextToAudio
- * @extends {BaseLLM<LLMProvider.Local>}
+ * @extends {BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>}
+ *
+ * @example
+ * ```typescript
+ * const audioGenerator = new HuggingFaceONNXTextToAudio({
+ *   options: {
+ *     model: 'Xenova/musicgen-small', // Or another compatible model
+ *   }
+ * });
+ *
+ * await audioGenerator.load();
+ * const { response } = await audioGenerator.performTaskStream("An upbeat pop song");
+ * for await (const chunk of response) {
+ *   // Process the audio message chunk
+ * }
+ * ```
  */
 export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions> {
 
@@ -170,28 +192,32 @@ export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, Huggi
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
   /**
-   * The multimodal causal language model.
+   * The multimodal causal language model for audio generation.
    * @private
    * @type {MultiModalityCausalLM}
    */
   private model!: MultiModalityCausalLM;
   /**
-   * The tokenizer for the model.
+   * The tokenizer for processing text inputs.
    * @private
    * @type {PreTrainedTokenizer}
    */
   private tokenizer!: PreTrainedTokenizer;
   /**
-   * The processor for the model.
+   * The processor for handling model-specific input transformations.
    * @private
-   * @type {*}
+   * @type {any}
    */
-  private processor!: any;
+  private processor!: unknown;
+  /**
+   * An optional callback function that is triggered when a tool is used.
+   * @type {OnTool | undefined}
+   */
   public onTool?: OnTool
   /**
-   * Creates an instance of HuggingFaceONNXTextToAudio.
-   * @param {{ options: HuggingFaceONNXOptions }} { options } - The options for the LLM.
-   * @param {OnTool} [onTool] - Optional callback for tool usage.
+   * Creates an instance of `HuggingFaceONNXTextToAudio`.
+   * @param {{ options: HuggingFaceONNXOptions }} params - The configuration options for the client.
+   * @param {OnTool} [onTool] - An optional callback for handling tool usage.
    */
   constructor({ options }: { options: HuggingFaceONNXOptions },  onTool?: OnTool) {
     super(LLMProvider.Local, options);
@@ -202,7 +228,8 @@ export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, Huggi
   }
 
   /**
-   * Loads the model and tokenizer.
+   * Loads the audio generation model, processor, and tokenizer from Hugging Face.
+   * It provides progress callbacks for monitoring the download and setup process.
    * @returns {Promise<void>}
    */
   async load() {
@@ -235,11 +262,13 @@ export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, Huggi
 
  
   /**
-   * Performs a text-to-audio task stream.
-   * @param {string} prompt - The prompt for the task.
-   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
+   * Performs the text-to-audio generation task. It tokenizes the input prompt,
+   * runs the model to generate audio samples, encodes the samples into a WAV file,
+   * and returns the result as a `Message` in a readable stream.
+   * @param {string} prompt - The text prompt for the audio generation.
+   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages containing the audio.
    */
-  async performTaskStream(prompt): Promise<ReadableStreamWithAsyncIterable<Message>> {
+  async performTaskStream(prompt: string | BlockType[]): Promise<ReadableStreamWithAsyncIterable<Message>> {
     await this.load();
     const stream = new ReadableStream<Message>({
       start: async (controller) => {
@@ -263,7 +292,7 @@ export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, Huggi
         // Tokenize input text
         const inputs = this.tokenizer(prompt);
         // Generate music
-        const audio_values = await this.model.generate({
+        const audio_values = await (this.model as unknown as { generate: (inputs: unknown) => Promise<{ data: Float32Array }> }).generate({
           // Inputs
           ...inputs,
     
@@ -274,7 +303,7 @@ export class HuggingFaceONNXTextToAudio extends BaseLLM<LLMProvider.Local, Huggi
     
           // Outputs
           streamer,
-        }) as any;
+        });
     
     
         // Encode audio values to WAV

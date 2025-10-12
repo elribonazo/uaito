@@ -1,19 +1,22 @@
 import OpenAIAPI from 'openai';
 import { v4 } from 'uuid';
-import { BaseLLM, LLMProvider,
-  Message,
-  MessageInput,
-  ToolUseBlock,
-  OnTool,
-  DeltaBlock,
-  UsageBlock,
-  BaseLLMCache,
-  ReadableStreamWithAsyncIterable,
-  ToolInputDelta,
+import { 
+  BaseLLM, 
+  LLMProvider,
   MessageArray,
   blobToDataURL,
-  ImageBlock,
-  BlockType
+  type BaseLLMCache,
+  type OnTool,
+  type MessageInput,
+  type ToolInputDelta,
+  type ErrorBlock,
+  type UsageBlock,
+  type DeltaBlock,
+  type ReadableStreamWithAsyncIterable,
+  type Message,
+  type ToolUseBlock,
+  type ImageBlock,
+  type BlockType,
  } from "@uaito/sdk";
 import type {
   ResponseStreamEvent,
@@ -34,43 +37,74 @@ import type {
   ResponseErrorEvent,
 } from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
-import type { OpenAIOptions } from './types';
+import type { ImageGenConfig, OpenAIOptions } from './types';
+import { OpenAIImageModels } from './types';
 
 export * from './types';
 
 
+/**
+ * A mapping of `LLMProvider` types to their corresponding options.
+ * @type
+ */
 type llmTypeToOptions = {
   [LLMProvider.OpenAI]: OpenAIOptions<LLMProvider.OpenAI>,
   [LLMProvider.Grok]: OpenAIOptions<LLMProvider.Grok>,
 }
 
+/**
+ * A union type representing the OpenAI-compatible providers.
+ * @type
+ */
 type OpenAIProviderType = LLMProvider.OpenAI | LLMProvider.Grok;
 
 /**
- * A more complete implementation of the OpenAI-based LLM,
- * mirroring the structure and patterns found in the Anthropic class.
+ * A class for interacting with OpenAI-compatible APIs, including OpenAI and Grok.
+ * It extends the `BaseLLM` class to provide a standardized interface for streaming responses,
+ * handling tool usage (including image generation), and managing conversation history.
+ *
+ * @class OpenAI
+ * @template T - The type of the provider, either `LLMProvider.OpenAI` or `LLMProvider.Grok`.
+ * @extends {BaseLLM<T, llmTypeToOptions[T]>}
+ *
+ * @example
+ * ```typescript
+ * const openai = new OpenAI({
+ *   options: {
+ *     type: LLMProvider.OpenAI,
+ *     apiKey: 'YOUR_OPENAI_API_KEY',
+ *     model: OpenAIModels['gpt-4o'],
+ *   }
+ * });
+ *
+ * const { response } = await openai.performTaskStream("Hello, world!", "", "");
+ * for await (const chunk of response) {
+ *   // Process each message chunk
+ * }
+ * ```
  */
 export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOptions[T]> {
   /**
-   * Optional callback for tool usage.
+   * An optional callback function that is triggered when a tool is used.
    * @type {(OnTool | undefined)}
    */
   public onTool?: OnTool;
   /**
-   * The OpenAI API client.
+   * The underlying OpenAI or Grok API client.
    * @private
    * @type {OpenAIAPI}
    */
   private openai: OpenAIAPI;
   /**
-   * An array of message inputs.
+   * An array that holds the history of messages for the conversation.
    * @public
    * @type {MessageArray<MessageInput>}
    */
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
   /**
-   * The cache for the LLM.
+   * A cache for storing intermediate data during stream processing, including partial tool inputs,
+   * image generation state, and token counts.
    * @public
    * @type {BaseLLMCache & { imageGenerationCallId: string | null, imageBase64: string | null, thinkingId?: string | null, textId?: string | null }}
    */
@@ -82,14 +116,15 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 }, imageGenerationCallId: null, imageBase64: null }
 
   /**
-   * Tracks function calls in the current turn.
+   * Tracks active function calls by their item ID during a streaming response.
    * @private
    * @type {Record<string, { name?: string, call_id?: string }>}
    */
   private functionCallsByItemId: Record<string, { name?: string, call_id?: string }> = {};
 
   /**
-   * Tracks the current output item being processed.
+   * Keeps track of the current output item being processed from the stream.
+   * This helps in correctly associating text deltas with their parent block (e.g., reasoning or message).
    * @private
    * @type {({ itemId: string, type: 'reasoning' | 'message' | 'function_call', contentIndex?: number } | null)}
    */
@@ -100,7 +135,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   } | null = null;
 
   /**
-   * Internal state for extracting <thinking> / <think> tags from streamed text.
+   * Internal state for parsing `<thinking>` or `<think>` tags from a streamed text response.
+   * This allows for the extraction of the model's reasoning steps in real-time.
    * @private
    * @type {({ inThinking: boolean, openTag: '' | '<thinking>' | '<think>', bufferTag: string, carryVisible: string, carryThinking: string } | undefined)}
    */
@@ -113,7 +149,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   };
 
   /**
-   * Internal state for extracting <tool_call> tags (for Grok compatibility).
+   * Internal state for parsing `<tool_call>` tags from a streamed text response.
+   * This is used for compatibility with providers like Grok that may emit tool calls in this format.
    * @private
    * @type {({ inToolCall: boolean, bufferTag: string, carryVisible: string, carryToolCall: string, completedToolCalls: string[] } | undefined)}
    */
@@ -126,9 +163,16 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   };
 
   /**
-   * Creates an instance of the OpenAI LLM.
-   * @param {{ options: OpenAIOptions }} { options } - The options for the LLM.
-   * @param {OnTool} [onTool] - Optional callback for tool usage.
+   * Configuration for image generation, if provided.
+   * @private
+   * @type {ImageGenConfig | null}
+   */
+  private imageGenConfig: ImageGenConfig | null = null;
+
+  /**
+   * Creates an instance of the `OpenAI` LLM client.
+   * @param {{ options: llmTypeToOptions[T] }} params - The configuration options for the client.
+   * @param {OnTool} [onTool] - An optional callback for handling tool usage.
    */
   constructor(
     { options }: { options: llmTypeToOptions[T] },
@@ -141,14 +185,17 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     this.openai = new OpenAIAPI({
       apiKey: options.apiKey,
       baseURL: defaultBaseUrl,
+      
     });
 
+    this.imageGenConfig = options.imageGenConfig ?? null;
 
     this.onTool = onTool ?? options.onTool;
   }
 
   /**
-   * Return max tokens or a default (e.g. 4096).
+   * Gets the maximum number of tokens to generate in the response.
+   * Defaults to 4096 if not specified in the options.
    * @returns {number} The maximum number of tokens.
    */
   get maxTokens() {
@@ -156,10 +203,11 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Converts a MessageInput object to a ResponseInputItem object.
+   * Converts a Uaito SDK `MessageInput` object into the `ResponseInputItem` format expected by the OpenAI API.
+   * It handles the mapping of different content block types and correctly formats tool results.
    * @private
-   * @param {MessageInput} model - The MessageInput object to convert.
-   * @returns {ResponseInputItem} The converted ResponseInputItem object.
+   * @param {MessageInput} model - The `MessageInput` object to convert.
+   * @returns {ResponseInputItem} The converted `ResponseInputItem` object.
    */
   private fromInputToParam(model: MessageInput): ResponseInputItem {
     const mappedRole = (model.role === 'tool' ? 'user' : model.role) as 'user' | 'assistant' | 'system' | 'developer';
@@ -227,7 +275,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Gets the tools available to the LLM.
+   * Gets the list of tools available to the LLM, formatted as `ResponsesTool` objects
+   * for the OpenAI API.
    * @returns {(ResponsesTool[] | undefined)} The available tools.
    */
   get tools() {
@@ -255,8 +304,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
 
 
   /**
-   * Gets the inputs for the LLM.
-   * @returns {ResponseInputItem[]} The LLM inputs.
+   * Gets the formatted message history for the LLM, converting each message from the
+   * Uaito SDK format to the OpenAI API's `ResponseInputItem` format.
+   * @returns {ResponseInputItem[]} The formatted LLM inputs.
    */
   get llmInputs(): ResponseInputItem[] {
     const result: ResponseInputItem[] = [];
@@ -292,9 +342,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
 
 
   /**
-   * Internal state for extracting <thinking> / <think> tags from streamed text.
+   * Accessor for the internal state used to parse `<thinking>` tags from a streamed text response.
+   * Initializes the state if it doesn't exist.
    * @private
-   * @returns {{ inThinking: boolean, openTag: '' | '<thinking>' | '<think>', bufferTag: string, carryVisible: string, carryThinking: string }} The thinking state.
+   * @returns {{ inThinking: boolean, openTag: '' | '<thinking>' | '<think>', bufferTag: string, carryVisible: string, carryThinking: string }} The thinking state object.
    */
   private get thinkingState() {
     this._thinkingState ??= {
@@ -314,9 +365,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Processes a delta of text to extract thinking tags.
+   * Processes a chunk of text to extract content within `<thinking>` or `<think>` tags.
+   * This method manages a state machine to handle partial tags and nested content.
    * @private
-   * @param {string} delta - The delta of text to process.
+   * @param {string} delta - The chunk of text to process.
    */
   private processThinkingDelta(delta: string) {
     const state = this.thinkingState;
@@ -384,9 +436,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Takes the buffered thinking chunk.
+   * Retrieves and clears the buffered "thinking" content that has been extracted from the stream.
    * @private
-   * @returns {string} The thinking chunk.
+   * @returns {string} The buffered thinking content.
    */
   private takeThinkingChunk(): string {
     const state = this.thinkingState;
@@ -396,9 +448,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Takes the buffered visible chunk.
+   * Retrieves and clears the buffered "visible" content (text outside of thinking tags)
+   * that has been extracted from the stream.
    * @private
-   * @returns {string} The visible chunk.
+   * @returns {string} The buffered visible content.
    */
   private takeVisibleChunk(): string {
     const state = this.thinkingState;
@@ -408,9 +461,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Internal state for extracting <tool_call> tags from streamed text.
+   * Accessor for the internal state used to parse `<tool_call>` tags, primarily for Grok compatibility.
+   * Initializes the state if it doesn't exist.
    * @private
-   * @returns {{ inToolCall: boolean, bufferTag: string, carryVisible: string, carryToolCall: string, completedToolCalls: string[] }} The tool call state.
+   * @returns {{ inToolCall: boolean, bufferTag: string, carryVisible: string, carryToolCall: string, completedToolCalls: string[] }} The tool call state object.
    */
   private get toolCallState() {
     this._toolCallState ??= {
@@ -430,9 +484,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Processes a delta of text to extract tool_call tags.
+   * Processes a chunk of text to extract content within `<tool_call>` tags.
+   * This method is a compatibility layer for models like Grok that may use this format.
    * @private
-   * @param {string} delta - The delta of text to process.
+   * @param {string} delta - The chunk of text to process.
    */
   private processToolCallDelta(delta: string) {
     const state = this.toolCallState;
@@ -494,9 +549,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Takes the buffered visible chunk from tool call processing.
+   * Retrieves and clears the buffered "visible" content (text outside of tool_call tags).
    * @private
-   * @returns {string} The visible chunk.
+   * @returns {string} The buffered visible content.
    */
   private takeToolCallVisibleChunk(): string {
     const state = this.toolCallState;
@@ -506,9 +561,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Takes completed tool calls.
+   * Retrieves and clears the list of completed tool call JSON strings that have been parsed from the stream.
    * @private
-   * @returns {string[]} Array of completed tool call JSON strings.
+   * @returns {string[]} An array of completed tool call JSON strings.
    */
   private takeCompletedToolCalls(): string[] {
     const state = this.toolCallState;
@@ -516,37 +571,41 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     state.completedToolCalls = [];
     return out;
   }
-
-      /**
-     * Includes the last prompt in the input.
-     * @param {string} prompt - The user prompt.
-     * @param {string} chainOfThought - The chain of thought for the task.
-     * @param {MessageArray<MessageInput>} input - The input messages.
-     * @returns {MessageArray<MessageInput>} The updated input messages.
-     */
       
 
   /**
-   * Performs a task stream using the LLM.
-   * @param {string} prompt - The user prompt.
+   * Executes a task by sending the prompt and conversation history to the OpenAI-compatible API
+   * and returns the response as a stream. It handles tool configuration, stream creation,
+   * and the application of transformations for auto-mode and tool usage.
+   * @param {string | BlockType[]} prompt - The user's prompt.
    * @param {string} chainOfThought - The chain of thought for the task.
    * @param {string} system - The system prompt.
-   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
+   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of `Message` objects.
    */
   async performTaskStream(
     prompt,
     chainOfThought,
     system,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    const {
+      model:imageModel = OpenAIImageModels['gpt-image-1-mini'],
+      quality = 'low',
+      output_format = 'png',
+      size = 'auto',
+      input_fidelity = 'low'
+    } = this.imageGenConfig ?? {};
+
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
     const tools= (this.tools && this.tools.length > 0 ? this.tools : []) 
 
     if (this.options.type === LLMProvider.OpenAI) {
       tools.push({
-        'type': 'image_generation',
-        'size': '1024x1024',
-        'output_format': 'png',
-        'model':'gpt-image-1',
+        type: 'image_generation',
+        size: size,
+        output_format: output_format,
+        model:imageModel as any,
+        input_fidelity,
+        quality
       })
       tools.push({
         type: "web_search",
@@ -565,9 +624,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       max_output_tokens: this.maxTokens,
       stream: true,
       tools,
-      reasoning:{
+      reasoning:this.options.type === LLMProvider.OpenAI ? {
         effort:'low'
-      },
+      } : undefined,
     };
 
     // Reset usage and per-turn state
@@ -609,13 +668,16 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     return automodeStream;
   }
 
-
+ 
 
   /**
-   * Processes a chunk of the response stream.
+   * Processes a chunk from the OpenAI-compatible API's raw message stream and transforms it
+   * into a standardized Uaito SDK `Message` object. This is a key method that handles the complex
+   * logic of parsing different event types from the stream, such as text deltas, function calls,
+   * and thinking steps.
    * @private
-   * @param {ResponseStreamEvent} chunk - The chunk to process.
-   * @returns {(Promise<Message | null>)} The processed message or null.
+   * @param {ResponseStreamEvent} chunk - The raw chunk from the stream.
+   * @returns {Promise<Message | null>} The processed `Message` object, or `null` if the chunk does not need to be emitted.
    */
   private async chunk(
     chunk: ResponseStreamEvent,
@@ -894,7 +956,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         content: [current]
       };
     }
-
     // Function call arguments done -> emit tool_use
     if (chunk.type === 'response.function_call_arguments.done') {
       const ev = chunk as ResponseFunctionCallArgumentsDoneEvent;
@@ -961,8 +1022,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       return {
         id: v4(),
         role: 'assistant',
-        type: 'delta',
-        content: [deltaBlock, usageBlock]
+        type: 'usage',
+        content: [usageBlock, deltaBlock]
       };
     }
 
@@ -984,10 +1045,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
   }
 
   /**
-   * Checks if an item is a function call item.
+   * A type guard to check if a `ResponseOutputItem` is a `ResponseFunctionToolCallItem`.
    * @private
    * @param {ResponseOutputItem} item - The item to check.
-   * @returns {item is ResponseFunctionToolCallItem} True if the item is a function call item, false otherwise.
+   * @returns {item is ResponseFunctionToolCallItem} `true` if the item is a function call item, otherwise `false`.
    */
   private isFunctionCallItem(item: ResponseOutputItem): item is ResponseFunctionToolCallItem {
     return (item as { type?: string }).type === 'function_call';

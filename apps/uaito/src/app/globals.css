@@ -21,6 +21,7 @@
     --color-success: 59 130 246; /* blue-500 - using blue instead of green for color-blind accessibility */
     --color-warning: 251 191 36; /* amber-400 */
     --color-error: 239 68 68; /* red-500 - still usable with good contrast */
+    --color-primary-foreground: 255 255 255; /* white */
   }
 
   .dark {
@@ -41,6 +42,7 @@
     --color-success: 96 165 250; /* blue-400 */
     --color-warning: 251 191 36; /* amber-400 */
     --color-error: 248 113 113; /* red-400 */
+    --color-primary-foreground: 15 23 42; /* slate-900 */
   }
 
   body {

@@ -12,7 +12,7 @@
 
 # Class: HuggingFaceONNXTextToAudio
 
-Defined in: [HuggingFaceONNXAudio.ts:151](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L151)
+Defined in: [HuggingFaceONNXAudio.ts:151](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L151)
 
 A class for handling text-to-audio generation using a Hugging Face ONNX model.
  HuggingFaceONNXTextToAudio
@@ -29,7 +29,7 @@ A class for handling text-to-audio generation using a Hugging Face ONNX model.
 new HuggingFaceONNXTextToAudio({, onTool?): HuggingFaceONNXTextToAudio;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:196](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L196)
+Defined in: [HuggingFaceONNXAudio.ts:196](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L196)
 
 Creates an instance of HuggingFaceONNXTextToAudio.
 
@@ -59,7 +59,7 @@ BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>.constructor
 cache: BaseLLMCache;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:158](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L158)
+Defined in: [HuggingFaceONNXAudio.ts:158](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L158)
 
 The cache for the LLM.
 
@@ -95,7 +95,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:170](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L170)
+Defined in: [HuggingFaceONNXAudio.ts:170](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L170)
 
 An array of message inputs.
 
@@ -113,7 +113,7 @@ BaseLLM.inputs
 loadProgress: number = 0;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:164](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L164)
+Defined in: [HuggingFaceONNXAudio.ts:164](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L164)
 
 The progress of loading the model.
 
@@ -125,7 +125,7 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:190](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L190)
+Defined in: [HuggingFaceONNXAudio.ts:190](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L190)
 
 ***
 
@@ -202,7 +202,7 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:208](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L208)
+Defined in: [HuggingFaceONNXAudio.ts:208](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L208)
 
 Loads the model and tokenizer.
 
@@ -215,7 +215,7 @@ Loads the model and tokenizer.
 ### log()
 
 ```ts
-log(message): any;
+log(message): void;
 ```
 
 Defined in: ../../sdk/build/index.d.ts:101
@@ -230,7 +230,7 @@ Logs a message.
 
 #### Returns
 
-`any`
+`void`
 
 #### Inherited from
 
@@ -246,7 +246,7 @@ BaseLLM.log
 performTaskStream(prompt): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:242](https://github.com/elribonazo/uaito/blob/54db862b0b0eb33a01a619f119661a409f4e4263/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L242)
+Defined in: [HuggingFaceONNXAudio.ts:242](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L242)
 
 Performs a text-to-audio task stream.
 
