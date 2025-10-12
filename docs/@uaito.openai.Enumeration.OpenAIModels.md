@@ -12,7 +12,7 @@
 
 # Enumeration: OpenAIModels
 
-Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/a08130038b69653f097dc58d6aedccf1beff2999/packages/openai/src/types.ts#L9)
+Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/3bf7d75cb3f0e893e3a107b0621b24cb705e58bb/packages/openai/src/types.ts#L9)
 
 An enumeration of the available OpenAI models that can be used with the SDK.
 Each enum member maps to a specific model identifier provided by OpenAI.
@@ -21,4 +21,4 @@ Each enum member maps to a specific model identifier provided by OpenAI.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gpt-5"></a> `gpt-5` | `"gpt-5-mini-2025-08-07"` | A highly capable and efficient model, suitable for a wide range of tasks. | [types.ts:13](https://github.com/elribonazo/uaito/blob/a08130038b69653f097dc58d6aedccf1beff2999/packages/openai/src/types.ts#L13) |
+| <a id="gpt-5"></a> `gpt-5` | `"gpt-5-mini-2025-08-07"` | A highly capable and efficient model, suitable for a wide range of tasks. | [types.ts:13](https://github.com/elribonazo/uaito/blob/3bf7d75cb3f0e893e3a107b0621b24cb705e58bb/packages/openai/src/types.ts#L13) |
