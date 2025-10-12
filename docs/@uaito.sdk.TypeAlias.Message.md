@@ -22,7 +22,7 @@ type Message = {
 };
 ```
 
-Defined in: [domain/types.ts:750](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L750)
+Defined in: [domain/types.ts:750](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L750)
 
 The core message structure used throughout the SDK.
 
@@ -34,7 +34,7 @@ The core message structure used throughout the SDK.
 optional chunk: boolean;
 ```
 
-Defined in: [domain/types.ts:770](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L770)
+Defined in: [domain/types.ts:770](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L770)
 
 Indicates if the message is a partial chunk from a stream.
 
@@ -46,7 +46,7 @@ Indicates if the message is a partial chunk from a stream.
 content: BlockType[];
 ```
 
-Defined in: [domain/types.ts:765](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L765)
+Defined in: [domain/types.ts:765](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L765)
 
 An array of content blocks that make up the message.
 
@@ -58,7 +58,7 @@ An array of content blocks that make up the message.
 id: string;
 ```
 
-Defined in: [domain/types.ts:755](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L755)
+Defined in: [domain/types.ts:755](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L755)
 
 The unique ID of the message.
 
@@ -70,7 +70,7 @@ The unique ID of the message.
 role: Role;
 ```
 
-Defined in: [domain/types.ts:775](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L775)
+Defined in: [domain/types.ts:775](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L775)
 
 The role of the message.
 
@@ -82,6 +82,6 @@ The role of the message.
 type: MessageType;
 ```
 
-Defined in: [domain/types.ts:760](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L760)
+Defined in: [domain/types.ts:760](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L760)
 
 The type of the message.

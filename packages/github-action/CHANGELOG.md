@@ -1,3 +1,13 @@
+## 0.0.7 (2025-10-12)
+
+### 🩹 Fixes
+
+- release Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([a6f1c59](https://github.com/elribonazo/uaito/commit/a6f1c59))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.6 (2025-10-12)
 
 ### 🧱 Updated Dependencies

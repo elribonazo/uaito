@@ -12,7 +12,7 @@
 
 # Interface: ServerToolUseBlock
 
-Defined in: [domain/types.ts:202](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L202)
+Defined in: [domain/types.ts:202](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L202)
 
 Represents a block for a tool that is executed on the server-side.
  ServerToolUseBlock
@@ -25,7 +25,7 @@ Represents a block for a tool that is executed on the server-side.
 id: string;
 ```
 
-Defined in: [domain/types.ts:207](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L207)
+Defined in: [domain/types.ts:207](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L207)
 
 The unique ID of the tool use.
 
@@ -37,7 +37,7 @@ The unique ID of the tool use.
 input: unknown;
 ```
 
-Defined in: [domain/types.ts:213](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L213)
+Defined in: [domain/types.ts:213](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L213)
 
 The input for the tool.
 
@@ -49,7 +49,7 @@ The input for the tool.
 name: "web_search";
 ```
 
-Defined in: [domain/types.ts:219](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L219)
+Defined in: [domain/types.ts:219](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L219)
 
 The name of the tool.
 
@@ -61,6 +61,6 @@ The name of the tool.
 type: "server_tool_use";
 ```
 
-Defined in: [domain/types.ts:225](https://github.com/elribonazo/uaito/blob/0b5444ee2162b2b42be96496727b854bf26ca527/packages/sdk/src/domain/types.ts#L225)
+Defined in: [domain/types.ts:225](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L225)
 
 The type of the block, indicating a server-side tool use.
