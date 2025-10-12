@@ -37,8 +37,7 @@ import type {
   ResponseErrorEvent,
 } from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
-import type { ImageGenConfig, OpenAIOptions } from './types';
-import { OpenAIImageModels } from './types';
+import { ImageGenConfig, OpenAIImageModels, type OpenAIOptions } from './types';
 
 export * from './types';
 
@@ -161,6 +160,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     carryToolCall: string,
     completedToolCalls: string[],
   };
+
+  private imageGenConfig: ImageGenConfig | null = null;
 
   /**
    * Configuration for image generation, if provided.
