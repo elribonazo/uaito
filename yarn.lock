@@ -6782,7 +6782,7 @@ __metadata:
     tsup: "npm:^8.2.3"
     typescript: "npm:^5.5.4"
   bin:
-    uaito-github-action: build/cli.js
+    uaito-githubaction: build/cli.js
   languageName: unknown
   linkType: soft
 
