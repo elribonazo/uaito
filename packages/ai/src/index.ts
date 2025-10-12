@@ -180,7 +180,7 @@ export class Agent {
                     this.#agent.log(`API call failed. Retrying in 3 seconds... (Attempt ${retries}/${this.MAX_RETRIES})`);
                     await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY));
                 } else {
-                    throw error; // Rethrow if it's not a connection error
+                    console.error("Error in retryApiCall", error);
                 }
             }
         }
