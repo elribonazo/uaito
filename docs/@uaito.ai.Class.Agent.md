@@ -12,7 +12,7 @@
 
 # Class: Agent
 
-Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L26)
+Defined in: [index.ts:26](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L26)
 
 Represents a higher-level abstraction for an AI agent. It encapsulates a `BaseLLM` instance
 and provides a structured way to manage prompts, tools, and conversation history. This class
@@ -42,7 +42,7 @@ new Agent(
    name?): Agent;
 ```
 
-Defined in: [index.ts:122](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L122)
+Defined in: [index.ts:122](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L122)
 
 Creates a new `Agent` instance.
 
@@ -66,7 +66,7 @@ Creates a new `Agent` instance.
 private _chainOfThought: string = '';
 ```
 
-Defined in: [index.ts:53](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L53)
+Defined in: [index.ts:53](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L53)
 
 The chain of thought or reasoning steps for the agent to follow when performing a task.
 
@@ -78,7 +78,7 @@ The chain of thought or reasoning steps for the agent to follow when performing 
 private _systemPrompt: string = '';
 ```
 
-Defined in: [index.ts:48](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L48)
+Defined in: [index.ts:48](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L48)
 
 The system prompt that defines the agent's persona, context, and instructions.
 
@@ -90,7 +90,7 @@ The system prompt that defines the agent's persona, context, and instructions.
 private #agent: BaseLLM<LLMProvider, unknown>;
 ```
 
-Defined in: [index.ts:114](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L114)
+Defined in: [index.ts:114](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L114)
 
 ***
 
@@ -100,7 +100,7 @@ Defined in: [index.ts:114](https://github.com/elribonazo/uaito/blob/11a62aa88ccf
 private MAX_RETRIES: number = 10;
 ```
 
-Defined in: [index.ts:32](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L32)
+Defined in: [index.ts:32](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L32)
 
 The maximum number of times to retry an API call in case of connection errors.
 
@@ -112,7 +112,7 @@ The maximum number of times to retry an API call in case of connection errors.
 protected name: string;
 ```
 
-Defined in: [index.ts:42](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L42)
+Defined in: [index.ts:42](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L42)
 
 The name of the agent, used for identification and logging.
 
@@ -124,7 +124,7 @@ The name of the agent, used for identification and logging.
 protected optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:112](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L112)
+Defined in: [index.ts:112](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L112)
 
 An optional callback function that is triggered when a tool is used.
 The `this` context within the callback is bound to the `Agent` instance.
@@ -137,7 +137,7 @@ The `this` context within the callback is bound to the `Agent` instance.
 private RETRY_DELAY: number = 3000;
 ```
 
-Defined in: [index.ts:37](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L37)
+Defined in: [index.ts:37](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L37)
 
 The delay in milliseconds between retries for an API call.
 
@@ -151,7 +151,7 @@ The delay in milliseconds between retries for an API call.
 get chainOfThought(): string;
 ```
 
-Defined in: [index.ts:67](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L67)
+Defined in: [index.ts:67](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L67)
 
 Gets the chain of thought for the agent.
 
@@ -171,7 +171,7 @@ The chain of thought.
 get inputs(): MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:75](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L75)
+Defined in: [index.ts:75](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L75)
 
 Gets the message history (inputs) for the agent's conversation.
 
@@ -191,7 +191,7 @@ The inputs.
 get model(): string;
 ```
 
-Defined in: [index.ts:145](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L145)
+Defined in: [index.ts:145](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L145)
 
 Gets the model name being used by the agent.
 
@@ -211,7 +211,7 @@ The model name.
 get options(): unknown;
 ```
 
-Defined in: [index.ts:94](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L94)
+Defined in: [index.ts:94](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L94)
 
 Gets the configuration options of the underlying LLM.
 
@@ -231,7 +231,7 @@ The options.
 get systemPrompt(): string;
 ```
 
-Defined in: [index.ts:59](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L59)
+Defined in: [index.ts:59](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L59)
 
 Gets the system prompt for the agent.
 
@@ -251,7 +251,7 @@ The system prompt.
 get tools(): any[];
 ```
 
-Defined in: [index.ts:83](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L83)
+Defined in: [index.ts:83](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L83)
 
 Gets the list of tools available to the agent.
 
@@ -271,7 +271,7 @@ The tools.
 get type(): LLMProvider;
 ```
 
-Defined in: [index.ts:102](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L102)
+Defined in: [index.ts:102](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L102)
 
 Gets the provider type of the underlying LLM (e.g., OpenAI, Anthropic).
 
@@ -289,7 +289,7 @@ The provider type.
 addInputs(inputs): Promise<void>;
 ```
 
-Defined in: [index.ts:137](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L137)
+Defined in: [index.ts:137](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L137)
 
 Sets the message history for the agent. This will overwrite any existing history.
 
@@ -311,7 +311,7 @@ Sets the message history for the agent. This will overwrite any existing history
 load(): Promise<void>;
 ```
 
-Defined in: [index.ts:154](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L154)
+Defined in: [index.ts:154](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L154)
 
 Initializes the agent by loading the underlying LLM. This is particularly important
 for models that need to be downloaded or initialized, such as local WebGPU models.
@@ -334,7 +334,7 @@ performTask(prompt, image?): Promise<{
 }>;
 ```
 
-Defined in: [index.ts:193](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L193)
+Defined in: [index.ts:193](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L193)
 
 Executes a task with the given prompt and returns the LLM's response as a stream.
 This is the primary method for interacting with the agent.
@@ -366,7 +366,7 @@ A promise that resolves to the token usage and a stream of response messages.
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: [index.ts:168](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L168)
+Defined in: [index.ts:168](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L168)
 
 A robust wrapper for API calls that automatically retries on `APIConnectionError`.
 It uses exponential backoff to wait between retries. This is inherited from `BaseLLM`.
@@ -401,7 +401,7 @@ Throws an error if the API call fails after all retries or if a non-connection e
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: [index.ts:218](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/ai/src/index.ts#L218)
+Defined in: [index.ts:218](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/ai/src/index.ts#L218)
 
 A safe execution wrapper for tool calls. It catches errors during tool execution,
 formats them into a standard error message, and pushes the error back into the input stream

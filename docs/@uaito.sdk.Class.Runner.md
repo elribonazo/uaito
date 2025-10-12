@@ -12,7 +12,7 @@
 
 # Abstract Class: Runner
 
-Defined in: [domain/BaseLLM.ts:15](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L15)
+Defined in: [domain/BaseLLM.ts:15](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/sdk/src/domain/BaseLLM.ts#L15)
 
 An abstract class representing a task runner that executes an operation and returns a stream of messages.
 This is useful for long-running processes where results are produced incrementally.
@@ -48,7 +48,7 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L24)
+Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/sdk/src/domain/BaseLLM.ts#L24)
 
 Executes a task and returns a stream of messages.
 
@@ -75,7 +75,7 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L25)
+Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/sdk/src/domain/BaseLLM.ts#L25)
 
 Executes a task and returns a stream of messages.
 
@@ -102,7 +102,7 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:26](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L26)
+Defined in: [domain/BaseLLM.ts:26](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/sdk/src/domain/BaseLLM.ts#L26)
 
 Executes a task and returns a stream of messages.
 

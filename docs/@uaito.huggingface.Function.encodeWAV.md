@@ -16,7 +16,7 @@
 function encodeWAV(samples, sampleRate?): ArrayBuffer;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:75](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L75)
+Defined in: [HuggingFaceONNXAudio.ts:75](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L75)
 
 Encodes raw audio samples into a WAV format `ArrayBuffer`.
 This is a utility function for creating a valid WAV file from audio data.

@@ -16,6 +16,6 @@
 type MessageContent = ArrayElementType<Message["content"]>;
 ```
 
-Defined in: [domain/types.ts:661](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L661)
+Defined in: [domain/types.ts:661](https://github.com/elribonazo/uaito/blob/99a686d3e1c6bf4b79ff32413a32495226a544bc/packages/sdk/src/domain/types.ts#L661)
 
 A union type representing any of the possible content blocks within a message's `content` array.
