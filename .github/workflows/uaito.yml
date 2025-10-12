@@ -12,10 +12,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run UAITO GitHub Action
-        run: npx "@uaito/github-action@^0.0.7"
-        env:
-          INPUT_GITHUB-TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_ALLOWED-USER: 'elribonazo'
-          INPUT_LLM-PROVIDER: 'OpenAI' # Or Anthropic, Google, etc.
-          INPUT_LLM-API-KEY: ${{ secrets.LLM_API_KEY }}
-          INPUT_MODEL: 'gpt-4' # Optional, defaults to a good model for the provider
+        run: npx @uaito/github-action
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          allowed-user: 'elribonazo'
+          llm-provider: 'OpenAI' # Or Anthropic, Google, etc.
+          llm-api-key: ${{ secrets.LLM_API_KEY }}

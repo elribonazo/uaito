@@ -6687,7 +6687,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uaito/ai@npm:^0.1.3, @uaito/ai@npm:^0.1.4, @uaito/ai@workspace:*, @uaito/ai@workspace:packages/ai":
+"@uaito/ai@npm:^0.1.4, @uaito/ai@workspace:*, @uaito/ai@workspace:packages/ai":
   version: 0.0.0-use.local
   resolution: "@uaito/ai@workspace:packages/ai"
   dependencies:
@@ -6769,21 +6769,6 @@ __metadata:
     typescript: "npm:^5.8.3"
   languageName: unknown
   linkType: soft
-
-"@uaito/github-action@npm:^0.0.7":
-  version: 0.0.7
-  resolution: "@uaito/github-action@npm:0.0.7"
-  dependencies:
-    "@actions/core": "npm:^1.10.1"
-    "@actions/github": "npm:^6.0.0"
-    "@octokit/rest": "npm:^21.0.1"
-    "@uaito/ai": "npm:^0.1.3"
-    "@uaito/sdk": "npm:^0.9.3"
-  bin:
-    uaito-github-action: build/cli.js
-  checksum: 10c0/ed7de7034d48576d12f282f336a6acae439132f43c0e1b8c40dc5932df01998a7a5f74c82649e5d67aa28c068d11b532f10464e09d51e3d818adb1f00cb729c8
-  languageName: node
-  linkType: hard
 
 "@uaito/github-action@workspace:packages/github-action":
   version: 0.0.0-use.local
@@ -6885,7 +6870,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@uaito/sdk@npm:^0.9.3, @uaito/sdk@npm:^0.9.4, @uaito/sdk@workspace:*, @uaito/sdk@workspace:packages/sdk":
+"@uaito/sdk@npm:^0.9.4, @uaito/sdk@workspace:*, @uaito/sdk@workspace:packages/sdk":
   version: 0.0.0-use.local
   resolution: "@uaito/sdk@workspace:packages/sdk"
   dependencies:
@@ -22864,7 +22849,6 @@ __metadata:
     "@types/formidable": "npm:^3.4.5"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^20.14.2"
-    "@uaito/github-action": "npm:^0.0.7"
     "@vitejs/plugin-react-swc": "npm:^3.8.0"
     "@vitest/browser": "npm:^3.0.8"
     "@vitest/coverage-istanbul": "npm:^3.0.8"
