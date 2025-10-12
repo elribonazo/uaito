@@ -1,3 +1,21 @@
+## 0.0.1-rc.1 (2025-10-12)
+
+### 🩹 Fixes
+
+- add github action package properly to package json Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([d51cf9e](https://github.com/elribonazo/uaito/commit/d51cf9e))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/anthropic to 0.0.22-rc.3
+- Updated @uaito/google to 0.0.12-rc.3
+- Updated @uaito/openai to 0.0.22-rc.3
+- Updated @uaito/sdk to 0.8.20-rc.3
+- Updated @uaito/ai to 0.0.28-rc.3
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.1-rc.0 (2025-10-12)
 
 ### 🚀 Features
