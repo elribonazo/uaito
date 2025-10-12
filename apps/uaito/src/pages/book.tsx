@@ -48,8 +48,11 @@ const Test: React.FC = () => {
 		setIsGenerating(true);
 
 		try {
+			if (!selectedFile) {
+				throw new Error("File not selected");
+			}
 			const formData = new FormData();
-			formData.append("file", selectedFile!, selectedFile!.name);
+			formData.append("file", selectedFile, selectedFile.name);
 			formData.append("kidName", kidName);
 			formData.append("kidGender", kidGender);
 			formData.append("kidLikes", kidLikes);
@@ -84,17 +87,9 @@ const Test: React.FC = () => {
 				throw new Error(errorMsg);
 			}
 
-			const blob = await response.blob();
-			const url = window.URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = url;
-			a.download = `storybook-${kidName.replace(/\s+/g, "-")}-${Date.now()}.pdf`;
-			document.body.appendChild(a);
-			a.click();
-			window.URL.revokeObjectURL(url);
-			document.body.removeChild(a);
+			const result = await response.json();
 
-			alert("✅ Storybook generated successfully! The PDF has been downloaded to your downloads folder.");
+			alert(`✅ ${result.message || 'Storybook generation started! You will receive an email with the PDF shortly.'}`);
 		} catch (error) {
 			console.error("Error generating storybook:", error);
 			const errorMessage = (error as Error).message;

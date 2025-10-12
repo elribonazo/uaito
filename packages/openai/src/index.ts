@@ -113,7 +113,13 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     imageBase64: string | null,
     thinkingId?: string | null,
     textId?: string | null
-  } = { toolInput: null, chunks: '', tokens: { input: 0, output: 0 }, imageGenerationCallId: null, imageBase64: null }
+  } = { 
+    toolInput: null, 
+    chunks: '', 
+    tokens: { input: 0, output: 0 }, 
+    imageGenerationCallId: null, 
+    imageBase64: null 
+  }
 
   /**
    * Tracks active function calls by their item ID during a streaming response.
@@ -605,7 +611,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         output_format: output_format,
         model:imageModel as any,
         input_fidelity,
-        quality
+        quality,
+        moderation:'low'
       })
       tools.push({
         type: "web_search",
@@ -621,12 +628,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       model: this.options.model,
       input: this.llmInputs as ResponseCreateParamsStreaming['input'],
       instructions: system,
-      max_output_tokens: this.maxTokens,
       stream: true,
       tools,
-      reasoning:this.options.type === LLMProvider.OpenAI ? {
-        effort:'low'
-      } : undefined,
+      reasoning:this.options.type === LLMProvider.OpenAI ? {effort:'low'} : undefined,
     };
 
     // Reset usage and per-turn state

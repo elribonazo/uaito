@@ -28,6 +28,7 @@
     "@uaito/sdk": "workspace:*",
     "date-fns": "^4.1.0",
     "formidable": "^3.5.4",
+    "googleapis": "^162.0.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "moment-timezone": "^0.6.0",

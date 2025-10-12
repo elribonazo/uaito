@@ -28,6 +28,6 @@ type BlockType =
   | SignatureDeltaBlock;
 ```
 
-Defined in: [domain/types.ts:743](https://github.com/elribonazo/uaito/blob/891267acfac775627ab8d2c9451db44d1413ce7c/packages/sdk/src/domain/types.ts#L743)
+Defined in: [domain/types.ts:743](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/sdk/src/domain/types.ts#L743)
 
 A union of all possible block types that can be part of a message's content.
