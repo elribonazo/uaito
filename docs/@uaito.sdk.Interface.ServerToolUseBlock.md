@@ -12,9 +12,9 @@
 
 # Interface: ServerToolUseBlock
 
-Defined in: [domain/types.ts:193](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L193)
+Defined in: [domain/types.ts:202](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L202)
 
-Represents a server tool use block.
+Represents a block for a tool that is executed on the server-side.
  ServerToolUseBlock
 
 ## Properties
@@ -25,7 +25,7 @@ Represents a server tool use block.
 id: string;
 ```
 
-Defined in: [domain/types.ts:198](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L198)
+Defined in: [domain/types.ts:207](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L207)
 
 The unique ID of the tool use.
 
@@ -37,7 +37,7 @@ The unique ID of the tool use.
 input: unknown;
 ```
 
-Defined in: [domain/types.ts:204](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L204)
+Defined in: [domain/types.ts:213](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L213)
 
 The input for the tool.
 
@@ -49,7 +49,7 @@ The input for the tool.
 name: "web_search";
 ```
 
-Defined in: [domain/types.ts:210](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L210)
+Defined in: [domain/types.ts:219](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L219)
 
 The name of the tool.
 
@@ -61,6 +61,6 @@ The name of the tool.
 type: "server_tool_use";
 ```
 
-Defined in: [domain/types.ts:216](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L216)
+Defined in: [domain/types.ts:225](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L225)
 
-The type of the block.
+The type of the block, indicating a server-side tool use.

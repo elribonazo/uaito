@@ -16,17 +16,18 @@
 type OnTool = (this, message, signal?) => Promise<void>;
 ```
 
-Defined in: [domain/types.ts:409](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L409)
+Defined in: [domain/types.ts:423](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L423)
 
-Represents a callback for tool usage.
+A callback function that is invoked when an LLM uses a tool.
+The `this` context within the callback is bound to the `BaseAgent` instance.
 
 ## Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `this` | [`BaseAgent`](@uaito.sdk.Class.BaseAgent.md) |
-| `message` | [`Message`](@uaito.sdk.TypeAlias.Message.md) |
-| `signal?` | `AbortSignal` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `this` | [`BaseAgent`](@uaito.sdk.Class.BaseAgent.md) | - |
+| `message` | [`Message`](@uaito.sdk.TypeAlias.Message.md) | The message containing the tool use block. |
+| `signal?` | `AbortSignal` | An optional abort signal to cancel the tool execution. |
 
 ## Returns
 

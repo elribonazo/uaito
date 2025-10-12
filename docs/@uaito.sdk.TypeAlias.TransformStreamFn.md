@@ -16,16 +16,16 @@
 type TransformStreamFn<T, M> = (chunk) => Promise<M | null>;
 ```
 
-Defined in: [domain/types.ts:11](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L11)
+Defined in: [domain/types.ts:11](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L11)
 
-Represents a function that transforms a chunk of data in a stream.
+A function that transforms a chunk of data from a provider's stream into the SDK's standard `Message` format.
 
 ## Type Parameters
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `T` | The type of the input chunk. |
-| `M` | The type of the output message. |
+| `T` | The type of the input chunk from the provider's stream. |
+| `M` | The type of the output message, which must extend `Message`. |
 
 ## Parameters
 
@@ -37,4 +37,4 @@ Represents a function that transforms a chunk of data in a stream.
 
 `Promise`\<`M` \| `null`\>
 
-A promise that resolves to the transformed message or null.
+A promise that resolves to the transformed message or null if the chunk should be ignored.

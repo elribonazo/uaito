@@ -22,6 +22,7 @@ type Tool = {
      properties: Record<string, {
         default?: unknown;
         description: string;
+        items?: unknown;
         type: string;
      }>;
      required?: string[];
@@ -32,9 +33,10 @@ type Tool = {
 };
 ```
 
-Defined in: [domain/types.ts:42](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L42)
+Defined in: [domain/types.ts:44](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L44)
 
-Represents a tool that can be used by an LLM.
+Describes a tool that an LLM can use. This structure is used to define the tool's
+name, purpose, and the schema for its inputs.
 
 ## Properties
 
@@ -44,9 +46,9 @@ Represents a tool that can be used by an LLM.
 optional code: string;
 ```
 
-Defined in: [domain/types.ts:75](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L75)
+Defined in: [domain/types.ts:79](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L79)
 
-The code for the tool.
+The implementation code for the tool (optional).
 
 ***
 
@@ -56,7 +58,7 @@ The code for the tool.
 description: string;
 ```
 
-Defined in: [domain/types.ts:57](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L57)
+Defined in: [domain/types.ts:59](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L59)
 
 The description of the tool.
 
@@ -68,9 +70,9 @@ The description of the tool.
 optional enabled: boolean;
 ```
 
-Defined in: [domain/types.ts:80](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L80)
+Defined in: [domain/types.ts:84](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L84)
 
-Whether the tool is enabled.
+Whether the tool is currently enabled and can be used by the LLM.
 
 ***
 
@@ -80,7 +82,7 @@ Whether the tool is enabled.
 optional id: number;
 ```
 
-Defined in: [domain/types.ts:47](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L47)
+Defined in: [domain/types.ts:49](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L49)
 
 The unique ID of the tool.
 
@@ -93,6 +95,7 @@ input_schema: {
   properties: Record<string, {
      default?: unknown;
      description: string;
+     items?: unknown;
      type: string;
   }>;
   required?: string[];
@@ -100,9 +103,10 @@ input_schema: {
 };
 ```
 
-Defined in: [domain/types.ts:62](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L62)
+Defined in: [domain/types.ts:65](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L65)
 
-The input schema for the tool.
+A JSON schema defining the inputs for the tool.
+The `properties` object describes each parameter the tool accepts.
 
 #### properties
 
@@ -110,6 +114,7 @@ The input schema for the tool.
 properties: Record<string, {
   default?: unknown;
   description: string;
+  items?: unknown;
   type: string;
 }>;
 ```
@@ -134,9 +139,9 @@ type: "object";
 optional isCollapsed: boolean;
 ```
 
-Defined in: [domain/types.ts:85](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L85)
+Defined in: [domain/types.ts:89](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L89)
 
-Whether the tool is collapsed.
+UI hint for whether the tool's definition should be collapsed by default.
 
 ***
 
@@ -146,6 +151,6 @@ Whether the tool is collapsed.
 name: string;
 ```
 
-Defined in: [domain/types.ts:52](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L52)
+Defined in: [domain/types.ts:54](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L54)
 
-The name of the tool.
+The name of the tool, which the LLM will use to call it.

@@ -27,6 +27,8 @@ type DType =
   | undefined;
 ```
 
-Defined in: [types.ts:174](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/types.ts#L174)
+Defined in: [types.ts:197](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/types.ts#L197)
 
-Type alias for the data types supported by the model.
+A union of possible data types for model quantization and execution.
+`auto` allows the library to choose the best type based on the model and hardware.
+Other values specify the precision, like `fp32` (32-bit float) or `q4` (4-bit quantized).

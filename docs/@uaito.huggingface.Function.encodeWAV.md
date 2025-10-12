@@ -16,15 +16,16 @@
 function encodeWAV(samples, sampleRate?): ArrayBuffer;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:72](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L72)
+Defined in: [HuggingFaceONNXAudio.ts:75](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L75)
 
-Encodes audio samples into a WAV format buffer.
+Encodes raw audio samples into a WAV format `ArrayBuffer`.
+This is a utility function for creating a valid WAV file from audio data.
 
 ## Parameters
 
 | Parameter | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| `samples` | `any` | `undefined` | The audio samples to encode. |
+| `samples` | `Float32Array` | `undefined` | The raw audio samples to encode. |
 | `sampleRate?` | `number` | `16000` | The sample rate of the audio. |
 
 ## Returns

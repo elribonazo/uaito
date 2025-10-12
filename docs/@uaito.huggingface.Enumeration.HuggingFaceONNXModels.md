@@ -12,14 +12,15 @@
 
 # Enumeration: HuggingFaceONNXModels
 
-Defined in: [types.ts:29](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/types.ts#L29)
+Defined in: [types.ts:31](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/types.ts#L31)
 
-Enumeration of the available Hugging Face ONNX models.
+An enumeration of the available Hugging Face ONNX models that are optimized for web execution.
+These models are suitable for running locally in the browser with WebGPU or WASM.
 
 ## Enumeration Members
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="granite"></a> `GRANITE` | `"onnx-community/granite-4.0-micro-ONNX-web"` | - | [types.ts:39](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/types.ts#L39) |
-| <a id="jano"></a> `JANO` | `"onnx-community/Jan-nano-ONNX"` | The JANO model. | [types.ts:33](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/types.ts#L33) |
-| <a id="lucy"></a> `LUCY` | `"onnx-community/Lucy-ONNX"` | The LUCY model. | [types.ts:37](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/types.ts#L37) |
+| <a id="granite"></a> `GRANITE` | `"onnx-community/granite-4.0-micro-ONNX-web"` | A micro-sized version of the Granite model, optimized for web environments. | [types.ts:44](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/types.ts#L44) |
+| <a id="jano"></a> `JANO` | `"onnx-community/Jan-nano-ONNX"` | A small and efficient model suitable for general-purpose tasks. | [types.ts:35](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/types.ts#L35) |
+| <a id="lucy"></a> `LUCY` | `"onnx-community/Lucy-ONNX"` | A model with a good balance of performance and size. | [types.ts:39](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/types.ts#L39) |

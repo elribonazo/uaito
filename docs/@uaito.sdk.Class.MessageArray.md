@@ -12,10 +12,22 @@
 
 # Class: MessageArray\<T\>
 
-Defined in: [utils.ts:80](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/utils.ts#L80)
+Defined in: [utils.ts:94](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/utils.ts#L94)
 
-A specialized array class for managing messages, with validation and merging capabilities.
+A specialized array class for managing an array of `MessageInput` objects.
+It extends the native `Array` but overrides the `push` method to automatically
+validate and merge consecutive messages from the same user role.
+
  MessageArray
+
+## Example
+
+```typescript
+const messages = new MessageArray();
+messages.push({ role: 'user', content: [{ type: 'text', text: 'Hello' }] });
+messages.push({ role: 'user', content: [{ type: 'text', text: ' world!' }] });
+// messages will contain a single message with content "Hello world!"
+```
 
 ## Extends
 
@@ -23,9 +35,9 @@ A specialized array class for managing messages, with validation and merging cap
 
 ## Type Parameters
 
-| Type Parameter |
-| ------ |
-| `T` *extends* [`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md) |
+| Type Parameter | Description |
+| ------ | ------ |
+| `T` *extends* [`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md) | The type of message, which must extend `MessageInput`. |
 
 ## Indexable
 
@@ -41,9 +53,11 @@ A specialized array class for managing messages, with validation and merging cap
 new MessageArray<T>(items?): MessageArray<T>;
 ```
 
-Defined in: [utils.ts:95](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/utils.ts#L95)
+Defined in: [utils.ts:111](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/utils.ts#L111)
 
-Creates an instance of MessageArray.
+Creates an instance of `MessageArray`.
+It uses a `Proxy` to intercept the `push` method, enabling custom logic for
+validating and merging messages before they are added to the array.
 
 #### Parameters
 
@@ -1095,9 +1109,11 @@ Array.indexOf
 protected isSameRole(lastOne, item): boolean;
 ```
 
-Defined in: [utils.ts:152](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/utils.ts#L152)
+Defined in: [utils.ts:170](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/utils.ts#L170)
 
-Checks if two messages have the same role and should be merged.
+Determines whether a new message should be merged with the previous one.
+Merging occurs if both messages are from the 'user' and the new message does not contain a tool result.
+This is useful for combining consecutive user text inputs into a single message.
 
 #### Parameters
 
@@ -1110,7 +1126,7 @@ Checks if two messages have the same role and should be merged.
 
 `boolean`
 
-True if the roles are the same and the messages should be merged, false otherwise.
+`true` if the messages should be merged, otherwise `false`.
 
 ***
 
@@ -1932,21 +1948,21 @@ Array.with
 static from(items): MessageArray<MessageInput>;
 ```
 
-Defined in: [utils.ts:87](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/utils.ts#L87)
+Defined in: [utils.ts:101](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/utils.ts#L101)
 
-Creates a MessageArray from an array of MessageInput items.
+A static factory method to create a `MessageArray` from an array of `MessageInput` items.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `items` | [`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)[] | The items to create the MessageArray from. |
+| `items` | [`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)[] | The items to create the `MessageArray` from. |
 
 #### Returns
 
 `MessageArray`\<[`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)\>
 
-A new MessageArray instance.
+A new `MessageArray` instance.
 
 #### Overrides
 

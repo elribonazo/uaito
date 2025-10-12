@@ -12,10 +12,30 @@
 
 # Class: OpenAI\<T\>
 
-Defined in: [index.ts:53](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L53)
+Defined in: [index.ts:86](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L86)
 
-A more complete implementation of the OpenAI-based LLM,
-mirroring the structure and patterns found in the Anthropic class.
+A class for interacting with OpenAI-compatible APIs, including OpenAI and Grok.
+It extends the `BaseLLM` class to provide a standardized interface for streaming responses,
+handling tool usage (including image generation), and managing conversation history.
+
+ OpenAI
+
+## Example
+
+```typescript
+const openai = new OpenAI({
+  options: {
+    type: LLMProvider.OpenAI,
+    apiKey: 'YOUR_OPENAI_API_KEY',
+    model: OpenAIModels['gpt-4o'],
+  }
+});
+
+const { response } = await openai.performTaskStream("Hello, world!", "", "");
+for await (const chunk of response) {
+  // Process each message chunk
+}
+```
 
 ## Extends
 
@@ -23,29 +43,29 @@ mirroring the structure and patterns found in the Anthropic class.
 
 ## Type Parameters
 
-| Type Parameter |
-| ------ |
-| `T` *extends* `OpenAIProviderType` |
+| Type Parameter | Description |
+| ------ | ------ |
+| `T` *extends* `OpenAIProviderType` | The type of the provider, either `LLMProvider.OpenAI` or `LLMProvider.Grok`. |
 
 ## Constructors
 
 ### Constructor
 
 ```ts
-new OpenAI<T>({, onTool?): OpenAI<T>;
+new OpenAI<T>(params, onTool?): OpenAI<T>;
 ```
 
-Defined in: [index.ts:135](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L135)
+Defined in: [index.ts:177](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L177)
 
-Creates an instance of the OpenAI LLM.
+Creates an instance of the `OpenAI` LLM client.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `{` | \{ `options`: `llmTypeToOptions`\[`T`\]; \} | options } - The options for the LLM. |
-| `{.options` | `llmTypeToOptions`\[`T`\] | - |
-| `onTool?` | `OnTool` | Optional callback for tool usage. |
+| `params` | \{ `options`: `llmTypeToOptions`\[`T`\]; \} | The configuration options for the client. |
+| `params.options` | `llmTypeToOptions`\[`T`\] | - |
+| `onTool?` | `OnTool` | An optional callback for handling tool usage. |
 
 #### Returns
 
@@ -70,9 +90,10 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [index.ts:77](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L77)
+Defined in: [index.ts:111](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L111)
 
-The cache for the LLM.
+A cache for storing intermediate data during stream processing, including partial tool inputs,
+image generation state, and token counts.
 
 #### Type Declaration
 
@@ -114,9 +135,10 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:95
+Defined in: ../../sdk/build/index.d.ts:108
 
-A record of data for the LLM.
+A generic key-value store for attaching arbitrary data to the LLM instance.
+Can be used for session management, tracking metadata, etc.
 
 #### Inherited from
 
@@ -132,9 +154,9 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:70](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L70)
+Defined in: [index.ts:103](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L103)
 
-An array of message inputs.
+An array that holds the history of messages for the conversation.
 
 #### Overrides
 
@@ -150,9 +172,9 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:58](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L58)
+Defined in: [index.ts:91](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L91)
 
-Optional callback for tool usage.
+An optional callback function that is triggered when a tool is used.
 
 ***
 
@@ -162,7 +184,7 @@ Optional callback for tool usage.
 readonly options: llmTypeToOptions[T];
 ```
 
-Defined in: ../../sdk/build/index.d.ts:63
+Defined in: ../../sdk/build/index.d.ts:73
 
 #### Inherited from
 
@@ -178,7 +200,7 @@ BaseLLM.options
 readonly type: T;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:62
+Defined in: ../../sdk/build/index.d.ts:72
 
 #### Inherited from
 
@@ -196,15 +218,16 @@ BaseLLM.type
 get llmInputs(): ResponseInputItem[];
 ```
 
-Defined in: [index.ts:265](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L265)
+Defined in: [index.ts:311](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L311)
 
-Gets the inputs for the LLM.
+Gets the formatted message history for the LLM, converting each message from the
+Uaito SDK format to the OpenAI API's `ResponseInputItem` format.
 
 ##### Returns
 
 `ResponseInputItem`[]
 
-The LLM inputs.
+The formatted LLM inputs.
 
 ***
 
@@ -216,9 +239,10 @@ The LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:158](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L158)
+Defined in: [index.ts:201](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L201)
 
-Return max tokens or a default (e.g. 4096).
+Gets the maximum number of tokens to generate in the response.
+Defaults to 4096 if not specified in the options.
 
 ##### Returns
 
@@ -236,9 +260,10 @@ The maximum number of tokens.
 get tools(): undefined | Tool[];
 ```
 
-Defined in: [index.ts:237](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L237)
+Defined in: [index.ts:282](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L282)
 
-Gets the tools available to the LLM.
+Gets the list of tools available to the LLM, formatted as `ResponsesTool` objects
+for the OpenAI API.
 
 ##### Returns
 
@@ -257,23 +282,25 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:129
+Defined in: ../../sdk/build/index.d.ts:149
 
-Includes the last prompt in the input.
+Appends the latest user prompt and the chain of thought to the message history.
+It handles both simple string prompts and complex `BlockType` array prompts (e.g., with images).
+This method ensures that the prompt is correctly formatted and added to the conversation context.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `prompt` | `string` \| `BlockType`[] | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `input` | `MessageArray`\<`MessageInput`\> | The input messages. |
+| `prompt` | `string` \| `BlockType`[] | The user's prompt. |
+| `chainOfThought` | `string` | The reasoning steps for the model. |
+| `input` | `MessageArray`\<`MessageInput`\> | The current message history. |
 
 #### Returns
 
 `MessageArray`\<`MessageInput`\>
 
-The updated input messages.
+The updated message history with the new prompt.
 
 #### Inherited from
 
@@ -289,9 +316,10 @@ BaseLLM.includeLastPrompt
 log(message): void;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:101
+Defined in: ../../sdk/build/index.d.ts:115
 
-Logs a message.
+A utility for logging messages. It can be configured to use a custom logger
+by passing a `log` function in the options. Defaults to `console.log`.
 
 #### Parameters
 
@@ -320,15 +348,17 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:532](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/openai/src/index.ts#L532)
+Defined in: [index.ts:585](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/openai/src/index.ts#L585)
 
-Performs a task stream using the LLM.
+Executes a task by sending the prompt and conversation history to the OpenAI-compatible API
+and returns the response as a stream. It handles tool configuration, stream creation,
+and the application of transformations for auto-mode and tool usage.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `prompt` | `any` | The user prompt. |
+| `prompt` | `any` | The user's prompt. |
 | `chainOfThought` | `any` | The chain of thought for the task. |
 | `system` | `any` | The system prompt. |
 
@@ -336,7 +366,7 @@ Performs a task stream using the LLM.
 
 `Promise`\<`ReadableStreamWithAsyncIterable`\<`Message`\>\>
 
-A promise that resolves to a readable stream of messages.
+A promise that resolves to a readable stream of `Message` objects.
 
 #### Overrides
 
@@ -352,27 +382,32 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:108
+Defined in: ../../sdk/build/index.d.ts:124
 
-Retries an API call with a delay.
+A robust wrapper for API calls that automatically retries on `APIConnectionError`.
+It uses exponential backoff to wait between retries, making it resilient to transient network issues.
 
 #### Type Parameters
 
-| Type Parameter |
-| ------ |
-| `T` |
+| Type Parameter | Description |
+| ------ | ------ |
+| `T` | The expected return type of the API call. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `apiCall` | () => `Promise`\<`T`\> | The API call to retry. |
+| `apiCall` | () => `Promise`\<`T`\> | The function that makes the API call. |
 
 #### Returns
 
 `Promise`\<`T`\>
 
-The result of the API call.
+The result of the successful API call.
+
+#### Throws
+
+Throws an error if the API call fails after all retries or if a non-connection error occurs.
 
 #### Inherited from
 
@@ -388,16 +423,18 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:115
+Defined in: ../../sdk/build/index.d.ts:133
 
-Run a command safely, catching and handling any errors.
+A safe execution wrapper for tool calls. It catches errors during tool execution,
+formats them into a standard error message, and pushes the error back into the input stream
+for the LLM to process. This prevents tool failures from crashing the application.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `toolUse` | `ToolUseBlock` | The tool being used. |
-| `run` | (`agent`) => `Promise`\<`void`\> | Function to run the command. |
+| `toolUse` | `ToolUseBlock` | The tool use block that triggered the command. |
+| `run` | (`agent`) => `Promise`\<`void`\> | The function that executes the tool's logic. |
 
 #### Returns
 
@@ -420,29 +457,31 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:148
+Defined in: ../../sdk/build/index.d.ts:171
 
-Transforms an input stream using the provided transform function.
+Handles the execution flow for an "auto mode" or agentic stream, where the LLM can use tools
+and continue its task without waiting for user input. It processes the stream, handles tool calls
+via the `onTool` callback, and then recursively calls `getNext` to continue the task with the tool's output.
 
 #### Type Parameters
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `AChunk` *extends* `Message` | The type of the input chunk. |
+| `AChunk` *extends* `Message` | The type of chunks in the stream, which must extend `Message`. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The input stream to be transformed. |
-| `getNext` | () => `Promise`\<`ReadableStreamWithAsyncIterable`\<`AChunk`\>\> | A function to get the next stream. |
-| `onTool?` | `OnTool` | Optional callback for tool usage. |
+| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The initial stream from the LLM. |
+| `getNext` | () => `Promise`\<`ReadableStreamWithAsyncIterable`\<`AChunk`\>\> | A function that gets the next stream after a tool call. |
+| `onTool?` | `OnTool` | An optional callback to handle tool usage. |
 
 #### Returns
 
 `Promise`\<`ReadableStreamWithAsyncIterable`\<`AChunk`\>\>
 
-A promise that resolves to the transformed readable stream.
+A promise that resolves to the final transformed stream.
 
 #### Inherited from
 
@@ -458,24 +497,25 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:139
+Defined in: ../../sdk/build/index.d.ts:160
 
-Transforms the given stream from an AI provider into a Uaito Stream
-This also keeps track of the received messages
+Transforms a raw stream from an AI provider into the standardized Uaito SDK `Message` format.
+It processes chunks from the input stream, applies the provided `transform` function,
+and emits standardized `Message` objects. It also separates out usage and delta blocks.
 
 #### Type Parameters
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `AChunk` | The type of the input chunk. |
-| `BChunk` *extends* `Message` | The type of the output chunk. |
+| `AChunk` | The type of the chunks in the input stream. |
+| `BChunk` *extends* `Message` | The type of the chunks in the output stream, which must extend `Message`. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The input stream. |
-| `transform` | `TransformStreamFn`\<`unknown`, `BChunk`\> | The transform function. |
+| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The raw stream from the provider. |
+| `transform` | `TransformStreamFn`\<`unknown`, `BChunk`\> | A function to transform each chunk. |
 
 #### Returns
 

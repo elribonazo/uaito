@@ -161,4 +161,4 @@ UAITO AI
 
 | Class | Description |
 | ------ | ------ |
-| [Agent](@uaito.ai.Class.Agent.md) | base class for AI agents. |
+| [Agent](@uaito.ai.Class.Agent.md) | Represents a higher-level abstraction for an AI agent. It encapsulates a `BaseLLM` instance and provides a structured way to manage prompts, tools, and conversation history. This class simplifies the process of performing tasks with an LLM by handling the underlying details of API calls, retries, and stream processing. |

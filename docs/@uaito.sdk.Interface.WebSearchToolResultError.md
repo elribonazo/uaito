@@ -12,9 +12,9 @@
 
 # Interface: WebSearchToolResultError
 
-Defined in: [domain/types.ts:145](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L145)
+Defined in: [domain/types.ts:154](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L154)
 
-Represents a web search tool result error.
+Represents an error that occurred during a web search tool execution.
  WebSearchToolResultError
 
 ## Properties
@@ -30,7 +30,7 @@ error_code:
   | "query_too_long";
 ```
 
-Defined in: [domain/types.ts:150](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L150)
+Defined in: [domain/types.ts:159](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L159)
 
 The error code.
 
@@ -42,6 +42,6 @@ The error code.
 type: "web_search_tool_result_error";
 ```
 
-Defined in: [domain/types.ts:161](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L161)
+Defined in: [domain/types.ts:170](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L170)
 
-The type of the block.
+The type of the block, indicating a web search error.

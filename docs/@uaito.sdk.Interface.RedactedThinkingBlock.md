@@ -12,9 +12,9 @@
 
 # Interface: RedactedThinkingBlock
 
-Defined in: [domain/types.ts:458](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L458)
+Defined in: [domain/types.ts:472](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L472)
 
-Represents a redacted thinking block.
+Represents a thinking or reasoning block from the model that has been redacted.
  RedactedThinkingBlock
 
 ## Properties
@@ -25,7 +25,7 @@ Represents a redacted thinking block.
 data: string;
 ```
 
-Defined in: [domain/types.ts:463](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L463)
+Defined in: [domain/types.ts:477](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L477)
 
 The redacted data.
 
@@ -37,6 +37,6 @@ The redacted data.
 type: "redacted_thinking";
 ```
 
-Defined in: [domain/types.ts:469](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L469)
+Defined in: [domain/types.ts:483](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L483)
 
-The type of the block.
+The type of the block, indicating redacted thinking.

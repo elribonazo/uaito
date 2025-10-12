@@ -12,9 +12,18 @@
 
 # Abstract Class: BaseLLM\<TYPE, OPTIONS\>
 
-Defined in: [domain/BaseLLM.ts:33](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L33)
+Defined in: [domain/BaseLLM.ts:43](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L43)
 
-Abstract base class for Language Model implementations.
+Abstract base class for Language Model (LLM) implementations. It provides a standardized interface
+for interacting with various LLM providers, handling API retries, stream transformations, and tool usage.
+
+## Example
+
+```typescript
+class MyCustomLLM extends BaseLLM<LLMProvider.OpenAI, MyOptions> {
+  // ... implementation of abstract properties and methods
+}
+```
 
 ## Extends
 
@@ -24,8 +33,8 @@ Abstract base class for Language Model implementations.
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `TYPE` *extends* [`LLMProvider`](@uaito.sdk.Enumeration.LLMProvider.md) | The type of the language model. |
-| `OPTIONS` | The type of options for the language model, extending BaseLLMOptions. |
+| `TYPE` *extends* [`LLMProvider`](@uaito.sdk.Enumeration.LLMProvider.md) | The specific LLM provider, extending from `LLMProvider`. |
+| `OPTIONS` | The configuration options for the LLM. |
 
 ## Constructors
 
@@ -35,7 +44,7 @@ Abstract base class for Language Model implementations.
 new BaseLLM<TYPE, OPTIONS>(type, options): BaseLLM<TYPE, OPTIONS>;
 ```
 
-Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L143)
+Defined in: [domain/BaseLLM.ts:161](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L161)
 
 Creates an instance of BaseLLM.
 
@@ -43,8 +52,8 @@ Creates an instance of BaseLLM.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `type` | `TYPE` | The type of the language model. |
-| `options` | `OPTIONS` | The options for the language model. |
+| `type` | `TYPE` | The type of the language model provider (e.g., `LLMProvider.OpenAI`). |
+| `options` | `OPTIONS` | The configuration options for the language model. |
 
 #### Returns
 
@@ -62,9 +71,10 @@ Creates an instance of BaseLLM.
 abstract cache: BaseLLMCache;
 ```
 
-Defined in: [domain/BaseLLM.ts:52](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L52)
+Defined in: [domain/BaseLLM.ts:63](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L63)
 
-The cache for the LLM.
+An optional cache for storing LLM responses to improve performance and reduce costs.
+Must be implemented by subclasses if caching is desired.
 
 ***
 
@@ -74,9 +84,10 @@ The cache for the LLM.
 data: Record<string, unknown> = {};
 ```
 
-Defined in: [domain/BaseLLM.ts:65](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L65)
+Defined in: [domain/BaseLLM.ts:78](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L78)
 
-A record of data for the LLM.
+A generic key-value store for attaching arbitrary data to the LLM instance.
+Can be used for session management, tracking metadata, etc.
 
 ***
 
@@ -86,9 +97,10 @@ A record of data for the LLM.
 abstract inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [domain/BaseLLM.ts:59](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L59)
+Defined in: [domain/BaseLLM.ts:71](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L71)
 
-An array of message inputs.
+An array that holds the history of messages for a conversation, including user prompts and model responses.
+This is used to maintain context in multi-turn conversations.
 
 ***
 
@@ -98,9 +110,9 @@ An array of message inputs.
 readonly options: OPTIONS;
 ```
 
-Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L143)
+Defined in: [domain/BaseLLM.ts:161](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L161)
 
-The options for the language model.
+The configuration options for the language model.
 
 ***
 
@@ -110,9 +122,9 @@ The options for the language model.
 readonly type: TYPE;
 ```
 
-Defined in: [domain/BaseLLM.ts:143](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L143)
+Defined in: [domain/BaseLLM.ts:161](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L161)
 
-The type of the language model.
+The type of the language model provider (e.g., `LLMProvider.OpenAI`).
 
 ## Methods
 
@@ -125,23 +137,25 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: [domain/BaseLLM.ts:154](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L154)
+Defined in: [domain/BaseLLM.ts:174](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L174)
 
-Includes the last prompt in the input.
+Appends the latest user prompt and the chain of thought to the message history.
+It handles both simple string prompts and complex `BlockType` array prompts (e.g., with images).
+This method ensures that the prompt is correctly formatted and added to the conversation context.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `prompt` | `string` \| [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `input` | [`MessageArray`](@uaito.sdk.Class.MessageArray.md)\<[`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)\> | The input messages. |
+| `prompt` | `string` \| [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user's prompt. |
+| `chainOfThought` | `string` | The reasoning steps for the model. |
+| `input` | [`MessageArray`](@uaito.sdk.Class.MessageArray.md)\<[`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)\> | The current message history. |
 
 #### Returns
 
 [`MessageArray`](@uaito.sdk.Class.MessageArray.md)\<[`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)\>
 
-The updated input messages.
+The updated message history with the new prompt.
 
 ***
 
@@ -151,9 +165,10 @@ The updated input messages.
 log(message): void;
 ```
 
-Defined in: [domain/BaseLLM.ts:72](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L72)
+Defined in: [domain/BaseLLM.ts:86](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L86)
 
-Logs a message.
+A utility for logging messages. It can be configured to use a custom logger
+by passing a `log` function in the options. Defaults to `console.log`.
 
 #### Parameters
 
@@ -178,17 +193,17 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L23)
+Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L24)
 
-Performs a task stream.
+Executes a task and returns a stream of messages.
 
 ##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `userPrompt` | `string` | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `system` | `string` | The system prompt. |
+| `userPrompt` | `string` | The initial user prompt, which can be a simple string or a rich array of content blocks. |
+| `chainOfThought` | `string` | A string outlining the reasoning steps the model should take. |
+| `system` | `string` | The system prompt that sets the context and instructions for the model. |
 
 ##### Returns
 
@@ -209,17 +224,17 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L24)
+Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L25)
 
-Performs a task stream.
+Executes a task and returns a stream of messages.
 
 ##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `userPrompt` | [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `system` | `string` | The system prompt. |
+| `userPrompt` | [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The initial user prompt, which can be a simple string or a rich array of content blocks. |
+| `chainOfThought` | `string` | A string outlining the reasoning steps the model should take. |
+| `system` | `string` | The system prompt that sets the context and instructions for the model. |
 
 ##### Returns
 
@@ -240,17 +255,17 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L25)
+Defined in: [domain/BaseLLM.ts:26](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L26)
 
-Performs a task stream.
+Executes a task and returns a stream of messages.
 
 ##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `userPrompt` | `string` \| [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `system` | `string` | The system prompt. |
+| `userPrompt` | `string` \| [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The initial user prompt, which can be a simple string or a rich array of content blocks. |
+| `chainOfThought` | `string` | A string outlining the reasoning steps the model should take. |
+| `system` | `string` | The system prompt that sets the context and instructions for the model. |
 
 ##### Returns
 
@@ -270,27 +285,32 @@ A promise that resolves to a readable stream of messages.
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: [domain/BaseLLM.ts:83](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L83)
+Defined in: [domain/BaseLLM.ts:99](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L99)
 
-Retries an API call with a delay.
+A robust wrapper for API calls that automatically retries on `APIConnectionError`.
+It uses exponential backoff to wait between retries, making it resilient to transient network issues.
 
 #### Type Parameters
 
-| Type Parameter |
-| ------ |
-| `T` |
+| Type Parameter | Description |
+| ------ | ------ |
+| `T` | The expected return type of the API call. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `apiCall` | () => `Promise`\<`T`\> | The API call to retry. |
+| `apiCall` | () => `Promise`\<`T`\> | The function that makes the API call. |
 
 #### Returns
 
 `Promise`\<`T`\>
 
-The result of the API call.
+The result of the successful API call.
+
+#### Throws
+
+Throws an error if the API call fails after all retries or if a non-connection error occurs.
 
 ***
 
@@ -300,16 +320,18 @@ The result of the API call.
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: [domain/BaseLLM.ts:107](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L107)
+Defined in: [domain/BaseLLM.ts:125](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L125)
 
-Run a command safely, catching and handling any errors.
+A safe execution wrapper for tool calls. It catches errors during tool execution,
+formats them into a standard error message, and pushes the error back into the input stream
+for the LLM to process. This prevents tool failures from crashing the application.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `toolUse` | [`ToolUseBlock`](@uaito.sdk.TypeAlias.ToolUseBlock.md) | The tool being used. |
-| `run` | (`agent`) => `Promise`\<`void`\> | Function to run the command. |
+| `toolUse` | [`ToolUseBlock`](@uaito.sdk.TypeAlias.ToolUseBlock.md) | The tool use block that triggered the command. |
+| `run` | (`agent`) => `Promise`\<`void`\> | The function that executes the tool's logic. |
 
 #### Returns
 
@@ -326,29 +348,31 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:294](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L294)
+Defined in: [domain/BaseLLM.ts:317](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L317)
 
-Transforms an input stream using the provided transform function.
+Handles the execution flow for an "auto mode" or agentic stream, where the LLM can use tools
+and continue its task without waiting for user input. It processes the stream, handles tool calls
+via the `onTool` callback, and then recursively calls `getNext` to continue the task with the tool's output.
 
 #### Type Parameters
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `AChunk` *extends* [`Message`](@uaito.sdk.TypeAlias.Message.md) | The type of the input chunk. |
+| `AChunk` *extends* [`Message`](@uaito.sdk.TypeAlias.Message.md) | The type of chunks in the stream, which must extend `Message`. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `input` | [`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<`AChunk`\> | The input stream to be transformed. |
-| `getNext` | () => `Promise`\<[`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<`AChunk`\>\> | A function to get the next stream. |
-| `onTool?` | [`OnTool`](@uaito.sdk.TypeAlias.OnTool.md) | Optional callback for tool usage. |
+| `input` | [`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<`AChunk`\> | The initial stream from the LLM. |
+| `getNext` | () => `Promise`\<[`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<`AChunk`\>\> | A function that gets the next stream after a tool call. |
+| `onTool?` | [`OnTool`](@uaito.sdk.TypeAlias.OnTool.md) | An optional callback to handle tool usage. |
 
 #### Returns
 
 `Promise`\<[`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<`AChunk`\>\>
 
-A promise that resolves to the transformed readable stream.
+A promise that resolves to the final transformed stream.
 
 ***
 
@@ -358,24 +382,25 @@ A promise that resolves to the transformed readable stream.
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:216](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L216)
+Defined in: [domain/BaseLLM.ts:237](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L237)
 
-Transforms the given stream from an AI provider into a Uaito Stream
-This also keeps track of the received messages
+Transforms a raw stream from an AI provider into the standardized Uaito SDK `Message` format.
+It processes chunks from the input stream, applies the provided `transform` function,
+and emits standardized `Message` objects. It also separates out usage and delta blocks.
 
 #### Type Parameters
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `AChunk` | The type of the input chunk. |
-| `BChunk` *extends* [`Message`](@uaito.sdk.TypeAlias.Message.md) | The type of the output chunk. |
+| `AChunk` | The type of the chunks in the input stream. |
+| `BChunk` *extends* [`Message`](@uaito.sdk.TypeAlias.Message.md) | The type of the chunks in the output stream, which must extend `Message`. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `input` | [`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<`AChunk`\> | The input stream. |
-| `transform` | [`TransformStreamFn`](@uaito.sdk.TypeAlias.TransformStreamFn.md)\<`unknown`, `BChunk`\> | The transform function. |
+| `input` | [`ReadableStreamWithAsyncIterable`](@uaito.sdk.TypeAlias.ReadableStreamWithAsyncIterable.md)\<`AChunk`\> | The raw stream from the provider. |
+| `transform` | [`TransformStreamFn`](@uaito.sdk.TypeAlias.TransformStreamFn.md)\<`unknown`, `BChunk`\> | A function to transform each chunk. |
 
 #### Returns
 

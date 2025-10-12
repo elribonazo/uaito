@@ -1,3 +1,18 @@
+## 0.0.22-rc.2 (2025-10-12)
+
+### 🩹 Fixes
+
+- hugginface Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([11a62aa](https://github.com/elribonazo/uaito/commit/11a62aa))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.15-rc.2
+- Updated @uaito/sdk to 0.8.20-rc.2
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.22-rc.1 (2025-10-12)
 
 ### 🚀 Features

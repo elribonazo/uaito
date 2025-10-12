@@ -16,6 +16,10 @@
 type Role = "assistant" | "user" | "system" | "tool";
 ```
 
-Defined in: [domain/types.ts:97](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L97)
+Defined in: [domain/types.ts:106](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L106)
 
-Represents the role of a message.
+Represents the role of the message's author.
+- `user`: The end-user.
+- `assistant`: The AI model.
+- `system`: A configuration or instruction message.
+- `tool`: A message containing the output of a tool.

@@ -12,9 +12,9 @@
 
 # Interface: ThinkingBlock
 
-Defined in: [domain/types.ts:476](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L476)
+Defined in: [domain/types.ts:490](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L490)
 
-Represents a thinking block.
+Represents a block containing the model's thinking or reasoning process.
  ThinkingBlock
 
 ## Properties
@@ -25,7 +25,7 @@ Represents a thinking block.
 signature: string;
 ```
 
-Defined in: [domain/types.ts:481](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L481)
+Defined in: [domain/types.ts:495](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L495)
 
 The signature of the thinking block.
 
@@ -37,7 +37,7 @@ The signature of the thinking block.
 thinking: string;
 ```
 
-Defined in: [domain/types.ts:487](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L487)
+Defined in: [domain/types.ts:501](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L501)
 
 The thinking content.
 
@@ -49,6 +49,6 @@ The thinking content.
 type: "thinking";
 ```
 
-Defined in: [domain/types.ts:493](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L493)
+Defined in: [domain/types.ts:507](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L507)
 
-The type of the block.
+The type of the block, indicating thinking.

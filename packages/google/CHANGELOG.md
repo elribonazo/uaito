@@ -1,3 +1,10 @@
+## 0.0.12-rc.2 (2025-10-12)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.0.15-rc.2
+- Updated @uaito/sdk to 0.8.20-rc.2
+
 ## 0.0.12-rc.1 (2025-10-12)
 
 ### 🚀 Features

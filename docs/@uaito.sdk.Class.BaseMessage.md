@@ -12,9 +12,9 @@
 
 # Abstract Class: BaseMessage
 
-Defined in: [domain/types.ts:281](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L281)
+Defined in: [domain/types.ts:290](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L290)
 
-An abstract class for a base message.
+An abstract base class for creating message structures.
 
  BaseMessage
 
@@ -38,7 +38,7 @@ new BaseMessage(): BaseMessage;
 abstract buffer: string;
 ```
 
-Defined in: [domain/types.ts:299](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L299)
+Defined in: [domain/types.ts:308](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L308)
 
 The buffer for the message.
 
@@ -50,9 +50,9 @@ The buffer for the message.
 abstract replacements: string[];
 ```
 
-Defined in: [domain/types.ts:293](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L293)
+Defined in: [domain/types.ts:302](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L302)
 
-An array of strings to be replaced in the message.
+An array of strings to be replaced in the message content.
 
 ***
 
@@ -62,7 +62,7 @@ An array of strings to be replaced in the message.
 protected tools: Tool[];
 ```
 
-Defined in: [domain/types.ts:306](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L306)
+Defined in: [domain/types.ts:315](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L315)
 
 An array of available tools.
 
@@ -74,9 +74,9 @@ An array of available tools.
 protected cleanChunk(chunk): string;
 ```
 
-Defined in: [domain/types.ts:313](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L313)
+Defined in: [domain/types.ts:322](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L322)
 
-Cleans a chunk of text by removing replacements.
+Cleans a chunk of text by removing placeholder replacements.
 
 #### Parameters
 
@@ -98,7 +98,7 @@ The cleaned chunk.
 abstract render(): Promise<Message>;
 ```
 
-Defined in: [domain/types.ts:287](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L287)
+Defined in: [domain/types.ts:296](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L296)
 
 Renders the message.
 

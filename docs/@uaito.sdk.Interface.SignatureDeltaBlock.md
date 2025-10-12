@@ -12,9 +12,9 @@
 
 # Interface: SignatureDeltaBlock
 
-Defined in: [domain/types.ts:500](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L500)
+Defined in: [domain/types.ts:514](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L514)
 
-Represents a signature delta block.
+Represents a delta block for a signature.
  SignatureDeltaBlock
 
 ## Properties
@@ -25,7 +25,7 @@ Represents a signature delta block.
 signature: string;
 ```
 
-Defined in: [domain/types.ts:505](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L505)
+Defined in: [domain/types.ts:519](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L519)
 
 The signature of the block.
 
@@ -37,6 +37,6 @@ The signature of the block.
 type: "signature_delta";
 ```
 
-Defined in: [domain/types.ts:511](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L511)
+Defined in: [domain/types.ts:525](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L525)
 
-The type of the block.
+The type of the block, indicating a signature delta.

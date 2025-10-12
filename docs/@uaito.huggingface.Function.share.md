@@ -16,16 +16,18 @@
 function share(body, settings): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:128](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L128)
+Defined in: [HuggingFaceONNXAudio.ts:132](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L132)
 
-Shares a file to Hugging Face.
+A utility function to share a generated audio file to a Hugging Face Space discussion.
+This is primarily for demonstration and sharing purposes.
 
 ## Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `body` | `any` | The body of the request. |
-| `settings` | `any` | The settings for the share. |
+| `body` | `Blob` | The audio file as a `Blob`. |
+| `settings` | \{ `prompt`: `string`; \} | The settings for the share, including the prompt. |
+| `settings.prompt` | `string` | - |
 
 ## Returns
 

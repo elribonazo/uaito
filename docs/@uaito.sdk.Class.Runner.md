@@ -12,9 +12,10 @@
 
 # Abstract Class: Runner
 
-Defined in: [domain/BaseLLM.ts:14](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L14)
+Defined in: [domain/BaseLLM.ts:15](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L15)
 
-An abstract class for a runner that performs a task stream.
+An abstract class representing a task runner that executes an operation and returns a stream of messages.
+This is useful for long-running processes where results are produced incrementally.
 
  Runner
 
@@ -47,17 +48,17 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:23](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L23)
+Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L24)
 
-Performs a task stream.
+Executes a task and returns a stream of messages.
 
 ##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `userPrompt` | `string` | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `system` | `string` | The system prompt. |
+| `userPrompt` | `string` | The initial user prompt, which can be a simple string or a rich array of content blocks. |
+| `chainOfThought` | `string` | A string outlining the reasoning steps the model should take. |
+| `system` | `string` | The system prompt that sets the context and instructions for the model. |
 
 ##### Returns
 
@@ -74,17 +75,17 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:24](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L24)
+Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L25)
 
-Performs a task stream.
+Executes a task and returns a stream of messages.
 
 ##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `userPrompt` | [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `system` | `string` | The system prompt. |
+| `userPrompt` | [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The initial user prompt, which can be a simple string or a rich array of content blocks. |
+| `chainOfThought` | `string` | A string outlining the reasoning steps the model should take. |
+| `system` | `string` | The system prompt that sets the context and instructions for the model. |
 
 ##### Returns
 
@@ -101,17 +102,17 @@ abstract performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [domain/BaseLLM.ts:25](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/BaseLLM.ts#L25)
+Defined in: [domain/BaseLLM.ts:26](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/BaseLLM.ts#L26)
 
-Performs a task stream.
+Executes a task and returns a stream of messages.
 
 ##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `userPrompt` | `string` \| [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `system` | `string` | The system prompt. |
+| `userPrompt` | `string` \| [`BlockType`](@uaito.sdk.TypeAlias.BlockType.md)[] | The initial user prompt, which can be a simple string or a rich array of content blocks. |
+| `chainOfThought` | `string` | A string outlining the reasoning steps the model should take. |
+| `system` | `string` | The system prompt that sets the context and instructions for the model. |
 
 ##### Returns
 

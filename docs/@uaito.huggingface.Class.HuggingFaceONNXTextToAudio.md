@@ -12,10 +12,29 @@
 
 # Class: HuggingFaceONNXTextToAudio
 
-Defined in: [HuggingFaceONNXAudio.ts:151](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L151)
+Defined in: [HuggingFaceONNXAudio.ts:173](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L173)
 
 A class for handling text-to-audio generation using a Hugging Face ONNX model.
+It extends the `BaseLLM` class to provide a consistent interface with the Uaito SDK
+for loading models, processing inputs, and generating audio streams.
+
  HuggingFaceONNXTextToAudio
+
+## Example
+
+```typescript
+const audioGenerator = new HuggingFaceONNXTextToAudio({
+  options: {
+    model: 'Xenova/musicgen-small', // Or another compatible model
+  }
+});
+
+await audioGenerator.load();
+const { response } = await audioGenerator.performTaskStream("An upbeat pop song");
+for await (const chunk of response) {
+  // Process the audio message chunk
+}
+```
 
 ## Extends
 
@@ -26,20 +45,20 @@ A class for handling text-to-audio generation using a Hugging Face ONNX model.
 ### Constructor
 
 ```ts
-new HuggingFaceONNXTextToAudio({, onTool?): HuggingFaceONNXTextToAudio;
+new HuggingFaceONNXTextToAudio(params, onTool?): HuggingFaceONNXTextToAudio;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:196](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L196)
+Defined in: [HuggingFaceONNXAudio.ts:222](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L222)
 
-Creates an instance of HuggingFaceONNXTextToAudio.
+Creates an instance of `HuggingFaceONNXTextToAudio`.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `{` | \{ `options`: [`HuggingFaceONNXOptions`](@uaito.huggingface.TypeAlias.HuggingFaceONNXOptions.md); \} | options } - The options for the LLM. |
-| `{.options` | [`HuggingFaceONNXOptions`](@uaito.huggingface.TypeAlias.HuggingFaceONNXOptions.md) | - |
-| `onTool?` | `OnTool` | Optional callback for tool usage. |
+| `params` | \{ `options`: [`HuggingFaceONNXOptions`](@uaito.huggingface.TypeAlias.HuggingFaceONNXOptions.md); \} | The configuration options for the client. |
+| `params.options` | [`HuggingFaceONNXOptions`](@uaito.huggingface.TypeAlias.HuggingFaceONNXOptions.md) | - |
+| `onTool?` | `OnTool` | An optional callback for handling tool usage. |
 
 #### Returns
 
@@ -59,7 +78,7 @@ BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>.constructor
 cache: BaseLLMCache;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:158](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L158)
+Defined in: [HuggingFaceONNXAudio.ts:180](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L180)
 
 The cache for the LLM.
 
@@ -77,9 +96,10 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:95
+Defined in: ../../sdk/build/index.d.ts:108
 
-A record of data for the LLM.
+A generic key-value store for attaching arbitrary data to the LLM instance.
+Can be used for session management, tracking metadata, etc.
 
 #### Inherited from
 
@@ -95,7 +115,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:170](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L170)
+Defined in: [HuggingFaceONNXAudio.ts:192](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L192)
 
 An array of message inputs.
 
@@ -113,7 +133,7 @@ BaseLLM.inputs
 loadProgress: number = 0;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:164](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L164)
+Defined in: [HuggingFaceONNXAudio.ts:186](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L186)
 
 The progress of loading the model.
 
@@ -125,7 +145,9 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:190](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L190)
+Defined in: [HuggingFaceONNXAudio.ts:216](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L216)
+
+An optional callback function that is triggered when a tool is used.
 
 ***
 
@@ -135,7 +157,7 @@ Defined in: [HuggingFaceONNXAudio.ts:190](https://github.com/elribonazo/uaito/bl
 readonly options: HuggingFaceONNXOptions;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:63
+Defined in: ../../sdk/build/index.d.ts:73
 
 #### Inherited from
 
@@ -151,7 +173,7 @@ BaseLLM.options
 readonly type: Local;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:62
+Defined in: ../../sdk/build/index.d.ts:72
 
 #### Inherited from
 
@@ -170,23 +192,25 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:129
+Defined in: ../../sdk/build/index.d.ts:149
 
-Includes the last prompt in the input.
+Appends the latest user prompt and the chain of thought to the message history.
+It handles both simple string prompts and complex `BlockType` array prompts (e.g., with images).
+This method ensures that the prompt is correctly formatted and added to the conversation context.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `prompt` | `string` \| `BlockType`[] | The user prompt. |
-| `chainOfThought` | `string` | The chain of thought for the task. |
-| `input` | `MessageArray`\<`MessageInput`\> | The input messages. |
+| `prompt` | `string` \| `BlockType`[] | The user's prompt. |
+| `chainOfThought` | `string` | The reasoning steps for the model. |
+| `input` | `MessageArray`\<`MessageInput`\> | The current message history. |
 
 #### Returns
 
 `MessageArray`\<`MessageInput`\>
 
-The updated input messages.
+The updated message history with the new prompt.
 
 #### Inherited from
 
@@ -202,9 +226,10 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:208](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L208)
+Defined in: [HuggingFaceONNXAudio.ts:235](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L235)
 
-Loads the model and tokenizer.
+Loads the audio generation model, processor, and tokenizer from Hugging Face.
+It provides progress callbacks for monitoring the download and setup process.
 
 #### Returns
 
@@ -218,9 +243,10 @@ Loads the model and tokenizer.
 log(message): void;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:101
+Defined in: ../../sdk/build/index.d.ts:115
 
-Logs a message.
+A utility for logging messages. It can be configured to use a custom logger
+by passing a `log` function in the options. Defaults to `console.log`.
 
 #### Parameters
 
@@ -246,21 +272,23 @@ BaseLLM.log
 performTaskStream(prompt): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:242](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L242)
+Defined in: [HuggingFaceONNXAudio.ts:271](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L271)
 
-Performs a text-to-audio task stream.
+Performs the text-to-audio generation task. It tokenizes the input prompt,
+runs the model to generate audio samples, encodes the samples into a WAV file,
+and returns the result as a `Message` in a readable stream.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `prompt` | `any` | The prompt for the task. |
+| `prompt` | `string` \| `BlockType`[] | The text prompt for the audio generation. |
 
 #### Returns
 
 `Promise`\<`ReadableStreamWithAsyncIterable`\<`Message`\>\>
 
-A promise that resolves to a readable stream of messages.
+A promise that resolves to a readable stream of messages containing the audio.
 
 #### Overrides
 
@@ -276,27 +304,32 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:108
+Defined in: ../../sdk/build/index.d.ts:124
 
-Retries an API call with a delay.
+A robust wrapper for API calls that automatically retries on `APIConnectionError`.
+It uses exponential backoff to wait between retries, making it resilient to transient network issues.
 
 #### Type Parameters
 
-| Type Parameter |
-| ------ |
-| `T` |
+| Type Parameter | Description |
+| ------ | ------ |
+| `T` | The expected return type of the API call. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `apiCall` | () => `Promise`\<`T`\> | The API call to retry. |
+| `apiCall` | () => `Promise`\<`T`\> | The function that makes the API call. |
 
 #### Returns
 
 `Promise`\<`T`\>
 
-The result of the API call.
+The result of the successful API call.
+
+#### Throws
+
+Throws an error if the API call fails after all retries or if a non-connection error occurs.
 
 #### Inherited from
 
@@ -312,16 +345,18 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:115
+Defined in: ../../sdk/build/index.d.ts:133
 
-Run a command safely, catching and handling any errors.
+A safe execution wrapper for tool calls. It catches errors during tool execution,
+formats them into a standard error message, and pushes the error back into the input stream
+for the LLM to process. This prevents tool failures from crashing the application.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `toolUse` | `ToolUseBlock` | The tool being used. |
-| `run` | (`agent`) => `Promise`\<`void`\> | Function to run the command. |
+| `toolUse` | `ToolUseBlock` | The tool use block that triggered the command. |
+| `run` | (`agent`) => `Promise`\<`void`\> | The function that executes the tool's logic. |
 
 #### Returns
 
@@ -344,29 +379,31 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:148
+Defined in: ../../sdk/build/index.d.ts:171
 
-Transforms an input stream using the provided transform function.
+Handles the execution flow for an "auto mode" or agentic stream, where the LLM can use tools
+and continue its task without waiting for user input. It processes the stream, handles tool calls
+via the `onTool` callback, and then recursively calls `getNext` to continue the task with the tool's output.
 
 #### Type Parameters
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `AChunk` *extends* `Message` | The type of the input chunk. |
+| `AChunk` *extends* `Message` | The type of chunks in the stream, which must extend `Message`. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The input stream to be transformed. |
-| `getNext` | () => `Promise`\<`ReadableStreamWithAsyncIterable`\<`AChunk`\>\> | A function to get the next stream. |
-| `onTool?` | `OnTool` | Optional callback for tool usage. |
+| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The initial stream from the LLM. |
+| `getNext` | () => `Promise`\<`ReadableStreamWithAsyncIterable`\<`AChunk`\>\> | A function that gets the next stream after a tool call. |
+| `onTool?` | `OnTool` | An optional callback to handle tool usage. |
 
 #### Returns
 
 `Promise`\<`ReadableStreamWithAsyncIterable`\<`AChunk`\>\>
 
-A promise that resolves to the transformed readable stream.
+A promise that resolves to the final transformed stream.
 
 #### Inherited from
 
@@ -382,24 +419,25 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:139
+Defined in: ../../sdk/build/index.d.ts:160
 
-Transforms the given stream from an AI provider into a Uaito Stream
-This also keeps track of the received messages
+Transforms a raw stream from an AI provider into the standardized Uaito SDK `Message` format.
+It processes chunks from the input stream, applies the provided `transform` function,
+and emits standardized `Message` objects. It also separates out usage and delta blocks.
 
 #### Type Parameters
 
 | Type Parameter | Description |
 | ------ | ------ |
-| `AChunk` | The type of the input chunk. |
-| `BChunk` *extends* `Message` | The type of the output chunk. |
+| `AChunk` | The type of the chunks in the input stream. |
+| `BChunk` *extends* `Message` | The type of the chunks in the output stream, which must extend `Message`. |
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The input stream. |
-| `transform` | `TransformStreamFn`\<`unknown`, `BChunk`\> | The transform function. |
+| `input` | `ReadableStreamWithAsyncIterable`\<`AChunk`\> | The raw stream from the provider. |
+| `transform` | `TransformStreamFn`\<`unknown`, `BChunk`\> | A function to transform each chunk. |
 
 #### Returns
 

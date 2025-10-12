@@ -12,7 +12,7 @@
 
 # Interface: WebSearchResultBlock
 
-Defined in: [domain/types.ts:104](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L104)
+Defined in: [domain/types.ts:113](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L113)
 
 Represents a web search result block.
  WebSearchResultBlock
@@ -25,7 +25,7 @@ Represents a web search result block.
 encrypted_content: string;
 ```
 
-Defined in: [domain/types.ts:109](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L109)
+Defined in: [domain/types.ts:118](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L118)
 
 The encrypted content of the search result.
 
@@ -37,7 +37,7 @@ The encrypted content of the search result.
 page_age: null | string;
 ```
 
-Defined in: [domain/types.ts:115](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L115)
+Defined in: [domain/types.ts:124](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L124)
 
 The age of the page.
 
@@ -49,7 +49,7 @@ The age of the page.
 title: string;
 ```
 
-Defined in: [domain/types.ts:121](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L121)
+Defined in: [domain/types.ts:130](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L130)
 
 The title of the search result.
 
@@ -61,7 +61,7 @@ The title of the search result.
 type: "web_search_result";
 ```
 
-Defined in: [domain/types.ts:127](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L127)
+Defined in: [domain/types.ts:136](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L136)
 
 The type of the block.
 
@@ -73,6 +73,6 @@ The type of the block.
 url: string;
 ```
 
-Defined in: [domain/types.ts:133](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L133)
+Defined in: [domain/types.ts:142](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L142)
 
 The URL of the search result.

@@ -12,9 +12,10 @@
 
 # Abstract Class: BaseAgent
 
-Defined in: [domain/types.ts:341](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L341)
+Defined in: [domain/types.ts:351](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L351)
 
-An abstract class for a base agent.
+An abstract class defining the core structure and functionality of an agent.
+Agents encapsulate an LLM and provide a higher-level interface for performing tasks.
 
  BaseAgent
 
@@ -38,9 +39,9 @@ new BaseAgent(): BaseAgent;
 abstract chainOfThought: string;
 ```
 
-Defined in: [domain/types.ts:377](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L377)
+Defined in: [domain/types.ts:387](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L387)
 
-The chain of thought for the agent.
+The chain of thought or reasoning steps for the agent to follow.
 
 ***
 
@@ -50,9 +51,9 @@ The chain of thought for the agent.
 abstract inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [domain/types.ts:365](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L365)
+Defined in: [domain/types.ts:375](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L375)
 
-An array of message inputs.
+An array that holds the history of messages for a conversation.
 
 ***
 
@@ -62,7 +63,7 @@ An array of message inputs.
 abstract name: string;
 ```
 
-Defined in: [domain/types.ts:359](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L359)
+Defined in: [domain/types.ts:369](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L369)
 
 The name of the agent.
 
@@ -74,9 +75,9 @@ The name of the agent.
 abstract optional onTool: OnTool;
 ```
 
-Defined in: [domain/types.ts:353](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L353)
+Defined in: [domain/types.ts:363](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L363)
 
-Optional callback for tool usage.
+An optional callback function that is triggered when a tool is used.
 
 ***
 
@@ -86,9 +87,9 @@ Optional callback for tool usage.
 abstract options: BaseLLMOptions;
 ```
 
-Defined in: [domain/types.ts:347](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L347)
+Defined in: [domain/types.ts:357](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L357)
 
-The options for the base LLM.
+Configuration options for the underlying `BaseLLM`.
 
 ***
 
@@ -98,9 +99,9 @@ The options for the base LLM.
 abstract systemPrompt: string;
 ```
 
-Defined in: [domain/types.ts:371](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L371)
+Defined in: [domain/types.ts:381](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L381)
 
-The system prompt for the agent.
+The system prompt that defines the agent's behavior and context.
 
 ## Methods
 
@@ -110,15 +111,15 @@ The system prompt for the agent.
 abstract addInputs(inputs): Promise<void>;
 ```
 
-Defined in: [domain/types.ts:385](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L385)
+Defined in: [domain/types.ts:395](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L395)
 
-Adds inputs to the agent.
+Adds a message history to the agent's context.
 
 #### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `inputs` | [`MessageArray`](@uaito.sdk.Class.MessageArray.md)\<[`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)\> | The inputs to add. |
+| `inputs` | [`MessageArray`](@uaito.sdk.Class.MessageArray.md)\<[`MessageInput`](@uaito.sdk.TypeAlias.MessageInput.md)\> | The message history to add. |
 
 #### Returns
 
@@ -132,9 +133,9 @@ Adds inputs to the agent.
 abstract load(): Promise<void>;
 ```
 
-Defined in: [domain/types.ts:391](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L391)
+Defined in: [domain/types.ts:401](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L401)
 
-Loads the agent.
+Initializes or loads the agent, preparing it for task execution.
 
 #### Returns
 
@@ -154,9 +155,9 @@ abstract performTask(prompt): Promise<{
 }>;
 ```
 
-Defined in: [domain/types.ts:398](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L398)
+Defined in: [domain/types.ts:408](https://github.com/elribonazo/uaito/blob/11a62aa88ccfadb7acae2cd0c0e9264cbc6ec939/packages/sdk/src/domain/types.ts#L408)
 
-Performs a task using the agent.
+Executes a task with the given prompt.
 
 #### Parameters
 
@@ -174,4 +175,4 @@ Performs a task using the agent.
   \};
 \}\>
 
-A promise that resolves to the usage and response stream.
+A promise that resolves to the token usage and a stream of response messages.

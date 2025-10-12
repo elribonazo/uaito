@@ -16,16 +16,16 @@
 
 | Enumeration | Description |
 | ------ | ------ |
-| [AnthropicModels](@uaito.anthropic.Enumeration.AnthropicModels.md) | Enumeration of the available Anthropic models. |
+| [AnthropicModels](@uaito.anthropic.Enumeration.AnthropicModels.md) | An enumeration of the available Anthropic models that can be used with the SDK. Each enum member maps to a specific model identifier provided by Anthropic. |
 
 ## Classes
 
 | Class | Description |
 | ------ | ------ |
-| [Anthropic](@uaito.anthropic.Class.Anthropic.md) | A class for interacting with the Anthropic API. Anthropic |
+| [Anthropic](@uaito.anthropic.Class.Anthropic.md) | A class for interacting with the Anthropic API, providing a standardized interface for streaming responses, handling tool usage, and managing conversation history. It extends the `BaseLLM` class to ensure compatibility with the Uaito SDK. |
 
 ## Type Aliases
 
 | Type Alias | Description |
 | ------ | ------ |
-| [AnthropicOptions](@uaito.anthropic.TypeAlias.AnthropicOptions.md) | Type alias for Anthropic options, extending BaseLLMOptions with an optional apiKey. |
+| [AnthropicOptions](@uaito.anthropic.TypeAlias.AnthropicOptions.md) | Defines the configuration options for the `Anthropic` LLM client. It extends the `BaseLLMOptions` with an optional `apiKey`. |
