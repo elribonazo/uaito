@@ -12,7 +12,7 @@
 
 # Class: MessageArray\<T\>
 
-Defined in: [utils.ts:94](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/sdk/src/utils.ts#L94)
+Defined in: [utils.ts:94](https://github.com/elribonazo/uaito/blob/a08130038b69653f097dc58d6aedccf1beff2999/packages/sdk/src/utils.ts#L94)
 
 A specialized array class for managing an array of `MessageInput` objects.
 It extends the native `Array` but overrides the `push` method to automatically
@@ -53,7 +53,7 @@ messages.push({ role: 'user', content: [{ type: 'text', text: ' world!' }] });
 new MessageArray<T>(items?): MessageArray<T>;
 ```
 
-Defined in: [utils.ts:111](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/sdk/src/utils.ts#L111)
+Defined in: [utils.ts:111](https://github.com/elribonazo/uaito/blob/a08130038b69653f097dc58d6aedccf1beff2999/packages/sdk/src/utils.ts#L111)
 
 Creates an instance of `MessageArray`.
 It uses a `Proxy` to intercept the `push` method, enabling custom logic for
@@ -1109,7 +1109,7 @@ Array.indexOf
 protected isSameRole(lastOne, item): boolean;
 ```
 
-Defined in: [utils.ts:170](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/sdk/src/utils.ts#L170)
+Defined in: [utils.ts:170](https://github.com/elribonazo/uaito/blob/a08130038b69653f097dc58d6aedccf1beff2999/packages/sdk/src/utils.ts#L170)
 
 Determines whether a new message should be merged with the previous one.
 Merging occurs if both messages are from the 'user' and the new message does not contain a tool result.
@@ -1948,7 +1948,7 @@ Array.with
 static from(items): MessageArray<MessageInput>;
 ```
 
-Defined in: [utils.ts:101](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/sdk/src/utils.ts#L101)
+Defined in: [utils.ts:101](https://github.com/elribonazo/uaito/blob/a08130038b69653f097dc58d6aedccf1beff2999/packages/sdk/src/utils.ts#L101)
 
 A static factory method to create a `MessageArray` from an array of `MessageInput` items.
 

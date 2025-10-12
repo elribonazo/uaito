@@ -1,3 +1,21 @@
+## 0.0.4 (2025-10-12)
+
+### 🩹 Fixes
+
+- github action files not being sent Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([a081300](https://github.com/elribonazo/uaito/commit/a081300))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/anthropic to 0.1.2
+- Updated @uaito/google to 0.1.2
+- Updated @uaito/openai to 0.1.2
+- Updated @uaito/sdk to 0.9.2
+- Updated @uaito/ai to 0.1.2
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.3 (2025-10-12)
 
 ### 🩹 Fixes
