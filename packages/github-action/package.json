@@ -11,6 +11,9 @@
   },
   "author": "",
   "license": "ISC",
+  "bin": {
+    "uaito-github-action": "build/cli.js"
+  },
   "dependencies": {
     "@uaito/ai": "workspace:*",
     "@uaito/sdk": "workspace:*",

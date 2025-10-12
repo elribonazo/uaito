@@ -3,7 +3,7 @@ import * as github from '@actions/github';
 import { GithubAgent } from './agent';
 import { LLMProvider, MessageArray, Message, ToolResultBlock } from '@uaito/sdk';
 
-async function run() {
+export async function run() {
   try {
     const token = core.getInput('github-token', { required: true });
     const allowedUser = core.getInput('allowed-user', { required: true });
