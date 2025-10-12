@@ -6884,7 +6884,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@uaito/sdk@npm:^0.9.0, @uaito/sdk@workspace:*, @uaito/sdk@workspace:packages/sdk":
+"@uaito/sdk@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@uaito/sdk@npm:0.9.0"
+  dependencies:
+    abort-controller: "npm:^3.0.0"
+    idb: "npm:^8.0.3"
+    lodash: "npm:^4.17.21"
+    uuid: "npm:^10.0.0"
+    yargs: "npm:^18.0.0"
+  bin:
+    uaito: build/cli.js
+  checksum: 10c0/0e2db6626b76bcc55f37c7bda8cfdeda40fb2490e92c851e89f1a35e58269f9f2675118839bb49992bea78012a3c557c51bbec4722df900c1e4c111c23a0edd9
+  languageName: node
+  linkType: hard
+
+"@uaito/sdk@workspace:*, @uaito/sdk@workspace:packages/sdk":
   version: 0.0.0-use.local
   resolution: "@uaito/sdk@workspace:packages/sdk"
   dependencies:
@@ -6907,21 +6922,6 @@ __metadata:
     uaito: build/cli.js
   languageName: unknown
   linkType: soft
-
-"@uaito/sdk@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@uaito/sdk@npm:0.9.0"
-  dependencies:
-    abort-controller: "npm:^3.0.0"
-    idb: "npm:^8.0.3"
-    lodash: "npm:^4.17.21"
-    uuid: "npm:^10.0.0"
-    yargs: "npm:^18.0.0"
-  bin:
-    uaito: build/cli.js
-  checksum: 10c0/0e2db6626b76bcc55f37c7bda8cfdeda40fb2490e92c851e89f1a35e58269f9f2675118839bb49992bea78012a3c557c51bbec4722df900c1e4c111c23a0edd9
-  languageName: node
-  linkType: hard
 
 "@uaito/site@workspace:apps/uaito":
   version: 0.0.0-use.local
