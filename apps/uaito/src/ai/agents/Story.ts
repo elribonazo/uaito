@@ -104,15 +104,15 @@ Important: Leave all \`image\` fields as empty strings "". Images will be insert
 Example JSON structure
 {
   "title": "The Magical Forest",
-  "cover":
+  "cover": "",
   "chapters": [
     {
-      "title": "Cover",
+      "title": "Chapter 1: Sample Chapter",
       "content": "The Magical Forest",
       "image": ""
     },
     {
-      "title": "The First Clue",
+      "title": "Chapter 2: The First Clue",
       "content": "Alex found a mysterious map...",
       "image": ""
     }

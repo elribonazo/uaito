@@ -175,7 +175,7 @@ const processStoryGeneration = async (
 	const cover =storyData.cover;
 	const title = storyData.title;
 
-	const storyChapters = chapters.filter(c => c.title.toLowerCase() !== 'cover');
+	const storyChapters = chapters;
 
 	// Compress images before PDF generation
 	console.log('=== Compressing images ===');
@@ -398,7 +398,8 @@ const processStoryGeneration = async (
 	}
 
 	if (process.env.BOOKS_PATH) {
-		fs.writeFileSync(path.resolve(process.env.BOOKS_PATH), Uint8Array.from(pdfBuffer));
+		const bookTitle = `${title} - ${kidName}.pdf`;
+		fs.writeFileSync(path.resolve(process.env.BOOKS_PATH, bookTitle), Uint8Array.from(pdfBuffer));
 	}
 
 	console.log('--- CUMULATIVE USAGE ---');
