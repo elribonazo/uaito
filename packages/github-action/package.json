@@ -1,6 +1,6 @@
 {
   "name": "@uaito/github-action",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "GitHub Action for UAITO",
   "files": [
     "build"
@@ -21,8 +21,8 @@
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0",
     "@octokit/rest": "^21.0.1",
-    "@uaito/ai": "^0.1.3",
-    "@uaito/sdk": "^0.9.3"
+    "@uaito/ai": "^0.1.4",
+    "@uaito/sdk": "^0.9.4"
   },
   "devDependencies": {
     "tsup": "^8.2.3",

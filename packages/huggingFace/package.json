@@ -1,6 +1,6 @@
 {
   "name": "@uaito/huggingface",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "UAITO Hugging Face Provider.",
   "main": "build/index.js",
   "module": "build/index.mjs",
@@ -29,15 +29,15 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@uaito/sdk": "^0.9.3"
+    "@uaito/sdk": "^0.9.4"
   },
   "devDependencies": {
     "@esbuild-plugins/node-resolve": "^0.2.2",
     "@types/lodash": "^4.17.20",
     "@types/node": "^14.18.63",
     "@types/yargs": "^17.0.33",
-    "@uaito/build": "^0.1.3",
-    "@uaito/sdk": "^0.9.3",
+    "@uaito/build": "^0.1.4",
+    "@uaito/sdk": "^0.9.4",
     "dotenv": "^16.4.7",
     "esbuild-node-externals": "^1.16.0",
     "esbuild-plugin-glob": "^2.2.3",

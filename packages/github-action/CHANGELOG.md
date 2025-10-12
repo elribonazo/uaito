@@ -1,3 +1,21 @@
+## 0.0.8 (2025-10-12)
+
+### 🩹 Fixes
+
+- package Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([d70d7dc](https://github.com/elribonazo/uaito/commit/d70d7dc))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/anthropic to 0.1.4
+- Updated @uaito/google to 0.1.4
+- Updated @uaito/openai to 0.1.4
+- Updated @uaito/sdk to 0.9.4
+- Updated @uaito/ai to 0.1.4
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.7 (2025-10-12)
 
 ### 🩹 Fixes

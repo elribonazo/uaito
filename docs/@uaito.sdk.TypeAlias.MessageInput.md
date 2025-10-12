@@ -21,7 +21,7 @@ type MessageInput = {
 };
 ```
 
-Defined in: [domain/types.ts:667](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L667)
+Defined in: [domain/types.ts:667](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L667)
 
 Represents the structure of a message when it is being passed as input to an LLM.
 
@@ -33,7 +33,7 @@ Represents the structure of a message when it is being passed as input to an LLM
 content: MessageContent[];
 ```
 
-Defined in: [domain/types.ts:687](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L687)
+Defined in: [domain/types.ts:687](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L687)
 
 The content of the message.
 
@@ -45,7 +45,7 @@ The content of the message.
 optional id: string;
 ```
 
-Defined in: [domain/types.ts:672](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L672)
+Defined in: [domain/types.ts:672](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L672)
 
 The unique ID of the message.
 
@@ -57,7 +57,7 @@ The unique ID of the message.
 role: Role;
 ```
 
-Defined in: [domain/types.ts:682](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L682)
+Defined in: [domain/types.ts:682](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L682)
 
 The role of the message.
 
@@ -69,6 +69,6 @@ The role of the message.
 optional type: MessageType;
 ```
 
-Defined in: [domain/types.ts:677](https://github.com/elribonazo/uaito/blob/a6f1c59724f590c9aee06115593ac990cf447b39/packages/sdk/src/domain/types.ts#L677)
+Defined in: [domain/types.ts:677](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L677)
 
 The type of the message.
