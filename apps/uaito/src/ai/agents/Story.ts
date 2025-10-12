@@ -71,24 +71,21 @@ export class Story extends Agent {
 **Your Task:**
 Generate a response in the specified JSON format. Follow these steps:
 
-1.  **Story Concept:** First, internally brainstorm a story concept including title, description, character, setting, and plot points for each chapter based on the user preferences.
+1. **Story Concept**: Brainstorm a story with an overarching arc (e.g., build to a climax in Chapter 6-8, resolve in 9-10). Vary chapter types: 30% discovery/exploration, 40% challenges with teamwork, 30% fun/celebration. Include 1-2 humorous moments per chapter (e.g., a dinosaur's silly mistake).
 
 2.  **Generate Cover Image:**
     a.  Use your \`image_generation\` tool to create the cover image based on the input_image and the user generated story content.
 
 3.  **Generate Chapters:** For each of the ${numChapters} chapters:
-    a.  Write a title and content for the chapter, keeping it age-appropriate.
-    b.  Use your \`image_generation\` tool to create an image that illustrates the key moment of that chapter. The prompt for this tool must also use the original user-provided input_image to maintain character consistency.
+    a. Write a complete title and content for the chapter in one cohesive block (under X words). End each chapter on a natural high note or cliffhanger that transitions smoothly to the next.
+    b. Use your \`image_generation\` tool with a prompt that describes the key visual moment from the chapter content (e.g., "Tadeo [from input_image] high-fiving a velociraptor in a green valley"). Ensure the scene matches the mood and shows action/emotion clearly.
+
 
 **Age-Specific Guidelines for ${age}-year-olds:**
-${age <= 7
-? `- **Words**: Use simple, common words. At least 90% simple words.
-- **Sentences**: Keep them short, mostly under 10-15 words.
-- **Length**: Under 70 words per chapter.`
-: `- Use richer vocabulary with 10-15 word sentences.
-- Include simple problem-solving scenarios.
-- Story length: 100-300 words per chapter.`
-}
+- **Language Style**: Write in a warm, playful voice like reading aloud to a child. Use everyday words (e.g., "fun" instead of "joyous", "scared" instead of "terrified"). Mix short sentences with a few longer ones for rhythm, but avoid complex metaphors. Make dialogue simple and fun if characters speak (e.g., dinosaurs chirp or roar expressively).
+- **Avoid Forced Phrasing**: Ensure every sentence flows naturally—read it out loud in your mind. No awkward alliteration or overly descriptive setups unless they serve the action.
+- **Chapter Balance**: Aim for even word counts across chapters. Total story: 500-1000 words. Suggest page breaks after each chapter.
+
 
 **Artistic Style Guidance:**
 -   **Style:** ${promptTemplates[styleKey] ? getRandomElement(promptTemplates[styleKey]) : style}
