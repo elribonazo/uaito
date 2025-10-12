@@ -27,7 +27,7 @@ type DType =
   | undefined;
 ```
 
-Defined in: [types.ts:197](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/huggingFace/src/types.ts#L197)
+Defined in: [types.ts:197](https://github.com/elribonazo/uaito/blob/05c34820022d2c3b044fab18390fca3eb7cd7f91/packages/huggingFace/src/types.ts#L197)
 
 A union of possible data types for model quantization and execution.
 `auto` allows the library to choose the best type based on the model and hardware.

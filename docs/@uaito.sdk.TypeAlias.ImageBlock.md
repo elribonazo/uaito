@@ -24,7 +24,7 @@ type ImageBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L534)
+Defined in: [domain/types.ts:534](https://github.com/elribonazo/uaito/blob/05c34820022d2c3b044fab18390fca3eb7cd7f91/packages/sdk/src/domain/types.ts#L534)
 
 Represents a block containing an image.
 
@@ -36,7 +36,7 @@ Represents a block containing an image.
 optional imageGenerationCallId: string;
 ```
 
-Defined in: [domain/types.ts:553](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L553)
+Defined in: [domain/types.ts:553](https://github.com/elribonazo/uaito/blob/05c34820022d2c3b044fab18390fca3eb7cd7f91/packages/sdk/src/domain/types.ts#L553)
 
 Optional ID reference to a previous image generation call (for multi-turn editing).
 
@@ -52,7 +52,7 @@ source: {
 };
 ```
 
-Defined in: [domain/types.ts:539](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L539)
+Defined in: [domain/types.ts:539](https://github.com/elribonazo/uaito/blob/05c34820022d2c3b044fab18390fca3eb7cd7f91/packages/sdk/src/domain/types.ts#L539)
 
 The source of the image.
 
@@ -82,6 +82,6 @@ type: "base64";
 type: "image";
 ```
 
-Defined in: [domain/types.ts:548](https://github.com/elribonazo/uaito/blob/6736807a773945f2caff6007dc512a530687f9da/packages/sdk/src/domain/types.ts#L548)
+Defined in: [domain/types.ts:548](https://github.com/elribonazo/uaito/blob/05c34820022d2c3b044fab18390fca3eb7cd7f91/packages/sdk/src/domain/types.ts#L548)
 
 The type of the block, indicating an image.
