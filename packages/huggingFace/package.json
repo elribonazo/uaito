@@ -1,7 +1,7 @@
 {
   "name": "@uaito/huggingface",
   "version": "0.0.22-rc.1",
-  "description": "UAITO Hugging Face Provider",
+  "description": "UAITO Hugging Face Provider.",
   "main": "build/index.js",
   "module": "build/index.mjs",
   "types": "build/index.d.ts",
