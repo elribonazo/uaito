@@ -19,7 +19,7 @@ type ToolBlock =
   | ToolResultBlock;
 ```
 
-Defined in: [domain/types.ts:97](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/sdk/src/domain/types.ts#L97)
+Defined in: [domain/types.ts:97](https://github.com/elribonazo/uaito/blob/f97507d683891e85274a4513e587f8a6bb01bb1d/packages/sdk/src/domain/types.ts#L97)
 
 A union type representing all possible tool-related blocks in a message.
 This includes tool inputs, tool usage requests, and tool results.

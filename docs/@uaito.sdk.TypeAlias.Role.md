@@ -16,7 +16,7 @@
 type Role = "assistant" | "user" | "system" | "tool";
 ```
 
-Defined in: [domain/types.ts:106](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/sdk/src/domain/types.ts#L106)
+Defined in: [domain/types.ts:106](https://github.com/elribonazo/uaito/blob/f97507d683891e85274a4513e587f8a6bb01bb1d/packages/sdk/src/domain/types.ts#L106)
 
 Represents the role of the message's author.
 - `user`: The end-user.
