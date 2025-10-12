@@ -29,7 +29,7 @@ export class Execution extends Agent {
     }
 
     get tools() {
-        return this.options.tools ?? [];
+        return (this.options as any).tools ?? [];
     }
 
     get chainOfThought() {

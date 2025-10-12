@@ -57,7 +57,7 @@ export async function onTool<T extends LLMProvider>(
     const localTools = ['tavilySearch', 'browseWebPage'];
     const toolName = tool.name as 'tavilySearch' | 'browseWebPage' | 'executeCommand' | 'editAndApply' | 'createFile' | 'createFolder' | 'readFile' | 'listFiles';
 
-    const agentOptions = this.options
+    const agentOptions = this.options as any
 
     
 
