@@ -1,3 +1,18 @@
+## 0.1.6-rc.1 (2025-10-12)
+
+### 🩹 Fixes
+
+- improve story generation & send emails automatically Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([48ca7e9](https://github.com/elribonazo/uaito/commit/48ca7e9))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.1.6-rc.1
+- Updated @uaito/sdk to 0.9.6-rc.1
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.1.6-rc.0 (2025-10-12)
 
 ### 🧱 Updated Dependencies
