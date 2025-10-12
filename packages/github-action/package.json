@@ -15,11 +15,11 @@
     "uaito-github-action": "build/cli.js"
   },
   "dependencies": {
-    "@uaito/ai": "workspace:*",
-    "@uaito/sdk": "workspace:*",
-    "@octokit/rest": "^21.0.1",
     "@actions/core": "^1.10.1",
-    "@actions/github": "^6.0.0"
+    "@actions/github": "^6.0.0",
+    "@octokit/rest": "^21.0.1",
+    "@uaito/ai": "workspace:*",
+    "@uaito/sdk": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.2.3",
