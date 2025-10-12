@@ -9,8 +9,8 @@
     "build"
   ],
   "scripts": {
-    "build": "sh build.sh",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf build && sh build.sh",
+    "clean": "rm -rf build"
   },
   "publishConfig": {
     "access": "public"
