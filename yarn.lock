@@ -6770,7 +6770,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@uaito/github-action@workspace:packages/github-action":
+"@uaito/github-action@npm:^0.0.7, @uaito/github-action@workspace:packages/github-action":
   version: 0.0.0-use.local
   resolution: "@uaito/github-action@workspace:packages/github-action"
   dependencies:
@@ -22849,6 +22849,7 @@ __metadata:
     "@types/formidable": "npm:^3.4.5"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^20.14.2"
+    "@uaito/github-action": "npm:^0.0.7"
     "@vitejs/plugin-react-swc": "npm:^3.8.0"
     "@vitest/browser": "npm:^3.0.8"
     "@vitest/coverage-istanbul": "npm:^3.0.8"
