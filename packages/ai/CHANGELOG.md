@@ -1,3 +1,23 @@
+## 0.0.28-rc.1 (2025-10-12)
+
+### 🚀 Features
+
+- book generator ([#10](https://github.com/elribonazo/uaito/pull/10))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.0.22-rc.1
+- Updated @uaito/anthropic to 0.0.22-rc.1
+- Updated @uaito/google to 0.0.12-rc.1
+- Updated @uaito/openai to 0.0.22-rc.1
+- Updated @uaito/build to 0.0.15-rc.1
+- Updated @uaito/api to 0.0.21-rc.1
+- Updated @uaito/sdk to 0.8.20-rc.1
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.28 (2025-10-09)
 
 ### 🩹 Fixes

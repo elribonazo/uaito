@@ -1,3 +1,13 @@
+## 0.0.15-rc.1 (2025-10-12)
+
+### 🚀 Features
+
+- book generator ([#10](https://github.com/elribonazo/uaito/pull/10))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.15-rc.0 (2025-10-09)
 
 This was a version bump only for @uaito/build to align it with other projects, there were no code changes.

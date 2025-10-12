@@ -22,7 +22,7 @@ type ToolResultBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:681](https://github.com/elribonazo/uaito/blob/45fe78be02d2e8093f6553d8593d16a88041733d/packages/sdk/src/domain/types.ts#L681)
+Defined in: [domain/types.ts:681](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L681)
 
 Represents a tool result block.
 
@@ -34,7 +34,7 @@ Represents a tool result block.
 optional content: MessageContent[];
 ```
 
-Defined in: [domain/types.ts:701](https://github.com/elribonazo/uaito/blob/45fe78be02d2e8093f6553d8593d16a88041733d/packages/sdk/src/domain/types.ts#L701)
+Defined in: [domain/types.ts:701](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L701)
 
 The content of the block.
 
@@ -46,7 +46,7 @@ The content of the block.
 optional isError: boolean;
 ```
 
-Defined in: [domain/types.ts:706](https://github.com/elribonazo/uaito/blob/45fe78be02d2e8093f6553d8593d16a88041733d/packages/sdk/src/domain/types.ts#L706)
+Defined in: [domain/types.ts:706](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L706)
 
 Whether the tool result is an error.
 
@@ -58,7 +58,7 @@ Whether the tool result is an error.
 name: string;
 ```
 
-Defined in: [domain/types.ts:691](https://github.com/elribonazo/uaito/blob/45fe78be02d2e8093f6553d8593d16a88041733d/packages/sdk/src/domain/types.ts#L691)
+Defined in: [domain/types.ts:691](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L691)
 
 The name of the tool.
 
@@ -70,7 +70,7 @@ The name of the tool.
 tool_use_id: string;
 ```
 
-Defined in: [domain/types.ts:686](https://github.com/elribonazo/uaito/blob/45fe78be02d2e8093f6553d8593d16a88041733d/packages/sdk/src/domain/types.ts#L686)
+Defined in: [domain/types.ts:686](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L686)
 
 The ID of the tool use.
 
@@ -82,6 +82,6 @@ The ID of the tool use.
 type: "tool_result";
 ```
 
-Defined in: [domain/types.ts:696](https://github.com/elribonazo/uaito/blob/45fe78be02d2e8093f6553d8593d16a88041733d/packages/sdk/src/domain/types.ts#L696)
+Defined in: [domain/types.ts:696](https://github.com/elribonazo/uaito/blob/7d193aae630d32597c1be974f6ce03fc7e0727a3/packages/sdk/src/domain/types.ts#L696)
 
 The type of the block.

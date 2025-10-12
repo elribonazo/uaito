@@ -17,6 +17,7 @@
 | Enumeration | Description |
 | ------ | ------ |
 | [GrokModels](@uaito.openai.Enumeration.GrokModels.md) | - |
+| [OpenAIImageModels](@uaito.openai.Enumeration.OpenAIImageModels.md) | - |
 | [OpenAIModels](@uaito.openai.Enumeration.OpenAIModels.md) | Enumeration of the available OpenAI models. |
 
 ## Classes
@@ -29,4 +30,5 @@
 
 | Type Alias | Description |
 | ------ | ------ |
+| [ImageGenConfig](@uaito.openai.TypeAlias.ImageGenConfig.md) | - |
 | [OpenAIOptions](@uaito.openai.TypeAlias.OpenAIOptions.md) | Type alias for OpenAI options, extending BaseLLMOptions with an optional apiKey. |
