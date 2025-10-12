@@ -73,10 +73,13 @@
     "@rollup/rollup-linux-x64-gnu": "^4.24.0"
   },
   "dependencies": {
+    "@types/nodemailer": "^7.0.2",
     "chromedriver": "^138.0.1",
     "date-fns": "^4.1.0",
     "formidable": "^3.5.4",
     "framer-motion": "^12.23.22",
+    "googleapis": "^162.0.0",
+    "nodemailer": "^7.0.9",
     "redux-persist": "^6.0.0"
   }
 }

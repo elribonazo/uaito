@@ -249,7 +249,7 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                 while (true) {
                     const s = await reader.read();
                     if (s.done) {
-                        //reader.releaseLock()
+                        reader.releaseLock()
                         break;
                     }
 
@@ -326,7 +326,7 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                 while (true) {
                     const readerResult = await reader.read();
                     if (readerResult.done) {
-                        //reader.releaseLock()
+                        reader.releaseLock()
                         break;
                     }
                     if (!readerResult.value) {
@@ -393,9 +393,9 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
 
 
                                 const newStream = await getNext.bind(this)();
-                                // const oldReader = reader;
+                                const oldReader = reader;
                                 reader = newStream.getReader()
-                                // oldReader.releaseLock()
+                                oldReader.releaseLock()
 
                             }
                         } else if (tChunk.content.length) {

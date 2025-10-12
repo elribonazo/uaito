@@ -76,6 +76,10 @@ export class Agent {
         return this.#agent.inputs;
     }
 
+    public get cache() {
+        return this.#agent.cache;
+    }
+
     /**
      * Gets the list of tools available to the agent.
      * @returns {any[]} The tools.
