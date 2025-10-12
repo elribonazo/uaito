@@ -1,33 +1,34 @@
-import { MessageArray } from "@/utils";
+import type { MessageArray } from "@/utils";
 
   export * from './BaseLLM'
   /**
-   * Represents a function that transforms a chunk of data in a stream.
-   * @template T The type of the input chunk.
-   * @template M The type of the output message.
+   * A function that transforms a chunk of data from a provider's stream into the SDK's standard `Message` format.
+   * @template T The type of the input chunk from the provider's stream.
+   * @template M The type of the output message, which must extend `Message`.
    * @param {T} chunk - The input chunk to be transformed.
-   * @returns {Promise<M | null>} A promise that resolves to the transformed message or null.
+   * @returns {Promise<M | null>} A promise that resolves to the transformed message or null if the chunk should be ignored.
    */
   export type TransformStreamFn<T, M> = (
     chunk: T,
   ) => Promise<M | null>
   /**
-   * Represents the cache for a base LLM.
+   * Defines the structure for a cache used by a `BaseLLM` instance.
+   * This can be used to store intermediate data like partial tool inputs or response chunks.
    * @type
    */
   export type BaseLLMCache = {
     /**
-     * The input for a tool.
+     * Stores partial input for a tool as it's being streamed.
      * @type {(BlockType | null)}
      */
     toolInput: BlockType | null,
     /**
-     * The chunks of the response.
+     * A buffer for accumulating response chunks from the stream.
      * @type {(string | null)}
      */
     chunks: string | null,
     /**
-     * The number of input and output tokens.
+     * Tracks the number of input and output tokens for a request.
      * @type {{ input: number, output: number }}
      */
     tokens: {
@@ -36,7 +37,8 @@ import { MessageArray } from "@/utils";
     }
   }
   /**
-   * Represents a tool that can be used by an LLM.
+   * Describes a tool that an LLM can use. This structure is used to define the tool's
+   * name, purpose, and the schema for its inputs.
    * @type
    */
   export type Tool = {
@@ -46,7 +48,7 @@ import { MessageArray } from "@/utils";
      */
     id?: number;
     /**
-     * The name of the tool.
+     * The name of the tool, which the LLM will use to call it.
      * @type {string}
      */
     name: string;
@@ -56,7 +58,8 @@ import { MessageArray } from "@/utils";
      */
     description: string;
     /**
-     * The input schema for the tool.
+     * A JSON schema defining the inputs for the tool.
+     * The `properties` object describes each parameter the tool accepts.
      * @type {{ type: "object", properties: Record<string, { type: string, description: string, default?: unknown }>, required?: string[] }}
      */
     input_schema: {
@@ -69,29 +72,34 @@ import { MessageArray } from "@/utils";
       required?: string[];
     };
     /**
-     * The code for the tool.
+     * The implementation code for the tool (optional).
      * @type {(string | undefined)}
      */
     code?: string;
     /**
-     * Whether the tool is enabled.
+     * Whether the tool is currently enabled and can be used by the LLM.
      * @type {(boolean | undefined)}
      */
     enabled?: boolean;
     /**
-     * Whether the tool is collapsed.
+     * UI hint for whether the tool's definition should be collapsed by default.
      * @type {(boolean | undefined)}
      */
     isCollapsed?: boolean;
   };
 
   /**
-   * Represents a block of a tool.
+   * A union type representing all possible tool-related blocks in a message.
+   * This includes tool inputs, tool usage requests, and tool results.
    * @type
    */
   export type ToolBlock = ToolInputDelta | ToolUseBlock  | ToolResultBlock ;
   /**
-   * Represents the role of a message.
+   * Represents the role of the message's author.
+   * - `user`: The end-user.
+   * - `assistant`: The AI model.
+   * - `system`: A configuration or instruction message.
+   * - `tool`: A message containing the output of a tool.
    * @type
    */
   export type Role = 'assistant' | 'user' | 'system' | 'tool';
@@ -134,12 +142,12 @@ import { MessageArray } from "@/utils";
   }
   
   /**
-   * Represents the content of a web search tool result block.
+   * Represents the content of a `WebSearchToolResultBlock`, which can either be an array of `WebSearchResultBlock` or a `WebSearchToolResultError`.
    * @type
    */
   export type WebSearchToolResultBlockContent = WebSearchToolResultError | Array<WebSearchResultBlock>;
   /**
-   * Represents a web search tool result error.
+   * Represents an error that occurred during a web search tool execution.
    * @interface WebSearchToolResultError
    */
   export interface WebSearchToolResultError {
@@ -155,7 +163,7 @@ import { MessageArray } from "@/utils";
       | 'query_too_long';
   
     /**
-     * The type of the block.
+     * The type of the block, indicating a web search error.
      * @type {'web_search_tool_result_error'}
      */
     type: 'web_search_tool_result_error';
@@ -163,7 +171,7 @@ import { MessageArray } from "@/utils";
   
   
   /**
-   * Represents a web search tool result block.
+   * Represents the result block from a web search tool.
    * @interface WebSearchToolResultBlock
    */
   export interface WebSearchToolResultBlock {
@@ -180,14 +188,14 @@ import { MessageArray } from "@/utils";
     tool_use_id: string;
   
     /**
-     * The type of the block.
+     * The type of the block, indicating a web search result.
      * @type {'web_search_tool_result'}
      */
     type: 'web_search_tool_result';
   }
   
   /**
-   * Represents a server tool use block.
+   * Represents a block for a tool that is executed on the server-side.
    * @interface ServerToolUseBlock
    */
   export interface ServerToolUseBlock {
@@ -210,14 +218,14 @@ import { MessageArray } from "@/utils";
     name: 'web_search';
   
     /**
-     * The type of the block.
+     * The type of the block, indicating a server-side tool use.
      * @type {'server_tool_use'}
      */
     type: 'server_tool_use';
   }
   
   /**
-   * Represents a delta block.
+   * Represents a delta block in a streamed response, indicating changes or stop reasons.
    * @type
    */
   export type DeltaBlock =   {
@@ -240,7 +248,7 @@ import { MessageArray } from "@/utils";
   
   }
   /**
-   * Represents the usage of tokens.
+   * Represents the token usage for a request.
    * @type
    */
   export type USAGE = {
@@ -257,7 +265,7 @@ import { MessageArray } from "@/utils";
   }
   
   /**
-   * Represents a search and replace block.
+   * Represents a block for search and replace operations.
    * @interface SearchReplaceBlock
    */
   export interface SearchReplaceBlock {
@@ -274,7 +282,7 @@ import { MessageArray } from "@/utils";
   }
   
   /**
-   * An abstract class for a base message.
+   * An abstract base class for creating message structures.
    * @abstract
    * @class BaseMessage
    */
@@ -286,7 +294,7 @@ import { MessageArray } from "@/utils";
      */
     abstract render(): Promise<Message>;
     /**
-     * An array of strings to be replaced in the message.
+     * An array of strings to be replaced in the message content.
      * @abstract
      * @type {string[]}
      */
@@ -305,7 +313,7 @@ import { MessageArray } from "@/utils";
      */
     protected tools: Tool[];
     /**
-     * Cleans a chunk of text by removing replacements.
+     * Cleans a chunk of text by removing placeholder replacements.
      * @protected
      * @param {string} chunk - The chunk to clean.
      * @returns {string} The cleaned chunk.
@@ -334,19 +342,20 @@ import { MessageArray } from "@/utils";
   }
 
 /**
- * An abstract class for a base agent.
+ * An abstract class defining the core structure and functionality of an agent.
+ * Agents encapsulate an LLM and provide a higher-level interface for performing tasks.
  * @abstract
  * @class BaseAgent
  */
  export abstract class BaseAgent {
     /**
-     * The options for the base LLM.
+     * Configuration options for the underlying `BaseLLM`.
      * @abstract
      * @type {BaseLLMOptions}
      */
     abstract options: BaseLLMOptions;
     /**
-     * Optional callback for tool usage.
+     * An optional callback function that is triggered when a tool is used.
      * @abstract
      * @type {(OnTool | undefined)}
      */
@@ -358,42 +367,42 @@ import { MessageArray } from "@/utils";
      */
     abstract name: string;
     /**
-     * An array of message inputs.
+     * An array that holds the history of messages for a conversation.
      * @abstract
      * @type {MessageArray<MessageInput>}
      */
     abstract inputs: MessageArray<MessageInput>;
     /**
-     * The system prompt for the agent.
+     * The system prompt that defines the agent's behavior and context.
      * @abstract
      * @type {string}
      */
     abstract systemPrompt: string;
     /**
-     * The chain of thought for the agent.
+     * The chain of thought or reasoning steps for the agent to follow.
      * @abstract
      * @type {string}
      */
     abstract chainOfThought: string;
 
     /**
-     * Adds inputs to the agent.
+     * Adds a message history to the agent's context.
      * @abstract
-     * @param {MessageArray<MessageInput>} inputs - The inputs to add.
+     * @param {MessageArray<MessageInput>} inputs - The message history to add.
      * @returns {Promise<void>}
      */
     abstract addInputs(inputs: MessageArray<MessageInput>): Promise<void>;
     /**
-     * Loads the agent.
+     * Initializes or loads the agent, preparing it for task execution.
      * @abstract
      * @returns {Promise<void>}
      */
     abstract load(): Promise<void>;
     /**
-     * Performs a task using the agent.
+     * Executes a task with the given prompt.
      * @abstract
      * @param {string} prompt - The prompt for the task.
-     * @returns {Promise<{ usage: { input: number, output: number }, response: ReadableStreamWithAsyncIterable<Message> }>} A promise that resolves to the usage and response stream.
+     * @returns {Promise<{ usage: { input: number, output: number }, response: ReadableStreamWithAsyncIterable<Message> }>} A promise that resolves to the token usage and a stream of response messages.
      */
     abstract performTask(prompt: string): Promise<{
         usage: { input: number, output: number },
@@ -403,7 +412,11 @@ import { MessageArray } from "@/utils";
 
 
   /**
-   * Represents a callback for tool usage.
+   * A callback function that is invoked when an LLM uses a tool.
+   * The `this` context within the callback is bound to the `BaseAgent` instance.
+   * @param {Message} message - The message containing the tool use block.
+   * @param {AbortSignal} [signal] - An optional abort signal to cancel the tool execution.
+   * @returns {Promise<void>}
    * @type
    */
   export type OnTool = (
@@ -414,7 +427,7 @@ import { MessageArray } from "@/utils";
 
   
   /**
-   * Represents a usage block.
+   * Represents a block containing token usage information for a request.
    * @type
    */
   export type UsageBlock = {
@@ -436,7 +449,7 @@ import { MessageArray } from "@/utils";
   }
   
   /**
-   * Represents an error block.
+   * Represents a block containing an error message.
    * @type
    */
   export type ErrorBlock = {
@@ -452,7 +465,7 @@ import { MessageArray } from "@/utils";
     message: string
   }
   /**
-   * Represents a redacted thinking block.
+   * Represents a thinking or reasoning block from the model that has been redacted.
    * @interface RedactedThinkingBlock
    */
   export interface RedactedThinkingBlock {
@@ -463,14 +476,14 @@ import { MessageArray } from "@/utils";
     data: string;
   
     /**
-     * The type of the block.
+     * The type of the block, indicating redacted thinking.
      * @type {'redacted_thinking'}
      */
     type: 'redacted_thinking';
   }
   
   /**
-   * Represents a thinking block.
+   * Represents a block containing the model's thinking or reasoning process.
    * @interface ThinkingBlock
    */
   export interface ThinkingBlock {
@@ -487,14 +500,14 @@ import { MessageArray } from "@/utils";
     thinking: string;
   
     /**
-     * The type of the block.
+     * The type of the block, indicating thinking.
      * @type {'thinking'}
      */
     type: 'thinking';
   }
   
   /**
-   * Represents a signature delta block.
+   * Represents a delta block for a signature.
    * @interface SignatureDeltaBlock
    */
   export interface SignatureDeltaBlock {
@@ -505,7 +518,7 @@ import { MessageArray } from "@/utils";
     signature: string;
   
     /**
-     * The type of the block.
+     * The type of the block, indicating a signature delta.
      * @type {'signature_delta'}
      */
     type: 'signature_delta';
@@ -514,7 +527,7 @@ import { MessageArray } from "@/utils";
   
 
   /**
-   * Represents an image block.
+   * Represents a block containing an image.
    * @type
    */
   export type ImageBlock = {
@@ -528,7 +541,7 @@ import { MessageArray } from "@/utils";
       type: 'base64';
     };
     /**
-     * The type of the block.
+     * The type of the block, indicating an image.
      * @type {'image'}
      */
     type: 'image';
@@ -540,7 +553,7 @@ import { MessageArray } from "@/utils";
   }
   
   /**
-   * Represents an audio block.
+   * Represents a block containing audio.
    * @type
    */
   export type AudioBlock = {
@@ -554,14 +567,14 @@ import { MessageArray } from "@/utils";
       type: 'base64';
     };
     /**
-     * The type of the block.
+     * The type of the block, indicating audio.
      * @type {'audio'}
      */
     type: 'audio';
   }
   
   /**
-   * Represents a text block.
+   * Represents a block containing plain text.
    * @type
    */
   export type TextBlock = {
@@ -571,7 +584,7 @@ import { MessageArray } from "@/utils";
      */
     text: string;
     /**
-     * The type of the block.
+     * The type of the block, indicating text.
      * @type {'text'}
      */
     type: 'text';
@@ -579,7 +592,7 @@ import { MessageArray } from "@/utils";
   
   
   /**
-   * Represents a tool use block.
+   * Represents a block indicating that the model wants to use a tool.
    * @type
    */
   export type ToolUseBlock = {
@@ -599,7 +612,7 @@ import { MessageArray } from "@/utils";
      */
     name: string;
     /**
-     * The type of the block.
+     * The type of the block, indicating a tool use request.
      * @type {'tool_use'}
      */
     type: 'tool_use';
@@ -608,7 +621,7 @@ import { MessageArray } from "@/utils";
   }
   
   /**
-   * Represents a tool input delta.
+   * Represents a delta in the input of a tool as it's being streamed.
    * @type
    */
   export type ToolInputDelta = {
@@ -623,31 +636,31 @@ import { MessageArray } from "@/utils";
      */
     name?:string,
     /**
-     * The partial input for the tool.
+     * The partial input for the tool as a JSON string.
      * @type {string}
      */
     partial:string,
     /**
-     * The type of the block.
+     * The type of the block, indicating a tool delta.
      * @type {'tool_delta'}
      */
     type: 'tool_delta';
   }
   /**
-   * Gets the element type of an array.
+   * A utility type to extract the element type from an array.
    * @type
    */
   export type ArrayElementType<T> = T extends (infer U)[] ? U : never;
 
 
 /**
- * Represents the content of a message.
+ * A union type representing any of the possible content blocks within a message's `content` array.
  * @type
  */
 export type MessageContent = ArrayElementType<Message['content']>
 
 /**
- * Represents a message input.
+ * Represents the structure of a message when it is being passed as input to an LLM.
  * @type
  */
 export type MessageInput = {
@@ -675,7 +688,7 @@ export type MessageInput = {
 
   
   /**
-   * Represents a tool result block.
+   * Represents the result of a tool's execution.
    * @type
    */
   export type ToolResultBlock = {
@@ -690,7 +703,7 @@ export type MessageInput = {
      */
     name: string,
     /**
-     * The type of the block.
+     * The type of the block, indicating a tool result.
      * @type {'tool_result'}
      */
     type: 'tool_result';
@@ -700,14 +713,14 @@ export type MessageInput = {
      */
     content?: MessageContent[];
     /**
-     * Whether the tool result is an error.
+     * Indicates whether the tool execution resulted in an error.
      * @type {(boolean | undefined)}
      */
     isError?: boolean;
   }
 
   /**
-   * Represents the type of a message.
+   * A union of all possible message types.
    * @type
    */
   export type MessageType =
@@ -723,14 +736,14 @@ export type MessageInput = {
   SignatureDeltaBlock['type']
 
   /**
-   * Represents the type of a block.
+   * A union of all possible block types that can be part of a message's content.
    * @type
    */
   export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock |AudioBlock| ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock;
 
 
   /**
-   * Represents a message.
+   * The core message structure used throughout the SDK.
    * @type
    */
   export type Message = {
@@ -745,12 +758,12 @@ export type MessageInput = {
      */
     type: MessageType,
     /**
-     * The content of the message.
+     * An array of content blocks that make up the message.
      * @type {BlockType[]}
      */
     content: BlockType[],
     /**
-     * Whether the message is a chunk.
+     * Indicates if the message is a partial chunk from a stream.
      * @type {(boolean | undefined)}
      */
     chunk?: boolean,
@@ -762,42 +775,42 @@ export type MessageInput = {
   }
 
 /**
- * Represents the options for a base LLM.
+ * Configuration options for a `BaseLLM` instance.
  * @type
  */
 export type BaseLLMOptions = {
     /**
-     * The model to use.
+     * The specific model to use, e.g., 'gpt-4o'.
      * @type {string}
      */
     model: string,
     /**
-     * An array of available tools.
+     * An array of tools that the LLM is allowed to use.
      * @type {(Tool[] | undefined)}
      */
     tools?: Tool[]
     /**
-     * The maximum number of tokens to generate.
+     * The maximum number of tokens to generate in the response.
      * @type {(number | undefined)}
      */
     maxTokens?: number,
     /**
-     * An optional abort signal.
+     * An abort signal to cancel the request.
      * @type {(AbortSignal | undefined)}
      */
     signal?: AbortSignal,
     /**
-     * The directory for the model.
+     * A directory path, often used for file-based operations.
      * @type {(string | undefined)}
      */
     directory?: string,
     /**
-     * An optional progress callback.
+     * A callback function to report progress, e.g., for model downloads.
      * @type {(((progress: number) => void) | undefined)}
      */
     onProgress?: (progress: number) => void,
     /**
-     * An optional logging function.
+     * A custom logging function. Defaults to `console.log`.
      * @type {(((message: string) => void) | undefined)}
      */
     log?: (message: string) => void
@@ -806,7 +819,8 @@ export type BaseLLMOptions = {
 }
 
 /**
- * Represents a readable stream with an async iterable.
+ * A type that combines a `ReadableStream` with an `AsyncIterable`, allowing it to be used
+ * with both `for await...of` loops and standard stream consumers.
  * @type
  */
 export type ReadableStreamWithAsyncIterable<T> = ReadableStream<T> & AsyncIterable<T>;

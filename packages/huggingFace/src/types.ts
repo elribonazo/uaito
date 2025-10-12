@@ -1,8 +1,9 @@
-import { BaseLLMOptions } from "@uaito/sdk";
-import { Tensor } from "@huggingface/transformers";
+import type { BaseLLMOptions } from "@uaito/sdk";
+import type { Tensor } from "@huggingface/transformers";
 
 /**
- * Type alias for tensor data types.
+ * Defines the structure of tensor data required by Hugging Face models,
+ * including input IDs, attention mask, and optional token type IDs.
  * @type
  */
 export type TensorDataType = {
@@ -17,25 +18,29 @@ export type TensorDataType = {
      */
     attention_mask: Tensor;
     /**
-     * The token type IDs tensor.
+     * Optional tensor for token type IDs, used in models that distinguish between different sentences.
      * @type {(Tensor | undefined)}
      */
     token_type_ids?: Tensor;
 }
 /**
- * Enumeration of the available Hugging Face ONNX models.
+ * An enumeration of the available Hugging Face ONNX models that are optimized for web execution.
+ * These models are suitable for running locally in the browser with WebGPU or WASM.
  * @enum {string}
  */
 export enum HuggingFaceONNXModels {
     /**
-     * The JANO model.
+     * A small and efficient model suitable for general-purpose tasks.
      */
     JANO = "onnx-community/Jan-nano-ONNX",
     /**
-     * The LUCY model.
+     * A model with a good balance of performance and size.
      */
     LUCY="onnx-community/Lucy-ONNX",
 
+    /**
+     * A micro-sized version of the Granite model, optimized for web environments.
+     */
     GRANITE="onnx-community/granite-4.0-micro-ONNX-web",
     // DEMO='onnx-community/llama-3.2-1b-medical-notes-ONNX', 
     // LFM2_RAG='onnx-community/LFM2-1.2B-RAG-ONNX',
@@ -43,7 +48,16 @@ export enum HuggingFaceONNXModels {
     // LMF2_6B='onnx-community/LFM2-2.6B-ONNX'
   }
 
+  /**
+   * An enumeration of chat templates for formatting conversation history.
+   * These templates are specific to certain Hugging Face models and ensure that
+   * the input is structured correctly for the model to understand.
+   * @enum {string}
+   */
   export enum HuggingFaceONNXChatTemplates {
+    /**
+     * A chat template for the LFM2 model series.
+     */
     LFM2=`{{- bos_token -}}{%- set system_prompt = "" -%}{%- set ns = namespace(system_prompt="") -%}{%- if messages[0]["role"] == "system" -%} {%- set ns.system_prompt = messages[0]["content"] -%} {%- set messages = messages[1:] -%}{%- endif -%}{%- if tools -%} {%- set ns.system_prompt = ns.system_prompt + ("
 " if ns.system_prompt else "") + "List of tools: <|tool_list_start|>[" -%} {%- for tool in tools -%} {%- if tool is not string -%} {%- set tool = tool | tojson -%} {%- endif -%} {%- set ns.system_prompt = ns.system_prompt + tool -%} {%- if not loop.last -%} {%- set ns.system_prompt = ns.system_prompt + ", " -%} {%- endif -%} {%- endfor -%} {%- set ns.system_prompt = ns.system_prompt + "]<|tool_list_end|>" -%}{%- endif -%}{%- if ns.system_prompt -%} {{- "<|im_start|>system
 " + ns.system_prompt + "<|im_end|>
@@ -51,6 +65,9 @@ export enum HuggingFaceONNXModels {
 " -}} {%- set content = message["content"] -%} {%- if content is not string -%} {%- set content = content | tojson -%} {%- endif -%} {%- if message["role"] == "tool" -%} {%- set content = "<|tool_response_start|>" + content + "<|tool_response_end|>" -%} {%- endif -%} {{- content + "<|im_end|>
 " -}}{%- endfor -%}{%- if add_generation_prompt -%} {{- "<|im_start|>assistant
 " -}}{%- endif -%}`,
+    /**
+     * A chat template for a medical notes model.
+     */
     MED=`{{- bos_token }}
 {%- if custom_tools is defined %}
     {%- set tools = custom_tools %}
@@ -146,29 +163,35 @@ export enum HuggingFaceONNXModels {
 {%- endif %}`
   }
 /**
- * Type alias for Hugging Face ONNX options, extending BaseLLMOptions with model, dtype, and device.
+ * Defines the configuration options for the `HuggingFaceONNX` client.
+ * It extends `BaseLLMOptions` with properties specific to running ONNX models,
+ * such as the model identifier, data type, and execution device.
  * @type
  */
 export type HuggingFaceONNXOptions =  BaseLLMOptions & {
     /**
-     * The Hugging Face ONNX model to use.
+     * The identifier of the Hugging Face ONNX model to use.
      * @type {HuggingFaceONNXModels}
      */
     model: HuggingFaceONNXModels,
     /**
-     * The data type for the model.
+     * The data type (precision) to use for the model, e.g., 'fp32' or 'q4'.
+     * Can be a single value or a record specifying different types for different model parts.
      * @type {DType}
      */
     dtype: DType,
     /**
-     * The device to run the model on.
+     * The device to run the model on, e.g., 'webgpu' or 'wasm'.
+     * Can be a single value or a record specifying different devices for different model parts.
      * @type {("auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm" | "dml" | "webnn" | "webnn-npu" | "webnn-gpu" | "webnn-cpu" | Record<string, "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm"  | "webnn-cpu"> | undefined)}
      */
     device: "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm" | "dml" | "webnn" | "webnn-npu" | "webnn-gpu" | "webnn-cpu" | Record<string, "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm"  | "webnn-cpu"> | undefined
   };
   
   /**
-   * Type alias for the data types supported by the model.
+   * A union of possible data types for model quantization and execution.
+   * `auto` allows the library to choose the best type based on the model and hardware.
+   * Other values specify the precision, like `fp32` (32-bit float) or `q4` (4-bit quantized).
    * @type
    */
   export type DType = "auto" | "fp32" | "fp16" | "q8" | "int8" | "uint8" | "q4" | "bnb4" | "q4f16" | Record<string, "auto" | "fp32" | "fp16" | "q8" | "int8" | "uint8" | "q4" | "bnb4" | "q4f16"> | undefined

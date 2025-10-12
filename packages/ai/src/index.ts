@@ -2,18 +2,31 @@
  * @packageDocumentation 
  * UAITO AI 
  */
-import type { OnTool, MessageInput, BaseLLM, ReadableStreamWithAsyncIterable, Message, ToolUseBlock, BlockType } from "@uaito/sdk";
+import { OnTool, MessageInput, BaseLLM, ReadableStreamWithAsyncIterable, Message, ToolUseBlock, BlockType } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import type { MessageArray } from "@uaito/sdk";
 
 /**
- * base class for AI agents.
- * @template T - The type of LLM provider.
+ * Represents a higher-level abstraction for an AI agent. It encapsulates a `BaseLLM` instance
+ * and provides a structured way to manage prompts, tools, and conversation history. This class
+ * simplifies the process of performing tasks with an LLM by handling the underlying details of
+ * API calls, retries, and stream processing.
+ *
+ * @example
+ * ```typescript
+ * // Assuming `myCustomLLM` is an instance of a class that extends `BaseLLM`
+ * const agent = new Agent(myCustomLLM);
+ * await agent.load();
+ * const { response } = await agent.performTask("Tell me a joke.");
+ * for await (const chunk of response) {
+ *   // Process each message chunk from the stream
+ * }
+ * ```
  */
 export class Agent {
 
     /**
-     * The maximum number of retries for an API call.
+     * The maximum number of times to retry an API call in case of connection errors.
      * @type {number}
      */
     private MAX_RETRIES = 10;
@@ -23,18 +36,18 @@ export class Agent {
      */
     private RETRY_DELAY = 3000; // 3 seconds
     /**
-     * The name of the agent.
+     * The name of the agent, used for identification and logging.
      * @type {string}
      */
     protected name: string;
     
     /**
-     * The system prompt for the agent.
+     * The system prompt that defines the agent's persona, context, and instructions.
      * @type {string}
      */
     private _systemPrompt: string = '';
     /**
-     * The chain of thought for the agent.
+     * The chain of thought or reasoning steps for the agent to follow when performing a task.
      * @type {string}
      */
     private _chainOfThought: string = '';
@@ -56,7 +69,7 @@ export class Agent {
     }
 
     /**
-     * Gets the inputs for the agent.
+     * Gets the message history (inputs) for the agent's conversation.
      * @returns {MessageArray<MessageInput>} The inputs.
      */
     public get inputs() {
@@ -64,37 +77,50 @@ export class Agent {
     }
 
     /**
-     * Gets the tools available to the agent.
+     * Gets the list of tools available to the agent.
      * @returns {any[]} The tools.
      */
     public get tools() {
-        if ('tools' in this.#agent.options) {
-            return this.#agent.options.tools ?? [];
+        if ('tools' in (this.#agent.options as { tools?: unknown[] })) {
+            return (this.#agent.options as { tools?: any[] }).tools ?? [];
         }
         return [];
     }
 
+    /**
+     * Gets the configuration options of the underlying LLM.
+     * @returns {any} The options.
+     */
     public get options() {
         return this.#agent.options;
     }
 
-    public get type() {
+    /**
+     * Gets the provider type of the underlying LLM (e.g., OpenAI, Anthropic).
+     * @returns {LLMProvider} The provider type.
+     */
+    public get type() {
         return this.#agent.type;
     }
 
+    /**
+     * An optional callback function that is triggered when a tool is used.
+     * The `this` context within the callback is bound to the `Agent` instance.
+     * @protected
+     * @type {OnTool | undefined}
+     */
     protected onTool?: OnTool
 
-    #agent: BaseLLM<LLMProvider, any>
+    #agent: BaseLLM<LLMProvider, unknown>
 
     /**
-     * Create a new Agent instance.
-     * @param {LLMProvider} type - The type of LLM provider.
-     * @param {AgentTypeToOptions[T]} options - Configuration options for the LLM.
-     * @param {OnTool} [onTool] - Optional callback for tool usage.
-     * @param {string} [name] - Optional name for the agent.
+     * Creates a new `Agent` instance.
+     * @param {BaseLLM<LLMProvider, any>} agent - An instance of a class that extends `BaseLLM`. This is the core LLM that the agent will use.
+     * @param {OnTool} [onTool] - An optional callback function for handling tool usage.
+     * @param {string} [name] - An optional name for the agent. If not provided, it defaults to the LLM provider's name.
      */
     constructor(
-        agent: BaseLLM<LLMProvider, any>,
+        agent: BaseLLM<LLMProvider, unknown>,
          onTool?: OnTool,
         name?: string
     ) {
@@ -104,33 +130,40 @@ export class Agent {
      }
 
      /**
-      * Adds inputs to the agent's client.
-      * @param {MessageArray<MessageInput>} inputs - The inputs to add.
+      * Sets the message history for the agent. This will overwrite any existing history.
+      * @param {MessageArray<MessageInput>} inputs - The message history to set.
       * @returns {Promise<void>}
       */
      async addInputs(inputs: MessageArray<MessageInput>) {
         this.#agent.inputs = inputs;
      }
 
+    /**
+     * Gets the model name being used by the agent.
+     * @returns {string} The model name.
+     */
      get model() {
-        return this.#agent.options.model ?? ''
+        return (this.#agent.options as { model?: string }).model ?? ''
      }
 
     /**
-     * Loads the agent's client.
+     * Initializes the agent by loading the underlying LLM. This is particularly important
+     * for models that need to be downloaded or initialized, such as local WebGPU models.
      * @returns {Promise<void>}
      */
     async load() {
         if ("load" in this.#agent) {
-            await (this.#agent as any).load();
+            await (this.#agent as { load: () => Promise<void> }).load();
         }
     }
 
     /**
-     * Retries an API call with a delay.
-     * @template T
-     * @param {() => Promise<T>} apiCall - The API call to retry.
-     * @returns {Promise<T>} The result of the API call.
+     * A robust wrapper for API calls that automatically retries on `APIConnectionError`.
+     * It uses exponential backoff to wait between retries. This is inherited from `BaseLLM`.
+     * @template T The expected return type of the API call.
+     * @param {() => Promise<T>} apiCall - The function that makes the API call.
+     * @returns {Promise<T>} The result of the successful API call.
+     * @throws {Error} Throws an error if the API call fails after all retries or if a non-connection error occurs.
      */
     async retryApiCall<T>(apiCall: () => Promise<T>): Promise<T> {
         let retries = 0;
@@ -151,9 +184,11 @@ export class Agent {
     }
 
     /**
-     * Perform a task using the LLM.
-     * @param {string | BlockType[]} prompt - The user prompt.
-     * @returns {Promise<{ usage: { input: number, output: number }, response: ReadableStreamWithAsyncIterable<Message> }>} A Promise resolving to the usage and response stream.
+     * Executes a task with the given prompt and returns the LLM's response as a stream.
+     * This is the primary method for interacting with the agent.
+     * @param {string | BlockType[]} prompt - The user's prompt, which can be a simple string or a rich array of content blocks (e.g., text and images).
+     * @param {string} [image] - An optional image to include with the prompt (legacy). It's recommended to use the `BlockType[]` format for prompts with images.
+     * @returns {Promise<{ usage: { input: number, output: number }, response: ReadableStreamWithAsyncIterable<Message> }>} A promise that resolves to the token usage and a stream of response messages.
      */
     async performTask(
         prompt: string | BlockType[],
@@ -173,14 +208,16 @@ export class Agent {
     }
 
     /**
-     * Run a command safely, catching and handling any errors.
-     * @param {ToolUseBlock} toolUse - The tool being used.
-     * @param {(agent: any) => Promise<void>} run - Function to run the command.
+     * A safe execution wrapper for tool calls. It catches errors during tool execution,
+     * formats them into a standard error message, and pushes the error back into the input stream
+     * for the LLM to process. This prevents tool failures from crashing the application.
+     * @param {ToolUseBlock} toolUse - The tool use block that triggered the command.
+     * @param {(agent: any) => Promise<void>} run - The function that executes the tool's logic.
      * @returns {Promise<void>}
      */
     async runSafeCommand(
         toolUse: ToolUseBlock,
-        run: (agent: any) => Promise<void>
+        run: (agent: Agent) => Promise<void>
     ) {
         if (toolUse.type !== "tool_use") {
             throw new Error("Expected ToolUseBlock content inside tool_use type message")

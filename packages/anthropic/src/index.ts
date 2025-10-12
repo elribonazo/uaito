@@ -1,7 +1,7 @@
 import SDK from '@anthropic-ai/sdk';
 import { v4 } from 'uuid';
 import type { ImageBlockParam, MessageParam, RedactedThinkingBlockParam, ServerToolUseBlockParam, SignatureDelta, TextBlockParam, ThinkingBlockParam, ToolResultBlockParam, ToolUseBlock, ToolUseBlockParam, WebSearchToolResultBlockParam } from '@anthropic-ai/sdk/resources';
-import { AnthropicOptions } from './types';
+import type { AnthropicOptions } from './types';
 import {
   LLMProvider,BaseLLM, MessageArray,  BaseLLMCache, OnTool, MessageInput, ToolInputDelta, ErrorBlock, UsageBlock, DeltaBlock, ReadableStreamWithAsyncIterable, Message
 } from '@uaito/sdk';
@@ -9,40 +9,59 @@ import {
 
 export * from './types'
 /**
- * A class for interacting with the Anthropic API.
+ * A class for interacting with the Anthropic API, providing a standardized interface
+ * for streaming responses, handling tool usage, and managing conversation history.
+ * It extends the `BaseLLM` class to ensure compatibility with the Uaito SDK.
+ *
  * @class Anthropic
- * @extends {BaseLLM<LLMProvider.Anthropic>}
+ * @extends {BaseLLM<LLMProvider.Anthropic, AnthropicOptions>}
+ *
+ * @example
+ * ```typescript
+ * const anthropic = new Anthropic({
+ *   options: {
+ *     apiKey: 'YOUR_ANTHROPIC_API_KEY',
+ *     model: AnthropicModels['claude-4-sonnet'],
+ *   }
+ * });
+ *
+ * const { response } = await anthropic.performTaskStream("Hello, world!", "", "");
+ * for await (const chunk of response) {
+ *   // Process each message chunk
+ * }
+ * ```
  */
 export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> {
   /**
-   * The cache for the LLM.
+   * A cache for storing intermediate data during stream processing, such as partial tool inputs
+   * and token counts.
    * @public
    * @type {BaseLLMCache}
    */
   public cache: BaseLLMCache = { toolInput: null, chunks: '',  tokens: { input: 0, output: 0 } }
 
   /**
-   * Optional callback for tool usage.
+   * An optional callback function that is triggered when a tool is used.
    * @type {(OnTool | undefined)}
    */
   public onTool?: OnTool
   /**
-   * The Anthropic API client.
+   * The underlying Anthropic SDK client.
    * @protected
    * @type {SDK}
    */
   protected api: SDK;
   /**
-   * An array of message inputs.
+   * An array that holds the history of messages for the conversation.
    * @public
    * @type {MessageArray<MessageInput>}
    */
   public inputs: MessageArray<MessageInput> = new MessageArray();
 
   /**
-   * Creates an instance of the Anthropic LLM.
-   * @param {{ options: AnthropicOptions, onTool?: OnTool }} { options, onTool: onToolParam } - The options for the LLM.
-   * @param {OnTool} [onTool] - Optional callback for tool usage.
+   * Creates an instance of the `Anthropic` LLM client.
+   * @param {{ options: AnthropicOptions, onTool?: OnTool }} params - The configuration options for the client.
+   * @param {OnTool} [onTool] - An optional callback for handling tool usage, which can also be provided in the options.
    */
   constructor(
     { options }: { options: AnthropicOptions,onTool?: OnTool},
@@ -57,7 +76,8 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   /**
-   * Gets the maximum number of tokens for the model.
+   * Gets the maximum number of tokens to generate in the response.
+   * Defaults to 8192 if not specified in the options.
    * @returns {number} The maximum number of tokens.
    */
   get maxTokens() {
@@ -65,10 +85,11 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   /**
-   * Converts a MessageInput object to a MessageParam object.
+   * Converts a Uaito SDK `MessageInput` object into the format expected by the Anthropic API (`MessageParam`).
+   * This method handles the mapping of different content block types.
    * @private
-   * @param {MessageInput} model - The MessageInput object to convert.
-   * @returns {MessageParam} The converted MessageParam object.
+   * @param {MessageInput} model - The `MessageInput` object to convert.
+   * @returns {MessageParam} The converted `MessageParam` object.
    */
   private fromInputToParam(model: MessageInput): MessageParam {
 
@@ -139,7 +160,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         is_error: contentModel.isError,
         tool_use_id: contentModel.tool_use_id,
         type: contentModel.type,
-        content: contentModel.content!
+        content: (contentModel.content ?? [])
           .map((content) => {
             if (content.type === "image") {
               const imageBlock: ImageBlockParam = content
@@ -153,7 +174,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
               return textBlock;
             }
             return content
-          }) as any
+          }) as (TextBlockParam | ImageBlockParam)[]
       }
       return toolResultBlock
     }).filter(Boolean) // Remove null values from signature_delta entries
@@ -165,10 +186,11 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   /**
-   * Processes a chunk of the response stream.
+   * Processes a chunk from the Anthropic API's raw message stream and transforms it into a
+   * standardized Uaito SDK `Message` object. This method is the core of the stream processing logic.
    * @private
-   * @param {SDK.RawMessageStreamEvent} chunk - The chunk to process.
-   * @returns {(Message | null)} The processed message or null.
+   * @param {SDK.RawMessageStreamEvent} chunk - The raw chunk from the stream.
+   * @returns {(Message | null)} The processed `Message` object, or `null` if the chunk does not need to be emitted.
    */
   private chunk(
     chunk: SDK.RawMessageStreamEvent
@@ -228,7 +250,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       const delta = chunk.delta;
       if (delta.type === 'text_delta') {
         return {
-          id: this.cache.chunks!,
+          id: this.cache.chunks ?? v4(),
           role: 'assistant',
           type: 'message',
           chunk: true,
@@ -241,7 +263,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         }
       } else if (delta.type === 'thinking_delta') {
         return {
-          id:  this.cache.chunks!,
+          id:  this.cache.chunks ?? v4(),
           role: 'assistant',
           type: 'thinking',
           chunk: true,
@@ -260,16 +282,16 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
           partial: delta.partial_json ?? ''
         }
         if (!this.cache.toolInput) {
-          (this.cache.toolInput as any) = {
+          (this.cache.toolInput as unknown) = {
             ...toolInputBlock,
             partial: ''
           };
         }
         
-        (this.cache.toolInput as any).partial += delta.partial_json ?? '';
+        (this.cache.toolInput as {partial: string}).partial += delta.partial_json ?? '';
 
         try {
-          (this.cache.toolInput as any).input = JSON.parse(toolInputBlock.partial)
+          (this.cache.toolInput as {input: unknown}).input = JSON.parse(toolInputBlock.partial)
         } catch  {
         }
        
@@ -281,7 +303,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         }
       } else if (delta.type === "signature_delta") {
         return {
-          id:  this.cache.chunks!,
+          id:  this.cache.chunks ?? v4(),
           role: 'assistant',
           type: 'signature_delta',
        
@@ -300,12 +322,12 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
       if (chunk.delta.stop_reason === "tool_use") {
         const isTool = this.cache.toolInput?.type === "tool_use";
         if (isTool) {
-          (this.cache.toolInput as any).partial = (this.cache.toolInput as any).partial.replace(/undefined(.*)$/, '$1');
+          (this.cache.toolInput as {partial: string}).partial = (this.cache.toolInput as {partial: string}).partial.replace(/undefined(.*)$/, '$1');
           const toolInput = this.cache.toolInput as SDK.ToolUseBlock;
-          const cached = (this.cache.toolInput as any);
+          const cached = (this.cache.toolInput as {partial: string});
           try {
-            toolInput.input = JSON.parse((cached as any).partial)
-            delete (toolInput.input as any).partial
+            toolInput.input = JSON.parse((cached as {partial: string}).partial)
+            delete ((toolInput.input as {partial?: string}).partial)
           } catch  {
           }
           return {
@@ -371,8 +393,9 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   /**
-   * Gets the inputs for the LLM.
-   * @returns {any[]} The LLM inputs.
+   * Gets the formatted message history for the LLM, converting each message from the
+   * Uaito SDK format to the Anthropic API format.
+   * @returns {any[]} The formatted LLM inputs.
    */
   get llmInputs() {
     const messages = this.inputs
@@ -388,11 +411,13 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
   }
 
   /**
-   * Performs a task stream using the LLM.
-   * @param {string} prompt - The user prompt.
+   * Executes a task by sending the prompt and conversation history to the Anthropic API
+   * and returns the response as a stream. It handles the inclusion of the latest prompt,
+   * setting up the stream, and applying transformations for auto-mode and tool usage.
+   * @param {string | BlockType[]} prompt - The user's prompt.
    * @param {string} chainOfThought - The chain of thought for the task.
    * @param {string} system - The system prompt.
-   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of messages.
+   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of `Message` objects.
    */
    async performTaskStream<Input extends SDK.RawMessageStreamEvent, Output extends Message>(
     prompt,
@@ -412,7 +437,7 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
     },
     };
     const apiHeaders: Record<string, string> = {}
-    const options = { headers: apiHeaders, signal: this.options?.signal as any }
+    const options = { headers: apiHeaders, signal: this.options?.signal }
 
     const createStream = async () => {
       return this.retryApiCall(async() => {

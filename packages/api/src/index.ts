@@ -6,14 +6,44 @@
  * use API, OpenAI, Anthropic, or Local models
  */
 import { BaseLLM } from "@uaito/sdk";
-import { BaseLLMCache, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable } from "@uaito/sdk";
+import type { BaseLLMCache, BlockType, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import { MessageArray } from "@uaito/sdk";
-import { UaitoAPIOptions } from "./types";
+import type { UaitoAPIOptions } from "./types";
 
 export * from './types'
+/**
+ * A client for interacting with the Uaito API, which acts as a proxy to various
+ * underlying LLM providers. It extends the `BaseLLM` class to provide a consistent
+ * interface for making API requests and handling streaming responses.
+ *
+ * @class UaitoAPI
+ * @extends {BaseLLM<LLMProvider.API, UaitoAPIOptions>}
+ *
+ * @example
+ * ```typescript
+ * const api = new UaitoAPI({
+ *   options: {
+ *     apiKey: 'YOUR_UAITO_API_KEY',
+ *     provider: LLMProvider.OpenAI,
+ *     agent: 'orquestrator',
+ *     model: 'gpt-4o',
+ *   }
+ * });
+ *
+ * const responseStream = await api.performTaskStream("Tell me a joke.");
+ * for await (const chunk of responseStream) {
+ *   // Process each message chunk
+ * }
+ * ```
+ */
 export class UaitoAPI extends BaseLLM<LLMProvider.API, UaitoAPIOptions> {
 
+    /**
+     * A cache for storing intermediate data.
+     * @public
+     * @type {BaseLLMCache}
+     */
     public cache: BaseLLMCache = {
         toolInput: null,
         chunks: '',
@@ -22,10 +52,29 @@ export class UaitoAPI extends BaseLLM<LLMProvider.API, UaitoAPIOptions> {
             output: 0
         }
     }
+    /**
+     * An array that holds the history of messages for the conversation.
+     * @public
+     * @type {MessageArray<MessageInput>}
+     */
     public inputs: MessageArray<MessageInput>
+    /**
+     * The base URL for the Uaito API. Defaults to 'https://uaito.io'.
+     * @public
+     * @type {string}
+     */
     public baseUrl: string;
+    /**
+     * An optional callback function that is triggered when a tool is used.
+     * @type {OnTool | undefined}
+     */
     public onTool?: OnTool;
     
+    /**
+     * Creates an instance of the `UaitoAPI` client.
+     * @param {{ options: UaitoAPIOptions }} params - The configuration options for the client.
+     * @param {OnTool} [onTool] - An optional callback for handling tool usage.
+     */
     constructor({options}: {options: UaitoAPIOptions},onTool?: OnTool) {
         super(LLMProvider.API, options);
         this.inputs = options.inputs ?? new MessageArray();
@@ -33,7 +82,14 @@ export class UaitoAPI extends BaseLLM<LLMProvider.API, UaitoAPIOptions> {
         this.onTool = onTool ?? options.onTool;
     }
 
-    async request(prompt: string) {
+    /**
+     * Sends a request to the Uaito API and returns the response as a `ReadableStream`.
+     * This method constructs the request body, including the prompt, message history, and model,
+     * and handles the parsing of the delimited stream of `Message` objects.
+     * @param {string} prompt - The user's prompt.
+     * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of `Message` objects.
+     */
+    async request(prompt: string | BlockType[]): Promise<ReadableStreamWithAsyncIterable<Message>> {
         const { provider, agent, model, inputs, signal, apiKey } = this.options;
         const url = `${this.baseUrl}/api/${provider}/${agent}/messages`;
 
@@ -102,7 +158,12 @@ export class UaitoAPI extends BaseLLM<LLMProvider.API, UaitoAPIOptions> {
         }) as ReadableStreamWithAsyncIterable<Message>;
     }
 
-    performTaskStream(userPrompt): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    /**
+     * An alias for the `request` method to conform to the `BaseLLM` interface.
+     * @param {string | BlockType[]} userPrompt - The user's prompt.
+     * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A promise that resolves to a readable stream of `Message` objects.
+     */
+    performTaskStream(userPrompt: string | BlockType[], chainOfThought?: string, system?: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
         return this.request(userPrompt);
     }
 

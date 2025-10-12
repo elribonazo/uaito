@@ -9,7 +9,7 @@ import { Agent } from '.';
 import { MessageArray } from '@uaito/sdk';
 import type { BaseLLM, Tool } from '@uaito/sdk';
 import { LLMProvider } from '@uaito/sdk';
-import { GrokModels, OpenAIModels } from '@uaito/openai';
+import type { GrokModels, OpenAIModels } from '@uaito/openai';
 import { HuggingFaceONNXModels } from '@uaito/huggingface';
 
 const browseWebPageTool: Tool = {

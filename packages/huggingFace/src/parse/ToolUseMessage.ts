@@ -71,6 +71,24 @@ export class ToolUseMessage extends BaseMessage {
           return [];
         }
         
+        if (Array.isArray(parsed)) {
+          // If parsePythonicCall returns an array, recursively process each item
+          return parsed.flatMap(p => {
+            const { name, positionalArgs, keywordArgs } = p;
+            const toolSchema = this.tools?.find((t) => t.name === name);
+            const paramNames = toolSchema ? Object.keys(toolSchema.input_schema.properties) : [];
+            const input = mapArgsToNamedParams(paramNames, positionalArgs, keywordArgs);
+            
+            const { id } = this;
+            return {
+              id,
+              name,
+              input,
+              type: 'tool_use' as const
+            };
+          });
+        }
+
         const { name, positionalArgs, keywordArgs } = parsed;
         const toolSchema = this.tools?.find((t) => t.name === name);
         
