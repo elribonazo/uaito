@@ -1,6 +1,6 @@
 {
   "name": "@uaito/ai",
-  "version": "0.1.7-rc.0",
+  "version": "0.1.7-rc.1",
   "description": "UAITO AI package",
   "main": "./build/index.js",
   "module": "./build/index.mjs",

@@ -1,3 +1,13 @@
+## 0.1.7-rc.1 (2025-10-12)
+
+### 🩹 Fixes
+
+- improve prompts Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([9844c1c](https://github.com/elribonazo/uaito/commit/9844c1c))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.1.7-rc.0 (2025-10-12)
 
 ### 🧱 Updated Dependencies
