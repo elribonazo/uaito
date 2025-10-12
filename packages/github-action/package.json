@@ -1,6 +1,6 @@
 {
   "name": "@uaito/github-action",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "GitHub Action for UAITO",
   "main": "build/index.js",
   "module": "build/index.mjs",
@@ -18,8 +18,8 @@
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0",
     "@octokit/rest": "^21.0.1",
-    "@uaito/ai": "^0.1.0",
-    "@uaito/sdk": "^0.9.0"
+    "@uaito/ai": "^0.1.1",
+    "@uaito/sdk": "^0.9.1"
   },
   "devDependencies": {
     "tsup": "^8.2.3",

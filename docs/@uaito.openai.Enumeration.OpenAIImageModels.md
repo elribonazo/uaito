@@ -12,7 +12,7 @@
 
 # Enumeration: OpenAIImageModels
 
-Defined in: [types.ts:31](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/types.ts#L31)
+Defined in: [types.ts:31](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/types.ts#L31)
 
 An enumeration of the available OpenAI image generation models.
 
@@ -20,5 +20,5 @@ An enumeration of the available OpenAI image generation models.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gpt-image-1"></a> `gpt-image-1` | `"gpt-image-1"` | The standard high-quality image generation model. | [types.ts:39](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/types.ts#L39) |
-| <a id="gpt-image-1-mini"></a> `gpt-image-1-mini` | `"gpt-image-1-mini"` | A smaller, faster model for image generation, suitable for previews or less demanding tasks. | [types.ts:35](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/types.ts#L35) |
+| <a id="gpt-image-1"></a> `gpt-image-1` | `"gpt-image-1"` | The standard high-quality image generation model. | [types.ts:39](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/types.ts#L39) |
+| <a id="gpt-image-1-mini"></a> `gpt-image-1-mini` | `"gpt-image-1-mini"` | A smaller, faster model for image generation, suitable for previews or less demanding tasks. | [types.ts:35](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/types.ts#L35) |

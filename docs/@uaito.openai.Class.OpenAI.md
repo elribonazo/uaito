@@ -12,7 +12,7 @@
 
 # Class: OpenAI\<T\>
 
-Defined in: [index.ts:86](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L86)
+Defined in: [index.ts:86](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L86)
 
 A class for interacting with OpenAI-compatible APIs, including OpenAI and Grok.
 It extends the `BaseLLM` class to provide a standardized interface for streaming responses,
@@ -55,7 +55,7 @@ for await (const chunk of response) {
 new OpenAI<T>(params, onTool?): OpenAI<T>;
 ```
 
-Defined in: [index.ts:177](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L177)
+Defined in: [index.ts:177](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L177)
 
 Creates an instance of the `OpenAI` LLM client.
 
@@ -90,7 +90,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [index.ts:111](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L111)
+Defined in: [index.ts:111](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L111)
 
 A cache for storing intermediate data during stream processing, including partial tool inputs,
 image generation state, and token counts.
@@ -135,7 +135,7 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:108
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:108
 
 A generic key-value store for attaching arbitrary data to the LLM instance.
 Can be used for session management, tracking metadata, etc.
@@ -154,7 +154,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:103](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L103)
+Defined in: [index.ts:103](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L103)
 
 An array that holds the history of messages for the conversation.
 
@@ -172,7 +172,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:91](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L91)
+Defined in: [index.ts:91](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L91)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -184,7 +184,7 @@ An optional callback function that is triggered when a tool is used.
 readonly options: llmTypeToOptions[T];
 ```
 
-Defined in: ../../sdk/build/index.d.ts:73
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:73
 
 #### Inherited from
 
@@ -200,7 +200,7 @@ BaseLLM.options
 readonly type: T;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:72
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:72
 
 #### Inherited from
 
@@ -218,7 +218,7 @@ BaseLLM.type
 get llmInputs(): ResponseInputItem[];
 ```
 
-Defined in: [index.ts:311](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L311)
+Defined in: [index.ts:311](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L311)
 
 Gets the formatted message history for the LLM, converting each message from the
 Uaito SDK format to the OpenAI API's `ResponseInputItem` format.
@@ -239,7 +239,7 @@ The formatted LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:201](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L201)
+Defined in: [index.ts:201](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L201)
 
 Gets the maximum number of tokens to generate in the response.
 Defaults to 4096 if not specified in the options.
@@ -260,7 +260,7 @@ The maximum number of tokens.
 get tools(): undefined | Tool[];
 ```
 
-Defined in: [index.ts:282](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L282)
+Defined in: [index.ts:282](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L282)
 
 Gets the list of tools available to the LLM, formatted as `ResponsesTool` objects
 for the OpenAI API.
@@ -282,7 +282,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:149
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:149
 
 Appends the latest user prompt and the chain of thought to the message history.
 It handles both simple string prompts and complex `BlockType` array prompts (e.g., with images).
@@ -316,7 +316,7 @@ BaseLLM.includeLastPrompt
 log(message): void;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:115
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:115
 
 A utility for logging messages. It can be configured to use a custom logger
 by passing a `log` function in the options. Defaults to `console.log`.
@@ -348,7 +348,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:585](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/openai/src/index.ts#L585)
+Defined in: [index.ts:585](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/openai/src/index.ts#L585)
 
 Executes a task by sending the prompt and conversation history to the OpenAI-compatible API
 and returns the response as a stream. It handles tool configuration, stream creation,
@@ -382,7 +382,7 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:124
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:124
 
 A robust wrapper for API calls that automatically retries on `APIConnectionError`.
 It uses exponential backoff to wait between retries, making it resilient to transient network issues.
@@ -423,7 +423,7 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:133
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:133
 
 A safe execution wrapper for tool calls. It catches errors during tool execution,
 formats them into a standard error message, and pushes the error back into the input stream
@@ -457,7 +457,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:171
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:171
 
 Handles the execution flow for an "auto mode" or agentic stream, where the LLM can use tools
 and continue its task without waiting for user input. It processes the stream, handles tool calls
@@ -497,7 +497,7 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../sdk/build/index.d.ts:160
+Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:160
 
 Transforms a raw stream from an AI provider into the standardized Uaito SDK `Message` format.
 It processes chunks from the input stream, applies the provided `transform` function,

@@ -16,7 +16,7 @@
 function share(body, settings): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXAudio.ts:132](https://github.com/elribonazo/uaito/blob/9afc2f28c155a623225c2a9de805955e51d5a602/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L132)
+Defined in: [HuggingFaceONNXAudio.ts:132](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXAudio.ts#L132)
 
 A utility function to share a generated audio file to a Hugging Face Space discussion.
 This is primarily for demonstration and sharing purposes.
