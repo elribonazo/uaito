@@ -12,7 +12,7 @@
 
 # Class: HuggingFaceONNXTextToImage
 
-Defined in: [HuggingFaceONNXImage.ts:52](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L52)
+Defined in: [HuggingFaceONNXImage.ts:52](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L52)
 
 A class for handling text-to-image generation using a Hugging Face ONNX model locally in the browser.
 It extends the `BaseLLM` class to provide a consistent interface with the Uaito SDK,
@@ -48,7 +48,7 @@ for await (const chunk of response) {
 new HuggingFaceONNXTextToImage(params, onTool?): HuggingFaceONNXTextToImage;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:101](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L101)
+Defined in: [HuggingFaceONNXImage.ts:101](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L101)
 
 Creates an instance of `HuggingFaceONNXTextToImage`.
 
@@ -78,7 +78,7 @@ BaseLLM<LLMProvider.Local, HuggingFaceONNXOptions>.constructor
 cache: BaseLLMCache;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:59](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L59)
+Defined in: [HuggingFaceONNXImage.ts:59](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L59)
 
 The cache for the LLM.
 
@@ -96,7 +96,7 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:108
+Defined in: ../../sdk/build/index.d.ts:108
 
 A generic key-value store for attaching arbitrary data to the LLM instance.
 Can be used for session management, tracking metadata, etc.
@@ -115,7 +115,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:71](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L71)
+Defined in: [HuggingFaceONNXImage.ts:71](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L71)
 
 An array of message inputs.
 
@@ -133,7 +133,7 @@ BaseLLM.inputs
 loadProgress: number = 0;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:65](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L65)
+Defined in: [HuggingFaceONNXImage.ts:65](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L65)
 
 The progress of loading the model.
 
@@ -145,7 +145,7 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:95](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L95)
+Defined in: [HuggingFaceONNXImage.ts:95](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L95)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -157,7 +157,7 @@ An optional callback function that is triggered when a tool is used.
 readonly options: HuggingFaceONNXOptions;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:73
+Defined in: ../../sdk/build/index.d.ts:73
 
 #### Inherited from
 
@@ -173,7 +173,7 @@ BaseLLM.options
 readonly type: Local;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:72
+Defined in: ../../sdk/build/index.d.ts:72
 
 #### Inherited from
 
@@ -192,7 +192,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:149
+Defined in: ../../sdk/build/index.d.ts:149
 
 Appends the latest user prompt and the chain of thought to the message history.
 It handles both simple string prompts and complex `BlockType` array prompts (e.g., with images).
@@ -226,7 +226,7 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:114](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L114)
+Defined in: [HuggingFaceONNXImage.ts:114](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L114)
 
 Loads the image generation model, processor, and tokenizer from Hugging Face.
 It automatically detects support for FP16 and configures the model for optimal performance
@@ -244,7 +244,7 @@ on the available hardware (WebGPU or WASM).
 log(message): void;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:115
+Defined in: ../../sdk/build/index.d.ts:115
 
 A utility for logging messages. It can be configured to use a custom logger
 by passing a `log` function in the options. Defaults to `console.log`.
@@ -276,7 +276,7 @@ performTaskStream(
 system?): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNXImage.ts:179](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/huggingFace/src/HuggingFaceONNXImage.ts#L179)
+Defined in: [HuggingFaceONNXImage.ts:179](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/huggingFace/src/HuggingFaceONNXImage.ts#L179)
 
 Performs the text-to-image generation task. It processes the input prompt,
 runs the model to generate an image, and returns the image as a blob URL
@@ -310,7 +310,7 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:124
+Defined in: ../../sdk/build/index.d.ts:124
 
 A robust wrapper for API calls that automatically retries on `APIConnectionError`.
 It uses exponential backoff to wait between retries, making it resilient to transient network issues.
@@ -351,7 +351,7 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:133
+Defined in: ../../sdk/build/index.d.ts:133
 
 A safe execution wrapper for tool calls. It catches errors during tool execution,
 formats them into a standard error message, and pushes the error back into the input stream
@@ -385,7 +385,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:171
+Defined in: ../../sdk/build/index.d.ts:171
 
 Handles the execution flow for an "auto mode" or agentic stream, where the LLM can use tools
 and continue its task without waiting for user input. It processes the stream, handles tool calls
@@ -425,7 +425,7 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:160
+Defined in: ../../sdk/build/index.d.ts:160
 
 Transforms a raw stream from an AI provider into the standardized Uaito SDK `Message` format.
 It processes chunks from the input stream, applies the provided `transform` function,

@@ -1,3 +1,13 @@
+## 0.0.3 (2025-10-12)
+
+### 🩹 Fixes
+
+- publish package Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([eff2fa8](https://github.com/elribonazo/uaito/commit/eff2fa8))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.2 (2025-10-12)
 
 ### 🩹 Fixes

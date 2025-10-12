@@ -1,6 +1,6 @@
 {
   "name": "@uaito/github-action",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "GitHub Action for UAITO",
   "main": "build/index.js",
   "module": "build/index.mjs",

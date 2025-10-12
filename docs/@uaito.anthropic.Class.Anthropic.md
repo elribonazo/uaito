@@ -12,7 +12,7 @@
 
 # Class: Anthropic
 
-Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L34)
+Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L34)
 
 A class for interacting with the Anthropic API, providing a standardized interface
 for streaming responses, handling tool usage, and managing conversation history.
@@ -48,7 +48,7 @@ for await (const chunk of response) {
 new Anthropic(params, onTool?): Anthropic;
 ```
 
-Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L66)
+Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L66)
 
 Creates an instance of the `Anthropic` LLM client.
 
@@ -79,7 +79,7 @@ BaseLLM<LLMProvider.Anthropic, AnthropicOptions>.constructor
 protected api: Anthropic;
 ```
 
-Defined in: [index.ts:53](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L53)
+Defined in: [index.ts:53](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L53)
 
 The underlying Anthropic SDK client.
 
@@ -91,7 +91,7 @@ The underlying Anthropic SDK client.
 cache: BaseLLMCache;
 ```
 
-Defined in: [index.ts:41](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L41)
+Defined in: [index.ts:41](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L41)
 
 A cache for storing intermediate data during stream processing, such as partial tool inputs
 and token counts.
@@ -110,7 +110,7 @@ BaseLLM.cache
 data: Record<string, unknown>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:108
+Defined in: ../../sdk/build/index.d.ts:108
 
 A generic key-value store for attaching arbitrary data to the LLM instance.
 Can be used for session management, tracking metadata, etc.
@@ -129,7 +129,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:59](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L59)
+Defined in: [index.ts:59](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L59)
 
 An array that holds the history of messages for the conversation.
 
@@ -147,7 +147,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L47)
+Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L47)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -159,7 +159,7 @@ An optional callback function that is triggered when a tool is used.
 readonly options: AnthropicOptions;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:73
+Defined in: ../../sdk/build/index.d.ts:73
 
 #### Inherited from
 
@@ -175,7 +175,7 @@ BaseLLM.options
 readonly type: Anthropic;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:72
+Defined in: ../../sdk/build/index.d.ts:72
 
 #### Inherited from
 
@@ -193,7 +193,7 @@ BaseLLM.type
 get llmInputs(): MessageParam[];
 ```
 
-Defined in: [index.ts:400](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L400)
+Defined in: [index.ts:400](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L400)
 
 Gets the formatted message history for the LLM, converting each message from the
 Uaito SDK format to the Anthropic API format.
@@ -214,7 +214,7 @@ The formatted LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:83](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L83)
+Defined in: [index.ts:83](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L83)
 
 Gets the maximum number of tokens to generate in the response.
 Defaults to 8192 if not specified in the options.
@@ -236,7 +236,7 @@ includeLastPrompt(
 input): MessageArray<MessageInput>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:149
+Defined in: ../../sdk/build/index.d.ts:149
 
 Appends the latest user prompt and the chain of thought to the message history.
 It handles both simple string prompts and complex `BlockType` array prompts (e.g., with images).
@@ -270,7 +270,7 @@ BaseLLM.includeLastPrompt
 log(message): void;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:115
+Defined in: ../../sdk/build/index.d.ts:115
 
 A utility for logging messages. It can be configured to use a custom logger
 by passing a `log` function in the options. Defaults to `console.log`.
@@ -302,7 +302,7 @@ performTaskStream<Input, Output>(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:422](https://github.com/elribonazo/uaito/blob/196a16fe5e5b60bfd7ea97e89a09a17b4f97d7ed/packages/anthropic/src/index.ts#L422)
+Defined in: [index.ts:422](https://github.com/elribonazo/uaito/blob/eff2fa84665b7b5951a821a9e4de2f23c3c0bbde/packages/anthropic/src/index.ts#L422)
 
 Executes a task by sending the prompt and conversation history to the Anthropic API
 and returns the response as a stream. It handles the inclusion of the latest prompt,
@@ -343,7 +343,7 @@ BaseLLM.performTaskStream
 retryApiCall<T>(apiCall): Promise<T>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:124
+Defined in: ../../sdk/build/index.d.ts:124
 
 A robust wrapper for API calls that automatically retries on `APIConnectionError`.
 It uses exponential backoff to wait between retries, making it resilient to transient network issues.
@@ -384,7 +384,7 @@ BaseLLM.retryApiCall
 runSafeCommand(toolUse, run): Promise<void>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:133
+Defined in: ../../sdk/build/index.d.ts:133
 
 A safe execution wrapper for tool calls. It catches errors during tool execution,
 formats them into a standard error message, and pushes the error back into the input stream
@@ -418,7 +418,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:171
+Defined in: ../../sdk/build/index.d.ts:171
 
 Handles the execution flow for an "auto mode" or agentic stream, where the LLM can use tools
 and continue its task without waiting for user input. It processes the stream, handles tool calls
@@ -458,7 +458,7 @@ BaseLLM.transformAutoMode
 transformStream<AChunk, BChunk>(input, transform): Promise<ReadableStreamWithAsyncIterable<BChunk>>;
 ```
 
-Defined in: ../../../node\_modules/@uaito/sdk/build/index.d.ts:160
+Defined in: ../../sdk/build/index.d.ts:160
 
 Transforms a raw stream from an AI provider into the standardized Uaito SDK `Message` format.
 It processes chunks from the input stream, applies the provided `transform` function,
