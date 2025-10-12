@@ -1,3 +1,13 @@
+## 0.1.0 (2025-10-12)
+
+### 🚀 Features
+
+- book stories + new github action package ([#11](https://github.com/elribonazo/uaito/pull/11), [#10](https://github.com/elribonazo/uaito/issues/10))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.0.15-rc.3 (2025-10-12)
 
 This was a version bump only for @uaito/build to align it with other projects, there were no code changes.

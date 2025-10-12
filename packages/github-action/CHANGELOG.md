@@ -1,3 +1,13 @@
+## 0.0.1 (2025-10-12)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/anthropic to 0.1.0
+- Updated @uaito/google to 0.1.0
+- Updated @uaito/openai to 0.1.0
+- Updated @uaito/sdk to 0.9.0
+- Updated @uaito/ai to 0.1.0
+
 ## 0.0.1-rc.1 (2025-10-12)
 
 ### 🩹 Fixes

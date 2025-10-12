@@ -1,3 +1,23 @@
+## 0.1.0 (2025-10-12)
+
+### 🚀 Features
+
+- book stories + new github action package ([#11](https://github.com/elribonazo/uaito/pull/11), [#10](https://github.com/elribonazo/uaito/issues/10))
+
+### 🩹 Fixes
+
+- hugginface Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([11a62aa](https://github.com/elribonazo/uaito/commit/11a62aa))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.1.0
+- Updated @uaito/sdk to 0.9.0
+
+### ❤️ Thank You
+
+- Javier Ribó
+- Javier Ribó
+
 ## 0.0.22-rc.3 (2025-10-12)
 
 ### 🧱 Updated Dependencies

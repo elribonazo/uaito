@@ -18,4 +18,4 @@
 | [@uaito/api](@uaito.api.md) | UAITO OpenAI Provider |
 | [@uaito/huggingface](@uaito.huggingface.md) | UAITO Hugging Face Provider. |
 | [@uaito/openai](@uaito.openai.md) | UAITO OpenAI Provider |
-| [@uaito/sdk](@uaito.sdk.md) | UAITO Typescript SDK. |
+| [@uaito/sdk](@uaito.sdk.md) | UAITO Typescript SDK |
