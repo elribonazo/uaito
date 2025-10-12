@@ -12,7 +12,7 @@
 
 # Class: Anthropic
 
-Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L34)
+Defined in: [index.ts:34](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L34)
 
 A class for interacting with the Anthropic API, providing a standardized interface
 for streaming responses, handling tool usage, and managing conversation history.
@@ -48,7 +48,7 @@ for await (const chunk of response) {
 new Anthropic(params, onTool?): Anthropic;
 ```
 
-Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L66)
+Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L66)
 
 Creates an instance of the `Anthropic` LLM client.
 
@@ -79,7 +79,7 @@ BaseLLM<LLMProvider.Anthropic, AnthropicOptions>.constructor
 protected api: Anthropic;
 ```
 
-Defined in: [index.ts:53](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L53)
+Defined in: [index.ts:53](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L53)
 
 The underlying Anthropic SDK client.
 
@@ -91,7 +91,7 @@ The underlying Anthropic SDK client.
 cache: BaseLLMCache;
 ```
 
-Defined in: [index.ts:41](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L41)
+Defined in: [index.ts:41](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L41)
 
 A cache for storing intermediate data during stream processing, such as partial tool inputs
 and token counts.
@@ -129,7 +129,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:59](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L59)
+Defined in: [index.ts:59](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L59)
 
 An array that holds the history of messages for the conversation.
 
@@ -147,7 +147,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L47)
+Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L47)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -193,7 +193,7 @@ BaseLLM.type
 get llmInputs(): MessageParam[];
 ```
 
-Defined in: [index.ts:400](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L400)
+Defined in: [index.ts:400](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L400)
 
 Gets the formatted message history for the LLM, converting each message from the
 Uaito SDK format to the Anthropic API format.
@@ -214,7 +214,7 @@ The formatted LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:83](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L83)
+Defined in: [index.ts:83](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L83)
 
 Gets the maximum number of tokens to generate in the response.
 Defaults to 8192 if not specified in the options.
@@ -302,7 +302,7 @@ performTaskStream<Input, Output>(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:422](https://github.com/elribonazo/uaito/blob/48ca7e9100abb23d088dbfc6eb0d1c39d55fdcbf/packages/anthropic/src/index.ts#L422)
+Defined in: [index.ts:422](https://github.com/elribonazo/uaito/blob/e0747004e756945db95e651c1acbbc56d72b8bba/packages/anthropic/src/index.ts#L422)
 
 Executes a task by sending the prompt and conversation history to the Anthropic API
 and returns the response as a stream. It handles the inclusion of the latest prompt,
