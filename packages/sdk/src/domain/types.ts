@@ -68,6 +68,7 @@ import type { MessageArray } from "@/utils";
         type: string;
         description: string;
         default?: unknown;
+        items?: unknown;
       }>;
       required?: string[];
     };

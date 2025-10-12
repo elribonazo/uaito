@@ -1,0 +1,21 @@
+name: 'UAITO GitHub Action'
+description: 'Uses UAITO AI to interact with GitHub issues.'
+inputs:
+  github-token:
+    description: 'The GitHub token to use for authentication.'
+    required: true
+  allowed-user:
+    description: 'The GitHub user that is allowed to trigger the action.'
+    required: true
+  llm-provider:
+    description: 'The LLM provider to use (e.g., OpenAI, Anthropic).'
+    required: true
+  llm-api-key:
+    description: 'The API key for the LLM provider.'
+    required: true
+  model:
+    description: 'The specific model to use for the LLM provider.'
+    required: false
+runs:
+  using: 'node20'
+  main: 'build/action.js'
