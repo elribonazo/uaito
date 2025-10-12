@@ -34,7 +34,7 @@ import type {
   ResponseErrorEvent,
 } from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
-import type { OpenAIOptions } from './types';
+import { ImageGenConfig, OpenAIImageModels, type OpenAIOptions } from './types';
 
 export * from './types';
 
@@ -125,6 +125,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     completedToolCalls: string[],
   };
 
+  private imageGenConfig: ImageGenConfig | null = null;
+
   /**
    * Creates an instance of the OpenAI LLM.
    * @param {{ options: OpenAIOptions }} { options } - The options for the LLM.
@@ -141,8 +143,10 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     this.openai = new OpenAIAPI({
       apiKey: options.apiKey,
       baseURL: defaultBaseUrl,
+      
     });
 
+    this.imageGenConfig = options.imageGenConfig ?? null;
 
     this.onTool = onTool ?? options.onTool;
   }
@@ -516,14 +520,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     state.completedToolCalls = [];
     return out;
   }
-
-      /**
-     * Includes the last prompt in the input.
-     * @param {string} prompt - The user prompt.
-     * @param {string} chainOfThought - The chain of thought for the task.
-     * @param {MessageArray<MessageInput>} input - The input messages.
-     * @returns {MessageArray<MessageInput>} The updated input messages.
-     */
       
 
   /**
@@ -538,15 +534,25 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     chainOfThought,
     system,
   ): Promise<ReadableStreamWithAsyncIterable<Message>> {
+    const {
+      model:imageModel = OpenAIImageModels['gpt-image-1-mini'],
+      quality = 'low',
+      output_format = 'png',
+      size = 'auto',
+      input_fidelity = 'low'
+    } = this.imageGenConfig ?? {};
+
     this.inputs = this.includeLastPrompt(prompt, chainOfThought, this.inputs);
     const tools= (this.tools && this.tools.length > 0 ? this.tools : []) 
 
     if (this.options.type === LLMProvider.OpenAI) {
       tools.push({
-        'type': 'image_generation',
-        'size': '1024x1024',
-        'output_format': 'png',
-        'model':'gpt-image-1',
+        type: 'image_generation',
+        size: size,
+        output_format: output_format,
+        model:imageModel as any,
+        input_fidelity,
+        quality
       })
       tools.push({
         type: "web_search",
@@ -565,9 +571,9 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       max_output_tokens: this.maxTokens,
       stream: true,
       tools,
-      reasoning:{
+      reasoning:this.options.type === LLMProvider.OpenAI ? {
         effort:'low'
-      },
+      } : undefined,
     };
 
     // Reset usage and per-turn state
@@ -609,7 +615,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
     return automodeStream;
   }
 
-
+ 
 
   /**
    * Processes a chunk of the response stream.
@@ -894,7 +900,6 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
         content: [current]
       };
     }
-
     // Function call arguments done -> emit tool_use
     if (chunk.type === 'response.function_call_arguments.done') {
       const ev = chunk as ResponseFunctionCallArgumentsDoneEvent;
@@ -961,8 +966,8 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       return {
         id: v4(),
         role: 'assistant',
-        type: 'delta',
-        content: [deltaBlock, usageBlock]
+        type: 'usage',
+        content: [usageBlock, deltaBlock]
       };
     }
 
