@@ -18,7 +18,7 @@ type AnthropicOptions = {
 } & BaseLLMOptions;
 ```
 
-Defined in: [types.ts:23](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/anthropic/src/types.ts#L23)
+Defined in: [types.ts:23](https://github.com/elribonazo/uaito/blob/cfa7cf4d40b23c917d18a9623a67ba39385dca04/packages/anthropic/src/types.ts#L23)
 
 Defines the configuration options for the `Anthropic` LLM client.
 It extends the `BaseLLMOptions` with an optional `apiKey`.
@@ -27,4 +27,4 @@ It extends the `BaseLLMOptions` with an optional `apiKey`.
 
 | Name | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| `apiKey?` | `string` | The API key for authenticating with the Anthropic API. If not provided, the client may attempt to use an environment variable. | [types.ts:29](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/anthropic/src/types.ts#L29) |
+| `apiKey?` | `string` | The API key for authenticating with the Anthropic API. If not provided, the client may attempt to use an environment variable. | [types.ts:29](https://github.com/elribonazo/uaito/blob/cfa7cf4d40b23c917d18a9623a67ba39385dca04/packages/anthropic/src/types.ts#L29) |

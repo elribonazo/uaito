@@ -12,7 +12,7 @@
 
 # Interface: SearchReplaceBlock
 
-Defined in: [domain/types.ts:272](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L272)
+Defined in: [domain/types.ts:272](https://github.com/elribonazo/uaito/blob/cfa7cf4d40b23c917d18a9623a67ba39385dca04/packages/sdk/src/domain/types.ts#L272)
 
 Represents a block for search and replace operations.
  SearchReplaceBlock
@@ -25,7 +25,7 @@ Represents a block for search and replace operations.
 replace: string;
 ```
 
-Defined in: [domain/types.ts:282](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L282)
+Defined in: [domain/types.ts:282](https://github.com/elribonazo/uaito/blob/cfa7cf4d40b23c917d18a9623a67ba39385dca04/packages/sdk/src/domain/types.ts#L282)
 
 The replace string.
 
@@ -37,6 +37,6 @@ The replace string.
 search: string;
 ```
 
-Defined in: [domain/types.ts:277](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L277)
+Defined in: [domain/types.ts:277](https://github.com/elribonazo/uaito/blob/cfa7cf4d40b23c917d18a9623a67ba39385dca04/packages/sdk/src/domain/types.ts#L277)
 
 The search string.
