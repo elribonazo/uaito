@@ -13,7 +13,7 @@ import { v4 } from "uuid";
 
 import { BaseLLM } from "@uaito/sdk";
 import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message, LLMProvider, MessageArray } from "@uaito/sdk";
-import type { TensorDataType, HuggingFaceONNXOptions } from "./types";
+import { type TensorDataType, type HuggingFaceONNXOptions, HuggingFaceONNXModels } from "./types";
 import { MessageCache } from "./utils";
 
 /**
@@ -211,21 +211,29 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
         this.model ??= model;
       }
     } else {
-      const config = await AutoConfig.from_pretrained(modelId);
+      const defaultConfig = await AutoConfig.from_pretrained(modelId);
+
+      const configPerModel = {
+        __default: {
+          device: this.options.device ?? "webgpu",
+          dtype: this.options.dtype ?? "auto",
+          config: {
+            ...defaultConfig,
+            'transformers.js_config': {
+              ...defaultConfig["transformers.js_config"],
+              kv_cache_dtype: {
+                "q4f16": "float16" as const,
+                "fp16": "float16" as const
+              } as never
+            }
+          },
+        },
+      }
+
+      const config = configPerModel[modelId] ?? configPerModel.__default;
 
       this.model ??= await AutoModelForCausalLM.from_pretrained(modelId, {
-        device: this.options.device ?? "webgpu",
-        dtype: this.options.dtype ?? "auto",
-        config: {
-          ...config,
-          'transformers.js_config': {
-            ...config["transformers.js_config"],
-            kv_cache_dtype: {
-              "q4f16": "float16" as const,
-              "fp16": "float16" as const
-            } as never
-          }
-        },
+        ...config,
         progress_callback: (info: Record<string, unknown>) => {
           if (info.status === "progress") {
             const progress = parseInt(info.progress as string, 10);

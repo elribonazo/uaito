@@ -29,23 +29,16 @@ export type TensorDataType = {
  * @enum {string}
  */
 export enum HuggingFaceONNXModels {
-    /**
-     * A small and efficient model suitable for general-purpose tasks.
-     */
     JANO = "onnx-community/Jan-nano-ONNX",
-    /**
-     * A model with a good balance of performance and size.
-     */
-    LUCY="onnx-community/Lucy-ONNX",
 
-    /**
-     * A micro-sized version of the Granite model, optimized for web environments.
-     */
+    
+    LUCY="onnx-community/Lucy-ONNX",
+    LUCY_128K='onnx-community/Lucy-128k-ONNX',
+
     GRANITE="onnx-community/granite-4.0-micro-ONNX-web",
-    // DEMO='onnx-community/llama-3.2-1b-medical-notes-ONNX', 
-    // LFM2_RAG='onnx-community/LFM2-1.2B-RAG-ONNX',
-    // LFM2_EXTRACT='onnx-community/LFM2-350M-Extract-ONNX',
-    // LMF2_6B='onnx-community/LFM2-2.6B-ONNX'
+    
+    GEMMA3='onnx-community/gemma-3-1b-it-ONNX-GQA'
+
   }
 
   /**
