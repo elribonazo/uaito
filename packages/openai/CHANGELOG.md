@@ -1,3 +1,13 @@
+## 0.1.7-rc.3 (2025-10-13)
+
+### 🩹 Fixes
+
+- typo in model Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([7df29d8](https://github.com/elribonazo/uaito/commit/7df29d8))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.1.7-rc.2 (2025-10-13)
 
 ### 🧱 Updated Dependencies
