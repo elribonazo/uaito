@@ -1,3 +1,13 @@
+## 0.1.7-rc.3 (2025-10-13)
+
+### 🩹 Fixes
+
+- huggingface validated models Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([10c8586](https://github.com/elribonazo/uaito/commit/10c8586))
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.1.7-rc.2 (2025-10-13)
 
 ### 🧱 Updated Dependencies

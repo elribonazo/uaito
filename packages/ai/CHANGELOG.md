@@ -1,3 +1,9 @@
+## 0.1.7 (2025-10-13)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.1.7-rc.3
+
 ## 0.1.7-rc.3 (2025-10-13)
 
 ### 🧱 Updated Dependencies

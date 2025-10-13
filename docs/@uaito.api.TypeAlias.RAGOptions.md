@@ -23,7 +23,7 @@ type RAGOptions = {
 };
 ```
 
-Defined in: [types.ts:5](https://github.com/elribonazo/uaito/blob/867719e6dfe41e527977574b6a9dd218b81d6d25/packages/api/src/types.ts#L5)
+Defined in: [types.ts:5](https://github.com/elribonazo/uaito/blob/10c858615d5976b68ccf5217d266c8a90a84a5d9/packages/api/src/types.ts#L5)
 
 ## Properties
 
@@ -33,7 +33,7 @@ Defined in: [types.ts:5](https://github.com/elribonazo/uaito/blob/867719e6dfe41e
 optional agentRole: string;
 ```
 
-Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/867719e6dfe41e527977574b6a9dd218b81d6d25/packages/api/src/types.ts#L9)
+Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/10c858615d5976b68ccf5217d266c8a90a84a5d9/packages/api/src/types.ts#L9)
 
 ***
 
@@ -43,7 +43,7 @@ Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/867719e6dfe41e
 optional projectImportPath: string;
 ```
 
-Defined in: [types.ts:11](https://github.com/elribonazo/uaito/blob/867719e6dfe41e527977574b6a9dd218b81d6d25/packages/api/src/types.ts#L11)
+Defined in: [types.ts:11](https://github.com/elribonazo/uaito/blob/10c858615d5976b68ccf5217d266c8a90a84a5d9/packages/api/src/types.ts#L11)
 
 ***
 
@@ -53,7 +53,7 @@ Defined in: [types.ts:11](https://github.com/elribonazo/uaito/blob/867719e6dfe41
 optional projectName: string;
 ```
 
-Defined in: [types.ts:10](https://github.com/elribonazo/uaito/blob/867719e6dfe41e527977574b6a9dd218b81d6d25/packages/api/src/types.ts#L10)
+Defined in: [types.ts:10](https://github.com/elribonazo/uaito/blob/10c858615d5976b68ccf5217d266c8a90a84a5d9/packages/api/src/types.ts#L10)
 
 ***
 
@@ -63,7 +63,7 @@ Defined in: [types.ts:10](https://github.com/elribonazo/uaito/blob/867719e6dfe41
 optional repomixIgnore: string;
 ```
 
-Defined in: [types.ts:8](https://github.com/elribonazo/uaito/blob/867719e6dfe41e527977574b6a9dd218b81d6d25/packages/api/src/types.ts#L8)
+Defined in: [types.ts:8](https://github.com/elribonazo/uaito/blob/10c858615d5976b68ccf5217d266c8a90a84a5d9/packages/api/src/types.ts#L8)
 
 ***
 
@@ -73,7 +73,7 @@ Defined in: [types.ts:8](https://github.com/elribonazo/uaito/blob/867719e6dfe41e
 optional repomixInclude: string;
 ```
 
-Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/867719e6dfe41e527977574b6a9dd218b81d6d25/packages/api/src/types.ts#L7)
+Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/10c858615d5976b68ccf5217d266c8a90a84a5d9/packages/api/src/types.ts#L7)
 
 ***
 
@@ -83,4 +83,4 @@ Defined in: [types.ts:7](https://github.com/elribonazo/uaito/blob/867719e6dfe41e
 optional repoUrl: string;
 ```
 
-Defined in: [types.ts:6](https://github.com/elribonazo/uaito/blob/867719e6dfe41e527977574b6a9dd218b81d6d25/packages/api/src/types.ts#L6)
+Defined in: [types.ts:6](https://github.com/elribonazo/uaito/blob/10c858615d5976b68ccf5217d266c8a90a84a5d9/packages/api/src/types.ts#L6)
