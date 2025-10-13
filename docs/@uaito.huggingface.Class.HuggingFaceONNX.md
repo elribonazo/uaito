@@ -12,7 +12,7 @@
 
 # Class: HuggingFaceONNX
 
-Defined in: [HuggingFaceONNX.ts:91](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L91)
+Defined in: [HuggingFaceONNX.ts:91](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L91)
 
 A class for running Hugging Face ONNX models locally in the browser using WebGPU or WASM.
 It extends the `BaseLLM` class to provide a consistent interface with the Uaito SDK,
@@ -49,7 +49,7 @@ for await (const chunk of response) {
 new HuggingFaceONNX(params, onTool?): HuggingFaceONNX;
 ```
 
-Defined in: [HuggingFaceONNX.ts:147](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L147)
+Defined in: [HuggingFaceONNX.ts:147](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L147)
 
 Creates an instance of `HuggingFaceONNX`.
 
@@ -83,7 +83,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [HuggingFaceONNX.ts:97](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L97)
+Defined in: [HuggingFaceONNX.ts:97](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L97)
 
 The cache for the LLM, extended with optional IDs for tracking thinking, text, and image blocks.
 
@@ -138,7 +138,7 @@ Can be used for session management, tracking metadata, etc.
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:109](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L109)
+Defined in: [HuggingFaceONNX.ts:109](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L109)
 
 An array that holds the history of messages for the conversation.
 
@@ -156,7 +156,7 @@ BaseLLM.inputs
 loadProgress: number = 0;
 ```
 
-Defined in: [HuggingFaceONNX.ts:103](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L103)
+Defined in: [HuggingFaceONNX.ts:103](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L103)
 
 The progress of loading the model.
 
@@ -168,7 +168,7 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNX.ts:139](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L139)
+Defined in: [HuggingFaceONNX.ts:139](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L139)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -212,7 +212,7 @@ BaseLLM.type
 createStream(): Promise<ReadableStreamWithAsyncIterable<string>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:367](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L367)
+Defined in: [HuggingFaceONNX.ts:367](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L367)
 
 Creates a readable stream of strings by running the model's generation process.
 It uses a `TextStreamer` to decode the model's output tokens into text in real-time.
@@ -268,7 +268,7 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:193](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L193)
+Defined in: [HuggingFaceONNX.ts:193](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L193)
 
 Loads the pre-trained model and tokenizer from Hugging Face. It uses a cache to avoid
 redundant downloads. This method also handles the configuration of the model for
@@ -318,7 +318,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:499](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L499)
+Defined in: [HuggingFaceONNX.ts:499](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L499)
 
 Executes a task by preparing the inputs, running the model's generation process,
 and returning the response as a stream. It orchestrates the loading of the model,
@@ -393,7 +393,7 @@ BaseLLM.retryApiCall
 runAbortable<Fn>(fn): Promise<unknown>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:175](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L175)
+Defined in: [HuggingFaceONNX.ts:175](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L175)
 
 A wrapper for running a promise that can be aborted via an `AbortSignal`.
 If the signal is aborted, the promise is rejected and the model's generation is interrupted.
@@ -458,7 +458,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:542](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/HuggingFaceONNX.ts#L542)
+Defined in: [HuggingFaceONNX.ts:542](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/HuggingFaceONNX.ts#L542)
 
 A specialized version of `transformAutoMode` for handling the streaming and tool-use logic
 of local Hugging Face models. It manages the lifecycle of the stream reader and reactivates

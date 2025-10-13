@@ -10,7 +10,10 @@ export enum OpenAIModels {
     /**
      * A highly capable and efficient model, suitable for a wide range of tasks.
      */
-    'gpt-5' = "gpt-5-mini-2025-08-07",
+    'gpt-5-nano' = 'gpt-5-nano-2025-08-07',
+    'gpt-5-mini' = "gpt-5-mini-2025-08-07",
+    'gtp-5'='gpt-5-2025-08-07',
+    'gtp-5-pro'='gpt-5-pro-2025-10-06'
   }
 
   /**

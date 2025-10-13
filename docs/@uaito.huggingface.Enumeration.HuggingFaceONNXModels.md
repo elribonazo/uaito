@@ -12,7 +12,7 @@
 
 # Enumeration: HuggingFaceONNXModels
 
-Defined in: [types.ts:31](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/types.ts#L31)
+Defined in: [types.ts:31](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/types.ts#L31)
 
 An enumeration of the available Hugging Face ONNX models that are optimized for web execution.
 These models are suitable for running locally in the browser with WebGPU or WASM.
@@ -21,6 +21,6 @@ These models are suitable for running locally in the browser with WebGPU or WASM
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="granite"></a> `GRANITE` | `"onnx-community/granite-4.0-micro-ONNX-web"` | A micro-sized version of the Granite model, optimized for web environments. | [types.ts:44](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/types.ts#L44) |
-| <a id="jano"></a> `JANO` | `"onnx-community/Jan-nano-ONNX"` | A small and efficient model suitable for general-purpose tasks. | [types.ts:35](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/types.ts#L35) |
-| <a id="lucy"></a> `LUCY` | `"onnx-community/Lucy-ONNX"` | A model with a good balance of performance and size. | [types.ts:39](https://github.com/elribonazo/uaito/blob/f71ee49b41f4b02cf38cae1844e3a14accc1d794/packages/huggingFace/src/types.ts#L39) |
+| <a id="granite"></a> `GRANITE` | `"onnx-community/granite-4.0-micro-ONNX-web"` | A micro-sized version of the Granite model, optimized for web environments. | [types.ts:44](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/types.ts#L44) |
+| <a id="jano"></a> `JANO` | `"onnx-community/Jan-nano-ONNX"` | A small and efficient model suitable for general-purpose tasks. | [types.ts:35](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/types.ts#L35) |
+| <a id="lucy"></a> `LUCY` | `"onnx-community/Lucy-ONNX"` | A model with a good balance of performance and size. | [types.ts:39](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/huggingFace/src/types.ts#L39) |

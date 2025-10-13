@@ -2,6 +2,15 @@ import type { BaseLLMOptions, MessageInput } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import type { MessageArray } from "@uaito/sdk";
 
+export type RAGOptions = {
+    repoUrl?: string;
+    repomixInclude?: string;
+    repomixIgnore?: string;
+    agentRole?: string;
+    projectName?: string;
+    projectImportPath?: string;
+};
+
 /**
  * Defines the configuration options for the `UaitoAPI` client.
  * It extends `BaseLLMOptions` with properties specific to the Uaito API,
