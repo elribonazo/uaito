@@ -22,7 +22,7 @@ type ImageGenConfig = {
 };
 ```
 
-Defined in: [types.ts:65](https://github.com/elribonazo/uaito/blob/21a549544853753e42a17dde391efee677cbe2b5/packages/openai/src/types.ts#L65)
+Defined in: [types.ts:65](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/openai/src/types.ts#L65)
 
 Defines the configuration for image generation when using the OpenAI provider.
 
@@ -34,7 +34,7 @@ Defines the configuration for image generation when using the OpenAI provider.
 input_fidelity: "high" | "low";
 ```
 
-Defined in: [types.ts:90](https://github.com/elribonazo/uaito/blob/21a549544853753e42a17dde391efee677cbe2b5/packages/openai/src/types.ts#L90)
+Defined in: [types.ts:90](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/openai/src/types.ts#L90)
 
 The fidelity of the input image, if one is provided for editing.
 
@@ -46,7 +46,7 @@ The fidelity of the input image, if one is provided for editing.
 model: OpenAIImageModels;
 ```
 
-Defined in: [types.ts:70](https://github.com/elribonazo/uaito/blob/21a549544853753e42a17dde391efee677cbe2b5/packages/openai/src/types.ts#L70)
+Defined in: [types.ts:70](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/openai/src/types.ts#L70)
 
 The specific image generation model to use.
 
@@ -58,7 +58,7 @@ The specific image generation model to use.
 output_format: "png" | "jpeg";
 ```
 
-Defined in: [types.ts:80](https://github.com/elribonazo/uaito/blob/21a549544853753e42a17dde391efee677cbe2b5/packages/openai/src/types.ts#L80)
+Defined in: [types.ts:80](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/openai/src/types.ts#L80)
 
 The output format for the generated image.
 
@@ -70,7 +70,7 @@ The output format for the generated image.
 quality: "high" | "low";
 ```
 
-Defined in: [types.ts:75](https://github.com/elribonazo/uaito/blob/21a549544853753e42a17dde391efee677cbe2b5/packages/openai/src/types.ts#L75)
+Defined in: [types.ts:75](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/openai/src/types.ts#L75)
 
 The desired quality of the generated image. 'high' provides better detail at a higher cost.
 
@@ -82,6 +82,6 @@ The desired quality of the generated image. 'high' provides better detail at a h
 size: "auto" | "1024x1024" | "1024x1536" | "1536x1024";
 ```
 
-Defined in: [types.ts:85](https://github.com/elribonazo/uaito/blob/21a549544853753e42a17dde391efee677cbe2b5/packages/openai/src/types.ts#L85)
+Defined in: [types.ts:85](https://github.com/elribonazo/uaito/blob/762452db920dc79bc9eb750f005089537c56b014/packages/openai/src/types.ts#L85)
 
 The desired size of the generated image. 'auto' allows the model to choose an appropriate size.
