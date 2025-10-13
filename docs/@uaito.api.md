@@ -22,4 +22,5 @@
 
 | Type Alias | Description |
 | ------ | ------ |
+| [RAGOptions](@uaito.api.TypeAlias.RAGOptions.md) | - |
 | [UaitoAPIOptions](@uaito.api.TypeAlias.UaitoAPIOptions.md) | Defines the configuration options for the `UaitoAPI` client. It extends `BaseLLMOptions` with properties specific to the Uaito API, such as the API key, provider, agent, and model to use. |

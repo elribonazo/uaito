@@ -1,3 +1,18 @@
+## 0.1.7-rc.1 (2025-10-13)
+
+### 🩹 Fixes
+
+- add rag agent Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([21a5495](https://github.com/elribonazo/uaito/commit/21a5495))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.1.7-rc.1
+- Updated @uaito/sdk to 0.9.7-rc.1
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.1.7-rc.0 (2025-10-12)
 
 ### 🧱 Updated Dependencies
