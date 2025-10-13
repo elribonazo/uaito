@@ -34,7 +34,7 @@ export class Story extends Agent {
         const client = new OpenAI({
             options: {
                 type: LLMProvider.OpenAI,
-                model: OpenAIModels["gpt-5"],
+                model: OpenAIModels['gpt-5'],
                 apiKey: apiKey,
                 tools: [],
                 // log: () =>{},
