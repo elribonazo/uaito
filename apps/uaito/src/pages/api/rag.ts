@@ -105,7 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Client disconnected, aborting stream');
   });
 
-  const parsedBody = JSON.parse(rawBody.toString());
+  const parsedBody = rawBody;
   try {
     const inputs = (parsedBody.inputs ?? []).map((input: any) => {
       if (typeof input === "string") {
@@ -177,20 +177,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           type: 'usage',
           content: [hasUsage]
         };
+        const encoded = JSON.stringify(usageMessage);
+        res.write(encoded.toString() + SEPARATOR);
       }
 
       if (hasDelta) {
-        const stopReason = hasDelta.stop_reason;
-        console.log("Stream ended:", stopReason);
-
-        if (usageMessage) {
-          const encoded = JSON.stringify(usageMessage);
-          res.write(encoded.toString() + SEPARATOR);
-        }
-
-        if (stopReason === "end_turn" || stopReason === "max_tokens") {
-          break;
-        }
+        const encoded = JSON.stringify({
+          ...value,
+          type:'delta',
+          content: [hasDelta]
+        });
+        res.write(encoded.toString() + SEPARATOR);
+        break;
       }
 
     }
