@@ -38,7 +38,7 @@ import type {
 } from 'openai/resources/responses/responses';
 import type { Stream } from 'openai/streaming';
 import type { ImageGenConfig, OpenAIOptions } from './types';
-import { OpenAIImageModels } from './types';
+import { OpenAIImageModels, OpenAIModels } from './types';
 
 export * from './types';
 
@@ -630,7 +630,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
       instructions: system,
       stream: true,
       tools,
-      reasoning:this.options.type === LLMProvider.OpenAI ? {effort:'low'} : undefined,
+      reasoning:this.options.type === LLMProvider.OpenAI ? {effort: this.options.model === OpenAIModels['gtp-5-pro'] ? 'high' : 'low'} : undefined,
     };
 
     // Reset usage and per-turn state
@@ -859,7 +859,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
           // Get final visible text (excluding tool_call tags)
           const finalVisibleText = this.takeToolCallVisibleChunk();
           // Skip if empty or whitespace-only
-          if (!finalVisibleText || !finalVisibleText.trim()) return null;
+          if (!finalVisibleText) return null;
           
           if (!this.cache.textId) {
             this.cache.textId = v4();
@@ -875,7 +875,7 @@ export class OpenAI<T extends OpenAIProviderType> extends BaseLLM<T, llmTypeToOp
 
         // For non-Grok or when no visible text after thinking extraction
         // Skip if empty or whitespace-only
-        if (!visibleText || !visibleText.trim()) return null;
+        if (!visibleText) return null;
         
         this.cache.thinkingId = null;
         if (!this.cache.textId) {

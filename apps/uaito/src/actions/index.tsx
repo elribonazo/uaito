@@ -121,7 +121,7 @@ export const streamMessage = createAsyncThunk(
 			);
 
 			if (!withWebGPU.includes(provider)) {
-				const url = `/api/${provider}/${agent}/messages`;
+				const url = agent === 'rag' ? `/api/rag` : `/api/${provider}/${agent}/messages`;
 				const response = await fetch(url, {
 					method: "POST",
 					body: JSON.stringify({

@@ -53,6 +53,7 @@
     "redis": "^5.8.2",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
+    "repomix": "^1.7.0",
     "scrolly-video": "^0.0.24",
     "sharp": "^0.34.4",
     "three": "^0.180.0",

@@ -9,7 +9,7 @@ import { BaseLLM } from "@uaito/sdk";
 import type { BaseLLMCache, BlockType, Message, MessageInput, OnTool, ReadableStreamWithAsyncIterable } from "@uaito/sdk";
 import { LLMProvider } from "@uaito/sdk";
 import { MessageArray } from "@uaito/sdk";
-import type { UaitoAPIOptions } from "./types";
+import type { UaitoAPIOptions, RAGOptions } from "./types";
 
 export * from './types'
 /**
@@ -136,6 +136,75 @@ export class UaitoAPI extends BaseLLM<LLMProvider.API, UaitoAPIOptions> {
 
                         let delimiterIndex: number | undefined;
                         // biome-ignore lint/suspicious/noAssignInExpressions: ok
+                        while ((delimiterIndex = buffer.indexOf(delimiter)) !== -1) {
+                            const message = buffer.slice(0, delimiterIndex);
+                            buffer = buffer.slice(delimiterIndex + delimiter.length);
+
+                            if (message) {
+                                const parsed: Message = JSON.parse(message);
+                                controller.enqueue(parsed);
+                            }
+                        }
+                    }
+                    reader.cancel();
+                    reader.releaseLock();
+
+                } catch (err) {
+                    controller.error(err);
+                    controller.close();
+                }
+
+            }
+        }) as ReadableStreamWithAsyncIterable<Message>;
+    }
+
+    async requestRAG(prompt: string | BlockType[], ragOptions: RAGOptions): Promise<ReadableStreamWithAsyncIterable<Message>> {
+        const { model, inputs, signal, apiKey } = this.options;
+        const url = `${this.baseUrl}/api/rag`;
+
+        const body = {
+            prompt,
+            inputs: inputs ? inputs.map((i) => (typeof i.content === 'string' ? { ...i, content: [{ type: 'text', text: i }] } : i)) : [],
+            model,
+            ...ragOptions,
+        };
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'token': apiKey,
+            },
+            body: JSON.stringify(body),
+            signal,
+        });
+
+        return new ReadableStream<Message>({
+            start: async (controller) => {
+                try {
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+                    }
+
+                    if (!response.body) {
+                        throw new Error('Response body is empty.');
+                    }
+
+                    let buffer = "";
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    const delimiter = "<-[*0M0*]->";
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) {
+                            break;
+                        }
+
+                        buffer += decoder.decode(value, { stream: true });
+
+                        let delimiterIndex: number | undefined;
                         while ((delimiterIndex = buffer.indexOf(delimiter)) !== -1) {
                             const message = buffer.slice(0, delimiterIndex);
                             buffer = buffer.slice(delimiterIndex + delimiter.length);
