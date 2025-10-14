@@ -528,6 +528,28 @@ import type { MessageArray } from "@/utils";
   
 
   /**
+   * Represents a block containing a file.
+   * @type
+   */
+  export type FileBlock = {
+    /**
+     * The source of the file.
+     * @type {{ name: string, content: string, media_type: 'text/plain' | 'text/markdown' | 'text/csv' | 'application/json', type: 'string' }}
+     */
+    source: {
+      name: string;
+      content: string;
+      media_type: 'text/plain' | 'text/markdown' | 'text/csv' | 'application/json';
+      type: 'string';
+    };
+    /**
+     * The type of the block, indicating a file.
+     * @type {'file'}
+     */
+    type: 'file';
+  }
+
+  /**
    * Represents a block containing an image.
    * @type
    */
@@ -734,13 +756,14 @@ export type MessageInput = {
   ErrorBlock['type'] |
   ThinkingBlock['type'] |
   RedactedThinkingBlock['type'] | 
-  SignatureDeltaBlock['type']
+  SignatureDeltaBlock['type'] |
+  FileBlock['type']
 
   /**
    * A union of all possible block types that can be part of a message's content.
    * @type
    */
-  export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock |AudioBlock| ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock;
+  export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock |AudioBlock| ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock | FileBlock;
 
 
   /**

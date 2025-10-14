@@ -17,6 +17,7 @@ import {
   CloudArrowUpIcon,
   PhotoIcon,
   CameraIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 
 const pullThreshold = 80; // pixels to pull before triggering refresh
@@ -33,25 +34,33 @@ const FileAttachments = ({
   return (
     <div className="flex flex-wrap gap-2 mb-2">
       {attachedFiles.map((file, index) => {
-        const imageUrl = URL.createObjectURL(file);
+        const isImage = file.type.startsWith('image/');
+        const imageUrl = isImage ? URL.createObjectURL(file) : undefined;
+        
         return (
           <div
             key={`${file.name}-${index}`}
             className="relative group bg-surface border border-border rounded-lg overflow-hidden hover:border-accent transition-colors"
             style={{ width: '120px', height: '120px' }}
           >
-            {/* Image Preview */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageUrl}
-              alt={file.name}
-              className="w-full h-full object-cover"
-              onLoad={() => URL.revokeObjectURL(imageUrl)} // Clean up the object URL after loading
-            />
+            {/* Preview */}
+            {isImage && imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imageUrl}
+                alt={file.name}
+                className="w-full h-full object-cover"
+                onLoad={() => URL.revokeObjectURL(imageUrl!)} // Clean up the object URL after loading
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-surface-hover p-2">
+                <DocumentTextIcon className="h-10 w-10 text-secondary-text mb-2" />
+              </div>
+            )}
             
             {/* Overlay with file info */}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex flex-col items-center justify-center opacity-0 group-hover:opacity-100">
-              <PhotoIcon className="h-8 w-8 text-white mb-1" />
+              {isImage ? <PhotoIcon className="h-8 w-8 text-white mb-1" /> : <DocumentTextIcon className="h-8 w-8 text-white mb-1" />}
               <span className="text-white text-xs text-center px-2 truncate w-full">
                 {file.name}
               </span>
@@ -65,7 +74,7 @@ const FileAttachments = ({
               type="button"
               onClick={() => removeFile(index)}
               className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-              title="Remove image"
+              title="Remove file"
             >
               <XMarkIcon className="h-4 w-4" />
             </button>
@@ -97,8 +106,8 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const isStreaming = currentChat?.state === "streaming";
   const messages = currentChat?.messages ?? [];
   
-  // Check if image upload is allowed (Local and OpenAI providers)
-  const isImageUploadAllowed = props.provider === LLMProvider.Local || props.provider === LLMProvider.OpenAI;
+  // Check if file upload is allowed 
+  const isFileUploadAllowed = props.provider === LLMProvider.Local || props.provider === LLMProvider.OpenAI;
   
   // Pull to refresh state
   const [pullDistance, setPullDistance] = useState(0);
@@ -209,10 +218,15 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const handleFiles = useCallback((files: FileList | File[] | null) => {
     if (!files) return;
     const fileArray = Array.from(files);
-    const newFiles = fileArray.filter((file) => file.type.startsWith("image/"));
+    const allowedImageTypes = ["image/"];
+    const allowedTextTypes = ["text/plain", "text/markdown", "application/json", "text/csv"];
+    const newFiles = fileArray.filter(file => 
+      allowedImageTypes.some(type => file.type.startsWith(type)) ||
+      allowedTextTypes.includes(file.type)
+    );
+    
     if (newFiles.length < fileArray.length) {
-      // Optional: You could add a toast notification here
-      console.warn("Only image files are allowed");
+      console.warn("Some files were not allowed. Allowed types: images, txt, md, json, csv");
     }
     setAttachedFiles((prev) => [...prev, ...newFiles]);
   }, []);
@@ -224,10 +238,10 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isImageUploadAllowed && e.dataTransfer.types.includes('Files')) {
+    if (isFileUploadAllowed && e.dataTransfer.types.includes('Files')) {
       setIsDragging(true);
     }
-  }, [isImageUploadAllowed]);
+  }, [isFileUploadAllowed]);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -247,19 +261,19 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isImageUploadAllowed && e.dataTransfer.types.includes('Files')) {
+    if (isFileUploadAllowed && e.dataTransfer.types.includes('Files')) {
       setIsDragging(true);
     }
-  }, [isImageUploadAllowed]);
+  }, [isFileUploadAllowed]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    if (isImageUploadAllowed) {
+    if (isFileUploadAllowed) {
       handleFiles(e.dataTransfer.files);
     }
-  }, [handleFiles, isImageUploadAllowed]);
+  }, [handleFiles, isFileUploadAllowed]);
 
   const handleFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -321,36 +335,49 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   }, [isCameraOpen, stream]);
 
   // Convert files to base64 ImageBlock format
-  const convertFilesToImageBlocks = async (files: File[]): Promise<BlockType[]> => {
-    const imageBlocks: BlockType[] = [];
+  const convertFilesToBlocks = async (files: File[]): Promise<BlockType[]> => {
+    const blocks: BlockType[] = [];
     
     for (const file of files) {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          // Remove data URL prefix to get pure base64
-          const base64Data = result.split(',')[1];
-          resolve(base64Data);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      if (file.type.startsWith('image/')) {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            // Remove data URL prefix to get pure base64
+            const base64Data = result.split(',')[1];
+            resolve(base64Data);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
 
-      // Determine media type from file type
-      const mediaType = file.type as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
-      
-      imageBlocks.push({
-        type: 'image',
-        source: {
-          type: 'base64',
-          media_type: mediaType,
-          data: base64
-        }
-      } as BlockType);
+        // Determine media type from file type
+        const mediaType = file.type as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+        
+        blocks.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: mediaType,
+            data: base64
+          }
+        } as BlockType);
+      } else if (file.type === 'text/plain' || file.type === 'text/markdown' || file.type === 'application/json' || file.type === 'text/csv') {
+        const content = await file.text();
+        blocks.push({
+          type: 'file',
+          source: {
+            name: file.name,
+            content: content,
+            media_type: file.type,
+            type: 'string'
+          }
+        } as BlockType);
+      }
     }
     
-    return imageBlocks;
+    return blocks;
   };
 
   const sendMessage = async (prompt: string) => {
@@ -397,13 +424,13 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
     // Convert attached files to image blocks
     let promptContent: string | BlockType[] = prompt;
     if (attachedFiles.length > 0) {
-      const imageBlocks = await convertFilesToImageBlocks(attachedFiles);
+      const fileBlocks = await convertFilesToBlocks(attachedFiles);
       // Combine text and images into BlockType array
       const textBlock: BlockType = {
         type: 'text',
         text: prompt || 'Please analyze these images.'
       } as BlockType;
-      promptContent = [textBlock, ...imageBlocks];
+      promptContent = [textBlock, ...fileBlocks];
     }
 
     app.streamMessage({
@@ -481,17 +508,17 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
             <section 
               aria-label="Message input with image drop zone"
               className={`bg-surface border rounded-2xl p-3 sm:p-4 shadow-lg relative transition-all duration-200 ${
-                isDragging && isImageUploadAllowed ? 'border-primary border-2 bg-primary/5 scale-[1.02]' : 'border-border'
+                isDragging && isFileUploadAllowed ? 'border-primary border-2 bg-primary/5 scale-[1.02]' : 'border-border'
               }`}
               onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              {isDragging && isImageUploadAllowed && (
+              {isDragging && isFileUploadAllowed && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-primary/20 backdrop-blur-sm rounded-2xl z-10 pointer-events-none border-2 border-dashed border-primary animate-pulse">
                   <CloudArrowUpIcon className="w-16 h-16 text-primary mb-3" />
-                  <div className="text-primary text-lg font-semibold">Drop images here</div>
+                  <div className="text-primary text-lg font-semibold">Drop files here</div>
                   <div className="text-primary-text text-sm mt-1">Release to attach</div>
                 </div>
               )}
@@ -513,8 +540,8 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   placeholder={
-                    isImageUploadAllowed
-                      ? "Type your message or drag & drop images here..."
+                    isFileUploadAllowed
+                      ? "Type your message or drag & drop files here..."
                       : "Type your message..."
                   }
                   className="w-full px-0 py-0 bg-transparent text-primary-text placeholder-tertiary-text focus:outline-none resize-none text-sm"
@@ -527,23 +554,23 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/*,text/plain,text/markdown,application/json,text/csv"
                       multiple
                       onChange={handleFileInputChange}
                       className="hidden"
-                      disabled={!isImageUploadAllowed}
+                      disabled={!isFileUploadAllowed}
                     />
-                    {isImageUploadAllowed && (
+                    {isFileUploadAllowed && (
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         className="px-2 sm:px-3 py-1.5 text-secondary-text hover:text-primary-text text-xs sm:text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
                       >
                         <PhotoIcon className="h-4 w-4" />
-                        <span className="hidden sm:inline">Attach Image</span>
+                        <span className="hidden sm:inline">Attach File</span>
                       </button>
                     )}
-                    {isImageUploadAllowed && (
+                    {isFileUploadAllowed && (
                       <button
                         type="button"
                         onClick={openCamera}
@@ -676,17 +703,17 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
           <section 
             aria-label="Message input with image drop zone"
             className={`border-t bg-background/80 backdrop-blur-sm relative transition-all duration-200 ${
-              isDragging && isImageUploadAllowed ? 'border-primary border-t-4' : 'border-border'
+              isDragging && isFileUploadAllowed ? 'border-primary border-t-4' : 'border-border'
             }`}
             onDragEnter={handleDragEnter}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {isDragging && isImageUploadAllowed && (
+            {isDragging && isFileUploadAllowed && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-primary/20 backdrop-blur-md z-10 pointer-events-none border-2 border-dashed border-primary">
                 <CloudArrowUpIcon className="w-12 h-12 sm:w-16 sm:h-16 text-primary mb-2 sm:mb-3 animate-bounce" />
-                <div className="text-primary text-base sm:text-lg font-semibold">Drop images here</div>
+                <div className="text-primary text-base sm:text-lg font-semibold">Drop files here</div>
                 <div className="text-primary-text text-xs sm:text-sm mt-1">Release to attach</div>
               </div>
             )}
@@ -710,7 +737,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      placeholder={isImageUploadAllowed ? "Type a message or drag & drop images..." : "Type a message..."}
+                      placeholder={isFileUploadAllowed ? "Type a message or drag & drop files..." : "Type a message..."}
                       className="w-full px-2 sm:px-3 py-1.5 sm:py-2 bg-surface border border-border rounded-xl text-primary-text text-sm placeholder-tertiary-text focus:outline-none focus:border-primary transition-all resize-none"
                       style={{ height: '40px', minHeight: '40px', maxHeight: '120px' }}
                       rows={1}
@@ -720,24 +747,24 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,text/plain,text/markdown,application/json,text/csv"
                     multiple
                     onChange={handleFileInputChange}
                     className="hidden"
-                    disabled={!isImageUploadAllowed}
+                    disabled={!isFileUploadAllowed}
                   />
-                  {isImageUploadAllowed && (
+                  {isFileUploadAllowed && (
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading}
                       className="px-2 sm:px-3 py-1.5 sm:py-2 bg-surface hover:bg-surface-hover text-secondary-text hover:text-primary-text border border-border text-xs sm:text-sm font-medium rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                      title="Attach image"
+                      title="Attach file"
                     >
                       <PhotoIcon className="h-4 w-4" />
                     </button>
                   )}
-                  {isImageUploadAllowed && (
+                  {isFileUploadAllowed && (
                     <button
                       type="button"
                       onClick={openCamera}
