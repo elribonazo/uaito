@@ -8,12 +8,10 @@ import {
   AutoTokenizer,
   AutoConfig,
   AutoModelForCausalLM,
-  pipeline,
-  Pipeline
 } from '@huggingface/transformers'
 import { v4 } from "uuid";
 
-import { BaseLLM } from "@uaito/sdk";
+import { BaseLLM, DeltaBlock } from "@uaito/sdk";
 import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message, LLMProvider, MessageArray, FileBlock } from "@uaito/sdk";
 import { type TensorDataType, type HuggingFaceONNXOptions, HuggingFaceONNXModels } from "./types";
 import { MessageCache } from "./utils";
@@ -36,11 +34,6 @@ const modelCache = new Map<string, PreTrainedModel>();
  * @type {Map<string, PreTrainedTokenizer>}
  */
 const tokenizerCache = new Map<string, PreTrainedTokenizer>();
-/**
- * A cache for storing loaded pipelines to avoid redundant downloads.
- * @type {Map<string, Pipeline>}
- */
-const pipelineCache = new Map<string, Pipeline>();
 
 /**
  * Extends the Hugging Face `Message` type to include an optional `type` and `id`.
@@ -108,7 +101,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @public
    * @type {number}
    */
-  public loadProgress: number = 0;
+  public loadProgress = new Map<string, {loaded: number, total: number}>();
   /**
    * An array that holds the history of messages for the conversation.
    * @public
@@ -159,150 +152,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     super(LLMProvider.Local, options);
     this.data.progress = 0;
     this.onTool = onTool ?? options.onTool;
-  }
-
-  /**
-   * Chunks a string into smaller pieces of a specified size with a given overlap.
-   * @param {string} text The text to chunk.
-   * @param {number} chunkSize The size of each chunk.
-   * @param {number} overlap The overlap between chunks.
-   * @returns {string[]} An array of text chunks.
-   */
-  private chunkCode(text: string, chunkSize = 512, overlap = 50): string[] {
-    const chunks: string[] = [];
-    for (let i = 0; i < text.length; i += chunkSize - overlap) {
-      chunks.push(text.substring(i, i + chunkSize));
-    }
-    return chunks;
-  }
-
-  /**
-   * Calculates the cosine similarity between two vectors.
-   * @param {number[]} vecA The first vector.
-   * @param {number[]} vecB The second vector.
-   * @returns {number} The cosine similarity score.
-   */
-  private cosineSimilarity(vecA: number[], vecB: number[]): number {
-    let dotProduct = 0;
-    let normA = 0;
-    let normB = 0;
-    for (let i = 0; i < vecA.length; i++) {
-      dotProduct += vecA[i] * vecB[i];
-      normA += vecA[i] * vecA[i];
-      normB += vecB[i] * vecB[i];
-    }
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-  }
-
-  /**
-   * Retrieves the top k chunks based on cosine similarity with a query embedding.
-   * @param {number[][]} embeddings The embeddings of the chunks.
-   * @param {number[]} queryEmb The embedding of the query.
-   * @param {string[]} chunks The text chunks.
-   * @param {number} k The number of top chunks to retrieve.
-   * @returns {string[]} The top k chunks.
-   */
-  private retrieveTopK(embeddings: number[][], queryEmb: number[], chunks: string[], k = 15): string[] {
-    const similarities = embeddings.map((emb) => this.cosineSimilarity(emb, queryEmb));
-    const sortedChunks = chunks.map((chunk, i) => ({ chunk, sim: similarities[i] }))
-      .sort((a, b) => b.sim - a.sim);
-    return sortedChunks.slice(0, k).map(c => c.chunk);
-  }
-
-
-  /**
-   * Performs Retrieval-Augmented Generation (RAG) using a provided file.
-   * @param {FileBlock} fileBlock The file block containing the document.
-   * @param {string} query The user query.
-   * @param {string} chainOfThought The chain of thought.
-   * @param {string} system The system prompt.
-   * @returns {Promise<ReadableStreamWithAsyncIterable<Message>>} A stream of messages.
-   */
-  private async performRAGTask(fileBlock: FileBlock, query: string, chainOfThought: string, system: string): Promise<ReadableStreamWithAsyncIterable<Message>> {
-    this.log("Performing RAG task...");
-    const embedderId = 'onnx-community/Qwen3-Embedding-0.6B-ONNX';
-    let embedder: any;
-    if (pipelineCache.has(embedderId)) {
-      embedder = pipelineCache.get(embedderId)!;
-    } else {
-      embedder = await pipeline('feature-extraction', embedderId, {
-        device: 'webgpu',
-        dtype: 'auto',
-        progress_callback: (info: Record<string, unknown>) => {
-          if (info.status === "progress") {
-            const progress = parseInt(info.progress as string, 10);
-            this.data.progress = progress;
-            if (this.options.onProgress) {
-              this.options.onProgress(progress);
-            }
-          } else {
-            this.log(`Model loading status: ${info.status}`);
-          }
-        },
-      });
-      pipelineCache.set(embedderId, embedder);
-    }
-
-    const fileContent = fileBlock.source.content;
-    const chunks = this.chunkCode(fileContent);
-    this.log(`Document chunked into ${chunks.length} parts.`);
-
-    const embeddings: number[][] = [];
-    this.log('Starting to create embeddings for chunks...');
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      try {
-        this.log(`Processing chunk ${i + 1}/${chunks.length}`);
-        if (!chunk || chunk.trim() === '') {
-            this.log(`Skipping empty chunk ${i + 1}`);
-            continue;
-        }
-        const tensor = await embedder(chunk, { pooling: 'mean', normalize: true });
-        embeddings.push(Array.from(tensor.data as Float32Array));
-      } catch (error) {
-        this.log(`Failed to create embedding for chunk ${i + 1}. Error: ${error}`);
-      }
-    }
-
-    if (embeddings.length === 0 && chunks.length > 0) {
-        throw new Error("Could not generate any embeddings for the provided document.");
-    }
-    
-    this.log(`Embeddings created for ${embeddings.length} chunks.`);
-
-    const queryEmbTensor = await embedder(query, { pooling: 'mean', normalize: true });
-    const queryEmb = Array.from(queryEmbTensor.data as Float32Array);
-    this.log("Query embedding created.");
-
-    const topChunks = this.retrieveTopK(embeddings, queryEmb, chunks);
-    this.log(`Retrieved top ${topChunks.length} chunks.`);
-
-    const ragPrompt = `Code Context:\n${topChunks.join('\n---\n')}\n\nQuery: ${query}\nResponse:`;
-    
-    this.addDefaultItems(ragPrompt, chainOfThought, system);
-
-    
-    const rawStream = await this.createStream();
-    
-    const transformedStream = await this.transformStream<string, Message>(
-      rawStream,
-      this.chunk.bind(this)
-    );
-    
-
-    const automodeStream = await this.transformAutoMode(
-      transformedStream,
-      async () => {
-        const nextRawStream = await this.createStream();
-        return this.transformStream<string, Message>(
-          nextRawStream,
-          this.chunk.bind(this)
-        );
-      },
-      this.onTool
-    );
-    
-    return automodeStream;
+    this.options.signal?.addEventListener('abort', () => {
+      this.stoppingCriteria.interrupt();
+    });
   }
 
   /**
@@ -364,7 +216,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       }
     } else {
       const defaultConfig = await AutoConfig.from_pretrained(modelId);
-
       const configPerModel = {
         __default: {
           device: this.options.device ?? "webgpu",
@@ -380,22 +231,30 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
             }
           },
         },
+        [HuggingFaceONNXModels.LUCY]: {
+          device: this.options.device ?? "webgpu",
+          dtype:  this.options.dtype ?? "auto",
+          config:defaultConfig
+        },
       }
 
       const config = configPerModel[modelId] ?? configPerModel.__default;
-
       this.model ??= await AutoModelForCausalLM.from_pretrained(modelId, {
         ...config,
-        progress_callback: (info: Record<string, unknown>) => {
-          if (info.status === "progress") {
-            const progress = parseInt(info.progress as string, 10);
-            this.data.progress = progress;
-            if (this.options.onProgress) {
-              this.options.onProgress(progress);
-            }
-          } else {
-            this.log(`Model loading status: ${info.status}`);
-          }
+        progress_callback: (info: Record<string, any>) => {
+          if (info.status !== 'progress') return;
+                this.loadProgress.set(info.file, { loaded: info.loaded, total: info.total });
+                if (this.loadProgress.size >= 2) {
+                  const aggregate = [...this.loadProgress.values()].reduce((acc, { loaded, total }) => {
+                    acc.loaded += loaded;
+                    acc.total += total;
+                    return acc;
+                  }, { loaded: 0, total: 0 });
+                  const percent = aggregate.total > 0 ? ((aggregate.loaded / aggregate.total) * 100).toFixed(2) : '0.00';
+                  if (this.options.onProgress) {
+                    this.options.onProgress(parseInt(percent, 10));
+                  }
+                }
         },
       });
       modelCache.set(modelId, this.model);
@@ -539,7 +398,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
     const stream = new ReadableStream<string>({
       start: async (controller) => {
-
         this.log("ReadableStream started for model generation.");
         try {
           const streamer = new TextStreamer(this.tokenizer, {
@@ -568,18 +426,36 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   
               if (sequences) { 
                   const response = this.tokenizer
-                  .batch_decode(sequences.slice(null, [input.input_ids.dims[1], 0]), {
-                    skip_special_tokens: false,
-                  })[0]
-                  .replace(IM_END_TAG, "");
+                  .batch_decode(
+                    sequences.slice(null, [input.input_ids.dims[1], 0]), {skip_special_tokens: false})[0];
+                  
+
+                    if (response.includes(IM_END_TAG)) {
+                      const delta: DeltaBlock = {
+                        type: 'delta',
+                        stop_reason:'end_turn',
+                        stop_sequence: IM_END_TAG
+                      }
+                      controller.enqueue( {
+                        id: v4(),
+                        role: 'assistant',
+                        type: 'delta',
+                        content: [delta]
+                      } as any)
+                    }
+
+
+                 const responseWithoutEndTag = response.replace(IM_END_TAG, "");
                   
                 this.inputs.push({
                   id: v4(),
                   role: 'assistant',
                   type: 'message',
-                  content: [{ type: 'text', text: response }]
+                  content: [{ type: 'text', text: responseWithoutEndTag }]
                 })
-              }
+              } 
+
+              
   
             } catch {
             }
@@ -673,16 +549,18 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       const fileBlock = prompt.find((p): p is FileBlock => p.type === 'file');
       const textBlock = prompt.find((p): p is TextBlock => p.type === 'text');
 
-      if (fileBlock && textBlock) {
-        return this.performRAGTask(fileBlock, textBlock.text, chainOfThought, system);
-      }
+      this.addDefaultItems(`${textBlock?.text}\n\n${fileBlock?.source.content}`, system, chainOfThought);
+    } else {
+      this.addDefaultItems(prompt, system, chainOfThought);
     }
 
-    this.addDefaultItems(prompt, system, chainOfThought);
-
-
-
     const rawStream = await this.createStream();
+
+
+    this.options.signal?.addEventListener('abort', () => {
+      rawStream.cancel()
+    });
+
     const transformedStream = await this.transformStream<string, Message>(
       rawStream,
       this.chunk.bind(this)

@@ -166,7 +166,7 @@ export const streamMessage = createAsyncThunk(
 					model: selectedModel,
 					dtype: "q4f16",
 					device,
-					tools: [
+					tools:  [
 						{
 							name: "generateImage",
 							description:
@@ -204,13 +204,7 @@ export const streamMessage = createAsyncThunk(
 					onProgress: (progress) => {
 						const now = Date.now();
 						// Only dispatch if enough time has passed or if progress is complete (100%)
-						if (
-							now - lastProgressDispatch >= PROGRESS_THROTTLE_MS ||
-							progress >= 100
-						) {
-							dispatch(setDownloadProgress(progress));
-							lastProgressDispatch = now;
-						}
+						dispatch(setDownloadProgress(progress));
 					},
 
 				};

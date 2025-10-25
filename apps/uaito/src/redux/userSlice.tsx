@@ -220,7 +220,7 @@ const userSlice = createSlice({
         return state;
       }
 
-      console.log("SATH pushChatMessage", message);
+      console.log(`Message ${message.id} [${message.type}] content ${JSON.stringify(message.content)}`);
 
       if (message.type === "error") {
         toast(

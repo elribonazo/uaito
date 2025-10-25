@@ -8,7 +8,6 @@ import type {
 } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]";
-import SpaceBackground from "@/components/SpaceBackground";
 import dynamic from "next/dynamic";
 import { ToastContainer } from "react-toastify";
 import { AnimatedText } from "@/components/AnimatedText";

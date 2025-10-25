@@ -2750,15 +2750,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@huggingface/transformers@npm:3.7.5":
-  version: 3.7.5
-  resolution: "@huggingface/transformers@npm:3.7.5"
+"@huggingface/transformers@npm:3.7.6":
+  version: 3.7.6
+  resolution: "@huggingface/transformers@npm:3.7.6"
   dependencies:
     "@huggingface/jinja": "npm:^0.5.1"
     onnxruntime-node: "npm:1.21.0"
     onnxruntime-web: "npm:1.22.0-dev.20250409-89f8206ba4"
     sharp: "npm:^0.34.1"
-  checksum: 10c0/0ca2e4dfd5cb1daaf2f8f0843ddf3407a4cd21410585be728d086f467aada55f8c63974619d861143ab4e98609c4d3044a030a282d58f700920a58d7f6d38bbf
+  checksum: 10c0/b77957c88c6a392675f28a9c4e252ada48ff61d672ad7e89bfac7bd51ee93f68c5400cb82e0048d464dad20a2ae99d3b7e81674c3e1015d94f54f267960814b9
   languageName: node
   linkType: hard
 
@@ -7793,7 +7793,7 @@ __metadata:
   resolution: "@uaito/huggingface@workspace:packages/huggingFace"
   dependencies:
     "@esbuild-plugins/node-resolve": "npm:^0.2.2"
-    "@huggingface/transformers": "npm:3.7.5"
+    "@huggingface/transformers": "npm:3.7.6"
     "@types/lodash": "npm:^4.17.20"
     "@types/node": "npm:^14.18.63"
     "@types/yargs": "npm:^17.0.33"
