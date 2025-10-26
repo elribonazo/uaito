@@ -78,7 +78,7 @@ self.addEventListener('message', async (e: MessageEvent<WorkerCommand>) => {
           return;
         }
       };
-      llm = new HuggingFaceONNX({ options: { ...baseOptions, signal: ac.signal, onProgress, onTool } });
+      llm = new HuggingFaceONNX({ options: { ...baseOptions, signal: ac.signal, onProgress } });
       const agent = new Agent(llm, onTool.bind(llm));
       const { prompt, inputs } = payload as PerformTaskPayload;
       if (inputs && Array.isArray(inputs)) {
