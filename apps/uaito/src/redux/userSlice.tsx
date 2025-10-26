@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { getApiKey, streamMessage } from '@/actions';
 import type { Session } from 'next-auth';
 import { LLMProvider } from '@uaito/sdk';
-import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ToolBlock, UsageBlock } from '@uaito/sdk';
+import type { DeltaBlock, ErrorBlock, ImageBlock, Message, TextBlock, ToolBlock, UsageBlock, ProgressBlock } from '@uaito/sdk';
 import { STORAGE_CONFIG } from '@/config/storage';
 
 export type MessageState = Message;
@@ -215,13 +215,13 @@ const userSlice = createSlice({
         return state;
       }
 
-      console.log(`Message ${message.id} [${message.type}] content ${JSON.stringify(message.content)}`);
-
       if (message.type === "progress") {
         const existingIndex = chat.messages.findIndex((m) => m.id === message.id);
         if (existingIndex !== -1) {
           chat.messages[existingIndex] = message;
         } else {
+          // Remove any other progress messages with a different ID
+          chat.messages = chat.messages.filter(m => m.type !== 'progress' || m.id === message.id);
           chat.messages.push(message);
         }
         return state;
@@ -309,10 +309,12 @@ const userSlice = createSlice({
       })
     builder
       .addCase(streamMessage.fulfilled, (state, action) => {
-        const { chatId } = action.meta.arg
+        const { chatId, requestId } = action.payload
         const chat = state.chats[chatId];
         if (chat) {
           chat.state = "ready";
+          // Remove progress message on completion
+          chat.messages = chat.messages.filter(m => m.type !== 'progress');
         }
         state.error = null;
       })

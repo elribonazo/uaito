@@ -21,6 +21,9 @@ export const ProgressComponent: FC<ProgressComponentProps> = (props) => {
         setTimeout(() => setIsComplete(true), 500);
       }, 500);
       return () => clearTimeout(timer);
+    } else {
+      setIsComplete(false);
+      setShouldFadeOut(false);
     }
   }, [progress]);
 
