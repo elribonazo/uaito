@@ -80,7 +80,6 @@ jobs:
             
             echo "Detected version type: $VERSION_TYPE"
             npx nx release version $VERSION_TYPE --verbose
-            npx nx release changelog --verbose
             echo "Publishing with latest tag for main branch"
             npx nx release publish --verbose
           fi
