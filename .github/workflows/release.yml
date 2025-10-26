@@ -65,7 +65,22 @@ jobs:
             npx nx release publish --tag rc --verbose
           else
             echo "Creating release version for main branch"
-            npx nx release --skip-publish --verbose
+            # Determine version bump from conventional commits
+            # When graduating from prerelease, we need to extract the version type
+            # and apply it explicitly (patch/minor/major) to avoid continuing with RC versions
+            
+            # Try to determine if there are any breaking changes or features
+            if git log --format=%B HEAD~5..HEAD | grep -q "^feat!\\|BREAKING CHANGE"; then
+              VERSION_TYPE="major"
+            elif git log --format=%B HEAD~5..HEAD | grep -q "^feat"; then
+              VERSION_TYPE="minor"
+            else
+              VERSION_TYPE="patch"
+            fi
+            
+            echo "Detected version type: $VERSION_TYPE"
+            npx nx release version $VERSION_TYPE --verbose
+            npx nx release changelog --verbose
             echo "Publishing with latest tag for main branch"
             npx nx release publish --verbose
           fi
