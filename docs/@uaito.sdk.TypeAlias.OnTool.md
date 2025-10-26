@@ -16,7 +16,7 @@
 type OnTool = (this, message, signal?) => Promise<void>;
 ```
 
-Defined in: [domain/types.ts:423](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/domain/types.ts#L423)
+Defined in: [domain/types.ts:423](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/sdk/src/domain/types.ts#L423)
 
 A callback function that is invoked when an LLM uses a tool.
 The `this` context within the callback is bound to the `BaseAgent` instance.

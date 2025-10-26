@@ -32,7 +32,7 @@ type HuggingFaceONNXOptions = BaseLLMOptions & {
 };
 ```
 
-Defined in: [types.ts:50](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L50)
+Defined in: [types.ts:50](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/huggingFace/src/types.ts#L50)
 
 Defines the configuration options for the `HuggingFaceONNX` client.
 It extends `BaseLLMOptions` with properties specific to running ONNX models,
@@ -42,6 +42,6 @@ such as the model identifier, data type, and execution device.
 
 | Name | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| `device` | \| `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"dml"` \| `"webnn"` \| `"webnn-npu"` \| `"webnn-gpu"` \| `"webnn-cpu"` \| `Record`\<`string`, `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"webnn-cpu"`\> \| `undefined` | The device to run the model on, e.g., 'webgpu' or 'wasm'. Can be a single value or a record specifying different devices for different model parts. | [types.ts:67](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L67) |
-| `dtype` | [`DType`](@uaito.huggingface.TypeAlias.DType.md) | The data type (precision) to use for the model, e.g., 'fp32' or 'q4'. Can be a single value or a record specifying different types for different model parts. | [types.ts:61](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L61) |
-| `model` | [`HuggingFaceONNXModels`](@uaito.huggingface.Enumeration.HuggingFaceONNXModels.md) | The identifier of the Hugging Face ONNX model to use. | [types.ts:55](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L55) |
+| `device` | \| `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"dml"` \| `"webnn"` \| `"webnn-npu"` \| `"webnn-gpu"` \| `"webnn-cpu"` \| `Record`\<`string`, `"auto"` \| `"webgpu"` \| `"cpu"` \| `"cuda"` \| `"gpu"` \| `"wasm"` \| `"webnn-cpu"`\> \| `undefined` | The device to run the model on, e.g., 'webgpu' or 'wasm'. Can be a single value or a record specifying different devices for different model parts. | [types.ts:67](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/huggingFace/src/types.ts#L67) |
+| `dtype` | [`DType`](@uaito.huggingface.TypeAlias.DType.md) | The data type (precision) to use for the model, e.g., 'fp32' or 'q4'. Can be a single value or a record specifying different types for different model parts. | [types.ts:61](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/huggingFace/src/types.ts#L61) |
+| `model` | [`HuggingFaceONNXModels`](@uaito.huggingface.Enumeration.HuggingFaceONNXModels.md) | The identifier of the Hugging Face ONNX model to use. | [types.ts:55](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/huggingFace/src/types.ts#L55) |
