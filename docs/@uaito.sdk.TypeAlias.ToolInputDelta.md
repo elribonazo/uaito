@@ -21,7 +21,7 @@ type ToolInputDelta = {
 };
 ```
 
-Defined in: [domain/types.ts:673](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/sdk/src/domain/types.ts#L673)
+Defined in: [domain/types.ts:673](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L673)
 
 Represents a delta in the input of a tool as it's being streamed.
 
@@ -33,7 +33,7 @@ Represents a delta in the input of a tool as it's being streamed.
 optional id: string;
 ```
 
-Defined in: [domain/types.ts:678](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/sdk/src/domain/types.ts#L678)
+Defined in: [domain/types.ts:678](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L678)
 
 The unique ID of the tool input.
 
@@ -45,7 +45,7 @@ The unique ID of the tool input.
 optional name: string;
 ```
 
-Defined in: [domain/types.ts:683](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/sdk/src/domain/types.ts#L683)
+Defined in: [domain/types.ts:683](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L683)
 
 The name of the tool.
 
@@ -57,7 +57,7 @@ The name of the tool.
 partial: string;
 ```
 
-Defined in: [domain/types.ts:688](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/sdk/src/domain/types.ts#L688)
+Defined in: [domain/types.ts:688](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L688)
 
 The partial input for the tool as a JSON string.
 
@@ -69,6 +69,6 @@ The partial input for the tool as a JSON string.
 type: "tool_delta";
 ```
 
-Defined in: [domain/types.ts:693](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/sdk/src/domain/types.ts#L693)
+Defined in: [domain/types.ts:693](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L693)
 
 The type of the block, indicating a tool delta.

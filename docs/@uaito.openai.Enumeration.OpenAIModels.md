@@ -12,7 +12,7 @@
 
 # Enumeration: OpenAIModels
 
-Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/openai/src/types.ts#L9)
+Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/openai/src/types.ts#L9)
 
 An enumeration of the available OpenAI models that can be used with the SDK.
 Each enum member maps to a specific model identifier provided by OpenAI.
@@ -21,7 +21,7 @@ Each enum member maps to a specific model identifier provided by OpenAI.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gpt-5"></a> `gpt-5` | `"gpt-5-2025-08-07"` | - | [types.ts:15](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/openai/src/types.ts#L15) |
-| <a id="gpt-5-mini"></a> `gpt-5-mini` | `"gpt-5-mini-2025-08-07"` | - | [types.ts:14](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/openai/src/types.ts#L14) |
-| <a id="gpt-5-nano"></a> `gpt-5-nano` | `"gpt-5-nano-2025-08-07"` | A highly capable and efficient model, suitable for a wide range of tasks. | [types.ts:13](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/openai/src/types.ts#L13) |
-| <a id="gtp-5-pro"></a> `gtp-5-pro` | `"gpt-5-pro-2025-10-06"` | - | [types.ts:16](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/openai/src/types.ts#L16) |
+| <a id="gpt-5"></a> `gpt-5` | `"gpt-5-2025-08-07"` | - | [types.ts:15](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/openai/src/types.ts#L15) |
+| <a id="gpt-5-mini"></a> `gpt-5-mini` | `"gpt-5-mini-2025-08-07"` | - | [types.ts:14](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/openai/src/types.ts#L14) |
+| <a id="gpt-5-nano"></a> `gpt-5-nano` | `"gpt-5-nano-2025-08-07"` | A highly capable and efficient model, suitable for a wide range of tasks. | [types.ts:13](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/openai/src/types.ts#L13) |
+| <a id="gtp-5-pro"></a> `gtp-5-pro` | `"gpt-5-pro-2025-10-06"` | - | [types.ts:16](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/openai/src/types.ts#L16) |
