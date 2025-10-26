@@ -28,6 +28,6 @@ type MessageType =
   | ProgressBlock["type"];
 ```
 
-Defined in: [domain/types.ts:772](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/sdk/src/domain/types.ts#L772)
+Defined in: [domain/types.ts:772](https://github.com/elribonazo/uaito/blob/cfdf025250d7b4eddd23a524d8b4cfadce122069/packages/sdk/src/domain/types.ts#L772)
 
 A union of all possible message types.
