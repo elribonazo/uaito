@@ -30,6 +30,6 @@ type BlockType =
   | ProgressBlock;
 ```
 
-Defined in: [domain/types.ts:790](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/domain/types.ts#L790)
+Defined in: [domain/types.ts:790](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/sdk/src/domain/types.ts#L790)
 
 A union of all possible block types that can be part of a message's content.

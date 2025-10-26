@@ -14,7 +14,14 @@ const nextConfig = {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false, // for 'fs'
+        buffer: require.resolve('buffer/'),
       };
+
+      const webpackLib = require('webpack');
+      config.plugins = [
+        ...(config.plugins || []),
+        new webpackLib.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
+      ];
 
       // Explicitly ignore .node files
       config.module.rules.push({

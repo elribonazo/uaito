@@ -2,13 +2,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { AppDispatch } from "@/redux/store";
 import type { Session } from "next-auth";
-import { LLMProvider,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent, BlockType } from "@uaito/sdk";
-
+import { LLMProvider,  Message, MessageArray, MessageInput, BlockType } from "@uaito/sdk";
 import { v4 } from "uuid";
 import { pushChatMessage } from "@/redux/userSlice";
-import { EdgeRuntimeAgent, EdgeRuntimeAgentAudio, EdgeRuntimeAgentImage } from "@/ai/agents/EdgeRuntime";
-import { HuggingFaceONNXModels, HuggingFaceONNXOptions } from "@uaito/huggingface";
-import { Agent } from "@uaito/ai";
+import { getWorkerClient } from '@/workers/workerClient';
 
 interface StreamInput {
 	chatId: string;
@@ -24,7 +21,7 @@ interface StreamInput {
 
 const withWebGPU = [LLMProvider.Local];
 
-async function processStream(
+async function processHttpStream(
 	stream: ReadableStream<Uint8Array>,
 	chatId: string,
 	session: Session,
@@ -83,15 +80,14 @@ export const getApiKey = createAsyncThunk(
 	},
 );
 
-const agents: Map<string, any> = new Map();
-
 export const streamMessage = createAsyncThunk(
 	"user/message",
 	async (options: StreamInput, { fulfillWithValue, rejectWithValue }) => {
-		const { chatId, prompt, inputs, signal, dispatch } = options;
+		const { chatId, prompt, inputs, signal, dispatch, session } = options;
 		try {
 			const provider = options.provider ?? LLMProvider.Local;
 			const agent = options.agent ?? "orquestrator";
+			const model = options.model ?? 'onnx-community/Janus-Pro-1B-ONNX';
 
 			let userMessage: Message;
 			if (typeof prompt === "string") {
@@ -113,7 +109,7 @@ export const streamMessage = createAsyncThunk(
 			dispatch(
 				pushChatMessage({
 					chatId,
-					session: options.session,
+					session,
 					chatMessage: {
 						message: userMessage,
 					},
@@ -131,9 +127,9 @@ export const streamMessage = createAsyncThunk(
 								? { ...i, content: [{ type: "text", text: i }] }
 								: i,
 						),
-						model: options.model,
+						model,
 					}),
-					signal: signal,
+					signal,
 					credentials: "include",
 				});
 
@@ -141,215 +137,25 @@ export const streamMessage = createAsyncThunk(
 					return rejectWithValue("An error occurred. Please try again later.");
 				}
 				if (response.body) {
-					await processStream(response.body, chatId, options.session, dispatch);
+					await processHttpStream(response.body, chatId, session, dispatch);
 				}
-				return fulfillWithValue(null);
+				return fulfillWithValue({ chatId, requestId: null });
 			}
+            
+            const workerClient = getWorkerClient(provider.toString(), agent, model);
 
-			const agentCacheKey = `${provider}-${agent}-${options.model}`;
-			//WEBGPU AGENTS
-			if (!agents.has(agentCacheKey)) {
-				// Throttle progress updates to reduce dispatch frequency
-				let lastProgressDispatch = 0;
-				const PROGRESS_THROTTLE_MS = 100; // Dispatch at most every 100ms
-				let progressMessageId: string | null = null;
+            await workerClient.performTask(
+                {
+                    prompt,
+                    inputs: Array.from(inputs.map((i) => (typeof (i as any).content === 'string' ? { ...i, content: [{ type: 'text', text: i as any }] } : i))),
+                },
+                dispatch,
+                chatId,
+                session,
+                signal
+            );
+			return fulfillWithValue({ chatId, requestId: null });
 
-				// Use selected model or default to QWEN_1
-				const selectedModel = options.model
-					? (options.model as HuggingFaceONNXModels)
-					: HuggingFaceONNXModels.JANO;
-
-				const device =
-					typeof navigator !== "undefined" && (navigator as any).gpu
-						? "webgpu"
-						: "wasm";
-
-				const hfOptions: HuggingFaceONNXOptions = {
-					model: selectedModel,
-					dtype:'q4f16',
-					device,
-					tools:  [
-						{
-							name: "generateImage",
-							description:
-								"Generate an image based on a prompt. This tool should be used when you need to generate an image based on a prompt and returns the blob url of the generated image, to be used inside blob:http://...... tag, always append blob: together with the url.",
-							input_schema: {
-								type: "object",
-								properties: {
-									prompt: {
-										type: "string",
-										description:
-											"A detailed prompt describing the picture, applying the visual style and quality of the picture.",
-									},
-								},
-								required: ["prompt"],
-							},
-						},
-						{
-							name: "generateAudio",
-							description:
-								"Generate an audio based on a prompt. This tool should be used when you need to generate an audio based on a prompt and returns the blob url of the generated audio, to be used inside blob:http://...... tag, always append blob: together with the url.",
-							input_schema: {
-								type: "object",
-								properties: {
-									prompt: {
-										type: "string",
-										description:
-											"A detailed prompt describing the audio, applying the audio style and quality of the audio.",
-									},
-								},
-								required: ["prompt"],
-							},
-						},
-					],
-					signal: signal,
-					onProgress: (progress) => {
-						if (!progressMessageId) {
-							progressMessageId = v4();
-						}
-						const progressMessage: Message = {
-							id: progressMessageId,
-							role: 'assistant',
-							type: 'progress',
-							content: [{
-								type: 'progress',
-								progress: progress,
-								message: 'Downloading model...'
-							}]
-						};
-						dispatch(pushChatMessage({
-							chatId,
-							session: options.session,
-							chatMessage: { message: progressMessage }
-						}));
-					}
-
-				};
-
-				const imageAgent = new EdgeRuntimeAgentImage(hfOptions);
-				const audioAgent = new EdgeRuntimeAgentAudio(hfOptions);
-
-				const newAgent = new EdgeRuntimeAgent(
-					hfOptions,
-					async function (this: BaseAgent, message: Message) {
-
-						const toolUse = message.content.find((m) => m.type === "tool_use");
-						const id = message.id;
-
-						if (toolUse?.name === "generateAudio") {
-							const input = toolUse?.input as { prompt: string };
-							const { response } = await audioAgent.performTask(input.prompt);
-							const toolResult: Message = {
-								...message,
-								id,
-								type: "tool_result",
-								content: [
-									{
-										name: (toolUse as any).name,
-										type: "tool_result",
-										tool_use_id: id,
-										content: [],
-									} as ToolResultBlock,
-								],
-								role: "assistant",
-							};
-							for await (const chunk of response) {
-								for (const content of chunk.content) {
-									(toolResult as any).content[0].content.push(content);
-								}
-							}
-							this.inputs.push(toolResult);
-						} else if (toolUse?.name === "generateImage") {
-							const input = toolUse?.input as { prompt: string };
-							const { response } = await imageAgent.performTask(input.prompt);
-							const toolResult: Message = {
-								...message,
-								id,
-								type: "tool_result",
-								content: [
-									{
-										name: (toolUse as any).name,
-										type: "tool_result",
-										tool_use_id: id,
-										content: [],
-									} as ToolResultBlock,
-								],
-								role: "assistant",
-							};
-							for await (const chunk of response) {
-								for (const content of chunk.content) {
-									(toolResult as any).content[0].content.push(content);
-								}
-							}
-							this.inputs.push(toolResult);
-						} else {
-							this.inputs.push({
-								...message,
-								id,
-								type: "tool_result",
-								content: [
-									{
-										name: (toolUse as any).name,
-										type: "tool_result",
-										tool_use_id: id,
-										content: [
-											{
-												type: "text",
-												text: "Hello, world!",
-											},
-										],
-									},
-								],
-								role: "user",
-							});
-						}
-					}
-				);
-
-				agents.set(agentCacheKey, newAgent);
-			}
-
-			const __agent: Agent = agents.get( agentCacheKey);
-
-			await __agent.load();
-
-			const newInputs = inputs ?? [];
-			if (__agent.inputs.length === 0 && newInputs.length > 0) {
-				await __agent.addInputs(newInputs);
-			}
-
-			const { response } = await __agent.performTask(prompt);
-			const delimiter = "<-[*0M0*]->";
-
-			// Convert ReadableStream<Message> to ReadableStream<Uint8Array>
-			const uint8ArrayStream = new ReadableStream<Uint8Array>({
-				start: async (controller) => {
-					const reader = response.getReader();
-					try {
-						while (true) {
-							const { done, value } = await reader.read();
-							if (done) {
-								break;
-							}
-							if (!value) {
-								continue;
-							}
-							const jsonString = JSON.stringify(value);
-							const uint8Array = new TextEncoder().encode(
-								jsonString + delimiter,
-							);
-							controller.enqueue(uint8Array);
-						}
-						controller.close();
-						reader.releaseLock();
-					} catch (error) {
-						controller.error(error);
-					}
-				},
-			});
-
-			await processStream(uint8ArrayStream, chatId, options.session, dispatch);
-			return fulfillWithValue(null);
 		} catch (error) {
 			const err =
 				"An error occurred. Please try again later." + (error as Error).message;

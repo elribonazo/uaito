@@ -12,7 +12,7 @@
 
 # Class: MessageArray\<T\>
 
-Defined in: [utils.ts:100](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/utils.ts#L100)
+Defined in: [utils.ts:100](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/sdk/src/utils.ts#L100)
 
 A specialized array class for managing an array of `MessageInput` objects.
 It extends the native `Array` but overrides the `push` method to automatically
@@ -53,7 +53,7 @@ messages.push({ role: 'user', content: [{ type: 'text', text: ' world!' }] });
 new MessageArray<T>(items?): MessageArray<T>;
 ```
 
-Defined in: [utils.ts:117](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/utils.ts#L117)
+Defined in: [utils.ts:117](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/sdk/src/utils.ts#L117)
 
 Creates an instance of `MessageArray`.
 It uses a `Proxy` to intercept the `push` method, enabling custom logic for
@@ -1109,7 +1109,7 @@ Array.indexOf
 protected isSameRole(lastOne, item): boolean;
 ```
 
-Defined in: [utils.ts:176](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/utils.ts#L176)
+Defined in: [utils.ts:176](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/sdk/src/utils.ts#L176)
 
 Determines whether a new message should be merged with the previous one.
 Merging occurs if both messages are from the 'user' and the new message does not contain a tool result.
@@ -1948,7 +1948,7 @@ Array.with
 static from(items): MessageArray<MessageInput>;
 ```
 
-Defined in: [utils.ts:107](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/utils.ts#L107)
+Defined in: [utils.ts:107](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/sdk/src/utils.ts#L107)
 
 A static factory method to create a `MessageArray` from an array of `MessageInput` items.
 
