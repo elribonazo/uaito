@@ -389,8 +389,10 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @returns {Promise<ReadableStreamWithAsyncIterable<string>>} A promise that resolves to a readable stream of strings.
    */
   async createStream(): Promise<ReadableStreamWithAsyncIterable<string>> {
+    // Ensure stopping criteria is fresh for this generation
+    this.stoppingCriteria.reset();
     const input = this.getTensorData();
-    const stopping_criteria = new InterruptableStoppingCriteria();
+    const stopping_criteria = this.stoppingCriteria;
 
     this.log("createStream called.");
 
@@ -597,22 +599,13 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       getNext: () => Promise<ReadableStreamWithAsyncIterable<AChunk>>,
       onTool?:OnTool
     ) {
-      let activateLoop = false;
       const stream = new ReadableStream({
          start: async (controller) => {
           let reader: ReadableStreamDefaultReader<AChunk> = input.getReader();
           while (true) {
             const readerResult = await reader.read();
             if (readerResult.done) {
-              if (activateLoop) {
-                activateLoop = false;
-                const newStream = await getNext.bind(this)();
-                const oldReader = reader;
-                reader = newStream.getReader()
-                oldReader.releaseLock()
-              } else {
-                break;
-              }
+              break;
             }
             try {
               if (!readerResult.value) {
@@ -627,6 +620,14 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                 tChunk.type === "message"
               ) {
                 controller.enqueue(tChunk)
+                if (tChunk.type === "delta") {
+                  const delta = (tChunk.content || []).find((c:any) => c && c.type === 'delta') as { stop_reason?: string } | undefined;
+                  if (delta && (delta.stop_reason === 'end_turn' || delta.stop_reason === 'stop_sequence')) {
+                    controller.close();
+                    reader.releaseLock();
+                    return;
+                  }
+                }
               } else if (tChunk.type === "thinking" || tChunk.type === "redacted_thinking" || tChunk.type === "signature_delta") {
                 // Only push non-chunked thinking/signature blocks to inputs for context preservation
                 const lastInput = this.inputs[this.inputs.length - 1];
@@ -661,6 +662,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                     toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                   }
   
+                  // Interrupt current generation immediately so we can continue after tool_result
+                  this.stoppingCriteria.interrupt();
+
                   await onTool.bind(this)(tChunk, this.options.signal);
                   const lastOutput = this.inputs[this.inputs.length - 1];
                   if (lastOutput.content[0].type !== 'tool_result') {
@@ -679,7 +683,11 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                     type: 'tool_result'
                   });
 
-                  activateLoop = true;
+                  // Immediately start next generation using the tool output, mirroring OpenAI behavior
+                  const newStream = await getNext.bind(this)();
+                  const oldReader = reader;
+                  reader = newStream.getReader()
+                  oldReader.releaseLock()
                 }
               } 
             } catch (err: unknown) {

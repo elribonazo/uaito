@@ -164,7 +164,7 @@ export const streamMessage = createAsyncThunk(
 
 				const hfOptions: HuggingFaceONNXOptions = {
 					model: selectedModel,
-					dtype: "q4f16",
+					dtype:'auto',
 					device,
 					tools:  [
 						{
@@ -201,11 +201,7 @@ export const streamMessage = createAsyncThunk(
 						},
 					],
 					signal: signal,
-					onProgress: (progress) => {
-						const now = Date.now();
-						// Only dispatch if enough time has passed or if progress is complete (100%)
-						dispatch(setDownloadProgress(progress));
-					},
+					onProgress: (progress) => dispatch(setDownloadProgress(progress))
 
 				};
 

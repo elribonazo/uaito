@@ -37,8 +37,7 @@ export enum HuggingFaceONNXModels {
 
     GRANITE="onnx-community/granite-4.0-micro-ONNX-web",
     
-    GEMMA3='onnx-community/gemma-3-1b-it-ONNX-GQA',
-    NANOCHAT="onnx-community/nanochat-d32-ONNX"
+    GEMMA3='onnx-community/gemma-3-1b-it-ONNX-GQA'
 
   }
 
@@ -66,14 +65,6 @@ export type HuggingFaceONNXOptions =  BaseLLMOptions & {
      * @type {("auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm" | "dml" | "webnn" | "webnn-npu" | "webnn-gpu" | "webnn-cpu" | Record<string, "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm"  | "webnn-cpu"> | undefined)}
      */
     device: "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm" | "dml" | "webnn" | "webnn-npu" | "webnn-gpu" | "webnn-cpu" | Record<string, "auto" | "webgpu" | "cpu" | "cuda" | "gpu" | "wasm"  | "webnn-cpu"> | undefined
-    /**
-     * Whether to disable the thinking feature (enclosed in <thinking> tags).
-     * When set to true, the model will not use step-by-step reasoning tags in responses.
-     * This can save tokens and simplify responses for use cases that don't require explicit reasoning.
-     * @type {boolean}
-     * @default false
-     */
-    disableThinking?: boolean;
   };
   
   /**
