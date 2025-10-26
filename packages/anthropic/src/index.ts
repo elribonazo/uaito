@@ -100,7 +100,8 @@ export class Anthropic extends BaseLLM<LLMProvider.Anthropic, AnthropicOptions> 
         contentModel.type !== 'usage' &&
         contentModel.type !== "delta" &&
         contentModel.type !== "error" &&
-        contentModel.type !== "file"
+        contentModel.type !== "file" && 
+        contentModel.type !== "progress"
       );
 
     const content = filteredContent.map((contentModel) => {
