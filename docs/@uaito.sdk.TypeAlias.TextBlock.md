@@ -19,7 +19,7 @@ type TextBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:581](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L581)
+Defined in: [domain/types.ts:626](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L626)
 
 Represents a block containing plain text.
 
@@ -31,7 +31,7 @@ Represents a block containing plain text.
 text: string;
 ```
 
-Defined in: [domain/types.ts:586](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L586)
+Defined in: [domain/types.ts:631](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L631)
 
 The text content.
 
@@ -43,6 +43,6 @@ The text content.
 type: "text";
 ```
 
-Defined in: [domain/types.ts:591](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L591)
+Defined in: [domain/types.ts:636](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L636)
 
 The type of the block, indicating text.

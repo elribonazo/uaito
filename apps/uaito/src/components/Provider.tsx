@@ -1,5 +1,5 @@
 import { SparklesIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
-import  { LLMProvider } from "@uaito/sdk";
+import { LLMProvider, ProgressBlock } from "@uaito/sdk";
 import { useMemo, useState } from "react";
 import { useAppSelector } from "@/redux/store";
 
@@ -9,12 +9,16 @@ export const Provider: React.FC<{
   enabledProviders: LLMProvider[]
 }> = ({ value, onSelected, enabledProviders }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const downloadProgress = useAppSelector((state) => state.user.downloadProgress);
+  const { activeChatId, chats } = useAppSelector((state) => state.user);
+	const activeChat = activeChatId ? chats[activeChatId] : null;
 
   const enabled = useMemo(() => enabledProviders.length > 1, [enabledProviders]);
 
   const webGPU = value === LLMProvider.Local || value === LLMProvider.LocalImage;
-  const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
+	const progressMessage = activeChat?.messages.find(
+		(m) => m.type === 'progress' && (m.content[0] as ProgressBlock)?.progress < 100
+	);
+	const isDownloading = !!progressMessage;
 
   return (
     <div className="relative">

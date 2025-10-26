@@ -1,6 +1,6 @@
 {
   "name": "@uaito/build",
-  "version": "0.1.7-rc.2",
+  "version": "0.1.7-rc.4",
   "private": true,
   "description": "Build package for uaito",
   "module": "./build/index.js",

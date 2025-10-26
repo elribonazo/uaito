@@ -12,7 +12,7 @@
 
 # Class: HuggingFaceONNX
 
-Defined in: [HuggingFaceONNX.ts:91](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L91)
+Defined in: [HuggingFaceONNX.ts:92](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L92)
 
 A class for running Hugging Face ONNX models locally in the browser using WebGPU or WASM.
 It extends the `BaseLLM` class to provide a consistent interface with the Uaito SDK,
@@ -49,7 +49,7 @@ for await (const chunk of response) {
 new HuggingFaceONNX(params, onTool?): HuggingFaceONNX;
 ```
 
-Defined in: [HuggingFaceONNX.ts:147](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L147)
+Defined in: [HuggingFaceONNX.ts:148](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L148)
 
 Creates an instance of `HuggingFaceONNX`.
 
@@ -83,7 +83,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [HuggingFaceONNX.ts:97](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L97)
+Defined in: [HuggingFaceONNX.ts:98](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L98)
 
 The cache for the LLM, extended with optional IDs for tracking thinking, text, and image blocks.
 
@@ -138,7 +138,7 @@ Can be used for session management, tracking metadata, etc.
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:109](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L109)
+Defined in: [HuggingFaceONNX.ts:110](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L110)
 
 An array that holds the history of messages for the conversation.
 
@@ -153,10 +153,13 @@ BaseLLM.inputs
 ### loadProgress
 
 ```ts
-loadProgress: number = 0;
+loadProgress: Map<string, {
+  loaded: number;
+  total: number;
+}>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:103](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L103)
+Defined in: [HuggingFaceONNX.ts:104](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L104)
 
 The progress of loading the model.
 
@@ -168,7 +171,7 @@ The progress of loading the model.
 optional onTool: OnTool;
 ```
 
-Defined in: [HuggingFaceONNX.ts:139](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L139)
+Defined in: [HuggingFaceONNX.ts:140](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L140)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -212,7 +215,7 @@ BaseLLM.type
 createStream(): Promise<ReadableStreamWithAsyncIterable<string>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:375](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L375)
+Defined in: [HuggingFaceONNX.ts:391](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L391)
 
 Creates a readable stream of strings by running the model's generation process.
 It uses a `TextStreamer` to decode the model's output tokens into text in real-time.
@@ -268,7 +271,7 @@ BaseLLM.includeLastPrompt
 load(): Promise<void>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:193](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L193)
+Defined in: [HuggingFaceONNX.ts:197](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L197)
 
 Loads the pre-trained model and tokenizer from Hugging Face. It uses a cache to avoid
 redundant downloads. This method also handles the configuration of the model for
@@ -318,7 +321,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:507](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L507)
+Defined in: [HuggingFaceONNX.ts:550](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L550)
 
 Executes a task by preparing the inputs, running the model's generation process,
 and returning the response as a stream. It orchestrates the loading of the model,
@@ -393,7 +396,7 @@ BaseLLM.retryApiCall
 runAbortable<Fn>(fn): Promise<unknown>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:175](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L175)
+Defined in: [HuggingFaceONNX.ts:179](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L179)
 
 A wrapper for running a promise that can be aborted via an `AbortSignal`.
 If the signal is aborted, the promise is rejected and the model's generation is interrupted.
@@ -458,7 +461,7 @@ transformAutoMode<AChunk>(
 onTool?): Promise<ReadableStreamWithAsyncIterable<AChunk>>;
 ```
 
-Defined in: [HuggingFaceONNX.ts:550](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/huggingFace/src/HuggingFaceONNX.ts#L550)
+Defined in: [HuggingFaceONNX.ts:605](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/HuggingFaceONNX.ts#L605)
 
 A specialized version of `transformAutoMode` for handling the streaming and tool-use logic
 of local Hugging Face models. It manages the lifecycle of the stream reader and reactivates

@@ -16,7 +16,7 @@
 type TransformStreamFn<T, M> = (chunk) => Promise<M | null>;
 ```
 
-Defined in: [domain/types.ts:11](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L11)
+Defined in: [domain/types.ts:11](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L11)
 
 A function that transforms a chunk of data from a provider's stream into the SDK's standard `Message` format.
 

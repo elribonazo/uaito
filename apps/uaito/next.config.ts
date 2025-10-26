@@ -5,7 +5,7 @@ const nextConfig = {
     unoptimized: true,
   },
   assetPrefix: '/',
-  // Indicate that these packages should not be bundled by webpack
+  // Indicate that these packages should not be bundled by webpack (server-side only)
   serverExternalPackages: ['sharp',"ollama", 'onnxruntime-node'],
   webpack: (config:any, { isServer }:any) => {
     // Only apply these changes when building for the client.
@@ -21,14 +21,22 @@ const nextConfig = {
         test: /\.node$/,
         use: 'ignore-loader',
       });
+
+      // Alias onnxruntime to onnxruntime-web for browser compatibility
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        onnxruntime: 'onnxruntime-web',
+      };
     }
 
-    // Ignore native addon files and onnxruntime-node entirely
-    config.externals = [...(config.externals || []), {
-      'onnxruntime-node': 'onnxruntime-node',
-      'ollama': 'ollama',
-      'sharp': 'sharp',
-    }];
+    // Ignore native addon files and onnxruntime-node entirely (server-side only)
+    if (isServer) {
+      config.externals = [...(config.externals || []), {
+        'onnxruntime-node': 'onnxruntime-node',
+        'ollama': 'ollama',
+        'sharp': 'sharp',
+      }];
+    }
 
     return config;
   }

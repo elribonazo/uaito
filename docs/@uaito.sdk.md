@@ -32,6 +32,7 @@
 
 | Interface | Description |
 | ------ | ------ |
+| [ProgressBlock](@uaito.sdk.Interface.ProgressBlock.md) | Represents a block for reporting progress. ProgressBlock |
 | [RedactedThinkingBlock](@uaito.sdk.Interface.RedactedThinkingBlock.md) | Represents a thinking or reasoning block from the model that has been redacted. RedactedThinkingBlock |
 | [SearchReplaceBlock](@uaito.sdk.Interface.SearchReplaceBlock.md) | Represents a block for search and replace operations. SearchReplaceBlock |
 | [ServerToolUseBlock](@uaito.sdk.Interface.ServerToolUseBlock.md) | Represents a block for a tool that is executed on the server-side. ServerToolUseBlock |
@@ -52,6 +53,7 @@
 | [BlockType](@uaito.sdk.TypeAlias.BlockType.md) | A union of all possible block types that can be part of a message's content. |
 | [DeltaBlock](@uaito.sdk.TypeAlias.DeltaBlock.md) | Represents a delta block in a streamed response, indicating changes or stop reasons. |
 | [ErrorBlock](@uaito.sdk.TypeAlias.ErrorBlock.md) | Represents a block containing an error message. |
+| [FileBlock](@uaito.sdk.TypeAlias.FileBlock.md) | Represents a block containing a file. |
 | [ImageBlock](@uaito.sdk.TypeAlias.ImageBlock.md) | Represents a block containing an image. |
 | [Message](@uaito.sdk.TypeAlias.Message.md) | The core message structure used throughout the SDK. |
 | [MessageContent](@uaito.sdk.TypeAlias.MessageContent.md) | A union type representing any of the possible content blocks within a message's `content` array. |

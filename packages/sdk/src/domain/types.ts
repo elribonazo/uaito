@@ -466,6 +466,29 @@ import type { MessageArray } from "@/utils";
     message: string
   }
   /**
+   * Represents a block for reporting progress.
+   * @interface ProgressBlock
+   */
+  export interface ProgressBlock {
+    /**
+     * The type of the block.
+     * @type {'progress'}
+     */
+    type: 'progress';
+  
+    /**
+     * The progress percentage (0-100).
+     * @type {number}
+     */
+    progress: number;
+  
+    /**
+     * An optional message about the progress.
+     * @type {(string | undefined)}
+     */
+    message?: string;
+  }
+  /**
    * Represents a thinking or reasoning block from the model that has been redacted.
    * @interface RedactedThinkingBlock
    */
@@ -526,6 +549,28 @@ import type { MessageArray } from "@/utils";
   }
   
   
+
+  /**
+   * Represents a block containing a file.
+   * @type
+   */
+  export type FileBlock = {
+    /**
+     * The source of the file.
+     * @type {{ name: string, content: string, media_type: 'text/plain' | 'text/markdown' | 'text/csv' | 'application/json', type: 'string' }}
+     */
+    source: {
+      name: string;
+      content: string;
+      media_type: 'text/plain' | 'text/markdown' | 'text/csv' | 'application/json';
+      type: 'string';
+    };
+    /**
+     * The type of the block, indicating a file.
+     * @type {'file'}
+     */
+    type: 'file';
+  }
 
   /**
    * Represents a block containing an image.
@@ -734,13 +779,15 @@ export type MessageInput = {
   ErrorBlock['type'] |
   ThinkingBlock['type'] |
   RedactedThinkingBlock['type'] | 
-  SignatureDeltaBlock['type']
+  SignatureDeltaBlock['type'] |
+  FileBlock['type'] |
+  ProgressBlock['type']
 
   /**
    * A union of all possible block types that can be part of a message's content.
    * @type
    */
-  export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock |AudioBlock| ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock;
+  export type BlockType = ErrorBlock | TextBlock | ToolBlock | ImageBlock | DeltaBlock | UsageBlock |AudioBlock| ThinkingBlock | RedactedThinkingBlock |ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock | FileBlock | ProgressBlock;
 
 
   /**

@@ -1,3 +1,26 @@
+## 0.1.7-rc.4 (2025-10-26)
+
+### 🩹 Fixes
+
+- error Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([2f6fee6](https://github.com/elribonazo/uaito/commit/2f6fee6))
+- RAG work in progress Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([1d78103](https://github.com/elribonazo/uaito/commit/1d78103))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.1.7-rc.4
+- Updated @uaito/sdk to 0.9.7-rc.4
+
+### ❤️ Thank You
+
+- Javier Ribó
+
+## 0.1.7-rc.3 (2025-10-13)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.1.7-rc.3
+- Updated @uaito/sdk to 0.9.7-rc.3
+
 ## 0.1.7-rc.2 (2025-10-13)
 
 ### 🧱 Updated Dependencies

@@ -1,3 +1,27 @@
+## 0.1.9-rc.1 (2025-10-26)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.1.7-rc.5
+- Updated @uaito/anthropic to 0.1.7-rc.4
+- Updated @uaito/google to 0.1.7-rc.4
+- Updated @uaito/openai to 0.1.7-rc.5
+- Updated @uaito/build to 0.1.7-rc.4
+- Updated @uaito/api to 0.1.7-rc.4
+- Updated @uaito/sdk to 0.9.7-rc.4
+
+## 0.1.9-rc.0 (2025-10-13)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/huggingface to 0.1.7-rc.4
+- Updated @uaito/anthropic to 0.1.7-rc.3
+- Updated @uaito/google to 0.1.7-rc.3
+- Updated @uaito/openai to 0.1.7-rc.4
+- Updated @uaito/build to 0.1.7-rc.3
+- Updated @uaito/api to 0.1.7-rc.3
+- Updated @uaito/sdk to 0.9.7-rc.3
+
 ## 0.1.8 (2025-10-13)
 
 ### 🧱 Updated Dependencies

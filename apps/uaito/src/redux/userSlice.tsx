@@ -67,7 +67,6 @@ export interface ChatState {
   selectedModel: string | null;
   isFetchingUsageToken: boolean;
   hasFetchedUsageToken: boolean;
-  downloadProgress: number | null;
   theme: 'light' | 'dark' | 'system';
 }
 
@@ -85,7 +84,6 @@ export const initialState: ChatState = {
   selectedModel: null,
   isFetchingUsageToken: false,
   hasFetchedUsageToken: false,
-  downloadProgress: null,
   theme: 'system',
 };
 
@@ -115,9 +113,6 @@ const userSlice = createSlice({
         if (!state.provider) {
             state.provider = LLMProvider.Anthropic;
         }
-    },
-    setDownloadProgress: (state, action: PayloadAction<number | null>) => {
-      state.downloadProgress = action.payload;
     },
     createNewChat: (state, action: PayloadAction<{
       provider: LLMProvider;
@@ -220,8 +215,18 @@ const userSlice = createSlice({
         return state;
       }
 
-      console.log("SATH pushChatMessage", message);
+      console.log(`Message ${message.id} [${message.type}] content ${JSON.stringify(message.content)}`);
 
+      if (message.type === "progress") {
+        const existingIndex = chat.messages.findIndex((m) => m.id === message.id);
+        if (existingIndex !== -1) {
+          chat.messages[existingIndex] = message;
+        } else {
+          chat.messages.push(message);
+        }
+        return state;
+      }
+      
       if (message.type === "error") {
         toast(
           <div>
@@ -325,7 +330,6 @@ const userSlice = createSlice({
 
 export const { 
   pushChatMessage, 
-  setDownloadProgress, 
   initializeProvider, 
   setProvider, 
   setSelectedModel,

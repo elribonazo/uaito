@@ -16,7 +16,7 @@
 type ReadableStreamWithAsyncIterable<T> = ReadableStream<T> & AsyncIterable<T>;
 ```
 
-Defined in: [domain/types.ts:827](https://github.com/elribonazo/uaito/blob/7df29d8741d0d1941377ba04925c52b6e0389e22/packages/sdk/src/domain/types.ts#L827)
+Defined in: [domain/types.ts:874](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L874)
 
 A type that combines a `ReadableStream` with an `AsyncIterable`, allowing it to be used
 with both `for await...of` loops and standard stream consumers.
