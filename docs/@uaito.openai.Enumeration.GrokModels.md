@@ -12,7 +12,7 @@
 
 # Enumeration: GrokModels
 
-Defined in: [types.ts:23](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L23)
+Defined in: [types.ts:23](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L23)
 
 An enumeration of the available Grok models.
 
@@ -20,4 +20,4 @@ An enumeration of the available Grok models.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="grok-4"></a> `grok-4` | `"grok-4-fast-reasoning"` | A model optimized for fast reasoning and conversational tasks. | [types.ts:27](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L27) |
+| <a id="grok-4"></a> `grok-4` | `"grok-4-fast-reasoning"` | A model optimized for fast reasoning and conversational tasks. | [types.ts:27](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L27) |

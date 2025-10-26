@@ -12,7 +12,7 @@
 
 # Enumeration: AnthropicModels
 
-Defined in: [types.ts:8](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/anthropic/src/types.ts#L8)
+Defined in: [types.ts:8](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/anthropic/src/types.ts#L8)
 
 An enumeration of the available Anthropic models that can be used with the SDK.
 Each enum member maps to a specific model identifier provided by Anthropic.
@@ -21,4 +21,4 @@ Each enum member maps to a specific model identifier provided by Anthropic.
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="claude-4-sonnet"></a> `claude-4-sonnet` | `"claude-sonnet-4-5-20250929"` | The Claude 4 Sonnet model, a powerful and versatile model suitable for a wide range of tasks. This is often a good default choice for balanced performance and cost. | [types.ts:13](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/anthropic/src/types.ts#L13) |
+| <a id="claude-4-sonnet"></a> `claude-4-sonnet` | `"claude-sonnet-4-5-20250929"` | The Claude 4 Sonnet model, a powerful and versatile model suitable for a wide range of tasks. This is often a good default choice for balanced performance and cost. | [types.ts:13](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/anthropic/src/types.ts#L13) |

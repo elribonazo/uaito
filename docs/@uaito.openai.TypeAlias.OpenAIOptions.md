@@ -22,7 +22,7 @@ type OpenAIOptions<T> = BaseLLMOptions & {
 };
 ```
 
-Defined in: [types.ts:98](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L98)
+Defined in: [types.ts:98](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L98)
 
 Defines the configuration options for the `OpenAI` client, which can be used for both
 OpenAI and Grok providers. It extends `BaseLLMOptions` with provider-specific properties.
@@ -31,11 +31,11 @@ OpenAI and Grok providers. It extends `BaseLLMOptions` with provider-specific pr
 
 | Name | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| `apiKey?` | `string` | The API key for the selected provider. | [types.ts:109](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L109) |
-| `baseURL?` | `string` | An optional base URL for the API, useful for proxying or using custom endpoints. | [types.ts:114](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L114) |
-| `imageGenConfig?` | [`ImageGenConfig`](@uaito.openai.TypeAlias.ImageGenConfig.md) | Optional configuration for image generation when using the OpenAI provider. | [types.ts:124](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L124) |
-| `model` | `LLMProviderToOpenAIModel`\[`T`\] | The specific model to use, which is typed based on the selected provider. | [types.ts:119](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L119) |
-| `type` | `T` | The type of the provider, either `LLMProvider.OpenAI` or `LLMProvider.Grok`. | [types.ts:104](https://github.com/elribonazo/uaito/blob/61fe38d8ca6389b9df4b175df981376a787b30b1/packages/openai/src/types.ts#L104) |
+| `apiKey?` | `string` | The API key for the selected provider. | [types.ts:109](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L109) |
+| `baseURL?` | `string` | An optional base URL for the API, useful for proxying or using custom endpoints. | [types.ts:114](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L114) |
+| `imageGenConfig?` | [`ImageGenConfig`](@uaito.openai.TypeAlias.ImageGenConfig.md) | Optional configuration for image generation when using the OpenAI provider. | [types.ts:124](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L124) |
+| `model` | `LLMProviderToOpenAIModel`\[`T`\] | The specific model to use, which is typed based on the selected provider. | [types.ts:119](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L119) |
+| `type` | `T` | The type of the provider, either `LLMProvider.OpenAI` or `LLMProvider.Grok`. | [types.ts:104](https://github.com/elribonazo/uaito/blob/5e718d4c4365447ef5056696ab53cf4e29d9d11a/packages/openai/src/types.ts#L104) |
 
 ## Type Parameters
 
