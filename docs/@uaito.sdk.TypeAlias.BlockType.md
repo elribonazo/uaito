@@ -25,9 +25,11 @@ type BlockType =
   | RedactedThinkingBlock
   | ServerToolUseBlock
   | WebSearchToolResultBlock
-  | SignatureDeltaBlock;
+  | SignatureDeltaBlock
+  | FileBlock
+  | ProgressBlock;
 ```
 
-Defined in: [domain/types.ts:743](https://github.com/elribonazo/uaito/blob/cfa7cf4d40b23c917d18a9623a67ba39385dca04/packages/sdk/src/domain/types.ts#L743)
+Defined in: [domain/types.ts:790](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L790)
 
 A union of all possible block types that can be part of a message's content.

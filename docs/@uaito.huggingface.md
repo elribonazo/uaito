@@ -16,7 +16,6 @@
 
 | Enumeration | Description |
 | ------ | ------ |
-| [HuggingFaceONNXChatTemplates](@uaito.huggingface.Enumeration.HuggingFaceONNXChatTemplates.md) | An enumeration of chat templates for formatting conversation history. These templates are specific to certain Hugging Face models and ensure that the input is structured correctly for the model to understand. |
 | [HuggingFaceONNXModels](@uaito.huggingface.Enumeration.HuggingFaceONNXModels.md) | An enumeration of the available Hugging Face ONNX models that are optimized for web execution. These models are suitable for running locally in the browser with WebGPU or WASM. |
 
 ## Classes

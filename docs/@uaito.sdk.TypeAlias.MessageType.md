@@ -23,9 +23,11 @@ type MessageType =
   | ErrorBlock["type"]
   | ThinkingBlock["type"]
   | RedactedThinkingBlock["type"]
-  | SignatureDeltaBlock["type"];
+  | SignatureDeltaBlock["type"]
+  | FileBlock["type"]
+  | ProgressBlock["type"];
 ```
 
-Defined in: [domain/types.ts:727](https://github.com/elribonazo/uaito/blob/cfa7cf4d40b23c917d18a9623a67ba39385dca04/packages/sdk/src/domain/types.ts#L727)
+Defined in: [domain/types.ts:772](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L772)
 
 A union of all possible message types.

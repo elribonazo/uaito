@@ -1,3 +1,21 @@
+## 0.1.7-rc.5 (2025-10-26)
+
+### 🩹 Fixes
+
+- model dtype Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([fe400b0](https://github.com/elribonazo/uaito/commit/fe400b0))
+- improve outputs Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([bcb1326](https://github.com/elribonazo/uaito/commit/bcb1326))
+- improve loading progress and webgpu free chat Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([ecde2b8](https://github.com/elribonazo/uaito/commit/ecde2b8))
+- RAG work in progress Signed-off-by: Javier Ribó <elribonazo@gmail.com> ([1d78103](https://github.com/elribonazo/uaito/commit/1d78103))
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.1.7-rc.4
+- Updated @uaito/sdk to 0.9.7-rc.4
+
+### ❤️ Thank You
+
+- Javier Ribó
+
 ## 0.1.7-rc.4 (2025-10-13)
 
 ### 🧱 Updated Dependencies
