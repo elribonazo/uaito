@@ -12,7 +12,7 @@
 
 # Class: OpenAI\<T\>
 
-Defined in: [index.ts:86](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L86)
+Defined in: [index.ts:86](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L86)
 
 A class for interacting with OpenAI-compatible APIs, including OpenAI and Grok.
 It extends the `BaseLLM` class to provide a standardized interface for streaming responses,
@@ -55,7 +55,7 @@ for await (const chunk of response) {
 new OpenAI<T>(params, onTool?): OpenAI<T>;
 ```
 
-Defined in: [index.ts:183](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L183)
+Defined in: [index.ts:183](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L183)
 
 Creates an instance of the `OpenAI` LLM client.
 
@@ -90,7 +90,7 @@ cache: BaseLLMCache & {
 };
 ```
 
-Defined in: [index.ts:111](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L111)
+Defined in: [index.ts:111](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L111)
 
 A cache for storing intermediate data during stream processing, including partial tool inputs,
 image generation state, and token counts.
@@ -154,7 +154,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:103](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L103)
+Defined in: [index.ts:103](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L103)
 
 An array that holds the history of messages for the conversation.
 
@@ -172,7 +172,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:91](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L91)
+Defined in: [index.ts:91](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L91)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -218,7 +218,7 @@ BaseLLM.type
 get llmInputs(): ResponseInputItem[];
 ```
 
-Defined in: [index.ts:317](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L317)
+Defined in: [index.ts:317](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L317)
 
 Gets the formatted message history for the LLM, converting each message from the
 Uaito SDK format to the OpenAI API's `ResponseInputItem` format.
@@ -239,7 +239,7 @@ The formatted LLM inputs.
 get maxTokens(): number;
 ```
 
-Defined in: [index.ts:207](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L207)
+Defined in: [index.ts:207](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L207)
 
 Gets the maximum number of tokens to generate in the response.
 Defaults to 4096 if not specified in the options.
@@ -260,7 +260,7 @@ The maximum number of tokens.
 get tools(): undefined | Tool[];
 ```
 
-Defined in: [index.ts:288](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L288)
+Defined in: [index.ts:288](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L288)
 
 Gets the list of tools available to the LLM, formatted as `ResponsesTool` objects
 for the OpenAI API.
@@ -348,7 +348,7 @@ performTaskStream(
 system): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:591](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/openai/src/index.ts#L591)
+Defined in: [index.ts:591](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/openai/src/index.ts#L591)
 
 Executes a task by sending the prompt and conversation history to the OpenAI-compatible API
 and returns the response as a stream. It handles tool configuration, stream creation,

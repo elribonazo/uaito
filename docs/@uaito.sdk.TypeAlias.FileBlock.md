@@ -24,7 +24,7 @@ type FileBlock = {
 };
 ```
 
-Defined in: [domain/types.ts:557](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L557)
+Defined in: [domain/types.ts:557](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/domain/types.ts#L557)
 
 Represents a block containing a file.
 
@@ -41,7 +41,7 @@ source: {
 };
 ```
 
-Defined in: [domain/types.ts:562](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L562)
+Defined in: [domain/types.ts:562](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/domain/types.ts#L562)
 
 The source of the file.
 
@@ -77,6 +77,6 @@ type: "string";
 type: "file";
 ```
 
-Defined in: [domain/types.ts:572](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/sdk/src/domain/types.ts#L572)
+Defined in: [domain/types.ts:572](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/sdk/src/domain/types.ts#L572)
 
 The type of the block, indicating a file.

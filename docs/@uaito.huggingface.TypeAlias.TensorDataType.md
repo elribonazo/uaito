@@ -20,7 +20,7 @@ type TensorDataType = {
 };
 ```
 
-Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/types.ts#L9)
+Defined in: [types.ts:9](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L9)
 
 Defines the structure of tensor data required by Hugging Face models,
 including input IDs, attention mask, and optional token type IDs.
@@ -33,7 +33,7 @@ including input IDs, attention mask, and optional token type IDs.
 attention_mask: Tensor;
 ```
 
-Defined in: [types.ts:19](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/types.ts#L19)
+Defined in: [types.ts:19](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L19)
 
 The attention mask tensor.
 
@@ -45,7 +45,7 @@ The attention mask tensor.
 input_ids: Tensor;
 ```
 
-Defined in: [types.ts:14](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/types.ts#L14)
+Defined in: [types.ts:14](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L14)
 
 The input IDs tensor.
 
@@ -57,6 +57,6 @@ The input IDs tensor.
 optional token_type_ids: Tensor;
 ```
 
-Defined in: [types.ts:24](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/huggingFace/src/types.ts#L24)
+Defined in: [types.ts:24](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/huggingFace/src/types.ts#L24)
 
 Optional tensor for token type IDs, used in models that distinguish between different sentences.

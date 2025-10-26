@@ -12,7 +12,7 @@
 
 # Class: UaitoAPI
 
-Defined in: [index.ts:40](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L40)
+Defined in: [index.ts:40](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L40)
 
 A client for interacting with the Uaito API, which acts as a proxy to various
 underlying LLM providers. It extends the `BaseLLM` class to provide a consistent
@@ -50,7 +50,7 @@ for await (const chunk of responseStream) {
 new UaitoAPI(params, onTool?): UaitoAPI;
 ```
 
-Defined in: [index.ts:78](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L78)
+Defined in: [index.ts:78](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L78)
 
 Creates an instance of the `UaitoAPI` client.
 
@@ -80,7 +80,7 @@ BaseLLM<LLMProvider.API, UaitoAPIOptions>.constructor
 baseUrl: string;
 ```
 
-Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L66)
+Defined in: [index.ts:66](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L66)
 
 The base URL for the Uaito API. Defaults to 'https://uaito.io'.
 
@@ -92,7 +92,7 @@ The base URL for the Uaito API. Defaults to 'https://uaito.io'.
 cache: BaseLLMCache;
 ```
 
-Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L47)
+Defined in: [index.ts:47](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L47)
 
 A cache for storing intermediate data.
 
@@ -129,7 +129,7 @@ BaseLLM.data
 inputs: MessageArray<MessageInput>;
 ```
 
-Defined in: [index.ts:60](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L60)
+Defined in: [index.ts:60](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L60)
 
 An array that holds the history of messages for the conversation.
 
@@ -147,7 +147,7 @@ BaseLLM.inputs
 optional onTool: OnTool;
 ```
 
-Defined in: [index.ts:71](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L71)
+Defined in: [index.ts:71](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L71)
 
 An optional callback function that is triggered when a tool is used.
 
@@ -260,7 +260,7 @@ performTaskStream(
 system?): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:235](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L235)
+Defined in: [index.ts:235](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L235)
 
 An alias for the `request` method to conform to the `BaseLLM` interface.
 
@@ -292,7 +292,7 @@ BaseLLM.performTaskStream
 request(prompt): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:92](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L92)
+Defined in: [index.ts:92](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L92)
 
 Sends a request to the Uaito API and returns the response as a `ReadableStream`.
 This method constructs the request body, including the prompt, message history, and model,
@@ -318,7 +318,7 @@ A promise that resolves to a readable stream of `Message` objects.
 requestRAG(prompt, ragOptions): Promise<ReadableStreamWithAsyncIterable<Message>>;
 ```
 
-Defined in: [index.ts:161](https://github.com/elribonazo/uaito/blob/5502a2c87fe1b258ed3eea107257b14d895c9793/packages/api/src/index.ts#L161)
+Defined in: [index.ts:161](https://github.com/elribonazo/uaito/blob/04309312147c13e296b527f56b609459b13e7903/packages/api/src/index.ts#L161)
 
 #### Parameters
 
