@@ -1,20 +1,21 @@
 import {
+  InterruptableStoppingCriteria,
+  TextStreamer,
   Message as HMessage,
   PreTrainedTokenizer,
   PreTrainedModel,
   Tensor,
-  InterruptableStoppingCriteria,
   AutoTokenizer,
   AutoConfig,
   AutoModelForCausalLM,
-  TextStreamer,
-} from "@huggingface/transformers";
+} from '@huggingface/transformers'
 import { v4 } from "uuid";
 
-import { BaseLLM } from "@uaito/sdk";
-import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message, LLMProvider, MessageArray } from "@uaito/sdk";
+import { BaseLLM, DeltaBlock } from "@uaito/sdk";
+import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message, LLMProvider, MessageArray, FileBlock, BlockType } from "@uaito/sdk";
 import { type TensorDataType, type HuggingFaceONNXOptions, HuggingFaceONNXModels } from "./types";
 import { MessageCache } from "./utils";
+
 
 /**
  * A string representing the end of an imitation tag, used for parsing model outputs.
@@ -100,7 +101,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @public
    * @type {number}
    */
-  public loadProgress: number = 0;
+  public loadProgress = new Map<string, {loaded: number, total: number}>();
   /**
    * An array that holds the history of messages for the conversation.
    * @public
@@ -151,6 +152,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     super(LLMProvider.Local, options);
     this.data.progress = 0;
     this.onTool = onTool ?? options.onTool;
+    this.options.signal?.addEventListener('abort', () => {
+      this.stoppingCriteria.interrupt();
+    });
   }
 
   /**
@@ -212,7 +216,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       }
     } else {
       const defaultConfig = await AutoConfig.from_pretrained(modelId);
-
       const configPerModel = {
         __default: {
           device: this.options.device ?? "webgpu",
@@ -228,22 +231,30 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
             }
           },
         },
+        [HuggingFaceONNXModels.LUCY]: {
+          device: "webgpu",
+          dtype:  "q4f16",
+          config:defaultConfig
+        },
       }
 
       const config = configPerModel[modelId] ?? configPerModel.__default;
-
       this.model ??= await AutoModelForCausalLM.from_pretrained(modelId, {
         ...config,
-        progress_callback: (info: Record<string, unknown>) => {
-          if (info.status === "progress") {
-            const progress = parseInt(info.progress as string, 10);
-            this.data.progress = progress;
-            if (this.options.onProgress) {
-              this.options.onProgress(progress);
-            }
-          } else {
-            this.log(`Model loading status: ${info.status}`);
-          }
+        progress_callback: (info: Record<string, any>) => {
+          if (info.status !== 'progress') return;
+                this.loadProgress.set(info.file, { loaded: info.loaded, total: info.total });
+                if (this.loadProgress.size >= 2) {
+                  const aggregate = [...this.loadProgress.values()].reduce((acc, { loaded, total }) => {
+                    acc.loaded += loaded;
+                    acc.total += total;
+                    return acc;
+                  }, { loaded: 0, total: 0 });
+                  const percent = aggregate.total > 0 ? ((aggregate.loaded / aggregate.total) * 100).toFixed(2) : '0.00';
+                  if (this.options.onProgress) {
+                    this.options.onProgress(parseInt(percent, 10));
+                  }
+                }
         },
       });
       modelCache.set(modelId, this.model);
@@ -264,6 +275,11 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     const textContent = content
       .filter((c): c is TextBlock => c.type === "text")
       .map((c) => c.text)
+      .join("\n\n");
+
+    const fileContent = content
+      .filter((c): c is FileBlock => c.type === "file")
+      .map((c) => `File: ${c.source.name}\n\n${c.source.content}`)
       .join("\n\n");
 
     const imagesContent = content
@@ -332,7 +348,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       };
     }
 
-    const finalContent = [textContent].filter(Boolean).join('\n\n');
+    const finalContent = [textContent, fileContent].filter(Boolean).join('\n\n');
 
     if (imagesContent) {
       return {
@@ -360,7 +376,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       add_generation_prompt: true,
       return_dict: true,
       tools: this.options.tools,
-    }) as TensorDataType;
+    } as any) as unknown as TensorDataType;
 
     this.log(`Tensor created. Shape: ${tensor.input_ids.dims}`);
 
@@ -373,8 +389,10 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @returns {Promise<ReadableStreamWithAsyncIterable<string>>} A promise that resolves to a readable stream of strings.
    */
   async createStream(): Promise<ReadableStreamWithAsyncIterable<string>> {
+    // Ensure stopping criteria is fresh for this generation
+    this.stoppingCriteria.reset();
     const input = this.getTensorData();
-    const stopping_criteria = new InterruptableStoppingCriteria();
+    const stopping_criteria = this.stoppingCriteria;
 
     this.log("createStream called.");
 
@@ -382,7 +400,6 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
     const stream = new ReadableStream<string>({
       start: async (controller) => {
-
         this.log("ReadableStream started for model generation.");
         try {
           const streamer = new TextStreamer(this.tokenizer, {
@@ -411,18 +428,36 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
   
               if (sequences) { 
                   const response = this.tokenizer
-                  .batch_decode(sequences.slice(null, [input.input_ids.dims[1], 0]), {
-                    skip_special_tokens: false,
-                  })[0]
-                  .replace(IM_END_TAG, "");
+                  .batch_decode(
+                    sequences.slice(null, [input.input_ids.dims[1], 0]), {skip_special_tokens: false})[0];
+                  
+
+                    if (response.includes(IM_END_TAG)) {
+                      const delta: DeltaBlock = {
+                        type: 'delta',
+                        stop_reason:'end_turn',
+                        stop_sequence: IM_END_TAG
+                      }
+                      controller.enqueue( {
+                        id: v4(),
+                        role: 'assistant',
+                        type: 'delta',
+                        content: [delta]
+                      } as any)
+                    }
+
+
+                 const responseWithoutEndTag = response.replace(IM_END_TAG, "");
                   
                 this.inputs.push({
                   id: v4(),
                   role: 'assistant',
                   type: 'message',
-                  content: [{ type: 'text', text: response }]
+                  content: [{ type: 'text', text: responseWithoutEndTag }]
                 })
-              }
+              } 
+
+              
   
             } catch {
             }
@@ -460,7 +495,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @param {string} chainOfThought - The chain of thought for the task.
    * @param {string} system - The system prompt.
    */
-  private addDefaultItems(prompt: any, chainOfThought: string, system: string) {
+  private addDefaultItems(prompt: string | BlockType[], chainOfThought: string, system: string) {
     if (this.inputs.length === 0 && system !== '') {
       //Internal message
       const systemPrompt: Message = {
@@ -476,17 +511,25 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     }
 
     if (typeof prompt === 'string') {
+      const promptWithChainOfThought = `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}`
+      const promptWithModelData = `${promptWithChainOfThought}\r\n\r\nModel loaded: ${this.options.model} from HuggingFace transformers.js`
       this.inputs = MessageArray.from(
         [
           ...this.inputs,
-          { role: 'user', content: [{ type: 'text', text: `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}` }] }
+          { role: 'user', content: [{ type: 'text', text: promptWithModelData}] }
         ]
       )
     } else {
+
+      const fileBlock = prompt.find((p): p is FileBlock => p.type === 'file');
+      const textBlock = prompt.find((p): p is TextBlock => p.type === 'text');
+      const promptWithChainOfThought = `${textBlock?.text}\n\n${fileBlock?.source.content}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}`
+      const promptWithModelData = `${promptWithChainOfThought}\r\n\r\nModel loaded: ${this.options.model} from HuggingFace transformers.js, model url: https://huggingface.co/${this.options.model}`
+
       this.inputs = MessageArray.from(
         [
           ...this.inputs,
-          { role: 'user', content:prompt }
+          { role: 'user', content:[{ type: 'text', text: promptWithModelData}] }
         ]
       )
     }
@@ -511,11 +554,23 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
 
     this.log("Starting performTaskStream");
     await this.load();
-    this.addDefaultItems(prompt, system, chainOfThought);
 
+    if (Array.isArray(prompt)) {
+      const fileBlock = prompt.find((p): p is FileBlock => p.type === 'file');
+      const textBlock = prompt.find((p): p is TextBlock => p.type === 'text');
 
+      this.addDefaultItems(`${textBlock?.text}\n\n${fileBlock?.source.content}`, system, chainOfThought);
+    } else {
+      this.addDefaultItems(prompt, system, chainOfThought);
+    }
 
     const rawStream = await this.createStream();
+
+
+    this.options.signal?.addEventListener('abort', () => {
+      rawStream.cancel()
+    });
+
     const transformedStream = await this.transformStream<string, Message>(
       rawStream,
       this.chunk.bind(this)
@@ -552,22 +607,13 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
       getNext: () => Promise<ReadableStreamWithAsyncIterable<AChunk>>,
       onTool?:OnTool
     ) {
-      let activateLoop = false;
       const stream = new ReadableStream({
          start: async (controller) => {
           let reader: ReadableStreamDefaultReader<AChunk> = input.getReader();
           while (true) {
             const readerResult = await reader.read();
             if (readerResult.done) {
-              if (activateLoop) {
-                activateLoop = false;
-                const newStream = await getNext.bind(this)();
-                const oldReader = reader;
-                reader = newStream.getReader()
-                oldReader.releaseLock()
-              } else {
-                break;
-              }
+              break;
             }
             try {
               if (!readerResult.value) {
@@ -582,6 +628,14 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                 tChunk.type === "message"
               ) {
                 controller.enqueue(tChunk)
+                if (tChunk.type === "delta") {
+                  const delta = (tChunk.content || []).find((c:any) => c && c.type === 'delta') as { stop_reason?: string } | undefined;
+                  if (delta && (delta.stop_reason === 'end_turn' || delta.stop_reason === 'stop_sequence')) {
+                    controller.close();
+                    reader.releaseLock();
+                    return;
+                  }
+                }
               } else if (tChunk.type === "thinking" || tChunk.type === "redacted_thinking" || tChunk.type === "signature_delta") {
                 // Only push non-chunked thinking/signature blocks to inputs for context preservation
                 const lastInput = this.inputs[this.inputs.length - 1];
@@ -616,6 +670,9 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                     toolUse.input = typeof partial === "string" ? JSON.parse(partial === "" ? "{}" : partial) : partial;
                   }
   
+                  // Interrupt current generation immediately so we can continue after tool_result
+                  this.stoppingCriteria.interrupt();
+
                   await onTool.bind(this)(tChunk, this.options.signal);
                   const lastOutput = this.inputs[this.inputs.length - 1];
                   if (lastOutput.content[0].type !== 'tool_result') {
@@ -634,7 +691,11 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
                     type: 'tool_result'
                   });
 
-                  activateLoop = true;
+                  // Immediately start next generation using the tool output, mirroring OpenAI behavior
+                  const newStream = await getNext.bind(this)();
+                  const oldReader = reader;
+                  reader = newStream.getReader()
+                  oldReader.releaseLock()
                 }
               } 
             } catch (err: unknown) {

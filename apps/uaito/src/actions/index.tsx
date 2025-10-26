@@ -5,7 +5,7 @@ import type { Session } from "next-auth";
 import { LLMProvider,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent, BlockType } from "@uaito/sdk";
 
 import { v4 } from "uuid";
-import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
+import { pushChatMessage } from "@/redux/userSlice";
 import { EdgeRuntimeAgent, EdgeRuntimeAgentAudio, EdgeRuntimeAgentImage } from "@/ai/agents/EdgeRuntime";
 import { HuggingFaceONNXModels, HuggingFaceONNXOptions } from "@uaito/huggingface";
 import { Agent } from "@uaito/ai";
@@ -146,11 +146,13 @@ export const streamMessage = createAsyncThunk(
 				return fulfillWithValue(null);
 			}
 
+			const agentCacheKey = `${provider}-${agent}-${options.model}`;
 			//WEBGPU AGENTS
-			if (!agents.has(`${provider}-${agent}`)) {
+			if (!agents.has(agentCacheKey)) {
 				// Throttle progress updates to reduce dispatch frequency
 				let lastProgressDispatch = 0;
 				const PROGRESS_THROTTLE_MS = 100; // Dispatch at most every 100ms
+				let progressMessageId: string | null = null;
 
 				// Use selected model or default to QWEN_1
 				const selectedModel = options.model
@@ -164,9 +166,9 @@ export const streamMessage = createAsyncThunk(
 
 				const hfOptions: HuggingFaceONNXOptions = {
 					model: selectedModel,
-					dtype: "q4f16",
+					dtype:'q4f16',
 					device,
-					tools: [
+					tools:  [
 						{
 							name: "generateImage",
 							description:
@@ -202,20 +204,27 @@ export const streamMessage = createAsyncThunk(
 					],
 					signal: signal,
 					onProgress: (progress) => {
-						const now = Date.now();
-						// Only dispatch if enough time has passed or if progress is complete (100%)
-						if (
-							now - lastProgressDispatch >= PROGRESS_THROTTLE_MS ||
-							progress >= 100
-						) {
-							dispatch(setDownloadProgress(progress));
-							lastProgressDispatch = now;
+						if (!progressMessageId) {
+							progressMessageId = v4();
 						}
-					},
+						const progressMessage: Message = {
+							id: progressMessageId,
+							role: 'assistant',
+							type: 'progress',
+							content: [{
+								type: 'progress',
+								progress: progress,
+								message: 'Downloading model...'
+							}]
+						};
+						dispatch(pushChatMessage({
+							chatId,
+							session: options.session,
+							chatMessage: { message: progressMessage }
+						}));
+					}
 
 				};
-
-				dispatch(setDownloadProgress(0));
 
 				const imageAgent = new EdgeRuntimeAgentImage(hfOptions);
 				const audioAgent = new EdgeRuntimeAgentAudio(hfOptions);
@@ -297,12 +306,10 @@ export const streamMessage = createAsyncThunk(
 					}
 				);
 
-				agents.set(`${provider}-${agent}`, newAgent);
+				agents.set(agentCacheKey, newAgent);
 			}
 
-			const __agent: Agent = agents.get(
-				`${provider}-${agent}`,
-			);
+			const __agent: Agent = agents.get( agentCacheKey);
 
 			await __agent.load();
 

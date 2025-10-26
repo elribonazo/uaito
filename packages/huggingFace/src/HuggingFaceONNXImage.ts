@@ -60,9 +60,9 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
   /**
    * The progress of loading the model.
    * @public
-   * @type {number}
+   * @type {Map<string, {loaded: number, total: number}>}
    */
-  public loadProgress: number = 0;
+  public loadProgress = new Map<string, {loaded: number, total: number}>();
   /**
    * An array of message inputs.
    * @public
@@ -150,16 +150,20 @@ export class HuggingFaceONNXTextToImage extends BaseLLM<LLMProvider.Local, Huggi
       gen_img_embeds: "webgpu",
       image_decode: "webgpu",
     },
-      progress_callback: (info: Record<string, unknown>) => {
-        if (info.status === "progress") {
-          const progress = parseInt(info.progress as string, 10);
-          this.data.progress = progress;
-          if (this.options.onProgress) {
-            this.options.onProgress(progress);
-          }
-        } else {
-          this.log(`Model loading status: ${info.status}`);
-        }
+      progress_callback: (info: Record<string, any>) => {
+        if (info.status !== 'progress') return;
+              this.loadProgress.set(info.file, { loaded: info.loaded, total: info.total });
+              if (this.loadProgress.size >= 2) {
+                const aggregate = [...this.loadProgress.values()].reduce((acc, { loaded, total }) => {
+                  acc.loaded += loaded;
+                  acc.total += total;
+                  return acc;
+                }, { loaded: 0, total: 0 });
+                const percent = aggregate.total > 0 ? ((aggregate.loaded / aggregate.total) * 100).toFixed(2) : '0.00';
+                if (this.options.onProgress) {
+                  this.options.onProgress(parseInt(percent, 10));
+                }
+              }
       },
     },) as MultiModalityCausalLM;
     this.processor ??= await AutoProcessor.from_pretrained(modelId);

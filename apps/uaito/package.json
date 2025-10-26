@@ -37,6 +37,7 @@
     "next-auth": "^4.24.11",
     "next-redux-wrapper": "^8.1.0",
     "nextjs-cors": "^2.2.0",
+    "onnxruntime-web": "^1.23.0",
     "playright": "^0.0.22",
     "prism-react-renderer": "^2.4.1",
     "puppeteer": "^24.24.0",

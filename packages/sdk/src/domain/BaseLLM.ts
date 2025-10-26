@@ -298,6 +298,8 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                         controller.enqueue(message);
                     }
                 }
+                // Ensure downstream readers receive the completion signal
+                controller.close();
             }
         })
         return stream as ReadableStream<BChunk> & AsyncIterable<BChunk>
@@ -417,6 +419,8 @@ export abstract class BaseLLM<TYPE extends LLMProvider, OPTIONS> extends Runner 
                         }
                     }
                 }
+                // Close the controller so downstream consumers observe end-of-stream
+                controller.close();
             }
         })
         return stream as ReadableStreamWithAsyncIterable<AChunk>

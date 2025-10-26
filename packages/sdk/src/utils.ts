@@ -29,6 +29,12 @@ function isValidMessageContent(content: any): boolean {
         && typeof content.source.data === 'string'
         && ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(content.source.media_type)
         && content.source.type === 'base64';
+    case 'file':
+      return typeof content.source === 'object'
+        && typeof content.source.name === 'string'
+        && typeof content.source.content === 'string'
+        && ['text/plain', 'text/markdown', 'text/csv', 'application/json'].includes(content.source.media_type)
+        && content.source.type === 'string';
     case 'tool_start':
     case 'tool_use':
       return typeof content.id === 'string'
