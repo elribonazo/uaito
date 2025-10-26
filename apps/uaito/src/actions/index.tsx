@@ -146,8 +146,9 @@ export const streamMessage = createAsyncThunk(
 				return fulfillWithValue(null);
 			}
 
+			const agentCacheKey = `${provider}-${agent}-${options.model}`;
 			//WEBGPU AGENTS
-			if (!agents.has(`${provider}-${agent}`)) {
+			if (!agents.has(agentCacheKey)) {
 				// Throttle progress updates to reduce dispatch frequency
 				let lastProgressDispatch = 0;
 				const PROGRESS_THROTTLE_MS = 100; // Dispatch at most every 100ms
@@ -164,7 +165,7 @@ export const streamMessage = createAsyncThunk(
 
 				const hfOptions: HuggingFaceONNXOptions = {
 					model: selectedModel,
-					dtype:'auto',
+					dtype:'q4f16',
 					device,
 					tools:  [
 						{
@@ -287,12 +288,10 @@ export const streamMessage = createAsyncThunk(
 					}
 				);
 
-				agents.set(`${provider}-${agent}`, newAgent);
+				agents.set(agentCacheKey, newAgent);
 			}
 
-			const __agent: Agent = agents.get(
-				`${provider}-${agent}`,
-			);
+			const __agent: Agent = agents.get( agentCacheKey);
 
 			await __agent.load();
 

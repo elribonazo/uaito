@@ -12,7 +12,7 @@ import {
 import { v4 } from "uuid";
 
 import { BaseLLM, DeltaBlock } from "@uaito/sdk";
-import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message, LLMProvider, MessageArray, FileBlock } from "@uaito/sdk";
+import { MessageType, BaseLLMCache, MessageInput, OnTool, TextBlock, ToolUseBlock, ToolResultBlock, ImageBlock, ReadableStreamWithAsyncIterable, ErrorBlock, ToolInputDelta, Message, LLMProvider, MessageArray, FileBlock, BlockType } from "@uaito/sdk";
 import { type TensorDataType, type HuggingFaceONNXOptions, HuggingFaceONNXModels } from "./types";
 import { MessageCache } from "./utils";
 
@@ -232,8 +232,8 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
           },
         },
         [HuggingFaceONNXModels.LUCY]: {
-          device: this.options.device ?? "webgpu",
-          dtype:  this.options.dtype ?? "auto",
+          device: "webgpu",
+          dtype:  "q4f16",
           config:defaultConfig
         },
       }
@@ -495,7 +495,7 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
    * @param {string} chainOfThought - The chain of thought for the task.
    * @param {string} system - The system prompt.
    */
-  private addDefaultItems(prompt: any, chainOfThought: string, system: string) {
+  private addDefaultItems(prompt: string | BlockType[], chainOfThought: string, system: string) {
     if (this.inputs.length === 0 && system !== '') {
       //Internal message
       const systemPrompt: Message = {
@@ -511,17 +511,25 @@ export class HuggingFaceONNX extends BaseLLM<LLMProvider.Local, HuggingFaceONNXO
     }
 
     if (typeof prompt === 'string') {
+      const promptWithChainOfThought = `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}`
+      const promptWithModelData = `${promptWithChainOfThought}\r\n\r\nModel loaded: ${this.options.model} from HuggingFace transformers.js`
       this.inputs = MessageArray.from(
         [
           ...this.inputs,
-          { role: 'user', content: [{ type: 'text', text: `${prompt}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}` }] }
+          { role: 'user', content: [{ type: 'text', text: promptWithModelData}] }
         ]
       )
     } else {
+
+      const fileBlock = prompt.find((p): p is FileBlock => p.type === 'file');
+      const textBlock = prompt.find((p): p is TextBlock => p.type === 'text');
+      const promptWithChainOfThought = `${textBlock?.text}\n\n${fileBlock?.source.content}${chainOfThought !== '' ? `\r\n\r\n${chainOfThought}` : ''}`
+      const promptWithModelData = `${promptWithChainOfThought}\r\n\r\nModel loaded: ${this.options.model} from HuggingFace transformers.js, model url: https://huggingface.co/${this.options.model}`
+
       this.inputs = MessageArray.from(
         [
           ...this.inputs,
-          { role: 'user', content:prompt }
+          { role: 'user', content:[{ type: 'text', text: promptWithModelData}] }
         ]
       )
     }
