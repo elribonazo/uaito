@@ -4,7 +4,8 @@ import type { MessageState } from '../redux/userSlice';
 import { Markdown } from './Markdown';
 import { ToolComponent } from './ToolComponent';
 import { ThinkingComponent } from './ThinkingComponent';
-import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock, SignatureDeltaBlock, AudioBlock } from '@uaito/sdk';
+import { ProgressComponent } from './ProgressComponent';
+import type { TextBlock, ToolBlock, ImageBlock, DeltaBlock, ThinkingBlock, RedactedThinkingBlock, WebSearchToolResultBlock, ServerToolUseBlock, ToolUseBlock, SignatureDeltaBlock, AudioBlock, FileBlock, ProgressBlock } from '@uaito/sdk';
 import { PhotoIcon, MagnifyingGlassIcon, GlobeAltIcon, MusicalNoteIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 export const MessageContainer = ({ id, isUser, children }: {id: string, isUser: boolean, children: React.ReactNode}) => {
@@ -73,7 +74,7 @@ const parseTextWithImages = (text: string): ContentPart[] => {
 export const MessageItem:React.FC<{
     id: string, 
     isUser: boolean,
-    content: TextBlock | ToolBlock | ImageBlock |AudioBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock,
+    content: TextBlock | ToolBlock | ImageBlock |AudioBlock | FileBlock | DeltaBlock | ThinkingBlock | RedactedThinkingBlock | ServerToolUseBlock | WebSearchToolResultBlock | SignatureDeltaBlock | ProgressBlock,
     searchText: string,
     type: MessageState['type'],
     messages?: MessageState[],
@@ -153,11 +154,26 @@ export const MessageItem:React.FC<{
             className="block"
         />
         );
-    
+    } else if (content.type === 'file') {
+        return (
+            <MessageContainer id={id} isUser={isUser}>
+                <div className="flex items-start gap-2">
+                    <BookOpenIcon className="h-4 w-4 text-secondary-text mt-0.5" />
+                    <div className="min-w-0">
+                        <div className="text-xs text-secondary-text mb-1 break-all">{content.source.name} · {content.source.media_type}</div>
+                        <pre className="max-h-48 overflow-auto text-xs bg-surface-hover border border-border rounded-md p-2 whitespace-pre-wrap break-words">
+{content.source.content}
+                        </pre>
+                    </div>
+                </div>
+            </MessageContainer>
+        );
     } else if (content.type === "thinking") {
         return <ThinkingComponent thinking={content.thinking} messages={messages} currentMessageId={id} isStreaming={isStreaming} />;
     } else if (content.type === "redacted_thinking") {
         return <ThinkingComponent thinking="[Thinking content redacted]" messages={messages} currentMessageId={id} isStreaming={isStreaming} />;
+    } else if (content.type === "progress") {
+        return <ProgressComponent {...content} messages={messages} currentMessageId={id} isStreaming={isStreaming} />;
     } else if (content.type === "tool_use") {
         return <ToolComponent messageId={`msg-${id}-block`} {...content} messages={messages} currentMessageId={id} isStreaming={isStreaming} />
     }else if (content.type === "tool_result") {
@@ -210,8 +226,9 @@ export const Message: React.FC<{
     return null
 };
 
-const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => void }) => {
-    const prompts = [
+type ExamplePrompt = { icon: typeof PhotoIcon; text: string; shortText: string };
+
+const defaultExamplePrompts: ExamplePrompt[] = [
         {
             icon: PhotoIcon,
             text: "Generate a random picture of a pomsky dog dressing as a crypto bro, doing heavy lifting in the gym.",
@@ -242,12 +259,15 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
             text: `Generate a long 3 chapters story about a Robot that visits earth and interacts with humans, animals and plants. Each chapter is composed of a title, description and chapter image.`,
             shortText: "Robot story"
         },
-    ];
+];
+
+const ExamplePrompts = ({ onPromptClick, prompts }: { onPromptClick: (prompt: string) => void, prompts?: ExamplePrompt[] }) => {
+    const items = prompts && prompts.length > 0 ? prompts : defaultExamplePrompts;
 
     return (
         <div className="w-full">
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
-                {prompts.map((prompt) => (
+                {items.map((prompt) => (
                     <button
                         key={prompt.text}
                         type="button"
@@ -267,7 +287,7 @@ const ExamplePrompts = ({ onPromptClick }: { onPromptClick: (prompt: string) => 
 };
 
 
-export const Messages: React.FC<{ searchText: string, messages: MessageState[], isStreaming?: boolean, onPromptClick: (prompt: string) => void }> = (props) => {
+export const Messages: React.FC<{ searchText: string, messages: MessageState[], isStreaming?: boolean, onPromptClick: (prompt: string) => void, examplePrompts?: ExamplePrompt[] }> = (props) => {
     const messages: MessageState[] = props.messages;
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -311,5 +331,5 @@ export const Messages: React.FC<{ searchText: string, messages: MessageState[], 
         );
     }
 
-    return <ExamplePrompts onPromptClick={props.onPromptClick} />;
+    return <ExamplePrompts onPromptClick={props.onPromptClick} prompts={props.examplePrompts} />;
 };

@@ -21,6 +21,7 @@ import {
 	deleteAllChats,
 } from "@/redux/userSlice";
 import { useDispatch } from "react-redux";
+import { CpuChipIcon, BoltIcon, PhotoIcon } from "@heroicons/react/24/outline";
 
 const InputComponent = dynamic(() => import("@/components/InputComponent"), {
 	ssr: false,
@@ -33,13 +34,8 @@ const WebGPU: React.FC<
 	const agent = "orquestrator";
 	const [selectedModel, setSelectedModelState] = useState<string>("");
 	const {
-		user: { provider, downloadProgress, activeChatId, theme },
+		user: { provider, activeChatId, theme, chats },
 	} = useMountedApp();
-
-	const webGPU =
-		provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
-	const isDownloading =
-		webGPU && downloadProgress !== null && downloadProgress < 100;
 
 	// Track if we've already initialized to avoid re-running the logic
 	const [hasInitialized, setHasInitialized] = useState(false);
@@ -110,6 +106,24 @@ const WebGPU: React.FC<
 		dispatch(setSelectedModel(model));
 	}, [dispatch]);
 
+    const webgpuExamplePrompts = [
+        {
+            icon: CpuChipIcon,
+            text: "Generate a random picture of a pomsky dog dressing as a crypto bro, doing heavy lifting in the gym.",
+            shortText: "Generate random picture"
+        },
+        {
+            icon: BoltIcon,
+            text: "Explain quantum computing in a way that is easy to understand.",
+            shortText: "Explain quantum computing"
+        },
+		{
+			icon: PhotoIcon,
+			text: "Create a random story with 3 chapters, each chapter is composed of a title and content.",
+			shortText: "Create a story"
+		},
+    ];
+
 	return (
 		<div className="bg-background w-full h-[100dvh] flex overflow-hidden">
 			{/* Main Content Area - No Sidebar */}
@@ -125,22 +139,6 @@ const WebGPU: React.FC<
 						</div>
 						<div className="flex-grow min-w-0"></div>
 						<div className="flex flex-row items-center space-x-1 sm:space-x-2 lg:space-x-3">
-							{isDownloading && (
-								<div className="hidden md:flex items-center space-x-2">
-									<span className="text-primary-text text-sm">
-										Downloading Model:
-									</span>
-									<div className="w-32 bg-surface rounded-full h-2.5">
-										<div
-											className="bg-primary h-2.5 rounded-full"
-											style={{ width: `${downloadProgress}%` }}
-										></div>
-									</div>
-									<span className="text-primary-text text-sm">
-										{downloadProgress}%
-									</span>
-								</div>
-							)}
 							<ModelSelector onSelected={handleModelSelect} />
 						</div>
 					</div>
@@ -153,6 +151,7 @@ const WebGPU: React.FC<
 							agent={agent}
 							provider={provider}
 							model={selectedModel}
+							examplePrompts={webgpuExamplePrompts}
 						/>
 					)}
 					<ToastContainer

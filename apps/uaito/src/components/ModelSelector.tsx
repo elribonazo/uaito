@@ -1,6 +1,6 @@
 import { CpuChipIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect, useMemo } from "react";
-import { LLMProvider } from "@uaito/sdk";
+import { LLMProvider, ProgressBlock } from "@uaito/sdk";
 import { useAppSelector } from "@/redux/store";
 import { AnthropicModels } from "@uaito/anthropic";
 import { HuggingFaceONNXModels } from "@uaito/huggingface";
@@ -51,7 +51,8 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
   
   // Get current provider from Redux state
   const provider = useAppSelector((state) => state.user.provider);
-  const downloadProgress = useAppSelector((state) => state.user.downloadProgress);
+  const { activeChatId, chats } = useAppSelector((state) => state.user);
+  const activeChat = activeChatId ? chats[activeChatId] : null;
   
   // Get available models for current provider
   const availableModels = useMemo(() => {
@@ -101,7 +102,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onSelected }) => {
   // Check if selector should be disabled
   const isDisabled = !provider || availableModels.length <= 1;
   const webGPU = provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
-  const isDownloading = webGPU && downloadProgress !== null && downloadProgress < 100;
+  const progressMessage = activeChat?.messages.find(
+		(m) => m.type === 'progress' && (m.content[0] as ProgressBlock)?.progress < 100
+	);
+	const isDownloading = !!progressMessage;
   
   if (!provider) {
     return null;

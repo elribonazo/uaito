@@ -5,7 +5,7 @@ import type { Session } from "next-auth";
 import { LLMProvider,  Message, MessageArray, MessageInput, ToolResultBlock, BaseAgent, BlockType } from "@uaito/sdk";
 
 import { v4 } from "uuid";
-import { pushChatMessage, setDownloadProgress } from "@/redux/userSlice";
+import { pushChatMessage } from "@/redux/userSlice";
 import { EdgeRuntimeAgent, EdgeRuntimeAgentAudio, EdgeRuntimeAgentImage } from "@/ai/agents/EdgeRuntime";
 import { HuggingFaceONNXModels, HuggingFaceONNXOptions } from "@uaito/huggingface";
 import { Agent } from "@uaito/ai";
@@ -152,6 +152,7 @@ export const streamMessage = createAsyncThunk(
 				// Throttle progress updates to reduce dispatch frequency
 				let lastProgressDispatch = 0;
 				const PROGRESS_THROTTLE_MS = 100; // Dispatch at most every 100ms
+				let progressMessageId: string | null = null;
 
 				// Use selected model or default to QWEN_1
 				const selectedModel = options.model
@@ -202,11 +203,28 @@ export const streamMessage = createAsyncThunk(
 						},
 					],
 					signal: signal,
-					onProgress: (progress) => dispatch(setDownloadProgress(progress))
+					onProgress: (progress) => {
+						if (!progressMessageId) {
+							progressMessageId = v4();
+						}
+						const progressMessage: Message = {
+							id: progressMessageId,
+							role: 'assistant',
+							type: 'progress',
+							content: [{
+								type: 'progress',
+								progress: progress,
+								message: 'Downloading model...'
+							}]
+						};
+						dispatch(pushChatMessage({
+							chatId,
+							session: options.session,
+							chatMessage: { message: progressMessage }
+						}));
+					}
 
 				};
-
-				dispatch(setDownloadProgress(0));
 
 				const imageAgent = new EdgeRuntimeAgentImage(hfOptions);
 				const audioAgent = new EdgeRuntimeAgentAudio(hfOptions);

@@ -92,7 +92,9 @@ const FileAttachments = ({
   );
 };
 
-const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMProvider, model?: string}> = (props) => {
+type ExamplePrompt = { icon: any; text: string; shortText: string };
+
+const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMProvider, model?: string, examplePrompts?: ExamplePrompt[]}> = (props) => {
   const app = useMountedApp();
   const session = useSession();
   
@@ -107,7 +109,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
   const messages = currentChat?.messages ?? [];
   
   // Check if file upload is allowed 
-  const isFileUploadAllowed = props.provider === LLMProvider.Local || props.provider === LLMProvider.OpenAI;
+  const isFileUploadAllowed = props.provider === LLMProvider.API || props.provider === LLMProvider.OpenAI;
   
   // Pull to refresh state
   const [pullDistance, setPullDistance] = useState(0);
@@ -601,7 +603,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
             </section>
 
             {/* Example prompts */}
-            <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} onPromptClick={(prompt) => {
+            <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} examplePrompts={props.examplePrompts} onPromptClick={(prompt) => {
               setInput(prompt);
               sendMessage(prompt);
             }}/>
@@ -692,7 +694,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
               </div>
             )}
             <div className="max-w-5xl mx-auto">
-              <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} onPromptClick={(prompt) => {
+              <Messages searchText={searchText} messages={messages} isStreaming={isStreaming} examplePrompts={props.examplePrompts} onPromptClick={(prompt) => {
                 setInput(prompt);
                 sendMessage(prompt);
               }}/>

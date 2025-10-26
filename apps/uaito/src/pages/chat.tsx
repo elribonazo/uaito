@@ -54,13 +54,16 @@ const Chat: React.FC<
 	const [selectedModel, setSelectedModelState] = useState<string>("");
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const {
-		user: { provider, downloadProgress, usage, chats, activeChatId, chatOrder, theme },
+		user: { provider, usage, chats, activeChatId, chatOrder, theme },
 	} = useMountedApp();
 
 	const webGPU =
 		provider === LLMProvider.Local || provider === LLMProvider.LocalImage;
-	const isDownloading =
-		webGPU && downloadProgress !== null && downloadProgress < 100;
+	const activeChat = activeChatId ? chats[activeChatId] : null;
+	const progressMessage = activeChat?.messages.find(
+		(m) => m.type === 'progress' && (m.content[0] as any)?.progress < 100
+	);
+	const isDownloading = !!progressMessage;
 
 	// Track if we've already initialized to avoid re-running the logic
 	const [hasInitialized, setHasInitialized] = useState(false);
@@ -198,22 +201,6 @@ const Chat: React.FC<
 						<div className="flex flex-row items-center space-x-1 sm:space-x-2 lg:space-x-3">
 							{!sidebarOpen && (
 								<>
-									{isDownloading && (
-										<div className="hidden md:flex items-center space-x-2">
-											<span className="text-primary-text text-sm">
-												Downloading Model:
-											</span>
-											<div className="w-32 bg-surface rounded-full h-2.5">
-												<div
-													className="bg-primary h-2.5 rounded-full"
-													style={{ width: `${downloadProgress}%` }}
-												></div>
-											</div>
-											<span className="text-primary-text text-sm">
-												{downloadProgress}%
-											</span>
-										</div>
-									)}
 									<TokenCounter input={usage.input} output={usage.output} />
 									{provider && (
 										<Provider 
