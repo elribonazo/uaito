@@ -1,3 +1,9 @@
+## 0.9.7-rc.7 (2025-10-26)
+
+### 🧱 Updated Dependencies
+
+- Updated @uaito/build to 0.1.7-rc.7
+
 ## 0.9.7-rc.6 (2025-10-26)
 
 ### 🧱 Updated Dependencies

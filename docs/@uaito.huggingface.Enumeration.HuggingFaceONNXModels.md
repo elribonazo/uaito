@@ -12,7 +12,7 @@
 
 # Enumeration: HuggingFaceONNXModels
 
-Defined in: [types.ts:31](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/huggingFace/src/types.ts#L31)
+Defined in: [types.ts:31](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/huggingFace/src/types.ts#L31)
 
 An enumeration of the available Hugging Face ONNX models that are optimized for web execution.
 These models are suitable for running locally in the browser with WebGPU or WASM.
@@ -21,8 +21,8 @@ These models are suitable for running locally in the browser with WebGPU or WASM
 
 | Enumeration Member | Value | Defined in |
 | ------ | ------ | ------ |
-| <a id="gemma3"></a> `GEMMA3` | `"onnx-community/gemma-3-1b-it-ONNX-GQA"` | [types.ts:40](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/huggingFace/src/types.ts#L40) |
-| <a id="granite"></a> `GRANITE` | `"onnx-community/granite-4.0-micro-ONNX-web"` | [types.ts:38](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/huggingFace/src/types.ts#L38) |
-| <a id="jano"></a> `JANO` | `"onnx-community/Jan-nano-ONNX"` | [types.ts:32](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/huggingFace/src/types.ts#L32) |
-| <a id="lucy"></a> `LUCY` | `"onnx-community/Lucy-ONNX"` | [types.ts:35](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/huggingFace/src/types.ts#L35) |
-| <a id="lucy_128k"></a> `LUCY_128K` | `"onnx-community/Lucy-128k-ONNX"` | [types.ts:36](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/huggingFace/src/types.ts#L36) |
+| <a id="gemma3"></a> `GEMMA3` | `"onnx-community/gemma-3-1b-it-ONNX-GQA"` | [types.ts:40](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/huggingFace/src/types.ts#L40) |
+| <a id="granite"></a> `GRANITE` | `"onnx-community/granite-4.0-micro-ONNX-web"` | [types.ts:38](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/huggingFace/src/types.ts#L38) |
+| <a id="jano"></a> `JANO` | `"onnx-community/Jan-nano-ONNX"` | [types.ts:32](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/huggingFace/src/types.ts#L32) |
+| <a id="lucy"></a> `LUCY` | `"onnx-community/Lucy-ONNX"` | [types.ts:35](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/huggingFace/src/types.ts#L35) |
+| <a id="lucy_128k"></a> `LUCY_128K` | `"onnx-community/Lucy-128k-ONNX"` | [types.ts:36](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/huggingFace/src/types.ts#L36) |

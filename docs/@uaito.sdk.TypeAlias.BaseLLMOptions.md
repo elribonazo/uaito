@@ -25,7 +25,7 @@ type BaseLLMOptions = {
 };
 ```
 
-Defined in: [domain/types.ts:829](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L829)
+Defined in: [domain/types.ts:829](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L829)
 
 Configuration options for a `BaseLLM` instance.
 
@@ -37,7 +37,7 @@ Configuration options for a `BaseLLM` instance.
 optional directory: string;
 ```
 
-Defined in: [domain/types.ts:854](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L854)
+Defined in: [domain/types.ts:854](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L854)
 
 A directory path, often used for file-based operations.
 
@@ -49,7 +49,7 @@ A directory path, often used for file-based operations.
 optional log: (message) => void;
 ```
 
-Defined in: [domain/types.ts:864](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L864)
+Defined in: [domain/types.ts:864](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L864)
 
 A custom logging function. Defaults to `console.log`.
 
@@ -71,7 +71,7 @@ A custom logging function. Defaults to `console.log`.
 optional maxTokens: number;
 ```
 
-Defined in: [domain/types.ts:844](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L844)
+Defined in: [domain/types.ts:844](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L844)
 
 The maximum number of tokens to generate in the response.
 
@@ -83,7 +83,7 @@ The maximum number of tokens to generate in the response.
 model: string;
 ```
 
-Defined in: [domain/types.ts:834](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L834)
+Defined in: [domain/types.ts:834](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L834)
 
 The specific model to use, e.g., 'gpt-4o'.
 
@@ -95,7 +95,7 @@ The specific model to use, e.g., 'gpt-4o'.
 optional onProgress: (progress) => void;
 ```
 
-Defined in: [domain/types.ts:859](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L859)
+Defined in: [domain/types.ts:859](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L859)
 
 A callback function to report progress, e.g., for model downloads.
 
@@ -117,7 +117,7 @@ A callback function to report progress, e.g., for model downloads.
 optional onTool: OnTool;
 ```
 
-Defined in: [domain/types.ts:866](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L866)
+Defined in: [domain/types.ts:866](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L866)
 
 ***
 
@@ -127,7 +127,7 @@ Defined in: [domain/types.ts:866](https://github.com/elribonazo/uaito/blob/507f1
 optional signal: AbortSignal;
 ```
 
-Defined in: [domain/types.ts:849](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L849)
+Defined in: [domain/types.ts:849](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L849)
 
 An abort signal to cancel the request.
 
@@ -139,6 +139,6 @@ An abort signal to cancel the request.
 optional tools: Tool[];
 ```
 
-Defined in: [domain/types.ts:839](https://github.com/elribonazo/uaito/blob/507f1613d5e6a6e111b8b8a3ecd27bd8ac04f333/packages/sdk/src/domain/types.ts#L839)
+Defined in: [domain/types.ts:839](https://github.com/elribonazo/uaito/blob/da3c3d501590ce3df6d04b765a1a97716886b610/packages/sdk/src/domain/types.ts#L839)
 
 An array of tools that the LLM is allowed to use.
