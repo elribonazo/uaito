@@ -37,7 +37,7 @@ const ToolUseComponent: FC<ToolUseComponentProps>  = (props) => {
 
      // Check if there is a non-tool/thinking message after this one.
      const hasNonToolAfter = messages.slice(currentIndex + 1).some(msg =>
-       msg.type !== 'thinking' && msg.type !== 'redacted_thinking' && msg.type !== 'tool_use'
+       msg.type !== 'thinking' && msg.type !== 'redacted_thinking' && msg.type !== 'tool_use' && msg.type !== 'progress'
      );
 
      // If not streaming and there are non-tool messages after, hide immediately
@@ -112,7 +112,7 @@ const ToolOutputComponent: FC<ToolOutputComponentProps> = (props) => {
 
     // Check if there is a non-tool/thinking message after this one.
     const hasNonToolAfter = messages.slice(currentIndex + 1).some(msg =>
-      msg.type !== 'thinking' && msg.type !== 'redacted_thinking' && msg.type !== 'tool_use' && msg.type !== 'tool_result'
+      msg.type !== 'thinking' && msg.type !== 'redacted_thinking' && msg.type !== 'tool_use' && msg.type !== 'tool_result' && msg.type !== 'progress'
     );
 
     // If not streaming and there are non-tool messages after, hide immediately

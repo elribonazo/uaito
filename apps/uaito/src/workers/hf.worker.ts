@@ -4,6 +4,7 @@ import { Agent } from '@uaito/ai';
 import { HuggingFaceONNX, HuggingFaceONNXTextToAudio, HuggingFaceONNXTextToImage } from '@uaito/huggingface';
 import type { HuggingFaceONNXOptions } from '@uaito/huggingface';
 import { Message, MessageArray, MessageInput, ToolResultBlock, ToolUseBlock } from '@uaito/sdk';
+import type { OnTool } from '@uaito/sdk';
 import type { WorkerCommand, WorkerEvent, InitPayload, PerformTaskPayload } from './types';
 import { v4 } from 'uuid';
 
@@ -37,18 +38,19 @@ self.addEventListener('message', async (e: MessageEvent<WorkerCommand>) => {
 
       const ac = new AbortController();
       controllers.set(requestId, ac);
-      const onProgress = (progress: number) => {
-        post({ type: 'progress', requestId, progress, message: 'Downloading model...' });
+      const onProgressFor = (modelName: string) => (progress: number) => {
+        post({ type: 'progress', requestId, progress, message: `Downloading ${modelName}` });
       };
-      const imageLLM = new HuggingFaceONNXTextToImage({ options: { ...baseOptions, signal: ac.signal, onProgress } });
-      const audioLLM = new HuggingFaceONNXTextToAudio({ options: { ...baseOptions, signal: ac.signal, onProgress } });
+      const imageLLM = new HuggingFaceONNXTextToImage({ options: { ...baseOptions, signal: ac.signal, onProgress: onProgressFor("Image Generation Model") } });
+      const audioLLM = new HuggingFaceONNXTextToAudio({ options: { ...baseOptions, signal: ac.signal, onProgress: onProgressFor("Audio Generation Model") } });
       let llm: HuggingFaceONNX;
-      const onTool = async function(this: HuggingFaceONNX, message: Message) {
+      const onTool: OnTool = async function(message: Message) {
         const toolUse = message.content.find((c: any) => c?.type === 'tool_use') as ToolUseBlock | undefined;
         if (!toolUse) return;
         const handleTool = async (
           llmInstance: HuggingFaceONNXTextToImage | HuggingFaceONNXTextToAudio,
-          input: { prompt: string }
+          input: { prompt: string },
+          modelLabel: string
         ) => {
           const { response } = await new Agent(llmInstance).performTask(input.prompt);
           const toolResultBlock = {
@@ -68,18 +70,20 @@ self.addEventListener('message', async (e: MessageEvent<WorkerCommand>) => {
                 toolResultBlock,
             ],
           });
+          // Ensure progress bar completes and fades out
+          post({ type: 'progress', requestId, progress: 100, message: `Downloading ${modelLabel}` });
         };
         if (toolUse.name === 'generateImage') {
-          await handleTool(imageLLM, toolUse.input as { prompt: string });
+          await handleTool(imageLLM, toolUse.input as { prompt: string }, 'Image Generation Model');
           return;
         }
         if (toolUse.name === 'generateAudio') {
-          await handleTool(audioLLM, toolUse.input as { prompt: string });
+          await handleTool(audioLLM, toolUse.input as { prompt: string }, 'Audio Generation Model');
           return;
         }
       };
-      llm = new HuggingFaceONNX({ options: { ...baseOptions, signal: ac.signal, onProgress } });
-      const agent = new Agent(llm, onTool.bind(llm));
+      llm = new HuggingFaceONNX({ options: { ...baseOptions, signal: ac.signal, onProgress: onProgressFor(baseOptions.model as string), onTool } });
+      const agent = new Agent(llm);
       const { prompt, inputs } = payload as PerformTaskPayload;
       if (inputs && Array.isArray(inputs)) {
         await agent.addInputs(MessageArray.from(inputs as MessageInput[]));

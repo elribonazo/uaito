@@ -220,8 +220,6 @@ const userSlice = createSlice({
         if (existingIndex !== -1) {
           chat.messages[existingIndex] = message;
         } else {
-          // Remove any other progress messages with a different ID
-          chat.messages = chat.messages.filter(m => m.type !== 'progress' || m.id === message.id);
           chat.messages.push(message);
         }
         return state;

@@ -10,6 +10,7 @@ import SearchBar from './SearchBar';
 import { Messages } from './Messages';
 import type { TextBlockParam } from '@anthropic-ai/sdk/resources';
 import { useSession } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { MessageArray, LLMProvider, type Message, type MessageInput, type BlockType } from '@uaito/sdk';
 import {
   ArrowPathIcon,
@@ -21,6 +22,11 @@ import {
 } from '@heroicons/react/24/outline';
 
 const pullThreshold = 80; // pixels to pull before triggering refresh
+
+const mockSession: Session = {
+  user: { name: 'Guest', email: 'guest@webgpu' },
+  expires: '2099-12-31T23:59:59.999Z'
+};
 
 const FileAttachments = ({
   attachedFiles,
@@ -384,7 +390,12 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
 
   const sendMessage = async (prompt: string) => {
     if ((!prompt.trim() && attachedFiles.length === 0) || isLoading) return;
-    if (!session || !session.data) return;
+    const sessionForRequest = session.data ?? (props.provider === LLMProvider.Local ? mockSession : null);
+
+    if (!sessionForRequest) {
+      console.error("Session is required for this provider.");
+      return;
+    }
     abortControllerRef.current = new AbortController();
 
     const reducedInputs = (messages as Message[]).reduce<Message[]>((all, current) => {
@@ -442,7 +453,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
       inputs: MessageArray.from(reducedInputs),
       signal: abortControllerRef.current.signal,
       dispatch: app.dispatch,
-      session: session.data,
+      session: sessionForRequest,
       provider: props.provider,
       model: props.model
     })
@@ -743,7 +754,7 @@ const InputComponent: React.FC<{chatId: string, agent?: string, provider?: LLMPr
                       className="w-full px-2 sm:px-3 py-1.5 sm:py-2 bg-surface border border-border rounded-xl text-primary-text text-sm placeholder-tertiary-text focus:outline-none focus:border-primary transition-all resize-none"
                       style={{ height: '40px', minHeight: '40px', maxHeight: '120px' }}
                       rows={1}
-                      disabled={isLoading && lastMessage !== undefined && lastMessage.role === "user" && currentChat.state !== "streaming"}
+                      disabled={isLoading}
                     />
                   </div>
                   <input

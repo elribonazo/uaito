@@ -82,9 +82,8 @@ export class HuggingFaceWorkerClient {
         const onProgress = (evt: MessageEvent<WorkerEvent>) => {
             const data = evt.data;
             if (!data || data.type !== 'progress' || data.requestId !== requestId) return;
-            
             const progressMessage = {
-                id: data.requestId,
+                id: `progress-${data.requestId}-${data.message ?? 'default'}`,
                 role: 'assistant',
                 type: 'progress' as const,
                 content: [{ type: 'progress' as const, progress: data.progress, message: data.message ?? 'Downloading model...' }],
