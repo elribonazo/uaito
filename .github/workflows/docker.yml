@@ -11,7 +11,7 @@ on:
         default: "latest"
 
 env:
-  IMAGE: trust/uaito
+  IMAGE: trust0/uaito
 
 jobs:
   build:
