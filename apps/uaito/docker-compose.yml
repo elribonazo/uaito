@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongodb_uaito:
     image: mongo:latest
