@@ -10,9 +10,8 @@ export enum AnthropicModels {
      * The Claude 4 Sonnet model, a powerful and versatile model suitable for a wide range of tasks.
      * This is often a good default choice for balanced performance and cost.
      */
-    'claude-4-sonnet' = "claude-sonnet-4-5-20250929",
-    // 'claude-4-sonnet' = "claude-sonnet-4-20250514",
-
+    'opus-4-6' = "claude-opus-4-6",
+    'sonnet-4-6' = "claude-sonnet-4-6",
   }
 
   /**
