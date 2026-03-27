@@ -47,7 +47,7 @@
   "dependencies": {
     "abort-controller": "^3.0.0",
     "idb": "^8.0.3",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "openai": "^5.20.0",
     "uuid": "^10.0.0",
     "yargs": "^18.0.0"
